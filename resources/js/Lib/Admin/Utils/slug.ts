@@ -1,0 +1,14 @@
+/**
+ * Slugify a string.
+ *
+ * @param input The string to slugify.
+ * @returns The slugified string.
+ */
+export function slugify(input: string): string {
+    return input
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .trim();
+}

@@ -1,0 +1,43 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "extends": "@tsconfig/svelte/tsconfig.json",
+
+    "compilerOptions": {
+        /* Language & Runtime */
+        "target": "ESNext",
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        // "useDefineForClassFields": true,
+
+        /* Bundler (Vite) */
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+
+        /* Type Safety (TS 5.9) */
+        "strict": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+        // "noUnusedLocals": true,
+        // "noUnusedParameters": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        "noUncheckedSideEffectImports": true,
+        "allowArbitraryExtensions": true,
+
+        /* Project Setup */
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["resources/js/*"]
+        },
+
+        "allowJs": true,
+        // "checkJs": true,
+        "noEmit": true,
+
+        /* Tooling */
+        "types": ["vite/client", "@sveltejs/vite-plugin-svelte"],
+        "skipLibCheck": true
+    },
+
+    "include": ["resources/js/**/*", "resources/views/**/*", "vite.config.ts"],
+    "exclude": ["node_modules", "vendor"]
+}

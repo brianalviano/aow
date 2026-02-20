@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+button {
+    @apply cursor-pointer;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.custom-checkbox {
+    position: relative;
+    display: inline-block;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+.custom-checkbox-box {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ea580c;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .custom-checkbox-box {
+    background-color: #ea580c;
+    border-color: #ea580c;
+}
+
+.custom-checkbox input[type="checkbox"]:focus + .custom-checkbox-box {
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.3);
+}
+
+.custom-checkbox input[type="checkbox"]:disabled + .custom-checkbox-box {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.checkmark {
+    display: none;
+    width: 10px;
+    height: 10px;
+}
+
+.custom-checkbox
+    input[type="checkbox"]:checked
+    + .custom-checkbox-box
+    .checkmark {
+    display: block;
+}
+
+.pl-\[0\.75rem\] {
+    padding-left: 0.75rem;
+}
+.pl-\[2\.5rem\] {
+    padding-left: 2.5rem;
+}
+.pl-\[4rem\] {
+    padding-left: 4rem;
+}
+.pl-\[5\.5rem\] {
+    padding-left: 5.5rem;
+}
+.pr-\[0\.75rem\] {
+    padding-right: 0.75rem;
+}
+.pr-\[2\.5rem\] {
+    padding-right: 2.5rem;
+}
+.pr-\[4rem\] {
+    padding-right: 4rem;
+}
+.pr-\[5\.5rem\] {
+    padding-right: 5.5rem;
+}
+
+.btn-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ripple::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition:
+        width 0.6s,
+        height 0.6s;
+}
+
+.btn-ripple:hover::after {
+    width: 300px;
+    height: 300px;
+}
+
+.custom-table th,
+.custom-table td {
+    border: 1px solid #d1d5db;
+}
+.dark .custom-table th,
+.dark .custom-table td {
+    border-color: #374151;
+}
+
+.custom-table {
+    @apply w-full text-sm text-left border-collapse dark:text-gray-300;
+}
+.custom-table thead {
+    @apply text-xs uppercase bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300;
+}
+.custom-table tbody {
+    @apply text-gray-700 dark:text-gray-300;
+}
+.custom-table th,
+.custom-table td {
+    @apply px-3 py-2 whitespace-nowrap;
+}
+
+@media print {
+    .print-a5 {
+        line-height: 1.2;
+    }
+    .custom-table th,
+    .custom-table td {
+        padding: 2px 4px;
+    }
+}
