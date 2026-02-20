@@ -1,0 +1,131 @@
+models:
+  Role:
+    id: uuid primary
+    name: string
+    timestamps: true
+
+  DropPoint:
+    id: uuid primary
+    name: string
+    address: string
+    phone: string
+    latitude: float
+    longitude: float
+    pic_name: string nullable
+    pic_phone: string nullable
+    is_active: boolean default true
+    softDeletes: true
+    timestamps: true
+
+  ProductCategory:
+    id: uuid primary
+    name: string
+    is_active: boolean default true
+    sort_order: int default 0
+    softDeletes: true
+    timestamps: true
+
+  Product:
+    id: uuid primary
+    product_category_id: uuid foreign:product_categories
+    name: string
+    description: text nullable
+    price: int default 0
+    image: string nullable
+    stock_limit: int nullable
+    is_active: boolean default true
+    sort_order: int default 0
+    softDeletes: true
+    timestamps: true
+
+  PaymentMethod:
+    id: uuid primary
+    name: string
+    description: text nullable
+    photo: string nullable
+    is_active: boolean default true
+    softDeletes: true
+    timestamps: true
+
+  Customer:
+    id: uuid primary
+    drop_point_id: uuid foreign:drop_points
+    name: string
+    username: string unique
+    phone: string unique
+    address: string
+    email: string unique
+    password: string
+    school_class: string nullable
+    is_active: boolean default true
+    softDeletes: true
+    timestamps: true
+
+  Order:
+    id: uuid primary
+    number: string unique
+    drop_point_id: uuid foreign:drop_points
+    customer_id: uuid foreign:customers
+    delivery_date: date
+    payment_method_id: uuid foreign:payment_methods
+    payment_status: enum:pending,paid,failed
+    order_status: enum:pending,confirmed,delivered,cancelled
+    note: text nullable
+    total_amount: int default 0
+    snap_token: string nullable
+    payment_url: string nullable
+    payment_reference: string nullable
+    payment_expired_at: timestamp nullable
+    softDeletes: true
+    timestamps: true
+
+  OrderItem:
+    id: uuid primary
+    order_id: uuid foreign:orders
+    product_id: uuid foreign:products
+    quantity: int default 1
+    price: int default 0
+    subtotal: int default 0
+    note: text nullable
+    softDeletes: true
+    timestamps: true
+
+  OrderSetting:
+    id: uuid primary
+    key: text
+    value: longText nullable
+    description: text nullable
+    timestamps: true
+
+  DailySummary:
+    id: uuid primary
+    drop_point_id: uuid foreign:drop_points
+    date: date
+    total_orders: int default 0
+    total_items: int default 0
+    total_revenue: int default 0
+    total_pending: int default 0
+    total_cancelled: int default 0
+    timestamps: true
+
+  ProductSummary:
+    id: uuid primary
+    product_id: uuid foreign:products
+    date: date
+    total_sold: int default 0
+    total_revenue: int default 0
+    timestamps: true
+
+  CompanyProfile:
+    id: uuid primary
+    name: string
+    email: string nullable
+    phone: string nullable
+    whatsapp: string nullable
+    address: text nullable
+    logo: string nullable
+    instagram: string nullable
+    facebook: string nullable
+    tiktok: string nullable
+    banner: string nullable
+    timestamps: true

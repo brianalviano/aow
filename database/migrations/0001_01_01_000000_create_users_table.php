@@ -18,16 +18,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('username')->unique();
             $table->string('password');
-            $table->string('pin')->nullable();
             $table->foreignUuid('role_id')->index();
-            $table->date('join_date')->nullable()->index();
             $table->string('phone_number')->nullable()->unique();
-            $table->text('address')->nullable();
-            $table->date('birth_date')->nullable();
-            $table->enum('gender', Gender::values())->nullable();
-            $table->string('photo')->nullable();
-            $table->text('latitude')->nullable();
-            $table->text('longitude')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

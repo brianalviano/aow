@@ -83,7 +83,7 @@ class AppServiceProvider extends ServiceProvider
     private function registerAuthRedirect(): void
     {
         RedirectIfAuthenticated::redirectUsing(function () {
-            return route('dashboard.hr');
+            return route('dashboard');
         });
     }
 
