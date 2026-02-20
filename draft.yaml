@@ -14,6 +14,7 @@ models:
     pic_name: string nullable
     pic_phone: string nullable
     is_active: boolean default true
+    delivery_fee: int default 0
     softDeletes: true
     timestamps: true
 
@@ -38,12 +39,37 @@ models:
     softDeletes: true
     timestamps: true
 
+  Discount:
+    id: uuid primary
+    name: string
+    code: string unique nullable
+    type: enum:percentage,fixed
+    value: int default 0
+    min_order: int default 0
+    max_discount: int nullable
+    quota: int nullable
+    used_count: int default 0
+    scope: enum:global,product,category,drop_point,shipping
+    start_date: date nullable
+    end_date: date nullable
+    is_active: boolean default true
+    softDeletes: true
+    timestamps: true
+
+  DiscountScope:
+    id: uuid primary
+    discount_id: uuid foreign:discounts
+    scope_type: string
+    scope_id: uuid
+    timestamps: true
+
   PaymentMethod:
     id: uuid primary
     name: string
     description: text nullable
     photo: string nullable
     is_active: boolean default true
+    type: enum:cash,online default:online
     softDeletes: true
     timestamps: true
 
@@ -71,11 +97,18 @@ models:
     payment_status: enum:pending,paid,failed
     order_status: enum:pending,confirmed,delivered,cancelled
     note: text nullable
-    total_amount: int default 0
     snap_token: string nullable
     payment_url: string nullable
     payment_reference: string nullable
     payment_expired_at: timestamp nullable
+    product_discount_id: uuid foreign:discounts nullable
+    shipping_discount_id: uuid foreign:discounts nullable
+    discount_amount: int default 0
+    total_amount: int default 0
+    delivery_fee: int default 0
+    delivery_discount_amount: int default 0
+    final_delivery_fee: int default 0
+    admin_fee: int default 0
     softDeletes: true
     timestamps: true
 
@@ -83,11 +116,13 @@ models:
     id: uuid primary
     order_id: uuid foreign:orders
     product_id: uuid foreign:products
+    discount_id: uuid foreign:discounts nullable
     quantity: int default 1
     price: int default 0
+    discount_amount: int default 0
+    final_price: int default 0
     subtotal: int default 0
     note: text nullable
-    softDeletes: true
     timestamps: true
 
   OrderSetting:

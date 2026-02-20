@@ -59,18 +59,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [SalesDashboardController::class, 'index'])
         ->name('dashboard');
 
-    // Customers
-    Route::prefix('customers')->name('customers.')->middleware('can:sales-master-manage')->group(function () {
-        Route::get('export', [SalesCustomerController::class, 'export'])->name('export');
-        Route::post('import', [SalesCustomerController::class, 'import'])->name('import');
-        Route::get('import/template', [SalesCustomerController::class, 'importTemplate'])->name('import.template');
-    });
-    Route::resource('customers', SalesCustomerController::class)->except(['destroy'])->middleware('can:sales-master-manage');
-    Route::delete('customers/{customer}', [SalesCustomerController::class, 'destroy'])->middleware('can:admin-manager-only-delete')->name('customers.destroy');
-
-    Route::resource('discounts', SalesDiscountController::class)->except(['destroy'])->middleware('can:sales-master-manage');
-    Route::delete('discounts/{discount}', [SalesDiscountController::class, 'destroy'])->middleware('can:admin-manager-only-delete')->name('discounts.destroy');
-
     Route::get('/settings', [SettingController::class, 'index'])
         ->middleware('can:admin-only')
         ->name('settings.index');
