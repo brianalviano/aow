@@ -3,42 +3,51 @@
 namespace App\Services;
 
 use App\DTOs\Setting\SettingData;
-use App\Models\Setting;
-use App\Traits\{RetryableTransactionsTrait, FileHelperTrait};
-use Illuminate\Support\Facades\{DB, Cache};
+use App\Models\CompanyProfile;
+use App\Models\OrderSetting;
+use App\Traits\RetryableTransactionsTrait;
+use Illuminate\Support\Facades\{DB, Cache, Log};
+use Throwable;
 
 class SettingService
 {
-    use RetryableTransactionsTrait, FileHelperTrait;
+    use RetryableTransactionsTrait;
 
-    public function update(SettingData $data): Setting
+    public function update(SettingData $data): void
     {
-        return $this->runWithRetry(function () use ($data) {
-            return DB::transaction(function () use ($data) {
-                $s = CompanyProfile::query()->first() ?? new Setting();
-                $s->name = $data->name;
-                $s->contact_email = $data->contactEmail;
-                $s->whatsapp_number = $data->whatsappNumber;
-                $s->address = $data->address;
-                $s->latitude = $data->latitude;
-                $s->longitude = $data->longitude;
-                $s->bank_name = $data->bankName;
-                $s->bank_account_name = $data->bankAccountName;
-                $s->bank_account_number = $data->bankAccountNumber;
+        $this->runWithRetry(function () use ($data) {
+            try {
+                DB::transaction(function () use ($data) {
+                    // 1. Update Company Profile
+                    $cp = CompanyProfile::query()->first() ?? new CompanyProfile();
+                    $cp->fill($data->companyProfile);
+                    $cp->save();
 
-                // if ($data->logo) {
-                //     $existingPublicPath = $s->logo ? '/storage/' . ltrim((string) $s->logo, '/') : null;
-                //     $stored = $this->handleFileUpload($data->logo, $existingPublicPath, 'logos');
-                //     $s->logo = str_starts_with($stored, '/storage/') ? ltrim(substr($stored, 9), '/') : $stored;
-                // }
+                    // 2. Update Order Settings
+                    foreach ($data->orderSettings as $key => $value) {
+                        if ($value !== null) {
+                            OrderSetting::updateOrCreate(
+                                ['key' => $key],
+                                ['value' => $value]
+                            );
+                        }
+                    }
 
-                $s->save();
-
-                Cache::forget('settings:shared');
-                Cache::forget('settings:geofence-center');
-
-                return $s;
-            }, 5);
-        }, 3);
+                    // Flush cache
+                    Cache::forget('settings:shared');
+                    Cache::forget('settings:geofence-center');
+                }, 5);
+            } catch (Throwable $e) {
+                Log::error('SettingService update failed', [
+                    'error' => $e->getMessage(),
+                    'data' => [
+                        'companyProfile' => $data->companyProfile,
+                        'orderSettings' => $data->orderSettings,
+                    ],
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                throw $e;
+            }
+        });
     }
 }

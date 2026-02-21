@@ -4,28 +4,41 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Traits\FileHelperTrait;
 
 class SettingResource extends JsonResource
 {
-    use FileHelperTrait;
-
     public function toArray(Request $request): array
     {
-        /** @var \App\Models\Setting $s */
-        $s = $this->resource;
+        // the resource is an array with ['company_profile' => Model, 'order_settings' => Collection|array]
+        $companyProfile = $this->resource['company_profile'];
+        $orderSettings = collect($this->resource['order_settings']);
 
-        return [
-            'name' => (string) $s->name,
-            'contact_email' => $s->contact_email ? (string) $s->contact_email : null,
-            'whatsapp_number' => $s->whatsapp_number ? (string) $s->whatsapp_number : null,
-            // 'logo_url' => $this->getFileUrl($s->logo),
-            'address' => $s->address ? (string) $s->address : null,
-            'latitude' => $s->latitude ? (string) $s->latitude : null,
-            'longitude' => $s->longitude ? (string) $s->longitude : null,
-            'bank_name' => $s->bank_name ? (string) $s->bank_name : null,
-            'bank_account_name' => $s->bank_account_name ? (string) $s->bank_account_name : null,
-            'bank_account_number' => $s->bank_account_number ? (string) $s->bank_account_number : null,
-        ];
+        $settings = [];
+
+        // Company Profile Fields
+        if ($companyProfile) {
+            $settings['name'] = $companyProfile->name;
+            $settings['email'] = $companyProfile->email;
+            $settings['phone'] = $companyProfile->phone;
+            $settings['whatsapp'] = $companyProfile->whatsapp;
+            $settings['address'] = $companyProfile->address;
+            $settings['instagram'] = $companyProfile->instagram;
+            $settings['facebook'] = $companyProfile->facebook;
+            $settings['tiktok'] = $companyProfile->tiktok;
+        }
+
+        // Order Settings Fields
+        foreach ($orderSettings as $key => $value) {
+            // Convert 'true'/'false' strings to boolean for Svelte bindings
+            if ($value === 'true') {
+                $settings[$key] = true;
+            } elseif ($value === 'false') {
+                $settings[$key] = false;
+            } else {
+                $settings[$key] = $value;
+            }
+        }
+
+        return $settings;
     }
 }

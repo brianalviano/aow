@@ -7,20 +7,27 @@ use App\DTOs\Setting\SettingData;
 use App\Http\Requests\Setting\UpdateSettingRequest;
 use App\Http\Resources\SettingResource;
 use App\Models\CompanyProfile;
+use App\Models\OrderSetting;
 use App\Services\SettingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
+use Illuminate\Support\Facades\Log;
 
 class SettingController extends Controller
 {
     public function index(Request $request): Response
     {
-        $setting = CompanyProfile::query()->first();
+        $companyProfile = CompanyProfile::query()->first();
+        $orderSettings = OrderSetting::all()->pluck('value', 'key')->toArray();
+
         return Inertia::render('Domains/Admin/Settings/System/Form', [
-            'settings' => $setting ? SettingResource::make($setting)->toArray($request) : null,
+            'settings' => SettingResource::make([
+                'company_profile' => $companyProfile,
+                'order_settings' => $orderSettings,
+            ])->toArray($request),
         ]);
     }
 
