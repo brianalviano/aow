@@ -1,21 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Customer extends Model
+/**
+ * Customer model – represents a registered customer who can authenticate
+ * via the `customer` guard (session-based).
+ *
+ * @property string $id UUID primary key
+ * @property string $drop_point_id
+ * @property string $name
+ * @property string $username
+ * @property string $phone
+ * @property string $address
+ * @property string $email
+ * @property string $password  (hashed)
+ * @property string|null $school_class
+ * @property bool   $is_active
+ */
+class Customer extends Authenticatable
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<string>
      */
     protected $fillable = [
         'drop_point_id',
@@ -27,19 +45,21 @@ class Customer extends Model
         'password',
         'school_class',
         'is_active',
+        'remember_token',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array
+     * @var array<string>
      */
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Attribute cast definitions.
      *
      * @return array<string, string>
      */
@@ -47,6 +67,7 @@ class Customer extends Model
     {
         return [
             'is_active' => 'boolean',
+            'password'  => 'hashed',
         ];
     }
 

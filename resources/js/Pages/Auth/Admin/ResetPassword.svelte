@@ -21,7 +21,7 @@
     );
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/reset-password", {
+        $form.post("/admin/reset-password", {
             preserveScroll: true,
             preserveState: (p: {
                 props: { errors?: Record<string, string[]> };
@@ -128,7 +128,7 @@
                                     variant="secondary"
                                     size="normal"
                                     fullWidth={false}
-                                    onclick={() => router.visit("/login")}
+                                    onclick={() => router.visit("/admin/login")}
                                     icon="fa-solid fa-arrow-left"
                                 >
                                     Kembali

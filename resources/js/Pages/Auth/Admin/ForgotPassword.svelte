@@ -9,7 +9,7 @@
     const form = useForm({ email: "" });
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/forgot-password", {
+        $form.post("/admin/forgot-password", {
             preserveScroll: true,
             preserveState: (p: {
                 props: { errors?: Record<string, string[]> };
@@ -99,7 +99,7 @@
                                     variant="secondary"
                                     size="normal"
                                     fullWidth={false}
-                                    onclick={() => router.visit("/login")}
+                                    onclick={() => router.visit("/admin/login")}
                                     icon="fa-solid fa-arrow-left"
                                 >
                                     Kembali

@@ -102,7 +102,7 @@ class HandleInertiaRequests extends Middleware
             [
                 'title' => 'Dashboard',
                 'items' => [
-                    ['id' => 'home', 'label' => 'Dashboard', 'icon' => 'fa-home', 'link' => route('dashboard')],
+                    ['id' => 'home', 'label' => 'Dashboard', 'icon' => 'fa-home', 'link' => route('admin.dashboard')],
                 ],
             ],
         ];

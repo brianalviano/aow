@@ -27,7 +27,7 @@
                     remember: true,
                 }),
             )
-            .post("/login", {
+            .post("/admin/login", {
                 preserveScroll: true,
                 preserveState: (page: {
                     props: { errors?: Record<string, string[]> };
@@ -101,7 +101,7 @@
                                             Kata Sandi
                                         </label>
                                         <Link
-                                            href="/forgot-password"
+                                            href="/admin/forgot-password"
                                             class="rounded text-xs font-medium text-[#0060B2] transition hover:text-[#004d8f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0060B2]/50 dark:text-[#0060B2] dark:hover:text-[#00559e] dark:focus-visible:ring-[#0060B2]/50"
                                             tabindex={$form.processing ? -1 : 0}
                                         >

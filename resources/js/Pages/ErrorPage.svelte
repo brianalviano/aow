@@ -32,7 +32,7 @@
 
     const primaryHref = $derived(
         (status === 404 && isAuthenticated) || isAuthenticated
-            ? "/dashboard"
+            ? "/admin/dashboard"
             : "/login",
     );
 

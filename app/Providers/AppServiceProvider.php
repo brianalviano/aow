@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Vite, Gate, URL};
 use Inertia\Inertia;
 use App\Models\User;
@@ -82,8 +83,14 @@ class AppServiceProvider extends ServiceProvider
      */
     private function registerAuthRedirect(): void
     {
-        RedirectIfAuthenticated::redirectUsing(function () {
-            return route('dashboard');
+        RedirectIfAuthenticated::redirectUsing(function (Request $request, array $guards) {
+            // Customer guard → customer dashboard
+            if (in_array('customer', $guards, true)) {
+                return route('customer.dashboard');
+            }
+
+            // Default: admin/web guard → admin dashboard
+            return route('admin.dashboard');
         });
     }
 

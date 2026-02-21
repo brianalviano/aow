@@ -19,7 +19,7 @@ class LoginController extends Controller
     public function show()
     {
         if (Auth::check()) {
-            return redirect()->route('dashboard');
+            return redirect()->route('admin.dashboard');
         }
 
         return Inertia::render('Auth/Admin/Login');
@@ -58,7 +58,7 @@ class LoginController extends Controller
                     'message' => 'Berhasil login',
                     'type' => 'success',
                 ]);
-                return redirect()->route('dashboard');
+                return redirect()->route('admin.dashboard');
             }
         }
 
@@ -124,6 +124,6 @@ class LoginController extends Controller
             'message' => 'Berhasil logout',
             'type' => 'success',
         ]);
-        return redirect()->route('login');
+        return redirect()->route('admin.login');
     }
 }

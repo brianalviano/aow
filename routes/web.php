@@ -9,73 +9,90 @@ use App\Http\Controllers\Admin\{
     PasswordResetController,
     NotificationController
 };
+use App\Http\Controllers\Customer\CustomerLoginController;
 
 /*
 |--------------------------------------------------------------------------
-| Redirect Root
+| Customer Routes (root level)
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', fn() => redirect()->route('login'));
-Route::get('/dashboard', fn() => redirect()->route('login'));
+// Public homepage – browse drop points and menu without logging in
+Route::get('/', fn() => inertia('Customer/Home'))
+    ->name('customer.home');
 
-/*
-|--------------------------------------------------------------------------
-| Authentication Routes
-|--------------------------------------------------------------------------
-*/
-Route::get('/login', [LoginController::class, 'show'])
-    ->name('login');
-
-Route::post('/login', [LoginController::class, 'authenticate'])
-    ->name('login.store');
-
-Route::post('/logout', [LoginController::class, 'logout'])
-    ->name('logout');
-
-Route::middleware('guest')->group(function () {
-    Route::get('/forgot-password', [PasswordResetController::class, 'showForgot'])
-        ->name('password.request');
-    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])
-        ->middleware('throttle:6,1')
-        ->name('password.email');
-    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showReset'])
-        ->name('password.reset');
-    Route::post('/reset-password', [PasswordResetController::class, 'reset'])
-        ->middleware('throttle:6,1')
-        ->name('password.update');
+// Customer guest routes
+Route::middleware('guest:customer')->group(function () {
+    Route::get('/login', [CustomerLoginController::class, 'show'])
+        ->name('customer.login');
+    Route::post('/login', [CustomerLoginController::class, 'authenticate'])
+        ->name('customer.login.store');
 });
+
+// Customer authenticated routes
+Route::middleware('auth:customer')->group(function () {
+    Route::get('/dashboard', fn() => inertia('Customer/Dashboard'))
+        ->name('customer.dashboard');
+    Route::post('/logout', [CustomerLoginController::class, 'logout'])
+        ->name('customer.logout');
+});
+
 /*
 |--------------------------------------------------------------------------
-| Authenticated Routes
+| Admin Routes (/admin prefix)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
+    // Admin guest routes
+    Route::get('/login', [LoginController::class, 'show'])
+        ->name('login');
+    Route::post('/login', [LoginController::class, 'authenticate'])
+        ->name('login.store');
+    Route::post('/logout', [LoginController::class, 'logout'])
+        ->name('logout');
 
-    Route::get('/settings', [SettingController::class, 'index'])
-        ->middleware('can:admin-only')
-        ->name('settings.index');
-    Route::put('/settings', [SettingController::class, 'update'])
-        ->middleware('can:admin-only')
-        ->name('settings.update');
+    Route::middleware('guest')->group(function () {
+        Route::get('/forgot-password', [PasswordResetController::class, 'showForgot'])
+            ->name('password.request');
+        Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])
+            ->middleware('throttle:6,1')
+            ->name('password.email');
+        Route::get('/reset-password/{token}', [PasswordResetController::class, 'showReset'])
+            ->name('password.reset');
+        Route::post('/reset-password', [PasswordResetController::class, 'reset'])
+            ->middleware('throttle:6,1')
+            ->name('password.update');
+    });
 
-    Route::get('/account/settings', [AccountSettingController::class, 'index'])
-        ->name('account.settings.index');
-    Route::put('/account/settings', [AccountSettingController::class, 'update'])
-        ->name('account.settings.update');
+    // Admin authenticated routes
+    Route::middleware('auth')->group(function () {
 
-    // Notifications
-    Route::get('/notifications', [NotificationController::class, 'index'])
-        ->name('notifications.index');
-    Route::get('/notifications/stats', [NotificationController::class, 'stats'])
-        ->name('notifications.stats');
-    Route::get('/notifications/list', [NotificationController::class, 'list'])
-        ->name('notifications.list');
-    Route::patch('/notifications/{notification}', [NotificationController::class, 'mark'])
-        ->name('notifications.mark');
-    Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAll'])
-        ->name('notifications.mark_all');
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
+
+        Route::get('/settings', [SettingController::class, 'index'])
+            ->middleware('can:admin-only')
+            ->name('settings.index');
+        Route::put('/settings', [SettingController::class, 'update'])
+            ->middleware('can:admin-only')
+            ->name('settings.update');
+
+        Route::get('/account/settings', [AccountSettingController::class, 'index'])
+            ->name('account.settings.index');
+        Route::put('/account/settings', [AccountSettingController::class, 'update'])
+            ->name('account.settings.update');
+
+        // Notifications
+        Route::get('/notifications', [NotificationController::class, 'index'])
+            ->name('notifications.index');
+        Route::get('/notifications/stats', [NotificationController::class, 'stats'])
+            ->name('notifications.stats');
+        Route::get('/notifications/list', [NotificationController::class, 'list'])
+            ->name('notifications.list');
+        Route::patch('/notifications/{notification}', [NotificationController::class, 'mark'])
+            ->name('notifications.mark');
+        Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAll'])
+            ->name('notifications.mark_all');
+    });
 });

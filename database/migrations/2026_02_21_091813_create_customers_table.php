@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('school_class')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
         });

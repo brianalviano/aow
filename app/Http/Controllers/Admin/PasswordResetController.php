@@ -73,7 +73,7 @@ class PasswordResetController extends Controller
                 'message' => trans($status),
                 'type' => 'success',
             ]);
-            return redirect()->route('login');
+            return redirect()->route('admin.login');
         }
         Inertia::flash('toast', [
             'message' => trans($status),
