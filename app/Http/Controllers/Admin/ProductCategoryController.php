@@ -42,7 +42,7 @@ class ProductCategoryController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Domains/Admin/ProductCategory/Create');
+        return Inertia::render('Domains/Admin/ProductCategory/Form');
     }
 
     /**
@@ -76,7 +76,7 @@ class ProductCategoryController extends Controller
      */
     public function edit(ProductCategory $category): Response
     {
-        return Inertia::render('Domains/Admin/ProductCategory/Edit', [
+        return Inertia::render('Domains/Admin/ProductCategory/Form', [
             'productCategory' => new ProductCategoryResource($category),
         ]);
     }
