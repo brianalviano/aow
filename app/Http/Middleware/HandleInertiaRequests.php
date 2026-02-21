@@ -102,7 +102,7 @@ class HandleInertiaRequests extends Middleware
                 'items' => [
                     [
                         'id'    => 'orders',
-                        'label' => 'Orders',
+                        'label' => 'Pesanan',
                         'icon'  => 'fa-bag-shopping',
                         'link'  => route('admin.orders.index'),
                     ],
@@ -119,7 +119,7 @@ class HandleInertiaRequests extends Middleware
                     ],
                     [
                         'id'    => 'product-categories',
-                        'label' => 'Product Category',
+                        'label' => 'Kategori Produk',
                         'icon'  => 'fa-tags',
                         'link'  => route('admin.product-categories.index'),
                     ],
@@ -141,7 +141,7 @@ class HandleInertiaRequests extends Middleware
                 'items' => [
                     [
                         'id'    => 'reports',
-                        'label' => 'Reports',
+                        'label' => 'Laporan',
                         'icon'  => 'fa-chart-bar',
                         'link'  => route('admin.reports.index'),
                     ],
