@@ -676,7 +676,7 @@
                             closeSidebarOnMobile();
                             const role = userRole();
                             router.visit(
-                                role === "Admin"
+                                role === "Admin" || role === "SuperAdmin"
                                     ? "/admin/settings"
                                     : "/admin/account/settings",
                             );
@@ -688,8 +688,9 @@
                     >
                         <i class="w-4 text-sm text-center fa-solid fa-cog"></i>
                         <span class="ml-3"
-                            >{userRole() === "Admin"
-                                ? "Pengaturan"
+                            >{userRole() === "Admin" ||
+                            userRole() === "SuperAdmin"
+                                ? "Pengaturan Sistem"
                                 : "Pengaturan Akun"}</span
                         >
                     </button>

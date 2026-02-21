@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Http\Resources\EmployeeResource;
+use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use App\DTOs\User\UserData;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +20,7 @@ class AccountSettingController extends Controller
         $user = $request->user();
         $user->load(['role']);
         return Inertia::render('Domains/Admin/Settings/Account/Form', [
-            'account' => EmployeeResource::make($user)->toArray($request),
+            'account' => UserResource::make($user)->toArray($request),
         ]);
     }
 
@@ -32,7 +32,7 @@ class AccountSettingController extends Controller
                 'message' => 'Pengaturan akun berhasil disimpan',
                 'type' => 'success',
             ]);
-            return redirect()->route('account.settings.index');
+            return redirect()->route('admin.account.settings.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
                 'message' => 'Gagal menyimpan pengaturan akun: ' . $e->getMessage(),

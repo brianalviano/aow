@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Traits\FileHelperTrait;
 
-class EmployeeResource extends JsonResource
+class UserResource extends JsonResource
 {
     use FileHelperTrait;
 

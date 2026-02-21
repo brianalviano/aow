@@ -107,7 +107,7 @@ class AppServiceProvider extends ServiceProvider
         };
 
         Gate::define('admin-only', static function (User $user) use ($roleOf): bool {
-            return $roleOf($user) === RoleName::Admin->value;
+            return in_array($roleOf($user), [RoleName::Admin->value, RoleName::SuperAdmin->value], true);
         });
 
         Gate::define('super-admin-only', static function (User $user) use ($roleOf): bool {
