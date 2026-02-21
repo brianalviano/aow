@@ -16,7 +16,7 @@ class SettingResource extends JsonResource
         $s = $this->resource;
 
         return [
-            'site_name' => (string) $s->site_name,
+            'name' => (string) $s->name,
             'contact_email' => $s->contact_email ? (string) $s->contact_email : null,
             'whatsapp_number' => $s->whatsapp_number ? (string) $s->whatsapp_number : null,
             // 'logo_url' => $this->getFileUrl($s->logo),

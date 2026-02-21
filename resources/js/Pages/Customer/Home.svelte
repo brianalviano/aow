@@ -1,13 +1,13 @@
 <script lang="ts">
     import { page } from "@inertiajs/svelte";
-    import { siteName } from "@/Lib/Admin/Utils/settings";
+    import { name } from "@/Lib/Admin/Utils/settings";
 
     // TODO: replace with real props from controller
     // e.g. DropPoint[], MenuItem[]
 </script>
 
 <svelte:head>
-    <title>{siteName($page.props.settings)}</title>
+    <title>{name($page.props.settings)}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-slate-50 dark:bg-neutral-900">
@@ -19,7 +19,7 @@
             class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4"
         >
             <span class="text-lg font-bold text-gray-800 dark:text-white">
-                {siteName($page.props.settings)}
+                {name($page.props.settings)}
             </span>
             <a
                 href="/login"

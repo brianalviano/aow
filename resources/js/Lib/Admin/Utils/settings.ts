@@ -1,5 +1,5 @@
 export type AppSettings = {
-    site_name: string;
+    name: string;
     contact_email: string;
     whatsapp_number: string;
     instagram_url: string;
@@ -54,11 +54,11 @@ export function keywordsString(input?: string[] | null): string {
  * @param fallback - The fallback site name if not provided in settings.
  * @returns The site name.
  */
-export function siteName(
+export function name(
     settings?: Partial<AppSettings> | null,
-    fallback = "System"
+    fallback = "System",
 ): string {
-    return settings?.site_name ?? fallback;
+    return settings?.name ?? fallback;
 }
 
 /**

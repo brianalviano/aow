@@ -4,11 +4,11 @@
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
     import TextArea from "@/Lib/Admin/Components/Ui/TextArea.svelte";
-    import { siteName } from "@/Lib/Admin/Utils/settings";
+    import { name } from "@/Lib/Admin/Utils/settings";
     import { untrack } from "svelte";
 
     type SettingsData = {
-        site_name: string;
+        name: string;
         contact_email: string | null;
         whatsapp_number: string | null;
         address: string | null;
@@ -25,7 +25,7 @@
 
     const form = useForm(
         untrack(() => ({
-            site_name: settings?.site_name ?? "",
+            name: settings?.name ?? "",
             contact_email: settings?.contact_email ?? "",
             whatsapp_number: settings?.whatsapp_number ?? "",
             address: settings?.address ?? "",
@@ -53,7 +53,7 @@
 </script>
 
 <svelte:head>
-    <title>Pengaturan | {siteName($page.props.settings)}</title>
+    <title>Pengaturan | {name($page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">
@@ -95,12 +95,12 @@
                     {#snippet children()}
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <TextInput
-                                id="site_name"
-                                name="site_name"
+                                id="name"
+                                name="name"
                                 label="Nama Situs"
                                 placeholder="Nama aplikasi"
-                                bind:value={$form.site_name}
-                                error={$form.errors.site_name}
+                                bind:value={$form.name}
+                                error={$form.errors.name}
                                 required
                             />
                             <TextInput

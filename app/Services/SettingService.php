@@ -16,7 +16,7 @@ class SettingService
         return $this->runWithRetry(function () use ($data) {
             return DB::transaction(function () use ($data) {
                 $s = CompanyProfile::query()->first() ?? new Setting();
-                $s->site_name = $data->siteName;
+                $s->name = $data->name;
                 $s->contact_email = $data->contactEmail;
                 $s->whatsapp_number = $data->whatsappNumber;
                 $s->address = $data->address;

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page, router } from "@inertiajs/svelte";
-    import { siteName } from "@/Lib/Admin/Utils/settings";
+    import { name } from "@/Lib/Admin/Utils/settings";
 
     interface Customer {
         id: string;
@@ -16,7 +16,7 @@
 </script>
 
 <svelte:head>
-    <title>Dashboard | {siteName($page.props.settings)}</title>
+    <title>Dashboard | {name($page.props.settings)}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-slate-100 dark:bg-neutral-900">

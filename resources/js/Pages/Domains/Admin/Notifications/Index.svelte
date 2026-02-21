@@ -5,7 +5,7 @@
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import Pagination from "@/Lib/Admin/Components/Ui/Pagination.svelte";
     import Tab from "@/Lib/Admin/Components/Ui/Tab.svelte";
-    import { siteName } from "@/Lib/Admin/Utils/settings";
+    import { name } from "@/Lib/Admin/Utils/settings";
     import { formatDateDisplay } from "@/Lib/Admin/Utils/date";
     import {
         notificationStore,
@@ -105,7 +105,7 @@
 </script>
 
 <svelte:head>
-    <title>Notifikasi | {siteName($page.props.settings)}</title>
+    <title>Notifikasi | {name($page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

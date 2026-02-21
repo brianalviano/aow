@@ -8,7 +8,7 @@ use Illuminate\Http\UploadedFile;
 class SettingData
 {
     public function __construct(
-        public string $siteName,
+        public string $name,
         public ?string $contactEmail,
         public ?string $whatsappNumber,
         public ?string $address,
@@ -24,7 +24,7 @@ class SettingData
     {
         $p = $request->validated();
         return new self(
-            siteName: (string) $p['site_name'],
+            name: (string) $p['name'],
             contactEmail: $p['contact_email'] ?? null,
             whatsappNumber: $p['whatsapp_number'] ?? null,
             address: $p['address'] ?? null,

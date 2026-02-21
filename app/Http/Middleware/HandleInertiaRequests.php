@@ -60,7 +60,7 @@ class HandleInertiaRequests extends Middleware
             600,
             fn() =>
             CompanyProfile::query()->first()?->only([
-                'site_name',
+                'name',
                 'contact_email',
                 'whatsapp_number',
                 'logo',

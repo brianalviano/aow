@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page, useForm, router } from "@inertiajs/svelte";
-    import { siteName } from "@/Lib/Admin/Utils/settings";
+    import { name } from "@/Lib/Admin/Utils/settings";
     import { untrack } from "svelte";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
@@ -35,7 +35,7 @@
 </script>
 
 <svelte:head>
-    <title>Atur Ulang Kata Sandi | {siteName($page.props.settings)}</title>
+    <title>Atur Ulang Kata Sandi | {name($page.props.settings)}</title>
 </svelte:head>
 
 <div class="relative h-screen overflow-hidden bg-slate-200 dark:bg-neutral-900">
@@ -142,7 +142,7 @@
                         class="text-xs font-medium text-slate-700 dark:text-white"
                     >
                         © {currentYear}
-                        {siteName($page.props.settings)}
+                        {name($page.props.settings)}
                     </p>
                 </div>
             </div>

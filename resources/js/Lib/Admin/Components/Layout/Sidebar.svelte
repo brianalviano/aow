@@ -13,7 +13,7 @@
     } from "@/Lib/Admin/Hooks/sidebar";
     import type { MenuGroup, MenuItem } from "@/Lib/Admin/Types/sidebar";
     import icon from "@img/icon.png";
-    import { siteName } from "@/Lib/Admin/Utils/settings";
+    import { name } from "@/Lib/Admin/Utils/settings";
     import {
         notificationStore,
         notifications as notifList,
@@ -257,7 +257,7 @@
                 loading="lazy"
             />
             <span class="text-sm font-semibold text-gray-900 dark:text-white"
-                >{siteName($page.props.settings)}</span
+                >{name($page.props.settings)}</span
             >
         </div>
         <button
@@ -305,7 +305,7 @@
                     <h1
                         class="text-[13px] font-bold text-gray-900 dark:text-white"
                     >
-                        {siteName($page.props.settings)}
+                        {name($page.props.settings)}
                     </h1>
                     <p class="text-xs text-gray-500 dark:text-gray-400">
                         Admin Panel

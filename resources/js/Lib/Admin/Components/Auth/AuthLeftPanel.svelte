@@ -4,7 +4,7 @@
     import { onMount } from "svelte";
     import { applyThemeClass } from "@/Lib/Admin/Hooks/sidebar";
     import icon from "@img/icon.png";
-    import { siteName } from "@/Lib/Admin/Utils/settings";
+    import { name } from "@/Lib/Admin/Utils/settings";
     import { page } from "@inertiajs/svelte";
 
     let backgroundImage = $state(backgroundImageDay);
@@ -69,7 +69,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">
-                        {siteName($page.props.settings)}
+                        {name($page.props.settings)}
                     </h1>
                     <p class="text-xs text-white/80">
                         Layanan Pemesanan Makanan

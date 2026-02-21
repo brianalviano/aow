@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page, useForm } from "@inertiajs/svelte";
-    import { siteName } from "@/Lib/Admin/Utils/settings";
+    import { name } from "@/Lib/Admin/Utils/settings";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
     import Checkbox from "@/Lib/Admin/Components/Ui/Checkbox.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
@@ -30,7 +30,7 @@
 </script>
 
 <svelte:head>
-    <title>Login Customer | {siteName($page.props.settings)}</title>
+    <title>Login Customer | {name($page.props.settings)}</title>
 </svelte:head>
 
 <div class="relative h-screen overflow-hidden bg-slate-100 dark:bg-neutral-900">
@@ -110,7 +110,7 @@
                 class="mt-6 text-center text-xs font-medium text-slate-500 dark:text-slate-400"
             >
                 © {currentYear}
-                {siteName($page.props.settings)}
+                {name($page.props.settings)}
             </p>
         </div>
     </div>

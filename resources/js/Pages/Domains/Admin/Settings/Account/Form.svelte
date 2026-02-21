@@ -3,7 +3,7 @@
     import Card from "@/Lib/Admin/Components/Ui/Card.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
-    import { siteName } from "@/Lib/Admin/Utils/settings";
+    import { name } from "@/Lib/Admin/Utils/settings";
     import { untrack } from "svelte";
 
     type RoleInfo = { id: string | null; name: string | null };
@@ -44,7 +44,7 @@
 </script>
 
 <svelte:head>
-    <title>Pengaturan Akun | {siteName($page.props.settings)}</title>
+    <title>Pengaturan Akun | {name($page.props.settings)}</title>
     <meta name="robots" content="noindex,nofollow" />
 </svelte:head>
 
