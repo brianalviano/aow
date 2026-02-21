@@ -8,11 +8,6 @@ use App\Http\Controllers\Admin\{
     PasswordResetController,
     NotificationController
 };
-use App\Http\Controllers\Admin\Sales\{
-    CustomerController as SalesCustomerController,
-    DiscountController as SalesDiscountController,
-    DashboardController as SalesDashboardController,
-};
 
 /*
 |--------------------------------------------------------------------------
@@ -56,7 +51,7 @@ Route::middleware('guest')->group(function () {
 */
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', [SalesDashboardController::class, 'index'])
+    Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
     Route::get('/settings', [SettingController::class, 'index'])
