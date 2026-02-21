@@ -22,6 +22,9 @@ return new class extends Migration
             $table->integer('total_revenue')->default(0);
             $table->integer('total_pending')->default(0);
             $table->integer('total_cancelled')->default(0);
+            $table->integer('total_delivery_fee')->default(0);
+            $table->integer('total_admin_fee')->default(0);
+            $table->integer('total_discount')->default(0);
             $table->timestamps();
         });
 

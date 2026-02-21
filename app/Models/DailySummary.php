@@ -24,6 +24,9 @@ class DailySummary extends Model
         'total_revenue',
         'total_pending',
         'total_cancelled',
+        'total_delivery_fee',
+        'total_admin_fee',
+        'total_discount',
     ];
 
     /**

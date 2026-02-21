@@ -109,6 +109,10 @@ models:
     delivery_discount_amount: int default 0
     final_delivery_fee: int default 0
     admin_fee: int default 0
+    barcode: string unique nullable
+    delivery_detail: string nullable
+    shipping_method: enum:online,free default:free
+    tracking_number: string unique nullable
     softDeletes: true
     timestamps: true
 
@@ -141,6 +145,9 @@ models:
     total_revenue: int default 0
     total_pending: int default 0
     total_cancelled: int default 0
+    total_delivery_fee: int default 0
+    total_admin_fee: int default 0
+    total_discount: int default 0
     timestamps: true
 
   ProductSummary:
@@ -162,4 +169,22 @@ models:
     instagram: string nullable
     facebook: string nullable
     tiktok: string nullable
+    timestamps: true
+
+  Testimonial:
+    id: uuid primary
+    customer_id: uuid foreign:customers
+    order_id: uuid foreign:orders nullable
+    rating: enum:1,2,3,4,5
+    content: text nullable
+    photo: string nullable
+    is_approved: boolean default:false
+    timestamps: true
+
+  Feedback:
+    id: uuid primary
+    customer_id: uuid foreign:customers
+    type: enum:kritik,saran,lainnya
+    content: text
+    is_read: boolean default false
     timestamps: true
