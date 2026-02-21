@@ -18,7 +18,7 @@ class SettingController extends Controller
 {
     public function index(Request $request): Response
     {
-        $setting = Setting::query()->first();
+        $setting = CompanyProfile::query()->first();
         return Inertia::render('Domains/Admin/Settings/System/Form', [
             'settings' => $setting ? SettingResource::make($setting)->toArray($request) : null,
         ]);
