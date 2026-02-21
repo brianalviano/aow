@@ -23,15 +23,14 @@ class HandleInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
-        $base = parent::share($request);
-        $auth = $this->sharedAuth($base);
+        $base  = parent::share($request);
+        $auth  = $this->sharedAuth($base);
 
         return [
             ...$base,
-            'auth' => $auth,
-            'settings' => $this->sharedSettings(),
-            'badges' => Auth::check() ? null : [],
-            'menu' => $this->getSidebarMenu($auth['user']['role'] ?? null),
+            'auth'               => $auth,
+            'settings'           => $this->sharedSettings(),
+            'menu'               => $this->getSidebarMenu($auth['user']['role'] ?? null),
             'notification_stats' => Auth::check()
                 ? app(NotificationService::class)->getStatsForUser(Auth::user())
                 : ['total' => 0, 'unread' => 0, 'read' => 0],
@@ -45,11 +44,11 @@ class HandleInertiaRequests extends Middleware
         return [
             ...($base['auth'] ?? []),
             'guard' => $user ? 'web' : null,
-            'user' => $user ? [
-                'id' => $user->getKey(),
-                'name' => $user->name,
+            'user'  => $user ? [
+                'id'    => $user->getKey(),
+                'name'  => $user->name,
                 'email' => $user->email,
-                'role' => $user->role?->name,
+                'role'  => $user->role?->name,
             ] : ($base['auth']['user'] ?? null),
         ];
     }
@@ -70,109 +69,84 @@ class HandleInertiaRequests extends Middleware
                 'longitude',
                 'bank_name',
                 'bank_account_name',
-                'bank_account_number'
+                'bank_account_number',
             ])
         );
     }
 
     private function getSidebarMenu(?string $role): array
     {
-        $badges = $this->getBadges($role);
-        $menu = $this->buildMenu($badges);
-        $menu = $this->configureDashboards($menu, $role);
-        $menu = $this->filterMenu($menu, $role);
-
-        return $menu;
-    }
-
-    private function getBadges(?string $role): array
-    {
         if (!$role) {
             return [];
         }
 
-        return Cache::remember("badges:{$role}:" . Auth::id(), 60, function () use ($role) {
-            return [];
-        });
+        return $this->buildAdminMenu();
     }
 
-    private function buildMenu(array $badges): array
+    private function buildAdminMenu(): array
     {
         return [
             [
-                'title' => 'Dashboard',
+                'title' => 'Main',
                 'items' => [
-                    ['id' => 'home', 'label' => 'Dashboard', 'icon' => 'fa-home', 'link' => route('admin.dashboard')],
+                    [
+                        'id'    => 'dashboard',
+                        'label' => 'Dashboard',
+                        'icon'  => 'fa-gauge-high',
+                        'link'  => route('admin.dashboard'),
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Transaksi',
+                'items' => [
+                    [
+                        'id'    => 'orders',
+                        'label' => 'Orders',
+                        'icon'  => 'fa-bag-shopping',
+                        'link'  => route('admin.orders.index'),
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Katalog',
+                'items' => [
+                    [
+                        'id'    => 'products',
+                        'label' => 'Product',
+                        'icon'  => 'fa-box',
+                        'link'  => route('admin.products.index'),
+                    ],
+                    [
+                        'id'    => 'product-categories',
+                        'label' => 'Product Category',
+                        'icon'  => 'fa-tags',
+                        'link'  => route('admin.product-categories.index'),
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Operasional',
+                'items' => [
+                    [
+                        'id'    => 'drop-points',
+                        'label' => 'Drop Points',
+                        'icon'  => 'fa-location-dot',
+                        'link'  => route('admin.drop-points.index'),
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Laporan',
+                'items' => [
+                    [
+                        'id'    => 'reports',
+                        'label' => 'Reports',
+                        'icon'  => 'fa-chart-bar',
+                        'link'  => route('admin.reports.index'),
+                    ],
                 ],
             ],
         ];
-    }
-
-    private function configureDashboards(array $menu, ?string $role): array
-    {
-        $dashboards = [
-            'highest' => [
-                ['id' => 'home-logistic', 'label' => 'Dashboard Logistik', 'icon' => 'fa-warehouse', 'link' => route('dashboard.logistic')],
-                ['id' => 'home-purchasing', 'label' => 'Dashboard Purchasing', 'icon' => 'fa-file-invoice', 'link' => route('dashboard.purchasing')],
-                ['id' => 'home-sales', 'label' => 'Dashboard Sales', 'icon' => 'fa-bag-shopping', 'link' => route('dashboard.sales')],
-            ],
-            RoleName::ManagerLogistic->value => ['home' => ['Dashboard Logistik', route('dashboard.logistic')]],
-            RoleName::StaffLogistic->value => ['home' => ['Dashboard Logistik', route('dashboard.logistic')]],
-            RoleName::ManagerSales->value => ['home' => ['Dashboard Sales', route('dashboard.sales')]],
-            RoleName::Cashier->value => ['home' => ['Dashboard Sales', route('dashboard.sales')]],
-            RoleName::Sales->value => ['home' => ['Dashboard Sales', route('dashboard.sales')]],
-        ];
-
-        $config = match (true) {
-            in_array($role, RoleName::highest(), true) => $dashboards['highest'],
-            isset($dashboards[$role]) => $dashboards[$role],
-            default => ['home' => ['Dashboard HR', route('dashboard.hr')]],
-        };
-
-        if (isset($config['home'])) {
-            [$label, $link] = $config['home'];
-            $menu[0]['items'][0] = array_merge($menu[0]['items'][0], ['label' => $label, 'link' => $link]);
-        } else {
-            foreach ($config as $dashboard) {
-                $exists = collect($menu[0]['items'])->contains('id', $dashboard['id']);
-                if (!$exists) {
-                    $menu[0]['items'][] = $dashboard;
-                }
-            }
-        }
-
-        return $menu;
-    }
-
-    private function filterMenu(array $menu, ?string $role): array
-    {
-        $hiddenItems = $this->getHiddenMenuItems($role);
-
-        foreach ($menu as &$group) {
-            $group['items'] = array_values(array_filter(
-                $group['items'],
-                fn($item) => !in_array($item['id'], $hiddenItems, true)
-            ));
-        }
-        unset($group);
-
-        if ($role === RoleName::SuperAdmin->value) {
-            return $menu;
-        }
-
-        return array_values(array_filter($menu, function ($group) {
-            return !empty($group['items'])
-                && !str_starts_with($group['title'], 'Master Data')
-                && !str_starts_with($group['title'], 'Laporan');
-        }));
-    }
-
-    private function getHiddenMenuItems(?string $role): array
-    {
-        if (!$role) return [];
-
-        $hidden = [];
-
-        return $hidden;
     }
 }

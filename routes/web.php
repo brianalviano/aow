@@ -7,7 +7,12 @@ use App\Http\Controllers\Admin\{
     AccountSettingController,
     DashboardController,
     PasswordResetController,
-    NotificationController
+    NotificationController,
+    OrderController,
+    ProductController,
+    ProductCategoryController,
+    DropPointController,
+    ReportController,
 };
 use App\Http\Controllers\Customer\CustomerLoginController;
 
@@ -70,6 +75,37 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
+
+        // Orders
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+        // Products
+        Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+        Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+        Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+        Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+        Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+        Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+        // Product Categories
+        Route::get('/product-categories', [ProductCategoryController::class, 'index'])->name('product-categories.index');
+        Route::get('/product-categories/create', [ProductCategoryController::class, 'create'])->name('product-categories.create');
+        Route::post('/product-categories', [ProductCategoryController::class, 'store'])->name('product-categories.store');
+        Route::get('/product-categories/{category}/edit', [ProductCategoryController::class, 'edit'])->name('product-categories.edit');
+        Route::put('/product-categories/{category}', [ProductCategoryController::class, 'update'])->name('product-categories.update');
+        Route::delete('/product-categories/{category}', [ProductCategoryController::class, 'destroy'])->name('product-categories.destroy');
+
+        // Drop Points
+        Route::get('/drop-points', [DropPointController::class, 'index'])->name('drop-points.index');
+        Route::get('/drop-points/create', [DropPointController::class, 'create'])->name('drop-points.create');
+        Route::post('/drop-points', [DropPointController::class, 'store'])->name('drop-points.store');
+        Route::get('/drop-points/{dropPoint}/edit', [DropPointController::class, 'edit'])->name('drop-points.edit');
+        Route::put('/drop-points/{dropPoint}', [DropPointController::class, 'update'])->name('drop-points.update');
+        Route::delete('/drop-points/{dropPoint}', [DropPointController::class, 'destroy'])->name('drop-points.destroy');
+
+        // Reports
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
         Route::get('/settings', [SettingController::class, 'index'])
             ->middleware('can:admin-only')
