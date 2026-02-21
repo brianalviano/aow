@@ -21,7 +21,6 @@ class CompanyProfile extends Model
         'phone',
         'whatsapp',
         'address',
-        'logo',
         'instagram',
         'facebook',
         'tiktok',
