@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\DTOs\Setting\SettingData;
 use App\Http\Requests\Setting\UpdateSettingRequest;
 use App\Http\Resources\SettingResource;
-use App\Models\Setting;
+use App\Models\CompanyProfile;
 use App\Services\SettingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,7 +32,7 @@ class SettingController extends Controller
                 'message' => 'Pengaturan berhasil disimpan',
                 'type' => 'success',
             ]);
-            return redirect()->route('settings.index');
+            return redirect()->route('admin.settings.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
                 'message' => 'Gagal menyimpan pengaturan: ' . $e->getMessage(),
