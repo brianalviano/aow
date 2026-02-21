@@ -72,7 +72,7 @@
                         {siteName($page.props.settings)}
                     </h1>
                     <p class="text-xs text-white/80">
-                        Solusi Agrikultur Terpadu
+                        Layanan Pemesanan Makanan
                     </p>
                 </div>
             </div>
@@ -83,23 +83,23 @@
                     class="text-2xl font-bold leading-tight tracking-tight xl:text-3xl"
                 >
                     <span
-                        class="block cursor-default text-white transition-colors duration-300 hover:text-green-200"
-                        >Mitra Terpercaya</span
+                        class="block cursor-default text-white transition-colors duration-300 hover:text-orange-200"
+                        >Penyedia Lauk Pauk</span
                     >
                     <span
                         class="inline-block cursor-default text-white/80 transition-all duration-300 hover:text-white"
-                        >Pertanian Modern Indonesia</span
+                        >Bagi Siswa & Karyawan</span
                     >
                 </h2>
 
                 <p
                     class="cursor-default text-sm leading-relaxed text-white/90 transition-colors duration-300 hover:text-white xl:text-base"
                 >
-                    Penyedia lengkap kebutuhan pertanian modern sejak tahun
-                    2020. Kami menyediakan solar industri, alat dan mesin
-                    pertanian berkualitas, serta pupuk bersubsidi dan
-                    non-subsidi untuk mendukung produktivitas petani Indonesia
-                    mencapai hasil panen maksimal.
+                    Kami hadir untuk memberikan kemudahan dalam pemesanan
+                    makanan yang sehat, bergizi, dan praktis setiap harinya.
+                    Menawarkan beragam pilihan menu berkualitas dengan cita rasa
+                    terbaik untuk memenuhi kebutuhan nutrisi Anda, baik di
+                    sekolah maupun tempat kerja.
                 </p>
             </div>
 
@@ -112,20 +112,21 @@
                     >
                         <div class="flex items-start space-x-3">
                             <div
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-green-400"
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-500 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-orange-400"
                             >
-                                <i class="fa-regular fa-clock text-white"></i>
+                                <i class="fa-regular fa-utensils text-white"
+                                ></i>
                             </div>
                             <div>
                                 <h3
                                     class="mb-1 text-xl font-bold text-white transition-transform duration-300 group-hover/card:translate-x-1"
                                 >
-                                    5+
+                                    50+
                                 </h3>
                                 <p
                                     class="text-xs text-white/80 transition-colors duration-300 group-hover/card:text-white"
                                 >
-                                    Tahun Pengalaman
+                                    Pilihan Menu
                                 </p>
                             </div>
                         </div>
@@ -145,12 +146,12 @@
                                 <h3
                                     class="mb-1 text-xl font-bold text-white transition-transform duration-300 group-hover/card:translate-x-1"
                                 >
-                                    5000+
+                                    1000+
                                 </h3>
                                 <p
                                     class="text-xs text-white/80 transition-colors duration-300 group-hover/card:text-white"
                                 >
-                                    Petani Mitra
+                                    Pelanggan Aktif
                                 </p>
                             </div>
                         </div>
@@ -164,18 +165,19 @@
                             <div
                                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-blue-400"
                             >
-                                <i class="fa-regular fa-truck text-white"></i>
+                                <i class="fa-regular fa-face-smile text-white"
+                                ></i>
                             </div>
                             <div>
                                 <h3
                                     class="mb-1 text-xl font-bold text-white transition-transform duration-300 group-hover/card:translate-x-1"
                                 >
-                                    24/7
+                                    100%
                                 </h3>
                                 <p
                                     class="text-xs text-white/80 transition-colors duration-300 group-hover/card:text-white"
                                 >
-                                    Layanan Pengiriman
+                                    Higienis & Halal
                                 </p>
                             </div>
                         </div>
@@ -193,20 +195,20 @@
                     <div
                         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-red-400"
                     >
-                        <i class="fa-regular fa-gas-pump text-white"></i>
+                        <i class="fa-regular fa-bowl-food text-white"></i>
                     </div>
                     <div>
                         <h3
                             class="mb-1 text-sm font-semibold text-white transition-transform duration-300 group-hover/card:translate-x-1"
                         >
-                            Solar Industri & Pertanian
+                            Menu Sehat & Bergizi
                         </h3>
                         <p
                             class="text-xs text-white/80 transition-colors duration-300 group-hover/card:text-white"
                         >
-                            Penyedia solar berkualitas untuk traktor dan mesin
-                            pertanian dengan harga kompetitif dan pengiriman
-                            tepat waktu
+                            Menyajikan hidangan kaya nutrisi dengan bahan segar
+                            berkualitas tinggi untuk mendukung energi dan
+                            produktivitas Anda sepanjang hari.
                         </p>
                     </div>
                 </div>
@@ -219,20 +221,20 @@
                     <div
                         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-500 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-orange-400"
                     >
-                        <i class="fa-regular fa-tractor text-white"></i>
+                        <i class="fa-regular fa-mobile-screen text-white"></i>
                     </div>
                     <div>
                         <h3
                             class="mb-1 text-sm font-semibold text-white transition-transform duration-300 group-hover/card:translate-x-1"
                         >
-                            Alat & Mesin Pertanian
+                            Pemesanan Praktis
                         </h3>
                         <p
                             class="text-xs text-white/80 transition-colors duration-300 group-hover/card:text-white"
                         >
-                            Menyediakan traktor, mesin bajak, pompa air, dan
-                            berbagai peralatan modern untuk efisiensi kerja
-                            pertanian
+                            Sistem pemesanan online yang ramah pengguna. Pesan
+                            makanan dengan mudah dan cepat tanpa harus repot
+                            mengantre.
                         </p>
                     </div>
                 </div>
@@ -245,19 +247,20 @@
                     <div
                         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-green-400"
                     >
-                        <i class="fa-regular fa-seedling text-white"></i>
+                        <i class="fa-regular fa-tags text-white"></i>
                     </div>
                     <div>
                         <h3
                             class="mb-1 text-sm font-semibold text-white transition-transform duration-300 group-hover/card:translate-x-1"
                         >
-                            Pupuk Bersubsidi & Non-Subsidi
+                            Harga Terjangkau
                         </h3>
                         <p
                             class="text-xs text-white/80 transition-colors duration-300 group-hover/card:text-white"
                         >
-                            Distributor resmi pupuk Urea, NPK, TSP, dan pupuk
-                            organik untuk meningkatkan hasil panen
+                            Tersedia berbagai pilihan paket makanan hemat dengan
+                            harga yang pas di kantong untuk kalangan siswa
+                            maupun karyawan.
                         </p>
                     </div>
                 </div>
@@ -270,19 +273,20 @@
                     <div
                         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 transition-all duration-300 group-hover/card:scale-110 group-hover/card:bg-emerald-400"
                     >
-                        <i class="fa-regular fa-handshake text-white"></i>
+                        <i class="fa-regular fa-truck-fast text-white"></i>
                     </div>
                     <div>
                         <h3
                             class="mb-1 text-sm font-semibold text-white transition-transform duration-300 group-hover/card:translate-x-1"
                         >
-                            Konsultasi Pertanian
+                            Pengantaran Tepat Waktu
                         </h3>
                         <p
                             class="text-xs text-white/80 transition-colors duration-300 group-hover/card:text-white"
                         >
-                            Layanan konsultasi gratis seputar pemilihan alat,
-                            penggunaan pupuk, dan solusi pertanian modern
+                            Layanan pengiriman makanan yang dijamin tiba tepat
+                            waktu, sehingga jadwal istirahat Anda tetap teratur
+                            dan efisien.
                         </p>
                     </div>
                 </div>

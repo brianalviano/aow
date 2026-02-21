@@ -49,6 +49,8 @@ Route::middleware('auth:customer')->group(function () {
 */
 Route::prefix('admin')->name('admin.')->group(function () {
 
+    Route::get('/', fn() => redirect()->route('admin.login'));
+
     // Admin guest routes
     Route::get('/login', [LoginController::class, 'show'])
         ->name('login');
