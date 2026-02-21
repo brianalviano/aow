@@ -162,5 +162,4 @@ models:
     instagram: string nullable
     facebook: string nullable
     tiktok: string nullable
-    banner: string nullable
     timestamps: true

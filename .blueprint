@@ -1,0 +1,58 @@
+created:
+    - database/factories/RoleFactory.php
+    - database/factories/DropPointFactory.php
+    - database/factories/ProductCategoryFactory.php
+    - database/factories/ProductFactory.php
+    - database/factories/DiscountFactory.php
+    - database/factories/DiscountScopeFactory.php
+    - database/factories/PaymentMethodFactory.php
+    - database/factories/CustomerFactory.php
+    - database/factories/OrderFactory.php
+    - database/factories/OrderItemFactory.php
+    - database/factories/OrderSettingFactory.php
+    - database/factories/DailySummaryFactory.php
+    - database/factories/ProductSummaryFactory.php
+    - database/factories/CompanyProfileFactory.php
+    - database/migrations/2026_02_21_091806_create_roles_table.php
+    - database/migrations/2026_02_21_091807_create_drop_points_table.php
+    - database/migrations/2026_02_21_091808_create_product_categories_table.php
+    - database/migrations/2026_02_21_091809_create_products_table.php
+    - database/migrations/2026_02_21_091810_create_discounts_table.php
+    - database/migrations/2026_02_21_091811_create_discount_scopes_table.php
+    - database/migrations/2026_02_21_091812_create_payment_methods_table.php
+    - database/migrations/2026_02_21_091813_create_customers_table.php
+    - database/migrations/2026_02_21_091814_create_orders_table.php
+    - database/migrations/2026_02_21_091815_create_order_items_table.php
+    - database/migrations/2026_02_21_091816_create_order_settings_table.php
+    - database/migrations/2026_02_21_091817_create_daily_summaries_table.php
+    - database/migrations/2026_02_21_091818_create_product_summaries_table.php
+    - database/migrations/2026_02_21_091819_create_company_profiles_table.php
+    - app/Models/Role.php
+    - app/Models/DropPoint.php
+    - app/Models/ProductCategory.php
+    - app/Models/Product.php
+    - app/Models/Discount.php
+    - app/Models/DiscountScope.php
+    - app/Models/PaymentMethod.php
+    - app/Models/Customer.php
+    - app/Models/Order.php
+    - app/Models/OrderItem.php
+    - app/Models/OrderSetting.php
+    - app/Models/DailySummary.php
+    - app/Models/ProductSummary.php
+    - app/Models/CompanyProfile.php
+models:
+    Role: { id: 'uuid primary', name: string, timestamps: timestamps }
+    DropPoint: { id: 'uuid primary', name: string, address: string, phone: string, latitude: float, longitude: float, pic_name: 'string nullable', pic_phone: 'string nullable', is_active: 'boolean default true', delivery_fee: 'int default 0', softdeletes: softDeletes, timestamps: timestamps }
+    ProductCategory: { id: 'uuid primary', name: string, is_active: 'boolean default true', sort_order: 'int default 0', softdeletes: softDeletes, timestamps: timestamps }
+    Product: { id: 'uuid primary', product_category_id: 'uuid foreign:product_categories', name: string, description: 'text nullable', price: 'int default 0', image: 'string nullable', stock_limit: 'int nullable', is_active: 'boolean default true', sort_order: 'int default 0', softdeletes: softDeletes, timestamps: timestamps }
+    Discount: { id: 'uuid primary', name: string, code: 'string unique nullable', type: 'enum:percentage,fixed', value: 'int default 0', min_order: 'int default 0', max_discount: 'int nullable', quota: 'int nullable', used_count: 'int default 0', scope: 'enum:global,product,category,drop_point,shipping', start_date: 'date nullable', end_date: 'date nullable', is_active: 'boolean default true', softdeletes: softDeletes, timestamps: timestamps }
+    DiscountScope: { id: 'uuid primary', discount_id: 'uuid foreign:discounts', scope_type: string, scope_id: uuid, timestamps: timestamps }
+    PaymentMethod: { id: 'uuid primary', name: string, description: 'text nullable', photo: 'string nullable', is_active: 'boolean default true', type: 'enum:cash,online default:online', softdeletes: softDeletes, timestamps: timestamps }
+    Customer: { id: 'uuid primary', drop_point_id: 'uuid foreign:drop_points', name: string, username: 'string unique', phone: 'string unique', address: string, email: 'string unique', password: string, school_class: 'string nullable', is_active: 'boolean default true', softdeletes: softDeletes, timestamps: timestamps }
+    Order: { id: 'uuid primary', number: 'string unique', drop_point_id: 'uuid foreign:drop_points', customer_id: 'uuid foreign:customers', delivery_date: date, payment_method_id: 'uuid foreign:payment_methods', payment_status: 'enum:pending,paid,failed', order_status: 'enum:pending,confirmed,delivered,cancelled', note: 'text nullable', snap_token: 'string nullable', payment_url: 'string nullable', payment_reference: 'string nullable', payment_expired_at: 'timestamp nullable', product_discount_id: 'uuid foreign:discounts nullable', shipping_discount_id: 'uuid foreign:discounts nullable', discount_amount: 'int default 0', total_amount: 'int default 0', delivery_fee: 'int default 0', delivery_discount_amount: 'int default 0', final_delivery_fee: 'int default 0', admin_fee: 'int default 0', softdeletes: softDeletes, timestamps: timestamps }
+    OrderItem: { id: 'uuid primary', order_id: 'uuid foreign:orders', product_id: 'uuid foreign:products', discount_id: 'uuid foreign:discounts nullable', quantity: 'int default 1', price: 'int default 0', discount_amount: 'int default 0', final_price: 'int default 0', subtotal: 'int default 0', note: 'text nullable', timestamps: timestamps }
+    OrderSetting: { id: 'uuid primary', key: text, value: 'longText nullable', description: 'text nullable', timestamps: timestamps }
+    DailySummary: { id: 'uuid primary', drop_point_id: 'uuid foreign:drop_points', date: date, total_orders: 'int default 0', total_items: 'int default 0', total_revenue: 'int default 0', total_pending: 'int default 0', total_cancelled: 'int default 0', timestamps: timestamps }
+    ProductSummary: { id: 'uuid primary', product_id: 'uuid foreign:products', date: date, total_sold: 'int default 0', total_revenue: 'int default 0', timestamps: timestamps }
+    CompanyProfile: { id: 'uuid primary', name: string, email: 'string nullable', phone: 'string nullable', whatsapp: 'string nullable', address: 'text nullable', logo: 'string nullable', instagram: 'string nullable', facebook: 'string nullable', tiktok: 'string nullable', timestamps: timestamps }
