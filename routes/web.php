@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\{
     LoginController,
     SettingController,
     AccountSettingController,
+    DashboardController,
     PasswordResetController,
     NotificationController
 };

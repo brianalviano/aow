@@ -99,94 +99,12 @@ class AppServiceProvider extends ServiceProvider
             return $user->role?->name ?? null;
         };
 
-        $isHighest = static function (User $user) use ($roleOf): bool {
-            return in_array($roleOf($user), RoleName::highest(), true);
-        };
-
-        $hasAny = static function (User $user, array $roles) use ($roleOf): bool {
-            return in_array($roleOf($user), $roles, true);
-        };
-
         Gate::define('admin-only', static function (User $user) use ($roleOf): bool {
+            return $roleOf($user) === RoleName::Admin->value;
+        });
+
+        Gate::define('super-admin-only', static function (User $user) use ($roleOf): bool {
             return $roleOf($user) === RoleName::SuperAdmin->value;
-        });
-
-        Gate::define('attendance-access', static function (User $user) use ($isHighest): bool {
-            return !$isHighest($user);
-        });
-
-        Gate::define('highest-only', static function (User $user) use ($isHighest): bool {
-            return $isHighest($user);
-        });
-
-        Gate::define('hr-master-manage', static function (User $user) use ($isHighest, $roleOf): bool {
-            return $roleOf($user) === RoleName::ManagerHR->value || $isHighest($user);
-        });
-
-        Gate::define('hr-report-access', static function (User $user) use ($isHighest, $roleOf): bool {
-            return $roleOf($user) === RoleName::ManagerHR->value || $isHighest($user);
-        });
-
-        Gate::define('logistic-master-manage', static function (User $user) use ($isHighest, $roleOf): bool {
-            return $roleOf($user) === RoleName::ManagerLogistic->value || $isHighest($user);
-        });
-
-        Gate::define('logistic-stockcard', static function (User $user) use ($isHighest, $hasAny): bool {
-            return $hasAny($user, [
-                RoleName::ManagerLogistic->value,
-                RoleName::StaffLogistic->value,
-            ]) || $isHighest($user);
-        });
-
-        Gate::define('logistic-report-access', static function (User $user) use ($isHighest, $roleOf): bool {
-            return $roleOf($user) === RoleName::ManagerLogistic->value || $isHighest($user);
-        });
-
-        Gate::define('stock-opname-access', static function (User $user) use ($isHighest, $hasAny): bool {
-            return $hasAny($user, [
-                RoleName::ManagerLogistic->value,
-                RoleName::StaffLogistic->value,
-                RoleName::Marketing->value,
-            ]) || $isHighest($user);
-        });
-
-        Gate::define('po-ho-approve', static function (User $user) use ($isHighest): bool {
-            return $isHighest($user);
-        });
-
-        Gate::define('po-manage', static function (User $user) use ($isHighest, $roleOf): bool {
-            return $roleOf($user) === RoleName::ManagerLogistic->value || $isHighest($user);
-        });
-
-        Gate::define('po-operate', static function (User $user) use ($isHighest, $hasAny): bool {
-            return $hasAny($user, [
-                RoleName::ManagerLogistic->value,
-                RoleName::StaffLogistic->value,
-            ]) || $isHighest($user);
-        });
-
-        Gate::define('sales-master-manage', static function (User $user) use ($isHighest, $roleOf): bool {
-            return $roleOf($user) === RoleName::ManagerSales->value || $isHighest($user);
-        });
-
-        Gate::define('pos-operate', static function (User $user) use ($isHighest, $hasAny): bool {
-            return $hasAny($user, [
-                RoleName::ManagerSales->value,
-                RoleName::Cashier->value,
-                RoleName::Sales->value,
-                RoleName::Marketing->value,
-            ]) || $isHighest($user);
-        });
-
-        Gate::define('admin-manager-only-delete', static function (User $user) use ($hasAny): bool {
-            return $hasAny($user, [
-                RoleName::ManagerHR->value,
-                RoleName::ManagerLogistic->value,
-                RoleName::ManagerSales->value,
-                RoleName::ManagerFinance->value,
-                RoleName::SuperAdmin->value,
-                RoleName::Director->value,
-            ]);
         });
     }
 }
