@@ -1,6 +1,6 @@
 <script lang="ts">
-    import backgroundImageDay from "@img/agriculture-day.png";
-    import backgroundImageNight from "@img/agriculture-night.png";
+    import backgroundImageDay from "@img/day.jpg";
+    import backgroundImageNight from "@img/night.jpg";
     import { onMount } from "svelte";
     import { applyThemeClass } from "@/Lib/Admin/Hooks/sidebar";
     import icon from "@img/icon.png";

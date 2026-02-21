@@ -153,7 +153,7 @@
     }
 
     function handleLogout() {
-        router.post("/logout");
+        router.post("/admin/logout");
     }
 
     function closeDropdowns(event: MouseEvent) {
@@ -606,7 +606,7 @@
                         <button
                             onclick={() => {
                                 closeSidebarOnMobile();
-                                router.visit("/notifications");
+                                router.visit("/admin/notifications");
                             }}
                             class="block w-full text-center py-2 text-sm
                                    text-[#0060B2] dark:text-[#0060B2]
@@ -677,8 +677,8 @@
                             const role = userRole();
                             router.visit(
                                 role === "Admin"
-                                    ? "/settings"
-                                    : "/account/settings",
+                                    ? "/admin/settings"
+                                    : "/admin/account/settings",
                             );
                         }}
                         class="w-full flex items-center px-4 py-2.5
