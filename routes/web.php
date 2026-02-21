@@ -29,7 +29,7 @@ Route::get('/', fn() => inertia('Customer/Home'))
 // Customer guest routes
 Route::middleware('guest:customer')->group(function () {
     Route::get('/login', [CustomerLoginController::class, 'show'])
-        ->name('customer.login');
+        ->name('login');
     Route::post('/login', [CustomerLoginController::class, 'authenticate'])
         ->name('customer.login.store');
 });
