@@ -49,9 +49,6 @@ class DropPointController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new drop point.
-     */
     public function create(): Response
     {
         return Inertia::render('Domains/Admin/DropPoint/Form', [
@@ -82,7 +79,7 @@ class DropPointController extends Controller
             return redirect()->route('admin.drop-points.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membuat Drop Point: '.$e->getMessage(),
+                'message' => 'Gagal membuat Drop Point: ' . $e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -123,7 +120,7 @@ class DropPointController extends Controller
             return redirect()->route('admin.drop-points.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui Drop Point: '.$e->getMessage(),
+                'message' => 'Gagal memperbarui Drop Point: ' . $e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -147,7 +144,7 @@ class DropPointController extends Controller
             return redirect()->route('admin.drop-points.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus Drop Point: '.$e->getMessage(),
+                'message' => 'Gagal menghapus Drop Point: ' . $e->getMessage(),
                 'type' => 'error',
             ]);
 

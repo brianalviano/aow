@@ -16,8 +16,8 @@ return [
      * TomTom Geofence
      */
     'geofence' => [
-        'center_lat' => (float) env('ATTENDANCE_CENTER_LAT', 0),
-        'center_long' => (float) env('ATTENDANCE_CENTER_LONG', 0),
+        'center_lat' => (float) env('ATTENDANCE_CENTER_LAT', -7.322206775241284),
+        'center_long' => (float) env('ATTENDANCE_CENTER_LONG', 112.79465848983943),
         'radius_m' => (int) env('ATTENDANCE_RADIUS_M', 100),
     ],
 ];
