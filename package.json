@@ -21,8 +21,10 @@
     },
     "dependencies": {
         "@inertiajs/svelte": "^2.3.15",
+        "@tomtom-org/maps-sdk": "^0.45.5",
         "axios": "^1.13.5",
         "chart.js": "^4.5.1",
-        "fuse.js": "^7.1.0"
+        "fuse.js": "^7.1.0",
+        "maplibre-gl": "^5.18.0"
     }
 }

@@ -7,6 +7,7 @@
     import Checkbox from "@/Lib/Admin/Components/Ui/Checkbox.svelte";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
     import { untrack, onMount, onDestroy } from "svelte";
+    import debounce from "lodash-es/debounce";
 
     // TomTom Map Types
     type TomTomMap = any;
@@ -79,6 +80,55 @@
     let marker: any = null;
     let mapLoaded = $state(false);
 
+    let searchLocationQuery = $state("");
+    let searchLocationResults = $state<any[]>([]);
+
+    const searchLocation = debounce(async (query: string) => {
+        if (!query || query.length < 3) {
+            searchLocationResults = [];
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `https://api.tomtom.com/search/2/search/${encodeURIComponent(
+                    query,
+                )}.json?key=${tomtomApiKey}&limit=5&countrySet=ID`,
+            );
+            const data = await response.json();
+            searchLocationResults = data.results || [];
+        } catch (error) {
+            console.error("Search failed", error);
+            searchLocationResults = [];
+        }
+    }, 500);
+
+    $effect(() => {
+        searchLocation(searchLocationQuery);
+    });
+
+    // Effect to update map when inputs change manually
+    $effect(() => {
+        const lat = Number($form.latitude);
+        const lng = Number($form.longitude);
+        if (!isNaN(lat) && !isNaN(lng) && map && marker) {
+            const newCenter = [lng, lat];
+            marker.setLngLat(newCenter);
+            map.flyTo({ center: newCenter });
+        }
+    });
+
+    function selectLocation(result: any) {
+        if (result.position) {
+            $form.latitude = result.position.lat;
+            $form.longitude = result.position.lon;
+            searchLocationQuery = result.poi
+                ? result.poi.name
+                : result.address.streetName || result.address.freeformAddress;
+            searchLocationResults = [];
+        }
+    }
+
     onMount(() => {
         // Using dynamically injected TomTom scripts from _app context or waiting for window mount.
         // We ensure tt library is available.
@@ -90,11 +140,6 @@
             script.src =
                 "https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js";
             script.onload = () => {
-                const css = document.createElement("link");
-                css.rel = "stylesheet";
-                css.href =
-                    "https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css";
-                document.head.appendChild(css);
                 initMap();
             };
             document.head.appendChild(script);
@@ -142,17 +187,6 @@
             $form.latitude = lngLat.lat;
         });
 
-        // Effect to update map when inputs change manually
-        $effect(() => {
-            const lat = Number($form.latitude);
-            const lng = Number($form.longitude);
-            if (!isNaN(lat) && !isNaN(lng) && map && marker) {
-                const newCenter = [lng, lat];
-                marker.setLngLat(newCenter);
-                map.flyTo({ center: newCenter });
-            }
-        });
-
         mapLoaded = true;
     }
 
@@ -185,6 +219,10 @@
             $page.props.settings,
         )}</title
     >
+    <link
+        rel="stylesheet"
+        href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css"
+    />
 </svelte:head>
 
 <section class="space-y-6">
@@ -342,9 +380,52 @@
                     {#snippet children()}
                         <div class="space-y-4 h-full flex flex-col">
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                Geser pin atau klik pada peta untuk menentukan
+                                Geser pin atau cari lokasi untuk menentukan
                                 kordinat titik pengiriman.
                             </p>
+
+                            <div class="relative">
+                                <TextInput
+                                    id="search_location"
+                                    name="search_location"
+                                    placeholder="Cari nama jalan atau tempat..."
+                                    bind:value={searchLocationQuery}
+                                    class="mb-0!"
+                                />
+                                {#if searchLocationResults.length > 0}
+                                    <ul
+                                        class="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto"
+                                    >
+                                        {#each searchLocationResults as result}
+                                            <li>
+                                                <button
+                                                    type="button"
+                                                    class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+                                                    onclick={() =>
+                                                        selectLocation(result)}
+                                                >
+                                                    <div
+                                                        class="text-sm font-medium text-gray-900 dark:text-white"
+                                                    >
+                                                        {result.poi
+                                                            ? result.poi.name
+                                                            : result.address
+                                                                  .streetName ||
+                                                              result.address
+                                                                  .freeformAddress}
+                                                    </div>
+                                                    <div
+                                                        class="text-xs text-gray-500 dark:text-gray-400"
+                                                    >
+                                                        {result.address
+                                                            .freeformAddress}
+                                                    </div>
+                                                </button>
+                                            </li>
+                                        {/each}
+                                    </ul>
+                                {/if}
+                            </div>
 
                             <div
                                 class="w-full h-80 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
