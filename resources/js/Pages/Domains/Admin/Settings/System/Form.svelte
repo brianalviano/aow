@@ -152,325 +152,375 @@
         </div>
     </header>
 
-    <form
-        id="settings-form"
-        onsubmit={submitForm}
-        class="grid grid-cols-1 gap-6 lg:grid-cols-2"
-    >
-        <div class="space-y-6">
-            <Card title="Profil Perusahaan" collapsible={false}>
-                {#snippet children()}
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div class="md:col-span-2">
+    <form id="settings-form" onsubmit={submitForm} class="space-y-10">
+        <!-- Bagian Profil Perusahaan -->
+        <section>
+            <div
+                class="mb-5 border-b border-gray-200 pb-3 dark:border-gray-700"
+            >
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Pengaturan Perusahaan
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Kelola profil usaha, kontak, dan tautan media sosial.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+                <Card title="Profil Perusahaan" collapsible={false}>
+                    {#snippet children()}
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div class="md:col-span-2">
+                                <TextInput
+                                    id="name"
+                                    name="name"
+                                    label="Nama Usaha"
+                                    placeholder="Nama aplikasi/usaha"
+                                    bind:value={$form.name}
+                                    error={$form.errors.name}
+                                    required
+                                />
+                            </div>
                             <TextInput
-                                id="name"
-                                name="name"
-                                label="Nama Usaha"
-                                placeholder="Nama aplikasi/usaha"
-                                bind:value={$form.name}
-                                error={$form.errors.name}
-                                required
+                                id="email"
+                                name="email"
+                                label="Email"
+                                type="email"
+                                placeholder="email@domain.com"
+                                bind:value={$form.email}
+                                error={$form.errors.email}
+                            />
+                            <TextInput
+                                id="phone"
+                                name="phone"
+                                label="No. Telepon"
+                                placeholder="021xxxxxxx"
+                                bind:value={$form.phone}
+                                error={$form.errors.phone}
+                            />
+                            <TextInput
+                                id="whatsapp"
+                                name="whatsapp"
+                                label="No. WhatsApp"
+                                placeholder="628xxxxxxx"
+                                bind:value={$form.whatsapp}
+                                error={$form.errors.whatsapp}
+                            />
+                            <div class="md:col-span-2">
+                                <TextArea
+                                    id="address"
+                                    name="address"
+                                    label="Alamat"
+                                    placeholder="Alamat lengkap"
+                                    error={$form.errors.address}
+                                    bind:value={$form.address}
+                                />
+                            </div>
+                        </div>
+                    {/snippet}
+                </Card>
+
+                <Card title="Media Sosial" collapsible={false}>
+                    {#snippet children()}
+                        <div class="space-y-4">
+                            <TextInput
+                                id="instagram"
+                                name="instagram"
+                                label="URL / Username Instagram"
+                                placeholder="https://instagram.com/..."
+                                bind:value={$form.instagram}
+                                error={$form.errors.instagram}
+                            />
+                            <TextInput
+                                id="facebook"
+                                name="facebook"
+                                label="URL / Username Facebook"
+                                placeholder="https://facebook.com/..."
+                                bind:value={$form.facebook}
+                                error={$form.errors.facebook}
+                            />
+                            <TextInput
+                                id="tiktok"
+                                name="tiktok"
+                                label="URL / Username TikTok"
+                                placeholder="https://tiktok.com/@..."
+                                bind:value={$form.tiktok}
+                                error={$form.errors.tiktok}
                             />
                         </div>
-                        <TextInput
-                            id="email"
-                            name="email"
-                            label="Email"
-                            type="email"
-                            placeholder="email@domain.com"
-                            bind:value={$form.email}
-                            error={$form.errors.email}
-                        />
-                        <TextInput
-                            id="phone"
-                            name="phone"
-                            label="No. Telepon"
-                            placeholder="021xxxxxxx"
-                            bind:value={$form.phone}
-                            error={$form.errors.phone}
-                        />
-                        <TextInput
-                            id="whatsapp"
-                            name="whatsapp"
-                            label="No. WhatsApp"
-                            placeholder="628xxxxxxx"
-                            bind:value={$form.whatsapp}
-                            error={$form.errors.whatsapp}
-                        />
-                        <div class="md:col-span-2">
-                            <TextArea
-                                id="address"
-                                name="address"
-                                label="Alamat"
-                                placeholder="Alamat lengkap"
-                                error={$form.errors.address}
-                                bind:value={$form.address}
+                    {/snippet}
+                </Card>
+            </div>
+        </section>
+
+        <!-- Bagian Sistem -->
+        <section>
+            <div
+                class="mb-5 border-b border-gray-200 pb-3 dark:border-gray-700"
+            >
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Pengaturan Sistem
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Konfigurasi operasional aplikasi seperti order, biaya
+                    tambahan, dan opsi notifikasi.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+                <Card title="Pengaturan Order & Waktu" collapsible={false}>
+                    {#snippet children()}
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <TimeInput
+                                id="order_cutoff_time"
+                                name="order_cutoff_time"
+                                label="Batas Order (Cut-off)"
+                                bind:value={$form.order_cutoff_time}
+                                error={$form.errors.order_cutoff_time}
                             />
-                        </div>
-                    </div>
-                {/snippet}
-            </Card>
-
-            <Card title="Media Sosial" collapsible={false}>
-                {#snippet children()}
-                    <div class="space-y-4">
-                        <TextInput
-                            id="instagram"
-                            name="instagram"
-                            label="URL / Username Instagram"
-                            placeholder="https://instagram.com/..."
-                            bind:value={$form.instagram}
-                            error={$form.errors.instagram}
-                        />
-                        <TextInput
-                            id="facebook"
-                            name="facebook"
-                            label="URL / Username Facebook"
-                            placeholder="https://facebook.com/..."
-                            bind:value={$form.facebook}
-                            error={$form.errors.facebook}
-                        />
-                        <TextInput
-                            id="tiktok"
-                            name="tiktok"
-                            label="URL / Username TikTok"
-                            placeholder="https://tiktok.com/@..."
-                            bind:value={$form.tiktok}
-                            error={$form.errors.tiktok}
-                        />
-                    </div>
-                {/snippet}
-            </Card>
-        </div>
-
-        <div class="space-y-6">
-            <Card title="Pengaturan Order & Waktu" collapsible={false}>
-                {#snippet children()}
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <TimeInput
-                            id="order_cutoff_time"
-                            name="order_cutoff_time"
-                            label="Batas Order (Cut-off)"
-                            bind:value={$form.order_cutoff_time}
-                            error={$form.errors.order_cutoff_time}
-                        />
-                        <TextInput
-                            id="order_min_days_ahead"
-                            name="order_min_days_ahead"
-                            type="number"
-                            label="Minimal H- (Days Ahead)"
-                            bind:value={$form.order_min_days_ahead}
-                            error={$form.errors.order_min_days_ahead}
-                        />
-                        <div class="md:col-span-2">
                             <TextInput
-                                id="payment_expired_duration"
-                                name="payment_expired_duration"
+                                id="order_min_days_ahead"
+                                name="order_min_days_ahead"
                                 type="number"
-                                label="Batas Waktu Pembayaran (Menit)"
-                                bind:value={$form.payment_expired_duration}
-                                error={$form.errors.payment_expired_duration}
+                                label="Minimal Hari Pemesanan Sebelumnya"
+                                bind:value={$form.order_min_days_ahead}
+                                error={$form.errors.order_min_days_ahead}
                             />
+                            <div class="md:col-span-2">
+                                <TextInput
+                                    id="payment_expired_duration"
+                                    name="payment_expired_duration"
+                                    type="number"
+                                    label="Batas Waktu Pembayaran (Menit)"
+                                    bind:value={$form.payment_expired_duration}
+                                    error={$form.errors
+                                        .payment_expired_duration}
+                                />
+                            </div>
                         </div>
-                    </div>
-                {/snippet}
-            </Card>
+                    {/snippet}
+                </Card>
 
-            <Card title="Ongkos Kirim" collapsible={false}>
-                {#snippet children()}
-                    <div class="space-y-4">
-                        <Select
-                            id="delivery_fee_mode"
-                            value={$form.delivery_fee_mode}
-                            onchange={(val) =>
-                                ($form.delivery_fee_mode = val.toString())}
-                            label="Mode Ongkir"
-                            options={[
-                                {
-                                    label: "Hitung Per Titik Antar",
-                                    value: "per_drop_point",
-                                },
-                                { label: "Flat (Pukul Rata)", value: "flat" },
-                                { label: "Gratis Semua", value: "free" },
-                            ]}
-                            error={$form.errors.delivery_fee_mode}
-                        />
-
-                        {#if $form.delivery_fee_mode === "flat"}
-                            <TextInput
-                                id="delivery_fee_flat"
-                                name="delivery_fee_flat"
-                                type="number"
-                                label="Nominal Ongkir Flat (Rp)"
-                                bind:value={$form.delivery_fee_flat}
-                                error={$form.errors.delivery_fee_flat}
-                            />
-                        {/if}
-
-                        <TextInput
-                            id="free_courier_min_order"
-                            name="free_courier_min_order"
-                            type="number"
-                            label="Minimum Order Tampil Kurir Gratis (Rp)"
-                            bind:value={$form.free_courier_min_order}
-                            error={$form.errors.free_courier_min_order}
-                        />
-                    </div>
-                {/snippet}
-            </Card>
-
-            <Card title="Biaya Admin App" collapsible={false}>
-                {#snippet children()}
-                    <div class="space-y-4">
-                        <Checkbox
-                            id="admin_fee_enabled"
-                            bind:checked={$form.admin_fee_enabled}
-                            label="Aktifkan Biaya Layanan Aplikasi"
-                        />
-                        {#if $form.admin_fee_enabled}
+                <Card title="Ongkos Kirim" collapsible={false}>
+                    {#snippet children()}
+                        <div class="space-y-4">
                             <Select
-                                id="admin_fee_type"
-                                value={$form.admin_fee_type}
+                                id="delivery_fee_mode"
+                                value={$form.delivery_fee_mode}
                                 onchange={(val) =>
-                                    ($form.admin_fee_type = val.toString())}
-                                label="Tipe Biaya"
+                                    ($form.delivery_fee_mode = val.toString())}
+                                label="Mode Ongkir"
                                 options={[
-                                    { label: "Nominal Tetap", value: "fixed" },
                                     {
-                                        label: "Persentase (%)",
-                                        value: "percentage",
+                                        label: "Hitung Per Titik Antar",
+                                        value: "per_drop_point",
                                     },
+                                    {
+                                        label: "Flat (Pukul Rata)",
+                                        value: "flat",
+                                    },
+                                    { label: "Gratis Semua", value: "free" },
                                 ]}
+                                error={$form.errors.delivery_fee_mode}
                             />
+
+                            {#if $form.delivery_fee_mode === "flat"}
+                                <TextInput
+                                    id="delivery_fee_flat"
+                                    name="delivery_fee_flat"
+                                    type="number"
+                                    label="Nominal Ongkir Flat (Rp)"
+                                    bind:value={$form.delivery_fee_flat}
+                                    error={$form.errors.delivery_fee_flat}
+                                />
+                            {/if}
+
                             <TextInput
-                                id="admin_fee_value"
-                                name="admin_fee_value"
+                                id="free_courier_min_order"
+                                name="free_courier_min_order"
                                 type="number"
-                                label="Nilai Biaya Admin"
-                                bind:value={$form.admin_fee_value}
-                                error={$form.errors.admin_fee_value}
+                                label="Minimal Belanja untuk Gratis Ongkir (Rp)"
+                                bind:value={$form.free_courier_min_order}
+                                error={$form.errors.free_courier_min_order}
                             />
-                        {/if}
-                    </div>
-                {/snippet}
-            </Card>
+                        </div>
+                    {/snippet}
+                </Card>
 
-            <Card title="Notifikasi Telegram" collapsible={false}>
-                {#snippet children()}
-                    <div class="space-y-4">
-                        <Checkbox
-                            id="telegram_enabled"
-                            bind:checked={$form.telegram_enabled}
-                            label="Aktifkan Notifikasi Telegram (Admin)"
-                        />
-
-                        {#if $form.telegram_enabled}
-                            <TextInput
-                                id="telegram_bot_token"
-                                name="telegram_bot_token"
-                                label="Bot Token (@BotFather)"
-                                bind:value={$form.telegram_bot_token}
-                                error={$form.errors.telegram_bot_token}
+                <Card title="Biaya Admin App" collapsible={false}>
+                    {#snippet children()}
+                        <div class="space-y-4">
+                            <Checkbox
+                                id="admin_fee_enabled"
+                                bind:checked={$form.admin_fee_enabled}
+                                label="Aktifkan Biaya Layanan Aplikasi"
                             />
-                            <TextInput
-                                id="telegram_admin_chat_id"
-                                name="telegram_admin_chat_id"
-                                label="Chat ID Admin"
-                                bind:value={$form.telegram_admin_chat_id}
-                                error={$form.errors.telegram_admin_chat_id}
-                            />
-
-                            <div class="space-y-2 pt-2">
-                                <p
-                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
-                                >
-                                    Pemicu Kirim:
-                                </p>
-                                <Checkbox
-                                    id="tl_create"
-                                    bind:checked={
-                                        $form.telegram_notify_order_created
-                                    }
-                                    label="Ada Order Masuk"
+                            {#if $form.admin_fee_enabled}
+                                <Select
+                                    id="admin_fee_type"
+                                    value={$form.admin_fee_type}
+                                    onchange={(val) =>
+                                        ($form.admin_fee_type = val.toString())}
+                                    label="Tipe Biaya"
+                                    options={[
+                                        {
+                                            label: "Nominal Tetap",
+                                            value: "fixed",
+                                        },
+                                        {
+                                            label: "Persentase (%)",
+                                            value: "percentage",
+                                        },
+                                    ]}
                                 />
-                                <Checkbox
-                                    id="tl_paid"
-                                    bind:checked={
-                                        $form.telegram_notify_order_paid
-                                    }
-                                    label="Order Berhasil Dibayar"
+                                <TextInput
+                                    id="admin_fee_value"
+                                    name="admin_fee_value"
+                                    type="number"
+                                    label="Nilai Biaya Admin"
+                                    bind:value={$form.admin_fee_value}
+                                    error={$form.errors.admin_fee_value}
                                 />
-                                <Checkbox
-                                    id="tl_cancel"
-                                    bind:checked={
-                                        $form.telegram_notify_order_cancelled
-                                    }
-                                    label="Order Dibatalkan"
-                                />
-                            </div>
-                        {/if}
-                    </div>
-                {/snippet}
-            </Card>
+                            {/if}
+                        </div>
+                    {/snippet}
+                </Card>
+            </div>
+        </section>
 
-            <Card title="Notifikasi WhatsApp" collapsible={false}>
-                {#snippet children()}
-                    <div class="space-y-4">
-                        <Checkbox
-                            id="whatsapp_enabled"
-                            bind:checked={$form.whatsapp_enabled}
-                            label="Aktifkan Notifikasi WhatsApp (Customer)"
-                        />
+        <!-- Bagian Notifikasi -->
+        <section>
+            <div
+                class="mb-5 border-b border-gray-200 pb-3 dark:border-gray-700"
+            >
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Pengaturan Notifikasi
+                </h2>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Atur koneksi notifikasi otomatis via Telegram dan WhatsApp.
+                </p>
+            </div>
 
-                        {#if $form.whatsapp_enabled}
-                            <TextInput
-                                id="whatsapp_access_token"
-                                name="whatsapp_access_token"
-                                type="password"
-                                label="Access Token WHATSAPP"
-                                bind:value={$form.whatsapp_access_token}
-                                error={$form.errors.whatsapp_access_token}
-                            />
-                            <TextInput
-                                id="whatsapp_phone_number_id"
-                                name="whatsapp_phone_number_id"
-                                label="Phone Number ID"
-                                bind:value={$form.whatsapp_phone_number_id}
-                                error={$form.errors.whatsapp_phone_number_id}
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+                <Card title="Notifikasi Telegram" collapsible={false}>
+                    {#snippet children()}
+                        <div class="space-y-4">
+                            <Checkbox
+                                id="telegram_enabled"
+                                bind:checked={$form.telegram_enabled}
+                                label="Aktifkan Notifikasi Telegram (Admin)"
                             />
 
-                            <div class="space-y-2 pt-2">
-                                <p
-                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
-                                >
-                                    Pemicu Kirim:
-                                </p>
-                                <Checkbox
-                                    id="wa_create"
-                                    bind:checked={
-                                        $form.whatsapp_notify_order_created
-                                    }
-                                    label="Saat Order Dibuat"
+                            {#if $form.telegram_enabled}
+                                <TextInput
+                                    id="telegram_bot_token"
+                                    name="telegram_bot_token"
+                                    label="Bot Token (@BotFather)"
+                                    type="password"
+                                    bind:value={$form.telegram_bot_token}
+                                    error={$form.errors.telegram_bot_token}
                                 />
-                                <Checkbox
-                                    id="wa_confirm"
-                                    bind:checked={
-                                        $form.whatsapp_notify_order_confirmed
-                                    }
-                                    label="Saat Order Dikonfirmasi Admin"
+                                <TextInput
+                                    id="telegram_admin_chat_id"
+                                    name="telegram_admin_chat_id"
+                                    label="Chat ID Admin"
+                                    bind:value={$form.telegram_admin_chat_id}
+                                    error={$form.errors.telegram_admin_chat_id}
                                 />
-                                <Checkbox
-                                    id="wa_deliver"
-                                    bind:checked={
-                                        $form.whatsapp_notify_order_delivered
-                                    }
-                                    label="Saat Order Dikirim"
+
+                                <div class="space-y-2 pt-2">
+                                    <p
+                                        class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                    >
+                                        Pemicu Kirim:
+                                    </p>
+                                    <Checkbox
+                                        id="tl_create"
+                                        bind:checked={
+                                            $form.telegram_notify_order_created
+                                        }
+                                        label="Ada Order Masuk"
+                                    />
+                                    <Checkbox
+                                        id="tl_paid"
+                                        bind:checked={
+                                            $form.telegram_notify_order_paid
+                                        }
+                                        label="Order Berhasil Dibayar"
+                                    />
+                                    <Checkbox
+                                        id="tl_cancel"
+                                        bind:checked={
+                                            $form.telegram_notify_order_cancelled
+                                        }
+                                        label="Order Dibatalkan"
+                                    />
+                                </div>
+                            {/if}
+                        </div>
+                    {/snippet}
+                </Card>
+
+                <Card title="Notifikasi WhatsApp" collapsible={false}>
+                    {#snippet children()}
+                        <div class="space-y-4">
+                            <Checkbox
+                                id="whatsapp_enabled"
+                                bind:checked={$form.whatsapp_enabled}
+                                label="Aktifkan Notifikasi WhatsApp (Customer)"
+                            />
+
+                            {#if $form.whatsapp_enabled}
+                                <TextInput
+                                    id="whatsapp_access_token"
+                                    name="whatsapp_access_token"
+                                    type="password"
+                                    label="Access Token WHATSAPP"
+                                    bind:value={$form.whatsapp_access_token}
+                                    error={$form.errors.whatsapp_access_token}
                                 />
-                            </div>
-                        {/if}
-                    </div>
-                {/snippet}
-            </Card>
-        </div>
+                                <TextInput
+                                    id="whatsapp_phone_number_id"
+                                    name="whatsapp_phone_number_id"
+                                    label="Phone Number ID"
+                                    bind:value={$form.whatsapp_phone_number_id}
+                                    error={$form.errors
+                                        .whatsapp_phone_number_id}
+                                />
+
+                                <div class="space-y-2 pt-2">
+                                    <p
+                                        class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                    >
+                                        Pemicu Kirim:
+                                    </p>
+                                    <Checkbox
+                                        id="wa_create"
+                                        bind:checked={
+                                            $form.whatsapp_notify_order_created
+                                        }
+                                        label="Saat Order Dibuat"
+                                    />
+                                    <Checkbox
+                                        id="wa_confirm"
+                                        bind:checked={
+                                            $form.whatsapp_notify_order_confirmed
+                                        }
+                                        label="Saat Order Dikonfirmasi Admin"
+                                    />
+                                    <Checkbox
+                                        id="wa_deliver"
+                                        bind:checked={
+                                            $form.whatsapp_notify_order_delivered
+                                        }
+                                        label="Saat Order Dikirim"
+                                    />
+                                </div>
+                            {/if}
+                        </div>
+                    {/snippet}
+                </Card>
+            </div>
+        </section>
     </form>
 </section>
