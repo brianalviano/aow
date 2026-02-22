@@ -671,28 +671,36 @@
                            shadow-2xl border border-gray-200 dark:border-[#1a1a1a]
                            overflow-hidden"
                 >
+                    {#if userRole() === "Super Admin"}
+                        <button
+                            onclick={() => {
+                                closeSidebarOnMobile();
+                                router.visit("/admin/settings");
+                            }}
+                            class="w-full flex items-center px-4 py-2.5
+                                   hover:bg-gray-50 dark:hover:bg-gray-800
+                                   transition-colors text-gray-700 dark:text-gray-300
+                                   text-sm"
+                        >
+                            <i class="w-4 text-sm text-center fa-solid fa-cog"
+                            ></i>
+                            <span class="ml-3">Pengaturan Sistem</span>
+                        </button>
+                    {/if}
+
                     <button
                         onclick={() => {
                             closeSidebarOnMobile();
-                            const role = userRole();
-                            router.visit(
-                                role === "Admin" || role === "SuperAdmin"
-                                    ? "/admin/settings"
-                                    : "/admin/account/settings",
-                            );
+                            router.visit("/admin/account/settings");
                         }}
                         class="w-full flex items-center px-4 py-2.5
                                hover:bg-gray-50 dark:hover:bg-gray-800
                                transition-colors text-gray-700 dark:text-gray-300
-                               text-sm"
+                               text-sm border-t border-gray-100 dark:border-[#1a1a1a]"
                     >
-                        <i class="w-4 text-sm text-center fa-solid fa-cog"></i>
-                        <span class="ml-3"
-                            >{userRole() === "Admin" ||
-                            userRole() === "SuperAdmin"
-                                ? "Pengaturan Sistem"
-                                : "Pengaturan Akun"}</span
-                        >
+                        <i class="w-4 text-sm text-center fa-solid fa-user-cog"
+                        ></i>
+                        <span class="ml-3">Pengaturan Akun</span>
                     </button>
 
                     <div
