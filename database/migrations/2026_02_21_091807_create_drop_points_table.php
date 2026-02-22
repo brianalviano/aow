@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('address');
-            $table->string('phone');
+            $table->string('phone')->nullable();
             $table->float('latitude');
             $table->float('longitude');
             $table->string('pic_name')->nullable();

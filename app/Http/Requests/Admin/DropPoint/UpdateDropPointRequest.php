@@ -26,11 +26,11 @@ class UpdateDropPointRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string'],
-            'phone' => ['required', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:20'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'pic_name' => ['required', 'string', 'max:255'],
-            'pic_phone' => ['required', 'string', 'max:20'],
+            'pic_name' => ['nullable', 'string', 'max:255'],
+            'pic_phone' => ['nullable', 'string', 'max:20'],
             'is_active' => ['sometimes', 'boolean'],
             'delivery_fee' => ['required', 'integer', 'min:0'],
         ];

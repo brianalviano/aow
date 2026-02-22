@@ -17,11 +17,11 @@
         id: string;
         name: string;
         address: string;
-        phone: string;
+        phone: string | null;
         latitude: number;
         longitude: number;
-        pic_name: string;
-        pic_phone: string;
+        pic_name: string | null;
+        pic_phone: string | null;
         is_active: boolean;
         delivery_fee: number;
         created_at: string;
@@ -292,7 +292,6 @@
                                 placeholder="Contoh: 021-1234567"
                                 bind:value={$form.phone}
                                 error={$form.errors.phone}
-                                required
                             />
 
                             <TextInput
@@ -357,7 +356,6 @@
                                 placeholder="Nama orang yang bertanggung jawab di titik ini"
                                 bind:value={$form.pic_name}
                                 error={$form.errors.pic_name}
-                                required
                             />
 
                             <TextInput
@@ -367,7 +365,6 @@
                                 placeholder="Contoh: 08123456789"
                                 bind:value={$form.pic_phone}
                                 error={$form.errors.pic_phone}
-                                required
                             />
                         </div>
                     {/snippet}

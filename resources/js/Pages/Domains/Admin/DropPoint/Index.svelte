@@ -14,7 +14,7 @@
         id: string;
         name: string;
         address: string;
-        phone: string;
+        phone: string | null;
         latitude: number;
         longitude: number;
         pic_name: string;
