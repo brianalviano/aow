@@ -21,10 +21,16 @@ class ProductService
     /**
      * Get paginated products.
      */
-    public function getPaginated(int $perPage = 10)
+    public function getPaginated(int $perPage = 10, ?string $search = null, ?string $categoryId = null)
     {
         return Product::query()
             ->with(['productCategory'])
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'ilike', "%{$search}%");
+            })
+            ->when($categoryId, function ($query, $categoryId) {
+                $query->where('product_category_id', $categoryId);
+            })
             ->orderBy('sort_order', 'asc')
             ->orderBy('name', 'asc')
             ->paginate($perPage);

@@ -14,6 +14,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -30,12 +31,22 @@ class ProductController extends Controller
     /**
      * Display a listing of products.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $products = $this->productService->getPaginated();
+        $search = $request->query('search');
+        $categoryId = $request->query('category_id');
+        $limit = (int) $request->query('limit', 15);
+
+        $products = $this->productService->getPaginated($limit, $search, $categoryId);
+        $categories = ProductCategory::orderBy('sort_order', 'asc')->orderBy('name', 'asc')->get();
 
         return Inertia::render('Domains/Admin/Product/Index', [
             'products' => ProductResource::collection($products),
+            'categories' => ProductCategoryResource::collection($categories),
+            'filters' => [
+                'search' => $search,
+                'category_id' => $categoryId,
+            ],
         ]);
     }
 

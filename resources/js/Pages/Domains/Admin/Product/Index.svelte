@@ -2,11 +2,14 @@
     import { page, router } from "@inertiajs/svelte";
     import Card from "@/Lib/Admin/Components/Ui/Card.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
+    import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
+    import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import Pagination from "@/Lib/Admin/Components/Ui/Pagination.svelte";
     import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
-    import { formatDateDisplay } from "@/Lib/Admin/Utils/date";
+    import { untrack } from "svelte";
+    import debounce from "lodash-es/debounce";
 
     interface ProductCategory {
         id: string;
@@ -35,6 +38,24 @@
             meta?: any;
         },
     );
+
+    let categories = $derived(
+        ($page.props.categories as { data: ProductCategory[] })?.data ?? [],
+    );
+
+    let categoryOptions = $derived([
+        { value: "", label: "Semua Kategori" },
+        ...categories.map((c) => ({ value: c.id, label: c.name })),
+    ]);
+
+    let filters = $derived(
+        $page.props.filters as
+            | { search?: string; category_id?: string }
+            | undefined,
+    );
+
+    let searchQuery = $state(untrack(() => filters?.search || ""));
+    let categoryFilter = $state(untrack(() => filters?.category_id || ""));
 
     let meta = $derived(
         products?.meta ?? {
@@ -72,12 +93,34 @@
         const limit = meta.per_page || 15;
         params.set("page", String(pageNumber));
         params.set("limit", String(limit));
+
+        if (searchQuery) {
+            params.set("search", searchQuery);
+        }
+        if (categoryFilter) {
+            params.set("category_id", categoryFilter);
+        }
+
         router.get(
             "/admin/products?" + params.toString(),
             {},
             { preserveState: true, preserveScroll: true },
         );
     }
+
+    const handleSearch = debounce(() => {
+        goToPage(1);
+    }, 500);
+
+    // Watch for search query or category filter changes to trigger debounced search
+    $effect(() => {
+        if (
+            searchQuery !== (filters?.search || "") ||
+            categoryFilter !== (filters?.category_id || "")
+        ) {
+            handleSearch();
+        }
+    });
 
     function formatCurrency(amount: number) {
         return new Intl.NumberFormat("id-ID", {
@@ -116,6 +159,43 @@
     </header>
 
     <Card title="Daftar Produk" bodyWithoutPadding={true}>
+        {#snippet actions()}
+            <div
+                class="flex flex-col sm:flex-row items-center w-full max-w-2xl gap-2"
+            >
+                <div class="w-full sm:w-48">
+                    <Select
+                        id="category_filter"
+                        options={categoryOptions}
+                        bind:value={categoryFilter}
+                    />
+                </div>
+                <div class="flex-1 w-full">
+                    <TextInput
+                        id="search"
+                        name="search"
+                        placeholder="Cari produk..."
+                        bind:value={searchQuery}
+                        class="mb-0!"
+                    />
+                </div>
+                <div class="flex gap-2">
+                    {#if searchQuery || categoryFilter}
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onclick={() => {
+                                searchQuery = "";
+                                categoryFilter = "";
+                                handleSearch();
+                            }}
+                        >
+                            Reset
+                        </Button>
+                    {/if}
+                </div>
+            </div>
+        {/snippet}
         {#snippet children()}
             <div class="overflow-x-auto">
                 <table class="custom-table min-w-full">

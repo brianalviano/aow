@@ -2,11 +2,14 @@
     import { page, router } from "@inertiajs/svelte";
     import Card from "@/Lib/Admin/Components/Ui/Card.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
+    import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import Pagination from "@/Lib/Admin/Components/Ui/Pagination.svelte";
     import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
     import { formatDateDisplay } from "@/Lib/Admin/Utils/date";
+    import { untrack } from "svelte";
+    import debounce from "lodash-es/debounce";
 
     interface ProductCategory {
         id: string;
@@ -23,6 +26,12 @@
             meta?: any;
         },
     );
+
+    let filters = $derived(
+        $page.props.filters as { search?: string } | undefined,
+    );
+
+    let searchQuery = $state(untrack(() => filters?.search || ""));
 
     let meta = $derived(
         productCategories?.meta ?? {
@@ -60,12 +69,26 @@
         const limit = meta.per_page || 15;
         params.set("page", String(pageNumber));
         params.set("limit", String(limit));
+        if (searchQuery) {
+            params.set("search", searchQuery);
+        }
         router.get(
             "/admin/product-categories?" + params.toString(),
             {},
             { preserveState: true, preserveScroll: true },
         );
     }
+
+    const handleSearch = debounce(() => {
+        goToPage(1);
+    }, 500);
+
+    // Watch for search query changes to trigger debounced search
+    $effect(() => {
+        if (searchQuery !== (filters?.search || "")) {
+            handleSearch();
+        }
+    });
 </script>
 
 <svelte:head>
@@ -96,6 +119,31 @@
     </header>
 
     <Card title="Daftar Kategori Produk" bodyWithoutPadding={true}>
+        {#snippet actions()}
+            <div class="flex items-center w-full max-w-sm gap-2">
+                <div class="flex-1">
+                    <TextInput
+                        id="search"
+                        name="search"
+                        placeholder="Cari kategori..."
+                        bind:value={searchQuery}
+                        class="mb-0!"
+                    />
+                </div>
+                {#if searchQuery}
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onclick={() => {
+                            searchQuery = "";
+                            handleSearch();
+                        }}
+                    >
+                        Reset
+                    </Button>
+                {/if}
+            </div>
+        {/snippet}
         {#snippet children()}
             <div class="overflow-x-auto">
                 <table class="custom-table min-w-full">

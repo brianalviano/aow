@@ -12,6 +12,7 @@ use App\Http\Resources\ProductCategoryResource;
 use App\Models\ProductCategory;
 use App\Services\ProductCategoryService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -28,12 +29,18 @@ class ProductCategoryController extends Controller
     /**
      * Display a listing of product categories.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $categories = $this->productCategoryService->getPaginated();
+        $search = $request->query('search');
+        $limit = (int) $request->query('limit', 15);
+
+        $categories = $this->productCategoryService->getPaginated($limit, $search);
 
         return Inertia::render('Domains/Admin/ProductCategory/Index', [
             'productCategories' => ProductCategoryResource::collection($categories),
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 
