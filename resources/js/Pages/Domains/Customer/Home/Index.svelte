@@ -110,50 +110,117 @@
     <title>{name($page.props.settings)}</title>
 </svelte:head>
 
-<div
-    class="min-h-screen bg-gray-50 flex justify-center font-sans text-gray-800"
->
-    <!-- Mobile Container -->
-    <div class="w-full max-w-md bg-white min-h-screen shadow-md relative">
-        <!-- Header -->
-        <header
-            class="flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 z-10"
-        >
-            <div class="flex items-center gap-3">
-                <!-- Logo Mock Area -->
-                <div>
-                    <img
-                        src={icon}
-                        alt="Logo Utama"
-                        loading="lazy"
-                        class="object-contain rounded-lg size-8"
-                    />
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight">
-                        {name($page.props.settings)}
-                    </h1>
-                    <p class="text-xs text-gray-500">
-                        {totalDropPoints} drop points tersedia
-                    </p>
-                </div>
+<div>
+    <!-- Header -->
+    <header
+        class="flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 z-10"
+    >
+        <div class="flex items-center gap-3">
+            <!-- Logo Mock Area -->
+            <div>
+                <img
+                    src={icon}
+                    alt="Logo Utama"
+                    loading="lazy"
+                    class="object-contain rounded-lg size-8"
+                />
             </div>
-            <button
-                class="text-gray-800 p-2 focus:outline-none"
-                aria-label="Menu"
-            >
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
-        </header>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">
+                    {name($page.props.settings)}
+                </h1>
+                <p class="text-xs text-gray-500">
+                    {totalDropPoints} drop points tersedia
+                </p>
+            </div>
+        </div>
+        <button class="text-gray-800 p-2 focus:outline-none" aria-label="Menu">
+            <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+    </header>
 
-        <!-- Main Content -->
-        <main class="p-4 space-y-6">
-            <!-- Current Drop Point -->
-            {#if currentDropPoint}
-                <section>
-                    <h2 class="font-bold text-md mb-3 text-gray-900">
-                        Drop Point Saat Ini
-                    </h2>
+    <!-- Main Content -->
+    <main class="p-4 space-y-6">
+        <!-- Current Drop Point -->
+        {#if currentDropPoint}
+            <section>
+                <h2 class="font-bold text-md mb-3 text-gray-900">
+                    Drop Point Saat Ini
+                </h2>
+                <div
+                    class="border border-gray-200 rounded-xl p-4 shadow-sm bg-white flex items-center justify-between hover:border-blue-300 cursor-pointer transition-colors group"
+                >
+                    <div class="flex-1 pr-4">
+                        <h3
+                            class="font-medium text-gray-900 mb-1 leading-tight"
+                        >
+                            {currentDropPoint.name}
+                        </h3>
+                        <p
+                            class="text-xs text-gray-500 mb-3 leading-relaxed line-clamp-2"
+                        >
+                            {currentDropPoint.address ||
+                                "Alamat tidak tersedia"}
+                        </p>
+                        <div
+                            class="flex items-center text-red-500 text-xs font-medium bg-red-50 w-fit px-2 py-1 rounded-md gap-1"
+                        >
+                            <i class="fa-solid fa-location-dot"></i>
+                            {#if userLocation && currentDropPoint.latitude && currentDropPoint.longitude}
+                                {formatDistance(
+                                    getDistance(
+                                        userLocation.lat,
+                                        userLocation.lng,
+                                        currentDropPoint.latitude,
+                                        currentDropPoint.longitude,
+                                    ),
+                                )}
+                            {:else}
+                                -
+                            {/if}
+                        </div>
+                    </div>
+                    <div
+                        class="text-gray-400 group-hover:text-gray-600 transition-colors"
+                    >
+                        <i class="fa-solid fa-chevron-right text-lg"></i>
+                    </div>
+                </div>
+            </section>
+        {/if}
+
+        <!-- Choose Drop Point -->
+        <section>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="font-bold text-md text-gray-900">
+                    Pilih Drop Point Kamu
+                </h2>
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative mb-4">
+                <div
+                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                    <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                </div>
+                <input
+                    type="text"
+                    bind:value={searchQuery}
+                    class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-shadow shadow-sm"
+                    placeholder="Cari Drop Point"
+                />
+            </div>
+
+            <!-- Drop Point List -->
+            <div class="space-y-3">
+                {#if mainListDropPoints.length === 0}
+                    <div class="text-center py-8 text-gray-500 text-sm">
+                        Tidak ada drop point yang ditemukan.
+                    </div>
+                {/if}
+
+                {#each mainListDropPoints as dp (dp.id)}
                     <div
                         class="border border-gray-200 rounded-xl p-4 shadow-sm bg-white flex items-center justify-between hover:border-blue-300 cursor-pointer transition-colors group"
                     >
@@ -161,27 +228,19 @@
                             <h3
                                 class="font-medium text-gray-900 mb-1 leading-tight"
                             >
-                                {currentDropPoint.name}
+                                {dp.name}
                             </h3>
                             <p
                                 class="text-xs text-gray-500 mb-3 leading-relaxed line-clamp-2"
                             >
-                                {currentDropPoint.address ||
-                                    "Alamat tidak tersedia"}
+                                {dp.address || "Alamat tidak tersedia"}
                             </p>
                             <div
                                 class="flex items-center text-red-500 text-xs font-medium bg-red-50 w-fit px-2 py-1 rounded-md gap-1"
                             >
                                 <i class="fa-solid fa-location-dot"></i>
-                                {#if userLocation && currentDropPoint.latitude && currentDropPoint.longitude}
-                                    {formatDistance(
-                                        getDistance(
-                                            userLocation.lat,
-                                            userLocation.lng,
-                                            currentDropPoint.latitude,
-                                            currentDropPoint.longitude,
-                                        ),
-                                    )}
+                                {#if dp.distance !== null}
+                                    {formatDistance(dp.distance)}
                                 {:else}
                                     -
                                 {/if}
@@ -193,77 +252,8 @@
                             <i class="fa-solid fa-chevron-right text-lg"></i>
                         </div>
                     </div>
-                </section>
-            {/if}
-
-            <!-- Choose Drop Point -->
-            <section>
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="font-bold text-md text-gray-900">
-                        Pilih Drop Point Kamu
-                    </h2>
-                </div>
-
-                <!-- Search Input -->
-                <div class="relative mb-4">
-                    <div
-                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-                    >
-                        <i class="fa-solid fa-magnifying-glass text-gray-400"
-                        ></i>
-                    </div>
-                    <input
-                        type="text"
-                        bind:value={searchQuery}
-                        class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-shadow shadow-sm"
-                        placeholder="Cari Drop Point"
-                    />
-                </div>
-
-                <!-- Drop Point List -->
-                <div class="space-y-3">
-                    {#if mainListDropPoints.length === 0}
-                        <div class="text-center py-8 text-gray-500 text-sm">
-                            Tidak ada drop point yang ditemukan.
-                        </div>
-                    {/if}
-
-                    {#each mainListDropPoints as dp (dp.id)}
-                        <div
-                            class="border border-gray-200 rounded-xl p-4 shadow-sm bg-white flex items-center justify-between hover:border-blue-300 cursor-pointer transition-colors group"
-                        >
-                            <div class="flex-1 pr-4">
-                                <h3
-                                    class="font-medium text-gray-900 mb-1 leading-tight"
-                                >
-                                    {dp.name}
-                                </h3>
-                                <p
-                                    class="text-xs text-gray-500 mb-3 leading-relaxed line-clamp-2"
-                                >
-                                    {dp.address || "Alamat tidak tersedia"}
-                                </p>
-                                <div
-                                    class="flex items-center text-red-500 text-xs font-medium bg-red-50 w-fit px-2 py-1 rounded-md gap-1"
-                                >
-                                    <i class="fa-solid fa-location-dot"></i>
-                                    {#if dp.distance !== null}
-                                        {formatDistance(dp.distance)}
-                                    {:else}
-                                        -
-                                    {/if}
-                                </div>
-                            </div>
-                            <div
-                                class="text-gray-400 group-hover:text-gray-600 transition-colors"
-                            >
-                                <i class="fa-solid fa-chevron-right text-lg"
-                                ></i>
-                            </div>
-                        </div>
-                    {/each}
-                </div>
-            </section>
-        </main>
-    </div>
+                {/each}
+            </div>
+        </section>
+    </main>
 </div>

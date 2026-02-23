@@ -3,6 +3,7 @@ import { createInertiaApp } from "@inertiajs/svelte";
 import { hydrate, mount } from "svelte";
 import "@css/vendor/fontawesome/all.css";
 import AdminLayout from "@/Lib/Admin/Layouts/Default.svelte";
+import CustomerLayout from "@/Lib/Customer/Layouts/Default.svelte";
 import { setRoleConfig } from "@/Lib/Admin/Utils/roles";
 
 createInertiaApp({
@@ -13,9 +14,16 @@ createInertiaApp({
         }) as Record<string, any>;
         const page = pages[`./Pages/${name}.svelte`];
         const isAdmin = name.startsWith("Domains/Admin/");
+        const isCustomer = name.startsWith("Domains/Customer/");
         return {
             default: page.default,
-            layout: page.layout || (isAdmin ? AdminLayout : undefined),
+            layout:
+                page.layout ||
+                (isAdmin
+                    ? AdminLayout
+                    : isCustomer
+                      ? CustomerLayout
+                      : undefined),
         };
     },
     setup({ el, App, props }: { el: HTMLElement; App: any; props: any }) {
