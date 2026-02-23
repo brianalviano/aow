@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\{
-    LoginController,
+    LoginController as AdminLoginController,
     SettingController,
     AccountSettingController,
     DashboardController,
@@ -38,11 +38,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.login'));
 
     // Admin guest routes
-    Route::get('/login', [LoginController::class, 'show'])
+    Route::get('/login', [AdminLoginController::class, 'show'])
         ->name('login');
-    Route::post('/login', [LoginController::class, 'authenticate'])
+    Route::post('/login', [AdminLoginController::class, 'authenticate'])
         ->name('login.store');
-    Route::post('/logout', [LoginController::class, 'logout'])
+    Route::post('/logout', [AdminLoginController::class, 'logout'])
         ->name('logout');
 
     Route::middleware('guest')->group(function () {
