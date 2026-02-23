@@ -151,45 +151,48 @@
                 <h2 class="font-bold text-md mb-3 text-gray-900">
                     Drop Point Saat Ini
                 </h2>
-                <div
-                    class="border border-gray-200 rounded-xl p-4 shadow-sm bg-white flex items-center justify-between hover:border-blue-300 cursor-pointer transition-colors group"
+                <Link
+                    href={`/drop-points/${currentDropPoint.id}`}
+                    class="block border border-gray-200 rounded-xl p-4 shadow-sm bg-white hover:border-blue-300 transition-colors group cursor-pointer"
                 >
-                    <div class="flex-1 pr-4">
-                        <h3
-                            class="font-medium text-gray-900 mb-1 leading-tight"
-                        >
-                            {currentDropPoint.name}
-                        </h3>
-                        <p
-                            class="text-xs text-gray-500 mb-3 leading-relaxed line-clamp-2"
-                        >
-                            {currentDropPoint.address ||
-                                "Alamat tidak tersedia"}
-                        </p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1 pr-4">
+                            <h3
+                                class="font-medium text-gray-900 mb-1 leading-tight"
+                            >
+                                {currentDropPoint.name}
+                            </h3>
+                            <p
+                                class="text-xs text-gray-500 mb-3 leading-relaxed line-clamp-2"
+                            >
+                                {currentDropPoint.address ||
+                                    "Alamat tidak tersedia"}
+                            </p>
+                            <div
+                                class="flex items-center text-red-500 text-xs font-medium bg-red-50 w-fit px-2 py-1 rounded-md gap-1"
+                            >
+                                <i class="fa-solid fa-location-dot"></i>
+                                {#if userLocation && currentDropPoint.latitude && currentDropPoint.longitude}
+                                    {formatDistance(
+                                        getDistance(
+                                            userLocation.lat,
+                                            userLocation.lng,
+                                            currentDropPoint.latitude,
+                                            currentDropPoint.longitude,
+                                        ),
+                                    )}
+                                {:else}
+                                    -
+                                {/if}
+                            </div>
+                        </div>
                         <div
-                            class="flex items-center text-red-500 text-xs font-medium bg-red-50 w-fit px-2 py-1 rounded-md gap-1"
+                            class="text-gray-400 group-hover:text-gray-600 transition-colors"
                         >
-                            <i class="fa-solid fa-location-dot"></i>
-                            {#if userLocation && currentDropPoint.latitude && currentDropPoint.longitude}
-                                {formatDistance(
-                                    getDistance(
-                                        userLocation.lat,
-                                        userLocation.lng,
-                                        currentDropPoint.latitude,
-                                        currentDropPoint.longitude,
-                                    ),
-                                )}
-                            {:else}
-                                -
-                            {/if}
+                            <i class="fa-solid fa-chevron-right text-lg"></i>
                         </div>
                     </div>
-                    <div
-                        class="text-gray-400 group-hover:text-gray-600 transition-colors"
-                    >
-                        <i class="fa-solid fa-chevron-right text-lg"></i>
-                    </div>
-                </div>
+                </Link>
             </section>
         {/if}
 
@@ -225,37 +228,41 @@
                 {/if}
 
                 {#each mainListDropPoints as dp (dp.id)}
-                    <div
-                        class="border border-gray-200 rounded-xl p-4 shadow-sm bg-white flex items-center justify-between hover:border-blue-300 cursor-pointer transition-colors group"
+                    <Link
+                        href={`/drop-points/${dp.id}`}
+                        class="block border border-gray-200 rounded-xl p-4 shadow-sm bg-white hover:border-blue-300 transition-colors group cursor-pointer"
                     >
-                        <div class="flex-1 pr-4">
-                            <h3
-                                class="font-medium text-gray-900 mb-1 leading-tight"
-                            >
-                                {dp.name}
-                            </h3>
-                            <p
-                                class="text-xs text-gray-500 mb-3 leading-relaxed line-clamp-2"
-                            >
-                                {dp.address || "Alamat tidak tersedia"}
-                            </p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 pr-4">
+                                <h3
+                                    class="font-medium text-gray-900 mb-1 leading-tight"
+                                >
+                                    {dp.name}
+                                </h3>
+                                <p
+                                    class="text-xs text-gray-500 mb-3 leading-relaxed line-clamp-2"
+                                >
+                                    {dp.address || "Alamat tidak tersedia"}
+                                </p>
+                                <div
+                                    class="flex items-center text-red-500 text-xs font-medium bg-red-50 w-fit px-2 py-1 rounded-md gap-1"
+                                >
+                                    <i class="fa-solid fa-location-dot"></i>
+                                    {#if dp.distance !== null}
+                                        {formatDistance(dp.distance)}
+                                    {:else}
+                                        -
+                                    {/if}
+                                </div>
+                            </div>
                             <div
-                                class="flex items-center text-red-500 text-xs font-medium bg-red-50 w-fit px-2 py-1 rounded-md gap-1"
+                                class="text-gray-400 group-hover:text-gray-600 transition-colors"
                             >
-                                <i class="fa-solid fa-location-dot"></i>
-                                {#if dp.distance !== null}
-                                    {formatDistance(dp.distance)}
-                                {:else}
-                                    -
-                                {/if}
+                                <i class="fa-solid fa-chevron-right text-lg"
+                                ></i>
                             </div>
                         </div>
-                        <div
-                            class="text-gray-400 group-hover:text-gray-600 transition-colors"
-                        >
-                            <i class="fa-solid fa-chevron-right text-lg"></i>
-                        </div>
-                    </div>
+                    </Link>
                 {/each}
             </div>
         </section>
