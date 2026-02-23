@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -11,21 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-/**
- * Customer model – represents a registered customer who can authenticate
- * via the `customer` guard (session-based).
- *
- * @property string $id UUID primary key
- * @property string $drop_point_id
- * @property string $name
- * @property string $username
- * @property string $phone
- * @property string $address
- * @property string $email
- * @property string $password  (hashed)
- * @property string|null $school_class
- * @property bool   $is_active
- */
 class Customer extends Authenticatable
 {
     use HasFactory, HasUuids, Notifiable, SoftDeletes;
