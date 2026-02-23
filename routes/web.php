@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\{
     ProductCategoryController,
     DropPointController,
     ReportController,
+    CustomerController,
 };
 use App\Http\Controllers\Customer\CustomerLoginController;
 
@@ -108,6 +109,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+        // Customers
+        Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+        Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
 
         Route::get('/settings', [SettingController::class, 'index'])
             ->middleware('can:admin-only')

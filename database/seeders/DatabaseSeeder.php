@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             DropPointSeeder::class,
             ProductCategorySeeder::class,
             ProductSeeder::class,
+            CustomerSeeder::class,
         ]);
     }
 }

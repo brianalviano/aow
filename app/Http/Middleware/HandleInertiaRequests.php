@@ -129,6 +129,12 @@ class HandleInertiaRequests extends Middleware
                 'title' => 'Operasional',
                 'items' => [
                     [
+                        'id'    => 'customers',
+                        'label' => 'Customer',
+                        'icon'  => 'fa-users',
+                        'link'  => route('admin.customers.index'),
+                    ],
+                    [
                         'id'    => 'drop-points',
                         'label' => 'Drop Points',
                         'icon'  => 'fa-location-dot',
