@@ -1,10 +1,14 @@
 <script lang="ts">
     import { page, Link } from "@inertiajs/svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
+    export let appUrl: string;
+
+    const displayUrl = appUrl.replace(/^https?:\/\//, "");
+    $: appName = name($page.props.settings);
 </script>
 
 <svelte:head>
-    <title>Syarat & Ketentuan | {name($page.props.settings)}</title>
+    <title>Kebijakan Privasi | {name($page.props.settings)}</title>
 </svelte:head>
 
 <div>
@@ -20,257 +24,185 @@
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </Link>
         <h1 class="font-bold text-lg leading-tight text-gray-900">
-            Syarat & Ketentuan
+            Kebijakan Privasi
         </h1>
     </header>
 
     <!-- Main Content -->
     <main class="w-full bg-white text-gray-800 font-sans">
         <div class="max-w-3xl mx-auto p-6">
-            <h1 class="text-3xl font-bold mb-2">Syarat & Ketentuan</h1>
+            <h1 class="text-3xl font-bold mb-2">Kebijakan Privasi</h1>
             <p class="text-sm text-gray-500 mb-8">
                 Terakhir diperbarui: 23 Februari 2026
             </p>
 
+            <p class="mb-6 leading-relaxed">
+                Kebijakan Privasi ini menjelaskan bagaimana
+                <strong>{appName}</strong> ("kami") mengumpulkan, menggunakan,
+                menyimpan, dan melindungi informasi pribadi Anda saat
+                menggunakan layanan pemesanan makanan kami melalui website
+                <strong>{displayUrl}</strong>.
+            </p>
+
             <p class="mb-10 leading-relaxed">
-                Syarat dan Ketentuan ini mengatur penggunaan layanan pemesanan
-                makanan <strong>AOW Mentai</strong> melalui website
-                <strong>aow-mentai.com</strong>. Dengan mendaftar dan
-                menggunakan layanan kami, Anda dianggap telah membaca, memahami,
-                dan menyetujui seluruh ketentuan di bawah ini.
+                Dengan menggunakan layanan kami, Anda menyetujui pengumpulan dan
+                penggunaan informasi sesuai dengan kebijakan ini.
             </p>
 
             <!-- 1 -->
-            <h2 class="text-xl font-semibold mb-3">1. Definisi</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <h2 class="text-xl font-semibold mb-3">
+                1. Informasi yang Kami Kumpulkan
+            </h2>
+            <p class="mb-3 leading-relaxed">
+                Kami mengumpulkan informasi berikut saat Anda mendaftar dan
+                menggunakan layanan kami:
+            </p>
+            <ul class="list-disc pl-6 mb-4 space-y-1 text-gray-700">
+                <li>Nama lengkap</li>
+                <li>Nomor telepon</li>
+                <li>Alamat email</li>
                 <li>
-                    <strong>AOW Mentai / Kami</strong> — penyedia layanan pemesanan
-                    makanan melalui website aow-mentai.com
+                    Alamat pengiriman (kelas, gedung, ruangan, atau detail
+                    lokasi lainnya)
                 </li>
                 <li>
-                    <strong>Pengguna / Anda</strong> — individu yang mendaftar dan
-                    menggunakan layanan kami
+                    Drop point yang dipilih (nama sekolah, kampus, atau kantor)
                 </li>
+                <li>Riwayat pesanan</li>
                 <li>
-                    <strong>Drop Point</strong> — lokasi pengiriman yang telah ditentukan
-                    (sekolah, kampus, atau kantor)
-                </li>
-                <li>
-                    <strong>Pre-Order (PO)</strong> — sistem pemesanan makanan yang
-                    dilakukan pada hari sebelum tanggal pengiriman (H-1)
+                    Informasi pembayaran (hanya status transaksi, kami tidak
+                    menyimpan data kartu atau rekening Anda)
                 </li>
             </ul>
+            <p class="mb-10 leading-relaxed">
+                Kami juga dapat mengumpulkan data teknis seperti alamat IP,
+                jenis perangkat, dan browser yang digunakan secara otomatis saat
+                Anda mengakses website kami.
+            </p>
 
             <!-- 2 -->
-            <h2 class="text-xl font-semibold mb-3">2. Pendaftaran Akun</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
-                <li>
-                    Pengguna wajib mendaftar menggunakan data yang benar,
-                    lengkap, dan akurat
-                </li>
-                <li>
-                    Satu nomor telepon dan satu email hanya dapat digunakan
-                    untuk satu akun
-                </li>
-                <li>
-                    Anda bertanggung jawab penuh atas kerahasiaan kata sandi dan
-                    seluruh aktivitas yang terjadi pada akun Anda
-                </li>
-                <li>
-                    Kami berhak menonaktifkan akun yang terbukti menggunakan
-                    data palsu atau melanggar ketentuan ini
-                </li>
+            <h2 class="text-xl font-semibold mb-3">2. Penggunaan Informasi</h2>
+            <p class="mb-3 leading-relaxed">
+                Informasi yang kami kumpulkan digunakan untuk:
+            </p>
+            <ul class="list-disc pl-6 mb-10 space-y-1 text-gray-700">
+                <li>Memproses dan mengkonfirmasi pesanan Anda</li>
+                <li>Mengirimkan notifikasi status pesanan melalui WhatsApp</li>
+                <li>Mengantarkan pesanan ke drop point yang Anda pilih</li>
+                <li>Meningkatkan layanan dan pengalaman pengguna</li>
+                <li>Menghubungi Anda jika ada kendala terkait pesanan</li>
+                <li>Keperluan administrasi dan pelaporan internal</li>
             </ul>
 
             <!-- 3 -->
-            <h2 class="text-xl font-semibold mb-3">3. Sistem Pre-Order</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <h2 class="text-xl font-semibold mb-3">
+                3. Berbagi Informasi dengan Pihak Ketiga
+            </h2>
+            <p class="mb-3 leading-relaxed">
+                Kami tidak menjual atau menyewakan informasi pribadi Anda kepada
+                pihak manapun. Informasi Anda hanya dibagikan kepada pihak
+                ketiga berikut dalam batas yang diperlukan:
+            </p>
+            <ul class="list-disc pl-6 mb-10 space-y-1 text-gray-700">
                 <li>
-                    Pemesanan dilakukan maksimal sehari sebelum tanggal
-                    pengiriman (H-1)
+                    <strong>{appName} / Kami</strong> — penyedia layanan
+                    pemesanan makanan melalui website {displayUrl}
                 </li>
                 <li>
-                    Terdapat batas waktu pemesanan setiap harinya yang dapat
-                    berubah sewaktu-waktu
+                    <strong>Fonnte</strong> — sebagai penyedia layanan notifikasi
+                    WhatsApp
                 </li>
                 <li>
-                    Pesanan yang masuk setelah batas waktu akan diproses untuk
-                    keesokan harinya
+                    <strong>Midtrans</strong> — sebagai penyedia layanan pembayaran
+                    untuk memproses transaksi Anda
                 </li>
                 <li>
-                    Kami berhak membatasi jumlah stok produk tertentu per
-                    harinya
-                </li>
-                <li>
-                    Jika produk habis sebelum Anda menyelesaikan pembayaran,
-                    pesanan untuk produk tersebut akan dibatalkan secara
-                    otomatis
+                    <strong>Pihak berwenang</strong> — jika diwajibkan oleh hukum
+                    yang berlaku
                 </li>
             </ul>
 
             <!-- 4 -->
-            <h2 class="text-xl font-semibold mb-3">4. Pembayaran</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
-                <li>
-                    Pembayaran dapat dilakukan melalui transfer bank, virtual
-                    account, QRIS, OVO, dan Shopee Pay
-                </li>
-                <li>
-                    Untuk pembayaran tunai (COD), pembayaran dilakukan saat
-                    makanan diterima di drop point
-                </li>
-                <li>
-                    Pesanan dianggap valid setelah pembayaran berhasil
-                    dikonfirmasi
-                </li>
-                <li>
-                    Pembayaran online memiliki batas waktu. Pesanan yang tidak
-                    dibayar hingga batas waktu akan dibatalkan secara otomatis
-                </li>
-                <li>
-                    Kami tidak bertanggung jawab atas kegagalan transaksi yang
-                    disebabkan oleh pihak penyedia layanan pembayaran
-                </li>
-            </ul>
+            <h2 class="text-xl font-semibold mb-3">4. Keamanan Data</h2>
+            <p class="mb-10 leading-relaxed">
+                Kami menerapkan langkah-langkah keamanan yang wajar untuk
+                melindungi informasi pribadi Anda dari akses, pengungkapan, atau
+                pengubahan yang tidak sah. Seluruh komunikasi antara browser
+                Anda dan website kami dilindungi dengan enkripsi SSL. Namun,
+                tidak ada metode transmisi data melalui internet yang sepenuhnya
+                aman, sehingga kami tidak dapat menjamin keamanan mutlak.
+            </p>
 
             <!-- 5 -->
-            <h2 class="text-xl font-semibold mb-3">5. Pengiriman</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
-                <li>
-                    Pengiriman hanya dilakukan ke drop point yang telah
-                    terdaftar dalam sistem
-                </li>
-                <li>
-                    Pengguna wajib memastikan drop point yang dipilih sesuai
-                    dengan lokasi Anda
-                </li>
-                <li>
-                    Kami tidak bertanggung jawab atas keterlambatan yang
-                    disebabkan oleh kondisi di luar kendali kami (cuaca,
-                    kemacetan, dll)
-                </li>
-                <li>
-                    Pengguna wajib mengambil pesanan di drop point pada waktu
-                    yang telah ditentukan
-                </li>
-                <li>
-                    Pesanan yang tidak diambil dalam waktu yang ditentukan
-                    menjadi tanggung jawab pengguna sepenuhnya
-                </li>
-            </ul>
+            <h2 class="text-xl font-semibold mb-3">5. Penyimpanan Data</h2>
+            <p class="mb-10 leading-relaxed">
+                Data pribadi Anda disimpan selama akun Anda aktif atau selama
+                diperlukan untuk keperluan layanan. Jika Anda menghapus akun,
+                kami akan menghapus data pribadi Anda dalam waktu 30 hari kerja,
+                kecuali data yang wajib disimpan berdasarkan ketentuan hukum
+                yang berlaku.
+            </p>
 
             <!-- 6 -->
-            <h2 class="text-xl font-semibold mb-3">
-                6. Pembatalan & Pengembalian Dana
-            </h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <h2 class="text-xl font-semibold mb-3">6. Hak Anda</h2>
+            <p class="mb-3 leading-relaxed">Anda memiliki hak untuk:</p>
+            <ul class="list-disc pl-6 mb-10 space-y-1 text-gray-700">
                 <li>
-                    Pembatalan pesanan hanya dapat dilakukan sebelum pesanan
-                    dikonfirmasi oleh admin
+                    Mengakses dan memperbarui informasi pribadi Anda melalui
+                    halaman profil
                 </li>
-                <li>Pesanan yang sudah dikonfirmasi tidak dapat dibatalkan</li>
+                <li>Meminta penghapusan data pribadi Anda</li>
+                <li>Menolak penggunaan data untuk keperluan tertentu</li>
                 <li>
-                    Pengembalian dana hanya dilakukan jika pembatalan disebabkan
-                    oleh kesalahan dari pihak kami
-                </li>
-                <li>
-                    Proses pengembalian dana membutuhkan waktu 3–7 hari kerja
-                    tergantung metode pembayaran yang digunakan
+                    Mengajukan pertanyaan atau keluhan terkait data pribadi Anda
                 </li>
             </ul>
 
             <!-- 7 -->
-            <h2 class="text-xl font-semibold mb-3">7. Produk & Kualitas</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
-                <li>
-                    Kami berkomitmen untuk menyajikan makanan dengan kualitas
-                    terbaik dan higienis
-                </li>
-                <li>
-                    Foto produk yang ditampilkan di website bersifat ilustrasi,
-                    tampilan aktual dapat sedikit berbeda
-                </li>
-                <li>
-                    Jika terdapat keluhan mengenai kualitas produk, harap
-                    hubungi kami maksimal 1 jam setelah pesanan diterima
-                </li>
-                <li>
-                    Kami berhak mengubah menu, harga, dan ketersediaan produk
-                    sewaktu-waktu tanpa pemberitahuan sebelumnya
-                </li>
-            </ul>
+            <h2 class="text-xl font-semibold mb-3">7. Cookie</h2>
+            <p class="mb-10 leading-relaxed">
+                Website kami menggunakan cookie untuk menjaga sesi login Anda
+                dan meningkatkan pengalaman penggunaan. Anda dapat menonaktifkan
+                cookie melalui pengaturan browser, namun beberapa fitur website
+                mungkin tidak berfungsi dengan baik.
+            </p>
 
             <!-- 8 -->
-            <h2 class="text-xl font-semibold mb-3">8. Diskon & Promosi</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
-                <li>
-                    Diskon dan kode voucher hanya berlaku sesuai syarat dan
-                    periode yang telah ditentukan
-                </li>
-                <li>
-                    Satu pesanan hanya dapat menggunakan maksimal dua kode
-                    voucher (satu untuk produk, satu untuk ongkir)
-                </li>
-                <li>
-                    Diskon tidak dapat digabungkan kecuali dinyatakan sebaliknya
-                </li>
-                <li>
-                    Kami berhak membatalkan pesanan yang terindikasi
-                    menyalahgunakan sistem diskon atau promosi
-                </li>
-            </ul>
+            <h2 class="text-xl font-semibold mb-3">8. Perubahan Kebijakan</h2>
+            <p class="mb-10 leading-relaxed">
+                Kami berhak memperbarui Kebijakan Privasi ini sewaktu-waktu.
+                Perubahan akan diberitahukan melalui website atau notifikasi
+                WhatsApp. Penggunaan layanan kami setelah perubahan berlaku
+                dianggap sebagai persetujuan Anda terhadap kebijakan yang
+                diperbarui.
+            </p>
 
             <!-- 9 -->
-            <h2 class="text-xl font-semibold mb-3">9. Larangan Penggunaan</h2>
-            <p class="mb-3 leading-relaxed">Pengguna dilarang:</p>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
-                <li>Menggunakan layanan untuk tujuan yang melanggar hukum</li>
-                <li>Mendaftarkan akun menggunakan identitas orang lain</li>
-                <li>
-                    Melakukan pemesanan fiktif atau pesanan yang tidak berniat
-                    untuk dibayar
-                </li>
-                <li>Menyalahgunakan sistem promosi atau diskon</li>
-                <li>
-                    Melakukan tindakan yang mengganggu operasional layanan kami
-                </li>
-            </ul>
-
-            <!-- 10 -->
-            <h2 class="text-xl font-semibold mb-3">10. Perubahan Layanan</h2>
-            <p class="mb-10 leading-relaxed">
-                Kami berhak mengubah, menangguhkan, atau menghentikan sebagian
-                maupun seluruh layanan sewaktu-waktu. Kami akan berusaha
-                memberikan pemberitahuan sebelumnya jika terjadi perubahan besar
-                yang berdampak pada pengguna.
-            </p>
-
-            <!-- 11 -->
-            <h2 class="text-xl font-semibold mb-3">
-                11. Perubahan Syarat & Ketentuan
-            </h2>
-            <p class="mb-10 leading-relaxed">
-                Kami berhak memperbarui Syarat & Ketentuan ini sewaktu-waktu.
-                Perubahan akan diberitahukan melalui website atau notifikasi
-                WhatsApp. Penggunaan layanan setelah perubahan berlaku dianggap
-                sebagai persetujuan Anda terhadap ketentuan yang diperbarui.
-            </p>
-
-            <!-- 12 -->
-            <h2 class="text-xl font-semibold mb-3">12. Hubungi Kami</h2>
+            <h2 class="text-xl font-semibold mb-3">9. Hubungi Kami</h2>
             <p class="mb-2 leading-relaxed">
-                Jika Anda memiliki pertanyaan mengenai Syarat & Ketentuan ini,
+                Jika Anda memiliki pertanyaan mengenai Kebijakan Privasi ini,
                 silakan hubungi kami melalui:
             </p>
             <ul class="list-disc pl-6 mb-10 space-y-1 text-gray-700">
-                <li>WhatsApp: <strong>[Nomor WhatsApp AOW Mentai]</strong></li>
-                <li>Email: <strong>[Email AOW Mentai]</strong></li>
-                <li>Instagram: <strong>[Instagram AOW Mentai]</strong></li>
+                <li>
+                    WhatsApp: <strong
+                        >{$page.props.settings?.whatsapp || "-"}</strong
+                    >
+                </li>
+                <li>
+                    Email: <strong>{$page.props.settings?.email || "-"}</strong>
+                </li>
+                <li>
+                    Instagram: <strong
+                        >{$page.props.settings?.instagram || "-"}</strong
+                    >
+                </li>
             </ul>
 
             <hr class="border-gray-200 mt-10" />
             <p class="text-sm text-gray-400 mt-6 text-center">
-                © 2026 AOW Mentai. Seluruh hak dilindungi.
+                © {new Date().getFullYear()}
+                {name($page.props.settings)}. Seluruh hak dilindungi.
             </p>
         </div>
     </main>

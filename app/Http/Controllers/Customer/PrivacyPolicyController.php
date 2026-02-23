@@ -17,6 +17,8 @@ class PrivacyPolicyController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('Domains/Customer/PrivacyPolicy/Index');
+        return Inertia::render('Domains/Customer/PrivacyPolicy/Index', [
+            'appUrl' => config('app.url'),
+        ]);
     }
 }

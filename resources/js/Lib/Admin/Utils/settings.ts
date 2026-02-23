@@ -11,6 +11,13 @@ export type AppSettings = {
     bank_name: string;
     bank_account_name: string;
     bank_account_number: string;
+    email?: string;
+    phone?: string;
+    whatsapp?: string;
+    address?: string;
+    instagram?: string;
+    facebook?: string;
+    tiktok?: string;
 };
 
 /**

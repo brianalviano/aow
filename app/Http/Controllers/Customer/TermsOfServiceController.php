@@ -17,6 +17,8 @@ class TermsOfServiceController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('Domains/Customer/TermsOfService/Index');
+        return Inertia::render('Domains/Customer/TermsOfService/Index', [
+            'appUrl' => config('app.url'),
+        ]);
     }
 }

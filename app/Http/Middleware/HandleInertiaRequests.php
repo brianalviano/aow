@@ -64,15 +64,13 @@ class HandleInertiaRequests extends Middleware
             fn() =>
             CompanyProfile::query()->first()?->only([
                 'name',
-                'contact_email',
-                'whatsapp_number',
-                'logo',
+                'email',
+                'phone',
+                'whatsapp',
                 'address',
-                'latitude',
-                'longitude',
-                'bank_name',
-                'bank_account_name',
-                'bank_account_number',
+                'instagram',
+                'facebook',
+                'tiktok',
             ])
         );
     }
