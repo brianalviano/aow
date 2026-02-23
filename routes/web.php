@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\{
     CustomerController,
 };
 use App\Http\Controllers\Customer\{
+    AuthController,
     HomeController,
     MenuController,
 };
@@ -31,16 +32,16 @@ Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
 
 // Customer Guest Routes
 Route::middleware('guest:customer')->group(function () {
-    Route::get('/login', [\App\Http\Controllers\Customer\AuthController::class, 'showLogin'])->name('customer.login');
-    Route::post('/login', [\App\Http\Controllers\Customer\AuthController::class, 'login'])->name('customer.login.store');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('customer.login');
+    Route::post('/login', [AuthController::class, 'login'])->name('customer.login.store');
 
-    Route::get('/register', [\App\Http\Controllers\Customer\AuthController::class, 'showRegister'])->name('customer.register');
-    Route::post('/register', [\App\Http\Controllers\Customer\AuthController::class, 'register'])->name('customer.register.store');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('customer.register');
+    Route::post('/register', [AuthController::class, 'register'])->name('customer.register.store');
 });
 
 // Customer Authenticated Routes
 Route::middleware('auth:customer')->group(function () {
-    Route::post('/logout', [\App\Http\Controllers\Customer\AuthController::class, 'logout'])->name('customer.logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('customer.logout');
 });
 
 /*
