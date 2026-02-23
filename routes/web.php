@@ -15,7 +15,6 @@ use App\Http\Controllers\Admin\{
     ReportController,
     CustomerController,
 };
-use App\Http\Controllers\Customer\CustomerLoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,31 +22,15 @@ use App\Http\Controllers\Customer\CustomerLoginController;
 |--------------------------------------------------------------------------
 */
 
-// Public homepage – browse drop points and menu without logging in
-Route::get('/', fn() => inertia('Customer/Home'))
-    ->name('customer.home');
-
-// Customer guest routes
-Route::middleware('guest:customer')->group(function () {
-    Route::get('/login', [CustomerLoginController::class, 'show'])
-        ->name('login');
-    Route::post('/login', [CustomerLoginController::class, 'authenticate'])
-        ->name('customer.login.store');
-});
-
-// Customer authenticated routes
-Route::middleware('auth:customer')->group(function () {
-    Route::get('/dashboard', fn() => inertia('Customer/Dashboard'))
-        ->name('customer.dashboard');
-    Route::post('/logout', [CustomerLoginController::class, 'logout'])
-        ->name('customer.logout');
-});
+// Route::get('/', fn() => inertia('Customer/Home'))
+//     ->name('customer.home');
 
 /*
 |--------------------------------------------------------------------------
 | Admin Routes (/admin prefix)
 |--------------------------------------------------------------------------
 */
+
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/', fn() => redirect()->route('admin.login'));
