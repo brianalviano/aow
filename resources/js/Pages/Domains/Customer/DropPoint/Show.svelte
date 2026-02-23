@@ -170,7 +170,7 @@
     >
         <div class="font-bold text-gray-900 text-sm">Drop Point Benar ?</div>
         <Link
-            href="/menu"
+            href={`/drop-points/${dropPoint.id}/products`}
             class="bg-[#CCFF33] hover:bg-[#bdf33c] text-slate-800 font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-transform active:scale-95 text-xs"
             aria-label="Lanjut ke Menu"
         >

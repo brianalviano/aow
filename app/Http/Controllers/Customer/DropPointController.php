@@ -25,4 +25,33 @@ class DropPointController extends Controller
             'dropPoint' => DropPointResource::make($dropPoint)->resolve(),
         ]);
     }
+    /**
+     * Display the specified drop point products page.
+     */
+    public function products(string $id): Response
+    {
+        $dropPoint = DropPoint::query()
+            ->where('is_active', true)
+            ->findOrFail($id);
+
+        $categories = \App\Models\ProductCategory::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        $products = \App\Models\Product::with(['productCategory', 'productOptions' => function ($query) {
+            $query->orderBy('sort_order')->with(['items' => function ($query) {
+                $query->orderBy('sort_order');
+            }]);
+        }])
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        return Inertia::render('Domains/Customer/DropPoint/Products', [
+            'dropPoint' => DropPointResource::make($dropPoint)->resolve(),
+            'categories' => \App\Http\Resources\ProductCategoryResource::collection($categories)->resolve(),
+            'products' => \App\Http\Resources\ProductResource::collection($products)->resolve(),
+        ]);
+    }
 }
