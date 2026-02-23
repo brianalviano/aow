@@ -11,7 +11,7 @@
         id: string;
         name: string;
         email: string;
-        phone_number: string | null;
+        phone: string | null;
         role: RoleInfo;
     };
 
@@ -24,7 +24,7 @@
             email: account?.email ?? "",
             password: "" as string,
             pin: "" as string,
-            phone_number: account?.phone_number ?? "",
+            phone: account?.phone ?? "",
         })),
     );
 
@@ -120,12 +120,12 @@
                         error={$form.errors.password}
                     />
                     <TextInput
-                        id="phone_number"
-                        name="phone_number"
+                        id="phone"
+                        name="phone"
                         label="Nomor Telepon"
                         placeholder="08xxxxxxxxxx"
-                        bind:value={$form.phone_number}
-                        error={$form.errors.phone_number}
+                        bind:value={$form.phone}
+                        error={$form.errors.phone}
                     />
                 </div>
             {/snippet}

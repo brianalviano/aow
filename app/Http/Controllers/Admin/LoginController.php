@@ -72,7 +72,7 @@ class LoginController extends Controller
         }
 
         $normalizedPhone = $this->normalizePhone($login);
-        if ($normalizedPhone !== '' && $attempt(['phone_number' => $normalizedPhone])) {
+        if ($normalizedPhone !== '' && $attempt(['phone' => $normalizedPhone])) {
             $request->session()->regenerate();
             Inertia::flash('toast', [
                 'message' => 'Berhasil login',

@@ -20,7 +20,7 @@ class UserResource extends JsonResource
             'name' => (string) $user->name,
             'email' => (string) $user->email,
             'username' => (string) $user->username,
-            'phone_number' => $user->phone_number ? (string) $user->phone_number : null,
+            'phone' => $user->phone ? (string) $user->phone : null,
             'role' => $user->role ? [
                 'id' => (string) $user->role->id,
                 'name' => (string) $user->role->name,

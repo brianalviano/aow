@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\{
 };
 use App\Http\Controllers\Customer\{
     HomeController,
+    MenuController,
 };
 
 /*
@@ -26,6 +27,7 @@ use App\Http\Controllers\Customer\{
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
 
 /*
 |--------------------------------------------------------------------------

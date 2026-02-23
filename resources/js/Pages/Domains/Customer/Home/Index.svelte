@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import icon from "@img/icon.png";
     import { name } from "@/Lib/Admin/Utils/settings";
-    import { page } from "@inertiajs/svelte";
+    import { page, Link } from "@inertiajs/svelte";
 
     // Props from controller
     export let totalDropPoints: number;
@@ -134,9 +134,13 @@
                 </p>
             </div>
         </div>
-        <button class="text-gray-800 p-2 focus:outline-none" aria-label="Menu">
+        <Link
+            href="/menu"
+            class="text-gray-800 p-2 focus:outline-none"
+            aria-label="Menu"
+        >
             <i class="fa-solid fa-bars text-xl"></i>
-        </button>
+        </Link>
     </header>
 
     <!-- Main Content -->

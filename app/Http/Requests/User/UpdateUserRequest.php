@@ -24,7 +24,7 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($userId, 'id'),
             ],
             'password' => ['nullable', 'string', 'min:8'],
-            'phone_number' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'string', 'max:30'],
         ];
     }
 }

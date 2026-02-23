@@ -45,10 +45,11 @@ class HandleInertiaRequests extends Middleware
             ...($base['auth'] ?? []),
             'guard' => $user ? 'web' : null,
             'user'  => $user ? [
-                'id'    => $user->getKey(),
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role?->name,
+                'id'           => $user->getKey(),
+                'name'         => $user->name,
+                'email'        => $user->email,
+                'phone' => $user->phone,
+                'role'         => $user->role?->name,
             ] : ($base['auth']['user'] ?? null),
         ];
     }

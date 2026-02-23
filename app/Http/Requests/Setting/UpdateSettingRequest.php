@@ -47,7 +47,7 @@ class UpdateSettingRequest extends FormRequest
 
             'whatsapp_enabled' => ['nullable', 'boolean'],
             'whatsapp_access_token' => ['nullable', 'string'],
-            'whatsapp_phone_number_id' => ['nullable', 'string'],
+            'whatsapp_phone_id' => ['nullable', 'string'],
             'whatsapp_notify_order_created' => ['nullable', 'boolean'],
             'whatsapp_notify_order_confirmed' => ['nullable', 'boolean'],
             'whatsapp_notify_order_delivered' => ['nullable', 'boolean'],

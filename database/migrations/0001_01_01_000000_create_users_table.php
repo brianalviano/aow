@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('password');
             $table->foreignUuid('role_id')->index();
-            $table->string('phone_number')->nullable()->unique();
+            $table->string('phone')->nullable()->unique();
             $table->rememberToken();
             $table->timestamps();
         });

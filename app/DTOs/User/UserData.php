@@ -18,7 +18,7 @@ class UserData
         return new self(
             email: (string) $p['email'],
             password: !empty($p['password']) ? (string) $p['password'] : null,
-            phoneNumber: $p['phone_number'] ?? null,
+            phoneNumber: $p['phone'] ?? null,
         );
     }
 }

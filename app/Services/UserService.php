@@ -19,7 +19,7 @@ class UserService
                 if (!empty($data->password)) {
                     $user->password = Hash::make((string) $data->password);
                 }
-                $user->phone_number = $data->phoneNumber;
+                $user->phone = $data->phoneNumber;
                 $user->save();
                 return $user;
             }, 5);

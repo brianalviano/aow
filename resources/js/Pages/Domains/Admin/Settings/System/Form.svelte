@@ -42,7 +42,7 @@
 
         whatsapp_enabled: boolean;
         whatsapp_access_token: string | null;
-        whatsapp_phone_number_id: string | null;
+        whatsapp_phone_id: string | null;
         whatsapp_notify_order_created: boolean;
         whatsapp_notify_order_confirmed: boolean;
         whatsapp_notify_order_delivered: boolean;
@@ -91,7 +91,7 @@
 
             whatsapp_enabled: settings?.whatsapp_enabled ?? false,
             whatsapp_access_token: settings?.whatsapp_access_token ?? "",
-            whatsapp_phone_number_id: settings?.whatsapp_phone_number_id ?? "",
+            whatsapp_phone_id: settings?.whatsapp_phone_id ?? "",
             whatsapp_notify_order_created:
                 settings?.whatsapp_notify_order_created ?? false,
             whatsapp_notify_order_confirmed:
@@ -480,12 +480,11 @@
                                     error={$form.errors.whatsapp_access_token}
                                 />
                                 <TextInput
-                                    id="whatsapp_phone_number_id"
-                                    name="whatsapp_phone_number_id"
+                                    id="whatsapp_phone_id"
+                                    name="whatsapp_phone_id"
                                     label="Phone Number ID"
-                                    bind:value={$form.whatsapp_phone_number_id}
-                                    error={$form.errors
-                                        .whatsapp_phone_number_id}
+                                    bind:value={$form.whatsapp_phone_id}
+                                    error={$form.errors.whatsapp_phone_id}
                                 />
 
                                 <div class="space-y-2 pt-2">

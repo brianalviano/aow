@@ -123,7 +123,7 @@ class OrderSettingSeeder extends Seeder
                 'description' => 'Access token WhatsApp Cloud API dari Meta',
             ],
             [
-                'key'         => 'whatsapp_phone_number_id',
+                'key'         => 'whatsapp_phone_id',
                 'value'       => null,
                 'description' => 'Phone Number ID dari Meta Business Dashboard',
             ],

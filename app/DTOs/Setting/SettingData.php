@@ -49,7 +49,7 @@ class SettingData
 
                 'whatsapp_enabled' => isset($p['whatsapp_enabled']) ? ($p['whatsapp_enabled'] ? 'true' : 'false') : 'false',
                 'whatsapp_access_token' => $p['whatsapp_access_token'] ?? null,
-                'whatsapp_phone_number_id' => $p['whatsapp_phone_number_id'] ?? null,
+                'whatsapp_phone_id' => $p['whatsapp_phone_id'] ?? null,
                 'whatsapp_notify_order_created' => isset($p['whatsapp_notify_order_created']) ? ($p['whatsapp_notify_order_created'] ? 'true' : 'false') : 'false',
                 'whatsapp_notify_order_confirmed' => isset($p['whatsapp_notify_order_confirmed']) ? ($p['whatsapp_notify_order_confirmed'] ? 'true' : 'false') : 'false',
                 'whatsapp_notify_order_delivered' => isset($p['whatsapp_notify_order_delivered']) ? ($p['whatsapp_notify_order_delivered'] ? 'true' : 'false') : 'false',
