@@ -25,31 +25,33 @@ class HandleInertiaRequests extends Middleware
     {
         $base  = parent::share($request);
         $auth  = $this->sharedAuth($base);
+        $user  = $auth['guard'] ? Auth::guard($auth['guard'])->user() : null;
 
         return [
             ...$base,
             'auth'               => $auth,
             'settings'           => $this->sharedSettings(),
             'menu'               => $this->getSidebarMenu($auth['user']['role'] ?? null),
-            'notification_stats' => Auth::check()
-                ? app(NotificationService::class)->getStatsForUser(Auth::user())
+            'notification_stats' => $user
+                ? app(NotificationService::class)->getStatsForUser($user)
                 : ['total' => 0, 'unread' => 0, 'read' => 0],
         ];
     }
 
     protected function sharedAuth(array $base): array
     {
-        $user = Auth::user();
+        $guard = Auth::guard('customer')->check() ? 'customer' : (Auth::guard('web')->check() ? 'web' : null);
+        $user  = $guard ? Auth::guard($guard)->user() : null;
 
         return [
             ...($base['auth'] ?? []),
-            'guard' => $user ? 'web' : null,
+            'guard' => $guard,
             'user'  => $user ? [
-                'id'           => $user->getKey(),
-                'name'         => $user->name,
-                'email'        => $user->email,
+                'id'    => $user->getKey(),
+                'name'  => $user->name,
+                'email' => $user->email,
                 'phone' => $user->phone,
-                'role'         => $user->role?->name,
+                'role'  => $guard === 'customer' ? 'customer' : $user->role?->name,
             ] : ($base['auth']['user'] ?? null),
         ];
     }
@@ -77,7 +79,7 @@ class HandleInertiaRequests extends Middleware
 
     private function getSidebarMenu(?string $role): array
     {
-        if (!$role) {
+        if (!$role || $role === 'customer') {
             return [];
         }
 

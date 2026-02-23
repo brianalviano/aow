@@ -33,7 +33,7 @@ class AuthController extends Controller
             return redirect()->route('home');
         }
 
-        return Inertia::render('Auth/Customer/Login');
+        return Inertia::render('Domains/Customer/Auth/Login/Index');
     }
 
     /**
@@ -82,7 +82,7 @@ class AuthController extends Controller
         // Fetch drop points for the registration form dropdown
         $dropPoints = DropPoint::orderBy('name')->get(['id', 'name', 'address']);
 
-        return Inertia::render('Auth/Customer/Register', [
+        return Inertia::render('Domains/Customer/Auth/Register/Index', [
             'dropPoints' => $dropPoints,
         ]);
     }
@@ -98,13 +98,10 @@ class AuthController extends Controller
     {
         $dto = $request->toDTO();
 
-        $this->authService->register($dto);
+        $customer = $this->authService->register($dto);
 
         // Auto-login after successful registration
-        Auth::guard('customer')->attempt([
-            'username' => $dto->username,
-            'password' => $dto->password,
-        ]);
+        Auth::guard('customer')->login($customer);
 
         $request->session()->regenerate();
 

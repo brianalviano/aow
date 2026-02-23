@@ -52,7 +52,7 @@
         class="flex items-center justify-between p-4 bg-white sticky top-0 z-10 border-b border-gray-100"
     >
         <Link
-            href="/login"
+            href="/menu"
             class="text-gray-800 focus:outline-none p-1"
             aria-label="Kembali"
         >
@@ -62,7 +62,6 @@
             Daftar Akun
         </h1>
         <div class="w-8"></div>
-        <!-- placeholder for center alignment -->
     </header>
 
     <!-- Main Content -->
@@ -77,7 +76,7 @@
 
         <!-- Register Form -->
         <form class="space-y-4 flex-1 flex flex-col" onsubmit={handleSubmit}>
-            <div class="space-y-4">
+            <div class="space-y-6">
                 <TextInput
                     id="name"
                     name="name"
@@ -114,9 +113,7 @@
                     placeholder="Cth: 08123456789"
                     error={$form.errors.phone}
                 />
-            </div>
 
-            <div class="space-y-4 pt-2">
                 <Select
                     id="dropPointId"
                     name="dropPointId"
@@ -140,9 +137,7 @@
                     placeholder="Cth: 12 IPA 1"
                     error={$form.errors.schoolClass}
                 />
-            </div>
 
-            <div class="space-y-4 pt-2">
                 <TextInput
                     id="password"
                     name="password"
@@ -166,9 +161,7 @@
                     placeholder="••••••••"
                     error={$form.errors.password_confirmation}
                 />
-            </div>
 
-            <div class="mt-8 mb-4">
                 <Button
                     type="submit"
                     variant="primary"

@@ -20,7 +20,7 @@
 </script>
 
 <svelte:head>
-    <title>Menu - {name($page.props.settings)}</title>
+    <title>Menu | {name($page.props.settings)}</title>
 </svelte:head>
 
 <div>
@@ -122,7 +122,7 @@
                 </Link>
                 <!-- Logout -> Use inertia link as button with post method -->
                 <Link
-                    href="/admin/logout"
+                    href="/logout"
                     method="post"
                     as="button"
                     class="w-full flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-red-300 transition-colors"

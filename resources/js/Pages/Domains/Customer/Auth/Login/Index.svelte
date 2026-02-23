@@ -32,27 +32,27 @@
     <title>Masuk | {appName($page.props.settings)}</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto relative shadow-xl overflow-hidden">
+<div>
     <!-- Header -->
-    <header class="flex items-center justify-between p-4 bg-white sticky top-0 z-10 border-b border-gray-100">
+    <header
+        class="flex items-center justify-between p-4 bg-white sticky top-0 z-10 border-b border-gray-100"
+    >
         <Link
-            href="/"
+            href="/menu"
             class="text-gray-800 focus:outline-none p-1"
             aria-label="Kembali"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </Link>
         <h1 class="font-bold text-lg leading-tight text-gray-900">Masuk</h1>
-        <div class="w-8"></div> <!-- placeholder for center alignment -->
+        <div class="w-8"></div>
     </header>
 
     <!-- Main Content -->
     <main class="flex-1 w-full flex flex-col p-4">
         <!-- Header area -->
         <div class="mb-6 pt-4">
-            <h2 class="text-2xl font-bold text-gray-900">
-                Selamat Datang
-            </h2>
+            <h2 class="text-2xl font-bold text-gray-900">Selamat Datang</h2>
             <p class="text-sm text-gray-500 mt-1">
                 Silahkan masuk ke akun Anda untuk melanjutkan.
             </p>
@@ -60,7 +60,7 @@
 
         <!-- Login Form -->
         <form class="space-y-4 flex-1 flex flex-col" onsubmit={handleSubmit}>
-            <div class="space-y-4">
+            <div class="space-y-6">
                 <TextInput
                     id="login"
                     name="login"
@@ -105,7 +105,7 @@
                 </div>
 
                 <!-- Remember checkbox -->
-                <div class="pt-2">
+                <div>
                     <Checkbox
                         id="remember"
                         name="remember"
@@ -114,22 +114,22 @@
                         bind:checked={$form.remember}
                     />
                 </div>
+
+                <div>
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        size="normal"
+                        fullWidth={true}
+                        disabled={$form.processing}
+                        loading={$form.processing}
+                        icon="fa-solid fa-right-to-bracket"
+                    >
+                        Masuk
+                    </Button>
+                </div>
             </div>
 
-            <div class="mt-8 mb-4">
-                <Button
-                    type="submit"
-                    variant="primary"
-                    size="normal"
-                    fullWidth={true}
-                    disabled={$form.processing}
-                    loading={$form.processing}
-                    icon="fa-solid fa-right-to-bracket"
-                >
-                    Masuk
-                </Button>
-            </div>
-            
             <div class="text-center text-sm text-gray-600 mt-2">
                 Belum punya akun?
                 <Link
