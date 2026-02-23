@@ -17,10 +17,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('drop_point_id')->constrained();
             $table->string('name');
-            $table->string('username')->unique();
+            $table->string('username')->unique()->nullable();
             $table->string('phone')->unique();
-            $table->string('address');
-            $table->string('email')->unique();
+            $table->text('address')->nullable();
+            $table->string('email')->unique()->nullable();
             $table->string('password');
             $table->string('school_class')->nullable();
             $table->boolean('is_active')->default(true);
