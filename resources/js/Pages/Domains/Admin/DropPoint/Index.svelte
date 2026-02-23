@@ -13,6 +13,8 @@
     interface DropPoint {
         id: string;
         name: string;
+        photo?: string;
+        photo_url?: string;
         address: string;
         phone: string | null;
         latitude: number;
@@ -168,6 +170,7 @@
                 <table class="custom-table min-w-full">
                     <thead>
                         <tr>
+                            <th class="w-16">Foto</th>
                             <th>Nama & Alamat</th>
                             <th>Kontak & PIC</th>
                             <th>Biaya Pengiriman</th>
@@ -179,6 +182,23 @@
                         {#if items.length > 0}
                             {#each items as item}
                                 <tr>
+                                    <td>
+                                        {#if item.photo_url}
+                                            <img
+                                                src={item.photo_url}
+                                                alt={item.name}
+                                                class="w-12 h-12 object-cover rounded"
+                                            />
+                                        {:else}
+                                            <div
+                                                class="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center"
+                                            >
+                                                <i
+                                                    class="fa-solid fa-image text-gray-400"
+                                                ></i>
+                                            </div>
+                                        {/if}
+                                    </td>
                                     <td>
                                         <div
                                             class="text-sm font-medium text-gray-900 dark:text-white"
@@ -282,7 +302,7 @@
                         {:else}
                             <tr>
                                 <td
-                                    colspan="5"
+                                    colspan="6"
                                     class="py-6 text-sm text-center text-gray-500 dark:text-gray-400"
                                 >
                                     Tidak ada data

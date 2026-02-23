@@ -15,6 +15,21 @@
         name: string;
     }
 
+    interface ProductOptionItem {
+        id?: string;
+        name: string;
+        extra_price: number;
+        sort_order: number;
+    }
+
+    interface ProductOption {
+        id?: string;
+        name: string;
+        is_required: boolean;
+        sort_order: number;
+        items: ProductOptionItem[];
+    }
+
     interface Product {
         id: string;
         product_category_id: string;
@@ -28,6 +43,7 @@
         sort_order: number;
         created_at: string;
         updated_at: string;
+        options?: ProductOption[];
     }
 
     let product = $derived(
@@ -59,6 +75,7 @@
         is_active: true,
         sort_order: 0,
         image: null as File | null,
+        options: [] as ProductOption[],
     };
 
     const form = useForm(
@@ -74,6 +91,7 @@
             is_active: product?.is_active ?? DEFAULT_FORM_STATE.is_active,
             sort_order: product?.sort_order ?? DEFAULT_FORM_STATE.sort_order,
             image: DEFAULT_FORM_STATE.image,
+            options: product?.options ?? DEFAULT_FORM_STATE.options,
         })),
     );
 
@@ -83,6 +101,16 @@
 
     function submitForm(e: SubmitEvent) {
         e.preventDefault();
+
+        // Ensure sort_order defaults correctly for options and items
+        $form.options = $form.options.map((opt, oIndex) => ({
+            ...opt,
+            sort_order: opt.sort_order || oIndex,
+            items: opt.items.map((it, iIndex) => ({
+                ...it,
+                sort_order: it.sort_order || iIndex,
+            })),
+        }));
 
         if (isEditMode && product) {
             $form.post(`/admin/products/${product.id}`, {
@@ -95,6 +123,51 @@
                 forceFormData: true,
             });
         }
+    }
+
+    function addOption() {
+        $form.options = [
+            ...$form.options,
+            {
+                name: "",
+                is_required: false,
+                sort_order: $form.options.length,
+                items: [
+                    {
+                        name: "",
+                        extra_price: 0,
+                        sort_order: 0,
+                    },
+                ],
+            },
+        ];
+    }
+
+    function removeOption(index: number) {
+        $form.options = $form.options.filter((_, i) => i !== index);
+    }
+
+    function addItem(optionIndex: number) {
+        const option = $form.options[optionIndex];
+        if (!option) return;
+
+        option.items = [
+            ...option.items,
+            {
+                name: "",
+                extra_price: 0,
+                sort_order: option.items.length,
+            },
+        ];
+        $form.options[optionIndex] = option;
+    }
+
+    function removeItem(optionIndex: number, itemIndex: number) {
+        const option = $form.options[optionIndex];
+        if (!option) return;
+
+        option.items = option.items.filter((_, i) => i !== itemIndex);
+        $form.options[optionIndex] = option;
     }
 </script>
 
@@ -326,6 +399,219 @@
                             (Produk yang tidak aktif tidak akan ditampilkan)
                         </span>
                     </div>
+                </div>
+            {/snippet}
+        </Card>
+
+        <div class="mt-6"></div>
+
+        <Card title="Opsi Tambahan (Opsional)" collapsible={false}>
+            {#snippet actions()}
+                <Button
+                    variant="primary"
+                    size="sm"
+                    icon="fa-solid fa-plus"
+                    onclick={addOption}
+                    type="button"
+                >
+                    Tambah Opsi
+                </Button>
+            {/snippet}
+            {#snippet children()}
+                <div class="space-y-6">
+                    {#if $form.options.length === 0}
+                        <div
+                            class="text-center py-6 text-gray-500 dark:text-gray-400"
+                        >
+                            Belum ada opsi tambahan. Klik tombol "Tambah Opsi"
+                            untuk menambahkan (misal: Ukuran, Toping).
+                        </div>
+                    {:else}
+                        {#each $form.options as option, optionIndex}
+                            <div
+                                class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 relative bg-gray-50/50 dark:bg-gray-800/50"
+                            >
+                                <div class="absolute top-4 right-4">
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        icon="fa-solid fa-trash"
+                                        onclick={() =>
+                                            removeOption(optionIndex)}
+                                        type="button"
+                                    />
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 pr-12"
+                                >
+                                    <div>
+                                        <TextInput
+                                            id={`option_name_${optionIndex}`}
+                                            name={`options[${optionIndex}][name]`}
+                                            label="Nama Opsi"
+                                            placeholder="Misal: Ukuran, Toping"
+                                            bind:value={
+                                                $form.options![optionIndex]!
+                                                    .name
+                                            }
+                                            error={($form.errors as any)[
+                                                `options.${optionIndex}.name`
+                                            ]}
+                                            required
+                                        />
+                                    </div>
+                                    <div class="flex items-center pt-2 md:pt-8">
+                                        <Checkbox
+                                            id={`option_required_${optionIndex}`}
+                                            name={`options[${optionIndex}][is_required]`}
+                                            label="Wajib dipilih pembeli"
+                                            bind:checked={
+                                                $form.options![optionIndex]!
+                                                    .is_required
+                                            }
+                                        />
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="ml-0 md:ml-4 border-l-2 border-gray-200 dark:border-gray-700 pl-4 py-2"
+                                >
+                                    <div
+                                        class="flex justify-between items-center mb-4"
+                                    >
+                                        <h4
+                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                        >
+                                            Daftar Pilihan
+                                        </h4>
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            icon="fa-solid fa-plus"
+                                            onclick={() => addItem(optionIndex)}
+                                            type="button"
+                                        >
+                                            Tambah Pilihan
+                                        </Button>
+                                    </div>
+
+                                    {#if ($form.errors as any)[`options.${optionIndex}.items`]}
+                                        <div
+                                            class="text-sm text-red-500 mt-1 mb-2"
+                                        >
+                                            {($form.errors as any)[
+                                                `options.${optionIndex}.items`
+                                            ]}
+                                        </div>
+                                    {/if}
+
+                                    <div class="space-y-3">
+                                        {#each option.items as item, itemIndex}
+                                            <div
+                                                class="flex flex-col sm:flex-row gap-3 items-start sm:items-center"
+                                            >
+                                                <div class="flex-1 w-full pl-2">
+                                                    <TextInput
+                                                        id={`item_name_${optionIndex}_${itemIndex}`}
+                                                        name={`options[${optionIndex}][items][${itemIndex}][name]`}
+                                                        placeholder="Misal: Besar, Sedang, Ekstra Keju"
+                                                        bind:value={
+                                                            $form.options![
+                                                                optionIndex
+                                                            ]!.items![
+                                                                itemIndex
+                                                            ]!.name
+                                                        }
+                                                        error={(
+                                                            $form.errors as any
+                                                        )[
+                                                            `options.${optionIndex}.items.${itemIndex}.name`
+                                                        ]}
+                                                        class="mb-0!"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div class="flex-1 w-full">
+                                                    <TextInput
+                                                        id={`item_price_${optionIndex}_${itemIndex}`}
+                                                        name={`options[${optionIndex}][items][${itemIndex}][extra_price]`}
+                                                        placeholder="Tambahan harga (Rp)"
+                                                        type="number"
+                                                        value={$form.options![
+                                                            optionIndex
+                                                        ]!.items![
+                                                            itemIndex
+                                                        ]!.extra_price.toString()}
+                                                        oninput={(e) => {
+                                                            if (
+                                                                e &&
+                                                                typeof e ===
+                                                                    "object" &&
+                                                                "numericValue" in
+                                                                    e &&
+                                                                e.numericValue !==
+                                                                    null
+                                                            ) {
+                                                                $form.options![
+                                                                    optionIndex
+                                                                ]!.items![
+                                                                    itemIndex
+                                                                ]!.extra_price =
+                                                                    e.numericValue;
+                                                            } else if (
+                                                                e &&
+                                                                typeof e ===
+                                                                    "object" &&
+                                                                "target" in e
+                                                            ) {
+                                                                $form.options![
+                                                                    optionIndex
+                                                                ]!.items![
+                                                                    itemIndex
+                                                                ]!.extra_price =
+                                                                    Number(
+                                                                        (
+                                                                            e.target as HTMLInputElement
+                                                                        ).value,
+                                                                    );
+                                                            }
+                                                        }}
+                                                        error={(
+                                                            $form.errors as any
+                                                        )[
+                                                            `options.${optionIndex}.items.${itemIndex}.extra_price`
+                                                        ]}
+                                                        class="mb-0!"
+                                                    />
+                                                </div>
+                                                <div
+                                                    class="w-full sm:w-auto flex justify-end"
+                                                >
+                                                    <Button
+                                                        variant="danger"
+                                                        size="sm"
+                                                        icon="fa-solid fa-times"
+                                                        onclick={() =>
+                                                            removeItem(
+                                                                optionIndex,
+                                                                itemIndex,
+                                                            )}
+                                                        disabled={option.items
+                                                            .length <= 1}
+                                                        title={option.items
+                                                            .length <= 1
+                                                            ? "Minimal satu pilihan"
+                                                            : "Hapus pilihan"}
+                                                        type="button"
+                                                    />
+                                                </div>
+                                            </div>
+                                        {/each}
+                                    </div>
+                                </div>
+                            </div>
+                        {/each}
+                    {/if}
                 </div>
             {/snippet}
         </Card>

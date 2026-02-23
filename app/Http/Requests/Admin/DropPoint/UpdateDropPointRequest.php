@@ -25,6 +25,7 @@ class UpdateDropPointRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'photo' => ['nullable', 'image', 'max:2048'],
             'address' => ['required', 'string'],
             'phone' => ['nullable', 'string', 'max:20'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],

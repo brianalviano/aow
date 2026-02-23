@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -7,25 +9,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Product extends Model
+/**
+ * Represents an option category customizable for a product, such as "Size" or "Add-on".
+ */
+class ProductOption extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
-        'product_category_id',
+        'product_id',
         'name',
-        'description',
-        'price',
-        'image',
-        'stock_limit',
-        'is_active',
+        'is_required',
         'sort_order',
     ];
 
@@ -37,22 +37,28 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
+            'is_required' => 'boolean',
+            'sort_order' => 'integer',
         ];
     }
 
-    public function productCategory(): BelongsTo
+    /**
+     * Get the product that owns this option.
+     *
+     * @return BelongsTo
+     */
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(ProductCategory::class);
+        return $this->belongsTo(Product::class);
     }
 
     /**
-     * Get the options available for this product.
+     * Get the items available for this product option.
      *
      * @return HasMany
      */
-    public function productOptions(): HasMany
+    public function items(): HasMany
     {
-        return $this->hasMany(ProductOption::class);
+        return $this->hasMany(ProductOptionItem::class);
     }
 }

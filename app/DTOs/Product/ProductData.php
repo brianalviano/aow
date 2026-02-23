@@ -22,6 +22,8 @@ class ProductData
         public readonly ?int $stockLimit = null,
         public readonly bool $isActive = true,
         public readonly int $sortOrder = 0,
+        /** @var array<int, ProductOptionData> */
+        public readonly array $options = [],
     ) {}
 
     /**
@@ -32,6 +34,16 @@ class ProductData
      */
     public static function fromStoreRequest(StoreProductRequest $request): self
     {
+        $optionsData = $request->validated('options', []);
+        $options = [];
+        if (is_array($optionsData)) {
+            foreach ($optionsData as $optionData) {
+                if (is_array($optionData)) {
+                    $options[] = ProductOptionData::fromArray($optionData);
+                }
+            }
+        }
+
         return new self(
             productCategoryId: (string) $request->validated('product_category_id'),
             name: (string) $request->validated('name'),
@@ -41,6 +53,7 @@ class ProductData
             stockLimit: $request->validated('stock_limit') !== null ? (int) $request->validated('stock_limit') : null,
             isActive: (bool) $request->validated('is_active', true),
             sortOrder: (int) $request->validated('sort_order', 0),
+            options: $options,
         );
     }
 
@@ -52,6 +65,16 @@ class ProductData
      */
     public static function fromUpdateRequest(UpdateProductRequest $request): self
     {
+        $optionsData = $request->validated('options', []);
+        $options = [];
+        if (is_array($optionsData)) {
+            foreach ($optionsData as $optionData) {
+                if (is_array($optionData)) {
+                    $options[] = ProductOptionData::fromArray($optionData);
+                }
+            }
+        }
+
         return new self(
             productCategoryId: (string) $request->validated('product_category_id'),
             name: (string) $request->validated('name'),
@@ -61,6 +84,7 @@ class ProductData
             stockLimit: $request->validated('stock_limit') !== null ? (int) $request->validated('stock_limit') : null,
             isActive: (bool) $request->validated('is_active', true),
             sortOrder: (int) $request->validated('sort_order', 0),
+            options: $options,
         );
     }
 }

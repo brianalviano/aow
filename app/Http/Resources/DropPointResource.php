@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Traits\FileHelperTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DropPointResource extends JsonResource
 {
+    use FileHelperTrait;
     /**
      * Transform the resource into an array.
      *
@@ -19,6 +21,8 @@ class DropPointResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'photo' => $this->photo,
+            'photo_url' => $this->getFileUrl($this->photo),
             'address' => $this->address,
             'phone' => $this->phone,
             'latitude' => $this->latitude,

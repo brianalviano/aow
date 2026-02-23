@@ -18,6 +18,7 @@ class DropPoint extends Model
      */
     protected $fillable = [
         'name',
+        'photo',
         'address',
         'phone',
         'latitude',

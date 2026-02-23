@@ -39,6 +39,22 @@ models:
     softDeletes: true
     timestamps: true
 
+  ProductOption:
+    id: uuid primary
+    product_id: uuid foreign:products
+    name: string
+    is_required: boolean default false
+    sort_order: int default 0
+    timestamps: true
+
+  ProductOptionItem:
+    id: uuid primary
+    product_option_id: uuid foreign:product_options
+    name: string
+    extra_price: int default 0
+    sort_order: int default 0
+    timestamps: true
+
   Discount:
     id: uuid primary
     name: string
@@ -127,6 +143,14 @@ models:
     final_price: int default 0
     subtotal: int default 0
     note: text nullable
+    timestamps: true
+
+  OrderItemOption:
+    id: uuid primary
+    order_item_id: uuid foreign:order_items
+    product_option_id: uuid foreign:product_options
+    product_option_item_id: uuid foreign:product_option_items
+    extra_price: int default 0
     timestamps: true
 
   OrderSetting:

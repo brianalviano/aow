@@ -29,6 +29,7 @@
         sort_order: number;
         created_at: string;
         updated_at: string;
+        options_count?: number;
         product_category?: ProductCategory;
     }
 
@@ -205,6 +206,7 @@
                             <th>Nama Baru</th>
                             <th>Kategori</th>
                             <th>Harga</th>
+                            <th>Opsi</th>
                             <th>Stok Limit</th>
                             <th>Status</th>
                             <th class="w-32 text-center">Aksi</th>
@@ -250,6 +252,13 @@
                                             class="text-sm text-gray-900 dark:text-white"
                                         >
                                             {formatCurrency(item.price)}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div
+                                            class="text-sm text-gray-900 dark:text-white"
+                                        >
+                                            {item.options_count ?? 0}
                                         </div>
                                     </td>
                                     <td>

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('drop_points', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
+            $table->string('photo')->nullable();
             $table->string('address');
             $table->string('phone')->nullable();
             $table->float('latitude');

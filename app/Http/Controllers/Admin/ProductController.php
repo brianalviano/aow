@@ -93,8 +93,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product): Response
     {
-        // Ensuring category relation is loaded but handled mostly in Resource
-        $product->load('productCategory');
+        // Ensuring category and options relations are loaded
+        $product->load(['productCategory', 'productOptions.items']);
         $categories = ProductCategory::orderBy('sort_order', 'asc')->orderBy('name', 'asc')->get();
 
         return Inertia::render('Domains/Admin/Product/Form', [

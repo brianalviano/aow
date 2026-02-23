@@ -50,7 +50,7 @@ class ProductService
                 return DB::transaction(function () use ($data) {
                     $imagePath = $this->handleFileInput($data->image, null, 'products');
 
-                    return Product::create([
+                    $product = Product::create([
                         'product_category_id' => $data->productCategoryId,
                         'name' => $data->name,
                         'description' => $data->description,
@@ -60,6 +60,24 @@ class ProductService
                         'is_active' => $data->isActive,
                         'sort_order' => $data->sortOrder,
                     ]);
+
+                    foreach ($data->options as $optionData) {
+                        $option = $product->productOptions()->create([
+                            'name' => $optionData->name,
+                            'is_required' => $optionData->isRequired,
+                            'sort_order' => $optionData->sortOrder,
+                        ]);
+
+                        foreach ($optionData->items as $itemData) {
+                            $option->items()->create([
+                                'name' => $itemData->name,
+                                'extra_price' => $itemData->extraPrice,
+                                'sort_order' => $itemData->sortOrder,
+                            ]);
+                        }
+                    }
+
+                    return $product;
                 });
             } catch (\Throwable $e) {
                 Log::error('Failed to create product', [
@@ -72,6 +90,7 @@ class ProductService
                         'stock_limit' => $data->stockLimit,
                         'is_active' => $data->isActive,
                         'sort_order' => $data->sortOrder,
+                        'options_count' => count($data->options),
                     ],
                     'trace' => $e->getTraceAsString(),
                 ]);
@@ -106,6 +125,25 @@ class ProductService
                         'sort_order' => $data->sortOrder,
                     ]);
 
+                    // Clean sync by deleting existing options and recreating them
+                    $product->productOptions()->delete();
+
+                    foreach ($data->options as $optionData) {
+                        $option = $product->productOptions()->create([
+                            'name' => $optionData->name,
+                            'is_required' => $optionData->isRequired,
+                            'sort_order' => $optionData->sortOrder,
+                        ]);
+
+                        foreach ($optionData->items as $itemData) {
+                            $option->items()->create([
+                                'name' => $itemData->name,
+                                'extra_price' => $itemData->extraPrice,
+                                'sort_order' => $itemData->sortOrder,
+                            ]);
+                        }
+                    }
+
                     return $product->refresh();
                 });
             } catch (\Throwable $e) {
@@ -120,6 +158,7 @@ class ProductService
                         'stock_limit' => $data->stockLimit,
                         'is_active' => $data->isActive,
                         'sort_order' => $data->sortOrder,
+                        'options_count' => count($data->options),
                     ],
                     'trace' => $e->getTraceAsString(),
                 ]);

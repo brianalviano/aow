@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\DTOs\DropPoint\DropPointData;
 use App\Models\DropPoint;
+use App\Traits\FileHelperTrait;
 use App\Traits\RetryableTransactionsTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Log;
  */
 class DropPointService
 {
-    use RetryableTransactionsTrait;
+    use RetryableTransactionsTrait, FileHelperTrait;
 
     /**
      * Get paginated drop points.
@@ -42,8 +43,11 @@ class DropPointService
         return $this->runWithRetry(function () use ($data) {
             try {
                 return DB::transaction(function () use ($data) {
+                    $photoPath = $this->handleFileInput($data->photo, null, 'drop_points');
+
                     return DropPoint::create([
                         'name' => $data->name,
+                        'photo' => $photoPath,
                         'address' => $data->address,
                         'phone' => $data->phone,
                         'latitude' => $data->latitude,
@@ -59,6 +63,7 @@ class DropPointService
                     'error' => $e->getMessage(),
                     'data' => [
                         'name' => $data->name,
+                        'has_photo' => $data->photo !== null,
                         'address' => $data->address,
                         'phone' => $data->phone,
                         'latitude' => $data->latitude,
@@ -85,8 +90,11 @@ class DropPointService
         return $this->runWithRetry(function () use ($dropPoint, $data) {
             try {
                 return DB::transaction(function () use ($dropPoint, $data) {
+                    $photoPath = $this->handleFileInput($data->photo, $dropPoint->photo, 'drop_points');
+
                     $dropPoint->update([
                         'name' => $data->name,
+                        'photo' => $photoPath,
                         'address' => $data->address,
                         'phone' => $data->phone,
                         'latitude' => $data->latitude,
@@ -105,6 +113,7 @@ class DropPointService
                     'drop_point_id' => $dropPoint->id,
                     'data' => [
                         'name' => $data->name,
+                        'has_photo' => $data->photo !== null,
                         'address' => $data->address,
                         'phone' => $data->phone,
                         'latitude' => $data->latitude,
@@ -131,6 +140,9 @@ class DropPointService
         return $this->runWithRetry(function () use ($dropPoint) {
             try {
                 return DB::transaction(function () use ($dropPoint) {
+                    if ($dropPoint->photo) {
+                        $this->deleteFile($dropPoint->photo);
+                    }
                     return $dropPoint->delete();
                 });
             } catch (\Throwable $e) {

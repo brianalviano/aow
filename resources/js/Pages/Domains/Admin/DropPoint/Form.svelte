@@ -5,6 +5,7 @@
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
     import TextArea from "@/Lib/Admin/Components/Ui/TextArea.svelte";
     import Checkbox from "@/Lib/Admin/Components/Ui/Checkbox.svelte";
+    import FileUpload from "@/Lib/Admin/Components/Ui/FileUpload.svelte";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
     import { untrack, onMount, onDestroy } from "svelte";
     import debounce from "lodash-es/debounce";
@@ -16,6 +17,8 @@
     interface DropPoint {
         id: string;
         name: string;
+        photo?: string;
+        photo_url?: string;
         address: string;
         phone: string | null;
         latitude: number;
@@ -42,6 +45,7 @@
     const DEFAULT_FORM_STATE = {
         _method: "post",
         name: "",
+        photo: null as File | null,
         address: "",
         phone: "",
         latitude: 0,
@@ -56,6 +60,7 @@
         untrack(() => ({
             _method: dropPoint ? "put" : "post",
             name: dropPoint?.name ?? DEFAULT_FORM_STATE.name,
+            photo: DEFAULT_FORM_STATE.photo,
             address: dropPoint?.address ?? DEFAULT_FORM_STATE.address,
             phone: dropPoint?.phone ?? DEFAULT_FORM_STATE.phone,
             latitude:
@@ -202,12 +207,14 @@
         $form.longitude = Number($form.longitude);
 
         if (isEditMode && dropPoint) {
-            $form.put(`/admin/drop-points/${dropPoint.id}`, {
+            $form.post(`/admin/drop-points/${dropPoint.id}`, {
                 preserveScroll: true,
+                forceFormData: true,
             });
         } else {
             $form.post("/admin/drop-points", {
                 preserveScroll: true,
+                forceFormData: true,
             });
         }
     }
@@ -264,6 +271,31 @@
                 <Card title="Informasi Umum" collapsible={false}>
                     {#snippet children()}
                         <div class="space-y-4">
+                            {#if dropPoint?.photo_url}
+                                <div class="mb-4">
+                                    <span
+                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                                        >Foto Saat Ini</span
+                                    >
+                                    <img
+                                        src={dropPoint.photo_url}
+                                        alt={dropPoint.name}
+                                        class="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                                    />
+                                </div>
+                            {/if}
+                            <FileUpload
+                                id="photo"
+                                name="photo"
+                                label="Foto Titik Jemput (Opsional)"
+                                accept="image/*"
+                                bind:value={$form.photo}
+                                error={$form.errors.photo}
+                                uploadText="Pilih atau seret foto ke sini"
+                                uploadSubtext="Batas maksimal 2MB. Format: JPG, PNG, WEBP."
+                                maxSize={2 * 1024 * 1024}
+                            />
+
                             <TextInput
                                 id="name"
                                 name="name"

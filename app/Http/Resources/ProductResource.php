@@ -33,6 +33,7 @@ class ProductResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'product_category' => new ProductCategoryResource($this->whenLoaded('productCategory')),
+            'options' => ProductOptionResource::collection($this->whenLoaded('productOptions')),
         ];
     }
 }
