@@ -134,17 +134,15 @@
     </div>
 
     <!-- Drop Point Detail Content -->
-    <div class="bg-white px-5 py-6">
-        <h1
-            class="text-xl sm:text-2xl font-bold text-gray-900 mb-2 leading-tight"
-        >
+    <div class="bg-white p-5">
+        <h1 class="text-lg font-bold text-gray-900 mb-2 leading-tight">
             {dropPoint.name}
         </h1>
-        <p class="text-sm text-gray-700 leading-relaxed mb-4">
+        <p class="text-xs text-gray-700 leading-relaxed mb-3">
             {dropPoint.address || "Alamat tidak tersedia"}
         </p>
 
-        <div class="flex items-center text-red-500 text-sm font-medium gap-2">
+        <div class="flex items-center text-red-500 text-xs font-medium gap-2">
             <i class="fa-solid fa-location-dot"></i>
             <span>
                 {distance !== null ? formatDistance(distance) : "-"}
@@ -153,8 +151,8 @@
     </div>
 
     <!-- Instructions Section -->
-    <div class="bg-gray-50 px-5 pt-6 pb-25">
-        <h2 class="text-center font-bold text-gray-900 text-base mb-6">
+    <div class="bg-gray-50 px-5 pt-3 pb-20">
+        <h2 class="text-center font-bold text-gray-900 text-base mb-4">
             Cara menggunakan AOW Order
         </h2>
 

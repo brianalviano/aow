@@ -22,7 +22,7 @@ class DropPointController extends Controller
             ->findOrFail($id);
 
         return Inertia::render('Domains/Customer/DropPoint/Show', [
-            'dropPoint' => new DropPointResource($dropPoint),
+            'dropPoint' => DropPointResource::make($dropPoint)->resolve(),
         ]);
     }
 }
