@@ -15,6 +15,9 @@ use App\Http\Controllers\Admin\{
     ReportController,
     CustomerController,
 };
+use App\Http\Controllers\Customer\{
+    HomeController,
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -22,8 +25,7 @@ use App\Http\Controllers\Admin\{
 |--------------------------------------------------------------------------
 */
 
-// Route::get('/', fn() => inertia('Customer/Home'))
-//     ->name('customer.home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 /*
 |--------------------------------------------------------------------------
