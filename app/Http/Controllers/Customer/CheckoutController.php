@@ -51,6 +51,7 @@ class CheckoutController extends Controller
             'dropPoint' => $dropPointData,
             'fees' => [
                 'deliveryFee' => $fees['deliveryFee'],
+                'baseDeliveryFee' => $fees['baseDeliveryFee'],
                 'adminFee' => $fees['adminFee'],
                 'taxAmount' => $fees['taxAmount'],
                 'taxPercentage' => $fees['taxPercentage'],
@@ -60,6 +61,8 @@ class CheckoutController extends Controller
                 'delivery_fee_mode' => $fees['deliveryFeeMode'],
                 'free_courier_min_order' => $fees['minOrderFreeDelivery'],
                 'admin_fee_enabled' => $fees['adminFeeEnabled'],
+                'admin_fee_type' => $fees['adminFeeType'],
+                'admin_fee_value' => $fees['adminFeeValue'],
                 'tax_enabled' => $fees['taxEnabled'],
             ],
         ]);
@@ -158,14 +161,9 @@ class CheckoutController extends Controller
         try {
             $data = ProcessOrderData::fromRequest($request, $cart, $dropPoint);
 
-            $this->checkoutService->processOrder($data);
+            $order = $this->checkoutService->processOrder($data);
 
-            Inertia::flash('toast', [
-                'message' => 'Pesanan berhasil dibuat',
-                'type' => 'success',
-            ]);
-
-            return redirect()->route('home');
+            return redirect()->route('customer.payment')->with('order', $order->load('paymentMethod'));
         } catch (Throwable $e) {
             // Logging is handled within the service
             Inertia::flash('toast', [

@@ -46,6 +46,19 @@ Route::post('/checkout/update-session', [CheckoutController::class, 'updateSessi
 Route::get('/payment', [CheckoutController::class, 'payment'])->name('customer.payment');
 Route::post('/payment', [CheckoutController::class, 'processPayment'])->name('customer.payment.store');
 
+// Midtrans Redirects
+Route::get('/payment/finish', function () {
+    return redirect()->route('customer.product.index')->with('success', 'Pembayaran sedang diproses atau sudah berhasil.');
+})->name('payment.finish');
+
+Route::get('/checkout/unfinish', function () {
+    return redirect()->route('customer.payment')->with('warning', 'Pembayaran belum diselesaikan.');
+})->name('payment.unfinish');
+
+Route::get('/checkout/error', function () {
+    return redirect()->route('customer.payment')->with('error', 'Terjadi kesalahan saat memproses pembayaran.');
+})->name('payment.error');
+
 // Customer Guest Routes
 Route::middleware('guest:customer')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('customer.login');

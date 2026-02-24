@@ -38,6 +38,7 @@ class Order extends Model
         'shipping_discount_id',
         'discount_amount',
         'total_amount',
+        'payment_details',
         'delivery_fee',
         'delivery_discount_amount',
         'final_delivery_fee',
@@ -55,6 +56,7 @@ class Order extends Model
         return [
             'delivery_date' => 'date',
             'payment_expired_at' => 'timestamp',
+            'payment_details' => 'array',
         ];
     }
 

@@ -22,12 +22,14 @@
     };
     export let fees: {
         deliveryFee: number;
+        baseDeliveryFee: number;
         adminFee: number;
         taxAmount: number;
         taxPercentage: number;
         taxEnabled: boolean;
     } = {
         deliveryFee: 0,
+        baseDeliveryFee: 0,
         adminFee: 0,
         taxAmount: 0,
         taxPercentage: 0,
@@ -37,11 +39,15 @@
         delivery_fee_mode: string;
         free_courier_min_order: number;
         admin_fee_enabled: boolean;
+        admin_fee_type: string;
+        admin_fee_value: number;
         tax_enabled: boolean;
     } = {
         delivery_fee_mode: "per_drop_point",
         free_courier_min_order: 0,
         admin_fee_enabled: false,
+        admin_fee_type: "fixed",
+        admin_fee_value: 0,
         tax_enabled: false,
     };
 
@@ -64,14 +70,19 @@
         ) {
             return 0;
         }
-        return fees.deliveryFee;
+        return fees.baseDeliveryFee;
     })();
 
     $: localTaxAmount = settings.tax_enabled
         ? Math.round((subtotal * fees.taxPercentage) / 100)
         : 0;
 
-    $: localAdminFee = fees.adminFee; // Fixed for now, or match backend logic if it depends on subtotal
+    $: localAdminFee = (() => {
+        if (!settings.admin_fee_enabled) return 0;
+        if (settings.admin_fee_type === "fixed")
+            return settings.admin_fee_value;
+        return Math.round((subtotal * settings.admin_fee_value) / 100);
+    })();
 
     $: totalAmount =
         subtotal + localDeliveryFee + localTaxAmount + localAdminFee;

@@ -1,0 +1,252 @@
+Oke, jadi yang kamu cari itu adalah **Midtrans Core API (VT-Direct)** — bukan Snap. Ini memang jalur yang tepat kalau mau bikin tampilan sendiri tanpa popup/JS dari Midtrans.
+
+Berikut penjelasan lengkapnya:
+
+---
+
+## Perbedaan Pendekatan
+
+| Snap (biasa) | Core API (yang kamu mau) |
+|---|---|
+| Pakai `snap.js` dari Midtrans | Tidak perlu JS Midtrans |
+| UI dihandle Midtrans | UI 100% buatan sendiri |
+| Mudah setup | Lebih kompleks, tapi fleksibel total |
+
+---
+
+## 1. Install Library
+
+```bash
+composer require midtrans/midtrans-php
+```
+
+---
+
+## 2. Konfigurasi `.env`
+
+```env
+MIDTRANS_SERVER_KEY=VT-server-xxxxxxxxxx
+MIDTRANS_CLIENT_KEY=VT-client-xxxxxxxxxx
+MIDTRANS_IS_PRODUCTION=false
+```
+
+---
+
+## 3. Setup Config Midtrans di Laravel
+
+Bisa taruh di `AppServiceProvider::boot()` atau di controller setiap kali dipakai:
+
+```php
+\Midtrans\Config::$serverKey    = env('MIDTRANS_SERVER_KEY');
+\Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+\Midtrans\Config::$isSanitized  = true;
+\Midtrans\Config::$is3ds        = true;
+```
+
+---
+
+## 4. Alur Core API
+
+Ada dua metode pembayaran yang paling umum:
+
+### A. Bank Transfer / Virtual Account (Paling simpel)
+
+Ini yang paling mudah karena tidak butuh tokenisasi kartu. Kamu cukup kirim request charge dari backend, Midtrans balik nomor VA.
+
+**Controller:**
+```php
+use Midtrans\CoreApi;
+
+public function charge(Request $request)
+{
+    \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+    \Midtrans\Config::$isProduction = false;
+
+    $params = [
+        'payment_type' => 'bank_transfer',
+        'bank_transfer' => [
+            'bank' => $request->bank, // 'bca', 'bni', 'bri', 'permata', 'mandiri'
+        ],
+        'transaction_details' => [
+            'order_id'    => 'ORDER-' . uniqid(),
+            'gross_amount' => $request->amount,
+        ],
+        'customer_details' => [
+            'first_name' => $request->name,
+            'email'      => $request->email,
+            'phone'      => $request->phone,
+        ],
+    ];
+
+    $response = CoreApi::charge($params);
+
+    // Simpan order ke database, lalu return ke view
+    return view('payment.va-result', [
+        'va_number'  => $response->va_numbers[0]->va_number ?? $response->permata_va_number,
+        'bank'       => $response->va_numbers[0]->bank ?? 'permata',
+        'amount'     => $response->gross_amount,
+        'expired_at' => $response->expiry_time,
+        'order_id'   => $response->order_id,
+    ]);
+}
+```
+
+**View kamu sendiri (bebas desain):**
+```blade
+<div class="payment-info">
+    <h2>Silakan Transfer ke:</h2>
+    <p>Bank: {{ strtoupper($bank) }}</p>
+    <p>Nomor VA: <strong>{{ $va_number }}</strong></p>
+    <p>Jumlah: Rp {{ number_format($amount, 0, ',', '.') }}</p>
+    <p>Bayar sebelum: {{ $expired_at }}</p>
+</div>
+```
+
+---
+
+### B. Credit Card (Butuh tokenisasi)
+
+Untuk kartu kredit, ada satu langkah tambahan yang **memang butuh sedikit JS** — tapi bukan Snap JS, melainkan `MidtransNew3ds.min.js` yang lebih kecil dan hanya untuk tokenisasi nomor kartu (agar nomor kartu tidak pernah lewat server kamu, demi keamanan PCI-DSS).
+
+**View Form Kartu:**
+```html
+<script src="https://api.midtrans.com/v2/assets/js/midtrans-new-3ds.min.js"
+    id="midtrans-script"
+    data-environment="sandbox"
+    data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}">
+</script>
+
+<form id="card-form">
+    <input type="text" id="card_number" placeholder="Nomor Kartu">
+    <input type="text" id="card_cvv" placeholder="CVV">
+    <input type="text" id="card_exp_month" placeholder="Bulan (MM)">
+    <input type="text" id="card_exp_year" placeholder="Tahun (YYYY)">
+    <input type="hidden" id="card_token" name="token_id">
+    <button type="button" onclick="getCardToken()">Bayar</button>
+</form>
+
+<script>
+function getCardToken() {
+    MidtransNew3ds.getCardToken({
+        card_number:    document.getElementById('card_number').value,
+        card_cvv:       document.getElementById('card_cvv').value,
+        card_exp_month: document.getElementById('card_exp_month').value,
+        card_exp_year:  document.getElementById('card_exp_year').value,
+    }, {
+        onSuccess: function(response) {
+            document.getElementById('card_token').value = response.token_id;
+            // Kirim token ke backend via fetch/axios
+            fetch('/payment/charge-card', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token_id: response.token_id, amount: 100000 })
+            }).then(r => r.json()).then(data => {
+                if (data.redirect_url) {
+                    // Untuk 3DS, redirect ke halaman autentikasi bank
+                    window.location = data.redirect_url;
+                }
+            });
+        },
+        onFailure: function(response) {
+            alert('Gagal tokenisasi kartu: ' + response.status_message);
+        }
+    });
+}
+</script>
+```
+
+**Controller untuk charge kartu:**
+```php
+public function chargeCard(Request $request)
+{
+    \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+    \Midtrans\Config::$isProduction = false;
+    \Midtrans\Config::$is3ds = true;
+
+    $params = [
+        'payment_type' => 'credit_card',
+        'credit_card'  => [
+            'token_id'       => $request->token_id,
+            'authentication' => true,
+        ],
+        'transaction_details' => [
+            'order_id'     => 'ORDER-' . uniqid(),
+            'gross_amount' => $request->amount,
+        ],
+    ];
+
+    $response = \Midtrans\CoreApi::charge($params);
+
+    return response()->json([
+        'status'       => $response->transaction_status,
+        'redirect_url' => $response->redirect_url ?? null, // untuk 3DS
+        'order_id'     => $response->order_id,
+    ]);
+}
+```
+
+---
+
+## 5. Webhook / Notifikasi dari Midtrans
+
+Midtrans akan `POST` notifikasi ke endpoint kamu setiap ada perubahan status transaksi (bayar, expired, gagal).
+
+**Route:**
+```php
+Route::post('/payment/notification', [PaymentController::class, 'notification']);
+```
+
+**Controller:**
+```php
+public function notification(Request $request)
+{
+    \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+    \Midtrans\Config::$isProduction = false;
+
+    $notification = new \Midtrans\Notification();
+
+    $orderId           = $notification->order_id;
+    $transactionStatus = $notification->transaction_status;
+    $fraudStatus       = $notification->fraud_status;
+
+    if ($transactionStatus == 'capture' && $fraudStatus == 'accept') {
+        // Update DB: status = paid
+    } elseif ($transactionStatus == 'settlement') {
+        // Update DB: status = paid (untuk non-kartu)
+    } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+        // Update DB: status = failed/expired
+    } elseif ($transactionStatus == 'pending') {
+        // Update DB: status = pending
+    }
+
+    return response()->json(['status' => 'ok']);
+}
+```
+
+**Jangan lupa exclude dari CSRF di `VerifyCsrfToken.php`:**
+```php
+protected $except = [
+    'payment/notification',
+];
+```
+
+---
+
+## Ringkasan Alur
+
+```
+User isi form (buatan sendiri)
+    ↓
+[Bank Transfer] langsung POST ke controller → CoreApi::charge() → dapat nomor VA
+[Credit Card] tokenisasi dulu via MidtransNew3ds.min.js → dapat token_id → POST ke controller → CoreApi::charge() → dapat redirect_url 3DS (kalau perlu)
+    ↓
+Simpan transaksi ke DB dengan status "pending"
+    ↓
+Midtrans kirim webhook ke /payment/notification
+    ↓
+Update status di DB berdasarkan notifikasi
+```
+
+---
+
+Intinya: yang membedakan Core API dari Snap adalah kamu **tidak pernah pakai `snap.js`**. Untuk bank transfer murni 100% backend. Untuk kartu kredit tetap butuh `MidtransNew3ds.min.js` tapi hanya untuk tokenisasi (tidak ada UI dari Midtrans, hanya library kecil untuk enkripsi data kartu).

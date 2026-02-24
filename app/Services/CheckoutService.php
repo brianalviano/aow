@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\Checkout\ProcessOrderData;
+use App\Enums\{PaymentMethodType};
 use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
-use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderSetting, DropPoint};
+use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderSetting, DropPoint, PaymentMethod};
 use App\Traits\RetryableTransactionsTrait;
 use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
 use Throwable;
@@ -19,6 +20,15 @@ use Throwable;
 class CheckoutService
 {
     use RetryableTransactionsTrait;
+
+    /**
+     * Create a new CheckoutService instance.
+     *
+     * @param MidtransService $midtransService
+     */
+    public function __construct(
+        private readonly MidtransService $midtransService
+    ) {}
 
     /**
      * Calculate checkout fees based on cart and drop point.
@@ -74,6 +84,13 @@ class CheckoutService
             'deliveryFeeMode' => $deliveryFeeMode,
             'minOrderFreeDelivery' => $minOrderFreeDelivery,
             'adminFeeEnabled' => $adminFeeEnabled,
+            'baseDeliveryFee' => match ($deliveryFeeMode) {
+                'free' => 0,
+                'flat' => (int) ($settings['delivery_fee_flat'] ?? 0),
+                default => (int) ($dropPoint->delivery_fee ?? 0),
+            },
+            'adminFeeType' => $settings['admin_fee_type'] ?? 'fixed',
+            'adminFeeValue' => (int) ($settings['admin_fee_value'] ?? 0),
         ];
     }
 
@@ -159,6 +176,23 @@ class CheckoutService
                                     ]);
                                 }
                             }
+                        }
+                    }
+
+                    // Midtrans Integration
+                    $paymentMethod = PaymentMethod::findOrFail($data->paymentMethodId);
+                    if ($paymentMethod->type === PaymentMethodType::GATEWAY) {
+                        try {
+                            $midtransResponse = $this->midtransService->charge($order, $paymentMethod);
+                            $order->update([
+                                'payment_details' => (array) $midtransResponse,
+                            ]);
+                        } catch (Throwable $e) {
+                            Log::error('Order Creation - Midtrans Charge Failed', [
+                                'order_id' => $order->id,
+                                'error' => $e->getMessage(),
+                            ]);
+                            throw $e;
                         }
                     }
 
