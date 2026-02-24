@@ -51,7 +51,7 @@
         </h1>
     </header>
 
-    <main class="space-y-8 mt-6">
+    <main class="space-y-8 mt-6 mb-30">
         <!-- Order Information Section -->
         <section class="px-6 space-y-4">
             <h2 class="font-bold text-lg text-gray-900">Informasi Pesanan</h2>
