@@ -37,7 +37,10 @@
         }[];
     }[];
 
+    export let savedCart: Record<string, any> = {};
+
     // State
+    let isCheckoutLoading = false;
     let searchQuery = "";
     let selectedCategory: string =
         categories.length > 0 && categories[0] ? categories[0].id : "";
@@ -53,7 +56,7 @@
     // Cart State
     // format: { [cartItemId]: { product, quantity, options, notes, totalPrice } }
     // cartItemId is a unique string based on product id and selected options
-    let cart: Record<string, any> = {};
+    let cart: Record<string, any> = savedCart || {};
 
     $: filteredProducts = products.filter((p) => {
         return p.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -89,11 +92,7 @@
     );
 
     function goBack() {
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            router.visit("/"); // Or `/drop-points/${dropPoint.id}`
-        }
+        router.visit("/"); // Or `/drop-points/${dropPoint.id}`
     }
 
     function scrollTabIntoView(categoryId: string) {
@@ -486,15 +485,31 @@
                 </div>
 
                 <button
-                    class="text-white font-bold text-sm bg-[#78a20d] px-4 py-2 rounded-lg"
+                    class="text-white font-bold text-sm bg-[#78a20d] px-4 py-2 rounded-lg flex items-center justify-center min-w-[120px] disabled:opacity-75 disabled:cursor-not-allowed"
+                    disabled={isCheckoutLoading}
                     on:click|stopPropagation={() => {
-                        router.post("/checkout/session", {
-                            cart,
-                            dropPoint,
-                        });
+                        isCheckoutLoading = true;
+                        router.post(
+                            "/checkout/session",
+                            {
+                                cart,
+                                dropPoint,
+                            },
+                            {
+                                onFinish: () => {
+                                    isCheckoutLoading = false;
+                                },
+                            },
+                        );
                     }}
                 >
-                    CHECKOUT ({totalCartItems})
+                    {#if isCheckoutLoading}
+                        <i class="fa-solid fa-circle-notch animate-spin mr-2"
+                        ></i>
+                        LOADING...
+                    {:else}
+                        CHECKOUT ({totalCartItems})
+                    {/if}
                 </button>
             </div>
         </div>

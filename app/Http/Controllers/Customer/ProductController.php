@@ -44,6 +44,7 @@ class ProductController extends Controller
             'dropPoint' => DropPointResource::make($dropPoint)->resolve(),
             'categories' => ProductCategoryResource::collection($categories)->resolve(),
             'products' => ProductResource::collection($products)->resolve(),
+            'savedCart' => session('checkout_cart', []),
         ]);
     }
 }

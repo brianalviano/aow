@@ -113,6 +113,27 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Update checkout data in session without redirecting.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateSession(Request $request)
+    {
+        $request->validate([
+            'cart' => 'required|array',
+            'dropPoint' => 'required|array',
+        ]);
+
+        session([
+            'checkout_cart' => $request->input('cart'),
+            'checkout_drop_point' => $request->input('dropPoint'),
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
      * Display the payment page.
      *
      * @param Request $request

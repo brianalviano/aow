@@ -1,6 +1,7 @@
 <script lang="ts">
     import { useForm } from "@inertiajs/svelte";
     import { router } from "@inertiajs/svelte";
+    import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
 
     export let paymentMethods: any[] = [];
     export let customer: any = null;
@@ -35,7 +36,7 @@
     <title>Pembayaran</title>
 </svelte:head>
 
-<div class="bg-white min-h-screen pb-32 font-sans overflow-x-hidden">
+<div>
     <!-- Header -->
     <header class="flex items-center p-4 bg-white sticky top-0 z-30 shadow-sm">
         <button
@@ -52,101 +53,59 @@
 
     <main class="space-y-8 mt-6">
         <!-- Order Information Section -->
-        <section class="px-6 space-y-6">
+        <section class="px-6 space-y-4">
             <h2 class="font-bold text-lg text-gray-900">Informasi Pesanan</h2>
 
             <div class="space-y-5">
                 <!-- Nama Lengkap -->
-                <div class="space-y-2">
-                    <label
-                        for="name"
-                        class="block text-sm font-semibold text-gray-700"
-                    >
-                        Nama Lengkap <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                        id="name"
-                        type="text"
-                        bind:value={$form.name}
-                        placeholder="Nama Lengkap"
-                        class="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#CCFF33] focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900"
-                        class:border-red-500={$form.errors.name}
-                    />
-                    {#if $form.errors.name}
-                        <p class="text-xs text-red-500 mt-1">
-                            {$form.errors.name}
-                        </p>
-                    {/if}
-                </div>
+                <TextInput
+                    id="name"
+                    name="name"
+                    label="Nama Lengkap"
+                    bind:value={$form.name}
+                    placeholder="Nama Lengkap"
+                    required
+                    error={$form.errors.name}
+                    class="rounded-2xl! focus:ring-[#CCFF33]!"
+                />
 
                 <!-- Nomor Whatsapp -->
-                <div class="space-y-2">
-                    <label
-                        for="phone"
-                        class="block text-sm font-semibold text-gray-700"
-                    >
-                        Nomor Whatsapp <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                        id="phone"
-                        type="tel"
-                        bind:value={$form.phone}
-                        placeholder="Nomor Whatsapp"
-                        class="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#CCFF33] focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900"
-                        class:border-red-500={$form.errors.phone}
-                    />
-                    {#if $form.errors.phone}
-                        <p class="text-xs text-red-500 mt-1">
-                            {$form.errors.phone}
-                        </p>
-                    {/if}
-                </div>
+                <TextInput
+                    id="phone"
+                    name="phone"
+                    label="Nomor Whatsapp"
+                    type="tel"
+                    bind:value={$form.phone}
+                    placeholder="Nomor Whatsapp"
+                    required
+                    error={$form.errors.phone}
+                    class="rounded-2xl! focus:ring-[#CCFF33]!"
+                />
 
                 <!-- Email -->
-                <div class="space-y-2">
-                    <label
-                        for="email"
-                        class="block text-sm font-semibold text-gray-700"
-                    >
-                        Email <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                        id="email"
-                        type="email"
-                        bind:value={$form.email}
-                        placeholder="Email"
-                        class="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#CCFF33] focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900"
-                        class:border-red-500={$form.errors.email}
-                    />
-                    {#if $form.errors.email}
-                        <p class="text-xs text-red-500 mt-1">
-                            {$form.errors.email}
-                        </p>
-                    {/if}
-                </div>
+                <TextInput
+                    id="email"
+                    name="email"
+                    label="Email"
+                    type="email"
+                    bind:value={$form.email}
+                    placeholder="Email"
+                    required
+                    error={$form.errors.email}
+                    class="rounded-2xl! focus:ring-[#CCFF33]!"
+                />
 
                 <!-- Kelas Sekolah -->
-                <div class="space-y-2">
-                    <label
-                        for="school_class"
-                        class="block text-sm font-semibold text-gray-700"
-                    >
-                        Kelas Sekolah <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                        id="school_class"
-                        type="text"
-                        bind:value={$form.school_class}
-                        placeholder="Cth: XII IPA 1"
-                        class="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#CCFF33] focus:border-transparent outline-none transition-all placeholder:text-gray-400 text-gray-900"
-                        class:border-red-500={$form.errors.school_class}
-                    />
-                    {#if $form.errors.school_class}
-                        <p class="text-xs text-red-500 mt-1">
-                            {$form.errors.school_class}
-                        </p>
-                    {/if}
-                </div>
+                <TextInput
+                    id="school_class"
+                    name="school_class"
+                    label="Kelas Sekolah"
+                    bind:value={$form.school_class}
+                    placeholder="Cth: XII IPA 1"
+                    required
+                    error={$form.errors.school_class}
+                    class="rounded-2xl! focus:ring-[#CCFF33]!"
+                />
             </div>
         </section>
 

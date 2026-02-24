@@ -81,11 +81,7 @@
     }
 
     function goBack() {
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            router.visit(`/drop-points/${dropPoint.id}/products`);
-        }
+        router.visit(`/drop-points/${dropPoint.id}/products`);
     }
 
     function handleLanjutPembayaran() {
@@ -96,6 +92,23 @@
         selectedItem = item;
         editingItemKey = key;
         showModal = true;
+    }
+
+    function updateSession() {
+        // Use fetch or router.post with preserveState/scroll to sync session quietly
+        fetch("/checkout/update-session", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN":
+                    (
+                        document.querySelector(
+                            'meta[name="csrf-token"]',
+                        ) as HTMLMetaElement
+                    )?.content || "",
+            },
+            body: JSON.stringify({ cart, dropPoint }),
+        });
     }
 
     function updateQuantity(key: string, delta: number) {
@@ -111,6 +124,7 @@
             item.totalPrice = unitPrice * newQuantity;
         }
         cart = { ...cart };
+        updateSession();
     }
 
     function handleUpdateItem(
@@ -164,6 +178,7 @@
         };
 
         cart = { ...cart };
+        updateSession();
         showModal = false;
         editingItemKey = null;
         selectedItem = null;
@@ -233,7 +248,7 @@
     <title>Ringkasan Pesanan</title>
 </svelte:head>
 
-<div class="bg-white min-h-screen pb-24 font-sans">
+<div>
     <!-- Header -->
     <header class="flex items-center p-4 bg-white sticky top-0 z-30">
         <button

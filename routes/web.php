@@ -40,6 +40,7 @@ Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('
 Route::get('/terms-of-service', [TermsOfServiceController::class, 'index'])->name('customer.terms-of-service');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
 Route::post('/checkout/session', [CheckoutController::class, 'store'])->name('customer.checkout.session');
+Route::post('/checkout/update-session', [CheckoutController::class, 'updateSession'])->name('customer.checkout.update-session');
 Route::get('/payment', [CheckoutController::class, 'payment'])->name('customer.payment');
 Route::post('/payment', [CheckoutController::class, 'processPayment'])->name('customer.payment.store');
 
