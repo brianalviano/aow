@@ -20,6 +20,7 @@ class ProductOptionResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'is_required' => $this->is_required,
+            'is_multiple' => $this->is_multiple,
             'sort_order' => $this->sort_order,
             'items' => ProductOptionItemResource::collection($this->whenLoaded('items')),
         ];

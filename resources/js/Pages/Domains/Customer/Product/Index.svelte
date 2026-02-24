@@ -27,6 +27,7 @@
             id: string;
             name: string;
             is_required: boolean;
+            is_multiple: boolean;
             items: {
                 id: string;
                 name: string;

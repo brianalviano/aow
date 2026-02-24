@@ -201,11 +201,15 @@
                             {#if option?.is_required}
                                 <span
                                     class="text-xs text-red-500 font-medium bg-red-50 px-2 py-0.5 rounded"
-                                    >Harus pilih 1</span
                                 >
+                                    {option.is_multiple ? "Minimal" : "Harus"} pilih
+                                    1
+                                </span>
                             {:else}
                                 <span class="text-xs text-gray-400 font-medium"
-                                    >Opsional</span
+                                    >Opsional (Bisa pilih {option.is_multiple
+                                        ? "banyak"
+                                        : "1"})</span
                                 >
                             {/if}
                         </div>
