@@ -35,8 +35,10 @@
     // Currently only supporting single select (radio buttons) based on Figma
     let selectedOptions: Record<string, string> = {};
 
+    $: productOptions = Array.isArray(product?.options) ? product.options : [];
+
     // Validate required options
-    $: isSelectionValid = product.options
+    $: isSelectionValid = productOptions
         .filter((opt) => opt.is_required)
         .every((opt) => selectedOptions[opt.id]);
 
@@ -55,7 +57,7 @@
             const itemId = optionsSelection[optionId];
             if (!itemId) continue;
 
-            const option = product.options.find((o) => o.id === optionId);
+            const option = productOptions.find((o) => o.id === optionId);
             if (option) {
                 const item = option.items.find((i) => i.id === itemId);
                 if (item && item.extra_price) {
@@ -93,12 +95,12 @@
 >
     <!-- Modal Content -->
     <div
-        class="bg-white w-full max-w-md max-h-[90vh] sm:rounded-2xl rounded-t-2xl overflow-hidden flex flex-col relative"
+        class="bg-white w-full max-w-md max-h-[98vh] sm:rounded-2xl rounded-t-2xl overflow-hidden flex flex-col relative"
         on:click|stopPropagation
         transition:slide={{ duration: 300, axis: "y" }}
     >
         <!-- Close Button & Expanding Image -->
-        <div class="relative w-full aspect-4/3 bg-gray-100 shrink-0">
+        <div class="relative w-full aspect-video bg-gray-100 shrink-0">
             {#if product.image_url}
                 <img
                     src={product.image_url}
@@ -154,8 +156,8 @@
             </div>
 
             <!-- Options sections -->
-            {#if product.options && product.options.length > 0}
-                {#each product.options as option}
+            {#if productOptions.length > 0}
+                {#each productOptions as option}
                     <div class="bg-white p-4 mb-2">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="font-bold text-gray-900 text-sm">
@@ -250,6 +252,7 @@
                         on:click={() => quantity > 1 && quantity--}
                         disabled={quantity <= 1}
                         class:opacity-50={quantity <= 1}
+                        aria-label="Kurangi"
                     >
                         <i class="fa-solid fa-minus text-sm"></i>
                     </button>
@@ -259,6 +262,7 @@
                     <button
                         class="w-8 h-8 rounded-full border border-gray-800 flex items-center justify-center text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 active:scale-95 transition-transform"
                         on:click={() => quantity++}
+                        aria-label="Tambah"
                     >
                         <i class="fa-solid fa-plus text-sm"></i>
                     </button>

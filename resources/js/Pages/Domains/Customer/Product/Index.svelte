@@ -104,14 +104,8 @@
     }
 
     function handleTambahClick(product: any) {
-        if (product.options && product.options.length > 0) {
-            // Open modal to select options
-            selectedProduct = product;
-            showModal = true;
-        } else {
-            // Direct add to cart if no options
-            addToCart(product, {}, "", 1);
-        }
+        selectedProduct = product;
+        showModal = true;
     }
 
     function addToCart(
@@ -127,12 +121,15 @@
 
         let itemTotalPrice = product.price;
         // Add extra price from options
+        const productOptions = Array.isArray(product?.options)
+            ? product.options
+            : [];
         for (const optionId in selectedOptions) {
             const selectedItemIds = Array.isArray(selectedOptions[optionId])
                 ? selectedOptions[optionId]
                 : [selectedOptions[optionId]];
 
-            const option = product.options.find((o: any) => o.id === optionId);
+            const option = productOptions.find((o: any) => o.id === optionId);
             if (option) {
                 selectedItemIds.forEach((itemId: string) => {
                     const optionItem = option.items.find(
@@ -197,7 +194,7 @@
 </script>
 
 <svelte:head>
-    <title>Sistem Menu | {dropPoint.name}</title>
+    <title>Menu | {dropPoint.name}</title>
 </svelte:head>
 
 <div class="bg-gray-50 min-h-screen pb-24">
