@@ -485,11 +485,17 @@
                     </div>
                 </div>
 
-                <div
+                <button
                     class="text-white font-bold text-sm bg-[#78a20d] px-4 py-2 rounded-lg"
+                    on:click|stopPropagation={() => {
+                        router.post("/checkout/session", {
+                            cart,
+                            dropPoint,
+                        });
+                    }}
                 >
                     CHECKOUT ({totalCartItems})
-                </div>
+                </button>
             </div>
         </div>
     {/if}

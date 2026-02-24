@@ -23,6 +23,7 @@ use App\Http\Controllers\Customer\{
     ProductController as CustomerProductController,
     PrivacyPolicyController,
     TermsOfServiceController,
+    CheckoutController,
 };
 
 /*
@@ -37,6 +38,8 @@ Route::get('/drop-points/{id}/products', [CustomerProductController::class, 'ind
 Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('customer.privacy-policy');
 Route::get('/terms-of-service', [TermsOfServiceController::class, 'index'])->name('customer.terms-of-service');
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
+Route::post('/checkout/session', [CheckoutController::class, 'store'])->name('customer.checkout.session');
 
 // Customer Guest Routes
 Route::middleware('guest:customer')->group(function () {

@@ -29,11 +29,17 @@
         quantity: number,
     ) => void;
 
-    let quantity = 1;
-    let notes = "";
+    export let initialQuantity: number = 1;
+    export let initialNotes: string = "";
+    export let initialOptions: Record<string, string | string[]> = {};
+
+    let quantity = initialQuantity;
+    let notes = initialNotes;
 
     // selectedOptions structure: { [optionId]: selectedItemId | selectedItemIds[] }
-    let selectedOptions: Record<string, string | string[]> = {};
+    let selectedOptions: Record<string, string | string[]> = {
+        ...initialOptions,
+    };
 
     $: productOptions = (function () {
         if (!product || !product.options) return [];
@@ -239,7 +245,7 @@
                                                 <div
                                                     class="w-5 h-5 border border-gray-300 rounded peer-checked:border-[#CCFF33] peer-checked:bg-[#CCFF33] flex items-center justify-center transition-colors"
                                                 >
-                                                    {#if Array.isArray(selectedOptions[option.id]) && selectedOptions[option.id]?.includes(item.id)}
+                                                    {#if Array.isArray(selectedOptions[option.id]) && (selectedOptions[option.id] as string[])?.includes(item.id)}
                                                         <i
                                                             class="fa-solid fa-check text-white text-[10px]"
                                                         ></i>
@@ -338,7 +344,9 @@
                 on:click={handleAdd}
                 disabled={!isSelectionValid}
             >
-                Tambah Pesanan - {formatRupiah(currentTotalPrice)}
+                {initialQuantity > 0 ? "Update Pesanan" : "Tambah Pesanan"} - {formatRupiah(
+                    currentTotalPrice,
+                )}
             </button>
         </div>
     </div>
