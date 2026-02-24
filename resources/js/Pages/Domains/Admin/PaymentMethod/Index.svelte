@@ -13,7 +13,7 @@
     interface PaymentMethod {
         id: string;
         name: string;
-        category: "manual" | "gateway";
+        category: "bank-transfer" | "e-wallet" | "virtual-account" | null;
         photo: string | null;
         is_active: boolean;
         type: "cash" | "online";
@@ -198,15 +198,28 @@
                                     </td>
                                     <td>
                                         <Badge
-                                            variant={item.category === "manual"
-                                                ? "secondary"
-                                                : "warning"}
+                                            variant={item.category ===
+                                            "bank-transfer"
+                                                ? "primary"
+                                                : item.category === "e-wallet"
+                                                  ? "success"
+                                                  : item.category ===
+                                                      "virtual-account"
+                                                    ? "warning"
+                                                    : "secondary"}
                                             size="sm"
                                         >
                                             {#snippet children()}
-                                                {item.category === "manual"
-                                                    ? "Manual"
-                                                    : "Gateway"}
+                                                {item.category ===
+                                                "bank-transfer"
+                                                    ? "Bank Transfer"
+                                                    : item.category ===
+                                                        "e-wallet"
+                                                      ? "E-Wallet"
+                                                      : item.category ===
+                                                          "virtual-account"
+                                                        ? "Virtual Account"
+                                                        : "Tanpa Kategori"}
                                             {/snippet}
                                         </Badge>
                                     </td>

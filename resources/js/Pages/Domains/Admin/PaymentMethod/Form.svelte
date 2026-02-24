@@ -11,7 +11,7 @@
     interface PaymentMethod {
         id: string;
         name: string;
-        category: "manual" | "gateway";
+        category: "bank-transfer" | "e-wallet" | "virtual-account" | null;
         photo: string | null;
         is_active: boolean;
         type: "cash" | "online";
@@ -158,9 +158,13 @@
                                     class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-primary-500 focus:border-primary-500"
                                     required
                                 >
-                                    <option value="manual">Manual</option>
-                                    <option value="gateway"
-                                        >Gateway (Dinamis)</option
+                                    <option value="">- Tanpa Kategori -</option>
+                                    <option value="bank-transfer"
+                                        >Bank Transfer</option
+                                    >
+                                    <option value="e-wallet">E-Wallet</option>
+                                    <option value="virtual-account"
+                                        >Virtual Account</option
                                     >
                                 </select>
                                 {#if $form.errors.category}
@@ -196,7 +200,7 @@
                             {/if}
                         </div>
 
-                        {#if $form.type === "online" && $form.category === "manual"}
+                        {#if $form.type === "online" && $form.category === "bank-transfer"}
                             <div
                                 class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t dark:border-gray-700"
                             >

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\PaymentMethod;
 
+use App\Enums\{PaymentMethodCategory, PaymentMethodType};
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,10 +27,10 @@ class StorePaymentMethodRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'category' => ['required', Rule::in(['manual', 'gateway'])],
-            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'category' => ['nullable', Rule::enum(PaymentMethodCategory::class)],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'is_active' => ['required', 'boolean'],
-            'type' => ['required', Rule::in(['cash', 'online'])],
+            'type' => ['required', Rule::enum(PaymentMethodType::class)],
             'account_number' => ['nullable', 'string', 'max:255'],
             'account_name' => ['nullable', 'string', 'max:255'],
         ];
