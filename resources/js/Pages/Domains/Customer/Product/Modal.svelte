@@ -35,7 +35,13 @@
     // Currently only supporting single select (radio buttons) based on Figma
     let selectedOptions: Record<string, string> = {};
 
-    $: productOptions = Array.isArray(product?.options) ? product.options : [];
+    $: productOptions = (function () {
+        if (!product || !product.options) return [];
+        if (Array.isArray(product.options)) return product.options;
+        const opts = product.options as any;
+        if (opts.data && Array.isArray(opts.data)) return opts.data;
+        return Object.values(product.options);
+    })() as any[];
 
     // Validate required options
     $: isSelectionValid = productOptions
@@ -59,7 +65,7 @@
 
             const option = productOptions.find((o) => o.id === optionId);
             if (option) {
-                const item = option.items.find((i) => i.id === itemId);
+                const item = option.items.find((i: any) => i.id === itemId);
                 if (item && item.extra_price) {
                     price += item.extra_price;
                 }
@@ -162,9 +168,9 @@
                     <div class="bg-white p-4 mb-2">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="font-bold text-gray-900 text-sm">
-                                {option.name.toUpperCase()}
+                                {option?.name?.toUpperCase() || ""}
                             </h3>
-                            {#if option.is_required}
+                            {#if option?.is_required}
                                 <span
                                     class="text-xs text-red-500 font-medium bg-red-50 px-2 py-0.5 rounded"
                                     >Harus pilih 1</span

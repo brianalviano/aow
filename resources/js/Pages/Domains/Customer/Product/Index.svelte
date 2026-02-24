@@ -121,9 +121,13 @@
 
         let itemTotalPrice = product.price;
         // Add extra price from options
-        const productOptions = Array.isArray(product?.options)
-            ? product.options
-            : [];
+        const productOptions = (function () {
+            if (!product || !product.options) return [];
+            if (Array.isArray(product.options)) return product.options;
+            const opts = product.options as any;
+            if (opts.data && Array.isArray(opts.data)) return opts.data;
+            return Object.values(product.options);
+        })();
         for (const optionId in selectedOptions) {
             const selectedItemIds = Array.isArray(selectedOptions[optionId])
                 ? selectedOptions[optionId]
