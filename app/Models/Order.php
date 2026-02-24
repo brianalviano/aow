@@ -42,6 +42,7 @@ class Order extends Model
         'delivery_discount_amount',
         'final_delivery_fee',
         'admin_fee',
+        'tax_amount',
     ];
 
     /**

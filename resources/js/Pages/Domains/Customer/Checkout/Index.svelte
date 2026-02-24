@@ -20,9 +20,30 @@
         name: string;
         address: string;
     };
-    export let adminFee: number = 0;
-    export let deliveryFee: number = 0;
-    export let taxRate: number = 0.11;
+    export let fees: {
+        deliveryFee: number;
+        adminFee: number;
+        taxAmount: number;
+        taxPercentage: number;
+        taxEnabled: boolean;
+    } = {
+        deliveryFee: 0,
+        adminFee: 0,
+        taxAmount: 0,
+        taxPercentage: 0,
+        taxEnabled: false,
+    };
+    export let settings: {
+        delivery_fee_mode: string;
+        free_courier_min_order: number;
+        admin_fee_enabled: boolean;
+        tax_enabled: boolean;
+    } = {
+        delivery_fee_mode: "per_drop_point",
+        free_courier_min_order: 0,
+        admin_fee_enabled: false,
+        tax_enabled: false,
+    };
 
     // State for Editing
     let showModal = false;
@@ -34,8 +55,26 @@
     $: items = Object.keys(cart).map((key) => ({ ...cart[key], _key: key }));
 
     $: subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
-    $: taxAmount = Math.round(subtotal * taxRate);
-    $: totalAmount = subtotal + deliveryFee + taxAmount + adminFee;
+
+    // Recalculate fees locally to handle quantity changes
+    $: localDeliveryFee = (() => {
+        if (
+            settings.free_courier_min_order > 0 &&
+            subtotal >= settings.free_courier_min_order
+        ) {
+            return 0;
+        }
+        return fees.deliveryFee;
+    })();
+
+    $: localTaxAmount = settings.tax_enabled
+        ? Math.round((subtotal * fees.taxPercentage) / 100)
+        : 0;
+
+    $: localAdminFee = fees.adminFee; // Fixed for now, or match backend logic if it depends on subtotal
+
+    $: totalAmount =
+        subtotal + localDeliveryFee + localTaxAmount + localAdminFee;
 
     function formatRupiah(amount: number) {
         return "Rp" + amount.toLocaleString("id-ID");
@@ -50,8 +89,7 @@
     }
 
     function handleLanjutPembayaran() {
-        // This would typically lead to payment gateway or order creation
-        console.log("Proceeding to payment...", { cart, totalAmount });
+        router.visit("/payment");
     }
 
     function handleEditClick(item: any, key: string) {
@@ -365,21 +403,29 @@
             </div>
             <div class="flex justify-between items-center">
                 <span class="text-gray-600">Biaya Pengiriman</span>
-                <span class="font-semibold text-gray-900"
-                    >{formatRupiah(deliveryFee)}</span
-                >
+                <span class="font-semibold text-gray-900">
+                    {#if localDeliveryFee === 0}
+                        <span class="text-[#8ec210] font-bold">Gratis</span>
+                    {:else}
+                        {formatRupiah(localDeliveryFee)}
+                    {/if}
+                </span>
             </div>
-            <div class="flex justify-between items-center">
-                <span class="text-gray-600">PPN (11%)</span>
-                <span class="font-semibold text-gray-900"
-                    >{formatRupiah(taxAmount)}</span
-                >
-            </div>
-            {#if adminFee > 0}
+            {#if settings.tax_enabled}
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600"
+                        >PPN ({fees.taxPercentage}%)</span
+                    >
+                    <span class="font-semibold text-gray-900"
+                        >{formatRupiah(localTaxAmount)}</span
+                    >
+                </div>
+            {/if}
+            {#if settings.admin_fee_enabled && localAdminFee > 0}
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">Biaya Admin</span>
                     <span class="font-semibold text-gray-900"
-                        >{formatRupiah(adminFee)}</span
+                        >{formatRupiah(localAdminFee)}</span
                     >
                 </div>
             {/if}
