@@ -79,6 +79,15 @@
         0,
     );
 
+    $: cartQuantities = Object.values(cart).reduce(
+        (acc, item) => {
+            const productId = item.product.id;
+            acc[productId] = (acc[productId] || 0) + item.quantity;
+            return acc;
+        },
+        {} as Record<string, number>,
+    );
+
     function goBack() {
         if (window.history.length > 1) {
             window.history.back();
@@ -390,7 +399,7 @@
                                 </div>
 
                                 <div class="mt-2 h-7">
-                                    {#if getQuantityInCart(product.id) > 0}
+                                    {#if (cartQuantities[product.id] || 0) > 0}
                                         <div
                                             class="flex items-center justify-between w-full h-full"
                                         >
@@ -410,7 +419,7 @@
                                             <span
                                                 class="text-sm font-semibold text-gray-900"
                                             >
-                                                {getQuantityInCart(product.id)}
+                                                {cartQuantities[product.id]}
                                             </span>
                                             <button
                                                 class="w-7 h-7 flex items-center justify-center rounded-full border border-gray-800 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200"
