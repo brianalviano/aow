@@ -30,9 +30,9 @@ class UpdatePaymentMethodRequest extends FormRequest
             'category' => ['nullable', Rule::enum(PaymentMethodCategory::class)],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'is_active' => ['required', 'boolean'],
-            'type' => ['required', Rule::enum(PaymentMethodType::class)],
             'account_number' => ['nullable', 'string', 'max:255'],
             'account_name' => ['nullable', 'string', 'max:255'],
+            'payment_guide_id' => ['nullable', 'exists:payment_guides,id'],
         ];
     }
 }

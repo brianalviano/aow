@@ -147,6 +147,12 @@ class HandleInertiaRequests extends Middleware
                         'icon'  => 'fa-credit-card',
                         'link'  => route('admin.payment-methods.index'),
                     ],
+                    [
+                        'id'    => 'payment-guides',
+                        'label' => 'Panduan Pembayaran',
+                        'icon'  => 'fa-book',
+                        'link'  => route('admin.payment-guides.index'),
+                    ],
                 ],
             ],
             [

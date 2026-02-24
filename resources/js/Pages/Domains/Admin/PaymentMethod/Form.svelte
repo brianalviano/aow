@@ -17,6 +17,7 @@
         type: "cash" | "online";
         account_number: string | null;
         account_name: string | null;
+        payment_guide_id: string | null;
         created_at: string;
         updated_at: string;
     }
@@ -38,6 +39,7 @@
             type: paymentMethod?.type ?? "online",
             account_number: paymentMethod?.account_number ?? "",
             account_name: paymentMethod?.account_name ?? "",
+            payment_guide_id: paymentMethod?.payment_guide_id ?? "",
         })),
     );
 
@@ -222,6 +224,39 @@
                                 />
                             </div>
                         {/if}
+
+                        <div
+                            class="space-y-2 pt-2 border-t dark:border-gray-700"
+                        >
+                            <label
+                                for="payment_guide_id"
+                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            >
+                                Panduan Pembayaran (Opsional)
+                            </label>
+                            <select
+                                id="payment_guide_id"
+                                name="payment_guide_id"
+                                bind:value={$form.payment_guide_id}
+                                class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-primary-500 focus:border-primary-500"
+                            >
+                                <option value="">- Tanpa Panduan -</option>
+                                {#each $page.props.paymentGuides as guide}
+                                    <option value={guide.id}
+                                        >{guide.name}</option
+                                    >
+                                {/each}
+                            </select>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Pilih panduan instruksi yang akan ditampilkan ke
+                                pelanggan saat checkout.
+                            </p>
+                            {#if $form.errors.payment_guide_id}
+                                <p class="text-sm text-red-600 mt-1">
+                                    {$form.errors.payment_guide_id}
+                                </p>
+                            {/if}
+                        </div>
 
                         <div class="flex items-center pt-2">
                             <Checkbox

@@ -149,6 +149,7 @@ class CheckoutController extends Controller
         }
 
         $paymentMethods = PaymentMethod::where('is_active', true)
+            ->with('paymentGuide')
             ->get()
             ->groupBy(fn($method) => $method->category?->label() ?? 'Lainnya');
 

@@ -29,6 +29,7 @@ class PaymentMethodResource extends JsonResource
             'is_active' => $this->resource->is_active,
             'account_number' => $this->resource->account_number,
             'account_name' => $this->resource->account_name,
+            'payment_guide_id' => $this->resource->payment_guide_id,
             'created_at' => $this->resource->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->resource->updated_at?->format('Y-m-d H:i:s'),
         ];

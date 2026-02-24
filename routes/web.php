@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\{
     NotificationController,
     OrderController,
     PasswordResetController,
+    PaymentGuideController,
     PaymentMethodController,
     ProductCategoryController,
     ProductController,
@@ -131,6 +132,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/payment-methods/{paymentMethod}/edit', [PaymentMethodController::class, 'edit'])->name('payment-methods.edit');
         Route::put('/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'update'])->name('payment-methods.update');
         Route::delete('/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'destroy'])->name('payment-methods.destroy');
+
+        // Payment Guides
+        Route::resource('payment-guides', PaymentGuideController::class)->except(['show']);
 
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

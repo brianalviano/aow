@@ -2,18 +2,36 @@
     import { useForm } from "@inertiajs/svelte";
     import { router } from "@inertiajs/svelte";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
+    import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
+    import { untrack } from "svelte";
 
-    export let paymentMethods: Record<string, any[]> = {};
-    export let customer: any = null;
-    export let totalAmount: number = 0;
+    interface Props {
+        paymentMethods?: Record<string, any[]>;
+        customer?: any;
+        totalAmount?: number;
+    }
+
+    let {
+        paymentMethods = {},
+        customer = null,
+        totalAmount = 0,
+    }: Props = $props();
 
     const form = useForm({
-        name: customer?.name || "",
-        phone: customer?.phone || "",
-        email: customer?.email || "",
-        school_class: customer?.school_class || "",
+        name: untrack(() => customer?.name || ""),
+        phone: untrack(() => customer?.phone || ""),
+        email: untrack(() => customer?.email || ""),
+        school_class: untrack(() => customer?.school_class || ""),
         payment_method_id: "",
     });
+
+    let guideModalOpen = $state(false);
+    let activeGuide = $state<any>(null);
+
+    function showGuide(method: any) {
+        activeGuide = method.payment_guide;
+        guideModalOpen = true;
+    }
 
     function formatRupiah(amount: number) {
         return "Rp" + amount.toLocaleString("id-ID");
@@ -28,7 +46,7 @@
     }
 
     function handleSubmit() {
-        form.post("/payment");
+        $form.post("/payment");
     }
 </script>
 
@@ -40,7 +58,7 @@
     <!-- Header -->
     <header class="flex items-center p-4 bg-white sticky top-0 z-30 shadow-sm">
         <button
-            on:click={goBack}
+            onclick={goBack}
             class="w-10 h-10 flex items-center justify-center text-gray-900 hover:bg-gray-50 rounded-full transition-colors"
             aria-label="Kembali"
         >
@@ -127,10 +145,14 @@
                         </span>
                     </div>
                     {#each methods as method}
-                        <button
-                            type="button"
-                            class="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-50 bg-white"
-                            on:click={() =>
+                        <div
+                            class="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-50 bg-white cursor-pointer"
+                            onclick={() =>
+                                ($form.payment_method_id = method.id)}
+                            role="button"
+                            tabindex="0"
+                            onkeydown={(e) =>
+                                e.key === "Enter" &&
                                 ($form.payment_method_id = method.id)}
                         >
                             <div class="flex items-center gap-4">
@@ -158,20 +180,36 @@
                                     {/if}
                                 </div>
                             </div>
-                            <div
-                                class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
-                                class:border-[#CCFF33]={$form.payment_method_id ===
-                                    method.id}
-                                class:border-gray-300={$form.payment_method_id !==
-                                    method.id}
-                            >
-                                {#if $form.payment_method_id === method.id}
-                                    <div
-                                        class="w-3 h-3 rounded-full bg-[#CCFF33] shadow-sm animate-in zoom-in duration-200"
-                                    ></div>
+                            <div class="flex items-center gap-3">
+                                {#if method.payment_guide}
+                                    <button
+                                        type="button"
+                                        class="px-3 py-1.5 text-xs font-bold text-[#0060B2] bg-blue-50 hover:bg-blue-100 rounded-full transition-colors flex items-center gap-1 z-10"
+                                        onclick={(e) => {
+                                            e.stopPropagation();
+                                            showGuide(method);
+                                        }}
+                                    >
+                                        <i class="fa-solid fa-circle-question"
+                                        ></i>
+                                        Instruksi
+                                    </button>
                                 {/if}
+                                <div
+                                    class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                                    class:border-[#CCFF33]={$form.payment_method_id ===
+                                        method.id}
+                                    class:border-gray-300={$form.payment_method_id !==
+                                        method.id}
+                                >
+                                    {#if $form.payment_method_id === method.id}
+                                        <div
+                                            class="w-3 h-3 rounded-full bg-[#CCFF33] shadow-sm animate-in zoom-in duration-200"
+                                        ></div>
+                                    {/if}
+                                </div>
                             </div>
-                        </button>
+                        </div>
                     {/each}
                 {/each}
                 {#if $form.errors.payment_method_id}
@@ -199,7 +237,7 @@
                 </p>
             </div>
             <button
-                on:click={handleSubmit}
+                onclick={handleSubmit}
                 disabled={$form.processing}
                 class="bg-[#CCFF33] text-gray-900 font-black py-4 px-10 rounded-2xl shadow-[0_8px_20px_rgba(204,255,51,0.3)] hover:shadow-[0_12px_25px_rgba(204,255,51,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none active:scale-95 text-base"
             >
@@ -207,6 +245,51 @@
             </button>
         </div>
     </div>
+
+    <!-- Guide Dialog -->
+    <Dialog
+        bind:isOpen={guideModalOpen}
+        title={activeGuide?.name || "Instruksi Pembayaran"}
+        message=""
+        showCancel={false}
+        confirmText="Dimengerti"
+    >
+        {#snippet children()}
+            <div
+                class="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar"
+            >
+                {#if activeGuide?.content}
+                    {#each activeGuide.content as section}
+                        <div class="space-y-3">
+                            <h4
+                                class="font-bold text-gray-900 border-l-4 border-[#CCFF33] pl-3"
+                            >
+                                {section.title}
+                            </h4>
+                            <ul class="space-y-2">
+                                {#each section.items as item, index}
+                                    <li
+                                        class="flex gap-3 text-sm text-gray-600"
+                                    >
+                                        <span
+                                            class="shrink-0 w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-[10px] font-bold text-gray-500"
+                                        >
+                                            {index + 1}
+                                        </span>
+                                        <span>{item}</span>
+                                    </li>
+                                {/each}
+                            </ul>
+                        </div>
+                    {/each}
+                {:else}
+                    <p class="text-sm text-gray-500 italic">
+                        Belum ada instruksi untuk metode ini.
+                    </p>
+                {/if}
+            </div>
+        {/snippet}
+    </Dialog>
 </div>
 
 <style>

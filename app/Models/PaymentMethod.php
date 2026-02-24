@@ -24,6 +24,7 @@ class PaymentMethod extends Model
         'is_active',
         'account_number',
         'account_name',
+        'payment_guide_id',
     ];
 
     /**
@@ -37,5 +38,13 @@ class PaymentMethod extends Model
             'is_active' => 'boolean',
             'category' => PaymentMethodCategory::class,
         ];
+    }
+
+    /**
+     * Get the payment guide linked to this method.
+     */
+    public function paymentGuide(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PaymentGuide::class);
     }
 }

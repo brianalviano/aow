@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('category', ['bank-transfer', 'e-wallet', 'virtual-account', 'cash'])->nullable();
             $table->string('account_number')->nullable();
             $table->string('account_name')->nullable();
+            $table->foreignUuid('payment_guide_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

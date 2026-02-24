@@ -8,7 +8,7 @@ use App\DTOs\PaymentMethod\PaymentMethodData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PaymentMethod\{StorePaymentMethodRequest, UpdatePaymentMethodRequest};
 use App\Http\Resources\PaymentMethodResource;
-use App\Models\PaymentMethod;
+use App\Models\{PaymentGuide, PaymentMethod};
 use App\Services\PaymentMethodService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,7 +48,9 @@ class PaymentMethodController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Domains/Admin/PaymentMethod/Form');
+        return Inertia::render('Domains/Admin/PaymentMethod/Form', [
+            'paymentGuides' => PaymentGuide::all(['id', 'name']),
+        ]);
     }
 
     /**
@@ -84,6 +86,7 @@ class PaymentMethodController extends Controller
     {
         return Inertia::render('Domains/Admin/PaymentMethod/Form', [
             'paymentMethod' => new PaymentMethodResource($paymentMethod),
+            'paymentGuides' => PaymentGuide::all(['id', 'name']),
         ]);
     }
 

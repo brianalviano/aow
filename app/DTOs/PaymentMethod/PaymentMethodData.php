@@ -21,6 +21,7 @@ class PaymentMethodData
         public readonly bool $isActive,
         public readonly ?string $accountNumber = null,
         public readonly ?string $accountName = null,
+        public readonly ?string $paymentGuideId = null,
     ) {}
 
     /**
@@ -35,6 +36,7 @@ class PaymentMethodData
             isActive: (bool) $request->validated('is_active'),
             accountNumber: $request->validated('account_number'),
             accountName: $request->validated('account_name'),
+            paymentGuideId: $request->validated('payment_guide_id'),
         );
     }
 
@@ -50,6 +52,7 @@ class PaymentMethodData
             isActive: (bool) $request->validated('is_active'),
             accountNumber: $request->validated('account_number'),
             accountName: $request->validated('account_name'),
+            paymentGuideId: $request->validated('payment_guide_id'),
         );
     }
 }
