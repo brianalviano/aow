@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount, onDestroy } from "svelte";
     import { router } from "@inertiajs/svelte";
     import ProductDetailModal from "./Modal.svelte";
 
@@ -43,6 +44,12 @@
     let selectedProduct: any = null;
     let showModal = false;
 
+    // Scroll Spy State
+    let isScrollingFromClick = false;
+    let observer: IntersectionObserver | null = null;
+    let categoryTabsContainer: HTMLDivElement;
+    let scrollTimeout: any = null;
+
     // Cart State
     // format: { [cartItemId]: { product, quantity, options, notes, totalPrice } }
     // cartItemId is a unique string based on product id and selected options
@@ -80,8 +87,77 @@
         }
     }
 
+    function scrollTabIntoView(categoryId: string) {
+        if (!categoryTabsContainer) return;
+        const tab = categoryTabsContainer.querySelector(
+            `[data-category-id="${categoryId}"]`,
+        );
+        if (tab) {
+            tab.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center",
+            });
+        }
+    }
+
+    function setupObserver() {
+        if (typeof window === "undefined") return;
+        if (observer) observer.disconnect();
+
+        const options = {
+            root: null,
+            rootMargin: "-120px 0px -70% 0px", // Trigger when top of section is near header
+            threshold: 0,
+        };
+
+        observer = new IntersectionObserver((entries) => {
+            if (isScrollingFromClick) return;
+
+            // Find the entry that is intersecting.
+            // We look for the one that is currently crossing the top margin boundary.
+            const intersectingEntry = entries.find(
+                (entry) => entry.isIntersecting,
+            );
+            if (intersectingEntry) {
+                const categoryId = intersectingEntry.target.id.replace(
+                    "category-",
+                    "",
+                );
+                if (selectedCategory !== categoryId) {
+                    selectedCategory = categoryId;
+                    scrollTabIntoView(categoryId);
+                }
+            }
+        }, options);
+
+        // Use a small delay to ensure DOM is ready
+        setTimeout(() => {
+            const sections = document.querySelectorAll('[id^="category-"]');
+            sections.forEach((section) => observer?.observe(section));
+        }, 100);
+    }
+
+    onMount(() => {
+        setupObserver();
+    });
+
+    onDestroy(() => {
+        if (observer) observer.disconnect();
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+    });
+
+    // Re-setup observer if products display change (e.g. search)
+    $: if (productsByCategory) {
+        setupObserver();
+    }
+
     function scrollToCategory(categoryId: string) {
+        isScrollingFromClick = true;
         selectedCategory = categoryId;
+
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+
         const element = document.getElementById(`category-${categoryId}`);
         if (element) {
             const yOffset = -120; // Adjust based on sticky header height
@@ -90,7 +166,14 @@
                 window.pageYOffset +
                 yOffset;
             window.scrollTo({ top: y, behavior: "smooth" });
+
+            scrollTabIntoView(categoryId);
         }
+
+        // Reset click flag after scroll animation should be done
+        scrollTimeout = setTimeout(() => {
+            isScrollingFromClick = false;
+        }, 1000);
     }
 
     function formatRupiah(amount: number) {
@@ -238,10 +321,12 @@
 
         <!-- Categories Tab Bar -->
         <div
+            bind:this={categoryTabsContainer}
             class="flex overflow-x-auto hide-scrollbar border-b border-gray-200 px-2 pb-0 bg-white"
         >
             {#each categories as category}
                 <button
+                    data-category-id={category.id}
                     class="whitespace-nowrap px-4 py-3 text-sm font-semibold border-b-2 transition-colors {selectedCategory ===
                     category.id
                         ? 'border-[#CCFF33] text-gray-900'

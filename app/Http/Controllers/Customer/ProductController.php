@@ -28,6 +28,7 @@ class ProductController extends Controller
         $categories = ProductCategory::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
+            ->whereHas('products')
             ->get();
 
         $products = Product::with(['productCategory', 'productOptions' => function ($query) {
