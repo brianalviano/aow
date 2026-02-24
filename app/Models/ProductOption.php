@@ -26,6 +26,7 @@ class ProductOption extends Model
         'product_id',
         'name',
         'is_required',
+        'is_multiple',
         'sort_order',
     ];
 
@@ -38,6 +39,7 @@ class ProductOption extends Model
     {
         return [
             'is_required' => 'boolean',
+            'is_multiple' => 'boolean',
             'sort_order' => 'integer',
         ];
     }

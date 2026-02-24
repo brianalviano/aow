@@ -26,6 +26,7 @@
         id?: string;
         name: string;
         is_required: boolean;
+        is_multiple: boolean;
         sort_order: number;
         items: ProductOptionItem[];
     }
@@ -131,6 +132,7 @@
             {
                 name: "",
                 is_required: false,
+                is_multiple: false,
                 sort_order: $form.options.length,
                 items: [
                     {
@@ -460,7 +462,9 @@
                                             required
                                         />
                                     </div>
-                                    <div class="flex items-center pt-2 md:pt-8">
+                                    <div
+                                        class="flex flex-col sm:flex-row sm:items-center gap-4 pt-2 md:pt-8"
+                                    >
                                         <Checkbox
                                             id={`option_required_${optionIndex}`}
                                             name={`options[${optionIndex}][is_required]`}
@@ -468,6 +472,15 @@
                                             bind:checked={
                                                 $form.options![optionIndex]!
                                                     .is_required
+                                            }
+                                        />
+                                        <Checkbox
+                                            id={`option_multiple_${optionIndex}`}
+                                            name={`options[${optionIndex}][is_multiple]`}
+                                            label="Bisa pilih lebih dari satu"
+                                            bind:checked={
+                                                $form.options![optionIndex]!
+                                                    .is_multiple
                                             }
                                         />
                                     </div>

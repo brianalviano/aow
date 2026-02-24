@@ -33,6 +33,7 @@ class ProductSeeder extends Seeder
                         new ProductOptionData(
                             name: 'Level Pedas',
                             isRequired: true,
+                            isMultiple: false,
                             sortOrder: 1,
                             items: [
                                 new ProductOptionItemData(name: 'Tidak Pedas', extraPrice: 0, sortOrder: 1),
@@ -43,6 +44,7 @@ class ProductSeeder extends Seeder
                         new ProductOptionData(
                             name: 'Tambahan Topping',
                             isRequired: false,
+                            isMultiple: true,
                             sortOrder: 2,
                             items: [
                                 new ProductOptionItemData(name: 'Telur Mata Sapi', extraPrice: 5000, sortOrder: 1),
@@ -63,6 +65,7 @@ class ProductSeeder extends Seeder
                         new ProductOptionData(
                             name: 'Level Pedas',
                             isRequired: true,
+                            isMultiple: false,
                             sortOrder: 1,
                             items: [
                                 new ProductOptionItemData(name: 'Tidak Pedas', extraPrice: 0, sortOrder: 1),
@@ -94,6 +97,7 @@ class ProductSeeder extends Seeder
                         new ProductOptionData(
                             name: 'Ukuran',
                             isRequired: true,
+                            isMultiple: false,
                             sortOrder: 1,
                             items: [
                                 new ProductOptionItemData(name: 'Regular', extraPrice: 0, sortOrder: 1),
@@ -103,6 +107,7 @@ class ProductSeeder extends Seeder
                         new ProductOptionData(
                             name: 'Pilihan Susu',
                             isRequired: false,
+                            isMultiple: false,
                             sortOrder: 2,
                             items: [
                                 new ProductOptionItemData(name: 'Susu Sapi', extraPrice: 0, sortOrder: 1),

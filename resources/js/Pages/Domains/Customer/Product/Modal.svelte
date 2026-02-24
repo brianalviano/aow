@@ -12,6 +12,7 @@
             id: string;
             name: string;
             is_required: boolean;
+            is_multiple: boolean;
             items: {
                 id: string;
                 name: string;
@@ -32,8 +33,7 @@
     let notes = "";
 
     // selectedOptions structure: { [optionId]: selectedItemId | selectedItemIds[] }
-    // Currently only supporting single select (radio buttons) based on Figma
-    let selectedOptions: Record<string, string> = {};
+    let selectedOptions: Record<string, string | string[]> = {};
 
     $: productOptions = (function () {
         if (!product || !product.options) return [];
@@ -43,10 +43,25 @@
         return Object.values(product.options);
     })() as any[];
 
+    // Initialize selectedOptions
+    $: {
+        for (const option of productOptions) {
+            if (selectedOptions[option.id] === undefined) {
+                selectedOptions[option.id] = option.is_multiple ? [] : "";
+            }
+        }
+    }
+
     // Validate required options
     $: isSelectionValid = productOptions
         .filter((opt) => opt.is_required)
-        .every((opt) => selectedOptions[opt.id]);
+        .every((opt) => {
+            const sel = selectedOptions[opt.id];
+            if (opt.is_multiple) {
+                return Array.isArray(sel) && sel.length > 0;
+            }
+            return !!sel;
+        });
 
     $: currentTotalPrice = calculateTotalPrice(quantity, selectedOptions);
 
@@ -56,18 +71,31 @@
 
     function calculateTotalPrice(
         qty: number,
-        optionsSelection: Record<string, string>,
+        optionsSelection: Record<string, string | string[]>,
     ) {
         let price = product.price;
         for (const optionId in optionsSelection) {
-            const itemId = optionsSelection[optionId];
-            if (!itemId) continue;
+            const selection = optionsSelection[optionId];
+            if (!selection) continue;
 
             const option = productOptions.find((o) => o.id === optionId);
             if (option) {
-                const item = option.items.find((i: any) => i.id === itemId);
-                if (item && item.extra_price) {
-                    price += item.extra_price;
+                if (Array.isArray(selection)) {
+                    for (const itemId of selection) {
+                        const item = option.items.find(
+                            (i: any) => i.id === itemId,
+                        );
+                        if (item && item.extra_price) {
+                            price += item.extra_price;
+                        }
+                    }
+                } else {
+                    const item = option.items.find(
+                        (i: any) => i.id === selection,
+                    );
+                    if (item && item.extra_price) {
+                        price += item.extra_price;
+                    }
                 }
             }
         }
@@ -188,28 +216,53 @@
                                     class="flex items-center justify-between cursor-pointer group"
                                 >
                                     <div class="flex items-center gap-3">
-                                        <!-- Custom Radio Button look -->
+                                        <!-- Custom Checkbox / Radio Button look -->
                                         <div
                                             class="relative flex items-center justify-center"
                                         >
-                                            <input
-                                                type="radio"
-                                                name={`option-${option.id}`}
-                                                value={item.id}
-                                                bind:group={
-                                                    selectedOptions[option.id]
-                                                }
-                                                class="peer opacity-0 absolute w-full h-full cursor-pointer z-10"
-                                            />
-                                            <div
-                                                class="w-5 h-5 border border-gray-300 rounded peer-checked:border-[#CCFF33] peer-checked:bg-[#CCFF33] flex items-center justify-center transition-colors"
-                                            >
-                                                {#if selectedOptions[option.id] === item.id}
-                                                    <i
-                                                        class="fa-solid fa-check text-white text-[10px]"
-                                                    ></i>
-                                                {/if}
-                                            </div>
+                                            {#if option.is_multiple}
+                                                <input
+                                                    type="checkbox"
+                                                    name={`option-${option.id}`}
+                                                    value={item.id}
+                                                    bind:group={
+                                                        selectedOptions[
+                                                            option.id
+                                                        ]
+                                                    }
+                                                    class="peer opacity-0 absolute w-full h-full cursor-pointer z-10"
+                                                />
+                                                <div
+                                                    class="w-5 h-5 border border-gray-300 rounded peer-checked:border-[#CCFF33] peer-checked:bg-[#CCFF33] flex items-center justify-center transition-colors"
+                                                >
+                                                    {#if Array.isArray(selectedOptions[option.id]) && selectedOptions[option.id]?.includes(item.id)}
+                                                        <i
+                                                            class="fa-solid fa-check text-white text-[10px]"
+                                                        ></i>
+                                                    {/if}
+                                                </div>
+                                            {:else}
+                                                <input
+                                                    type="radio"
+                                                    name={`option-${option.id}`}
+                                                    value={item.id}
+                                                    bind:group={
+                                                        selectedOptions[
+                                                            option.id
+                                                        ]
+                                                    }
+                                                    class="peer opacity-0 absolute w-full h-full cursor-pointer z-10"
+                                                />
+                                                <div
+                                                    class="w-5 h-5 border border-gray-300 rounded-full peer-checked:border-[#CCFF33] peer-checked:bg-[#CCFF33] flex items-center justify-center transition-colors"
+                                                >
+                                                    {#if selectedOptions[option.id] === item.id}
+                                                        <i
+                                                            class="fa-solid fa-check text-white text-[10px]"
+                                                        ></i>
+                                                    {/if}
+                                                </div>
+                                            {/if}
                                         </div>
                                         <span
                                             class="text-sm font-medium text-gray-700 uppercase"

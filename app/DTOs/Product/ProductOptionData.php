@@ -18,6 +18,7 @@ class ProductOptionData
     public function __construct(
         public readonly string $name,
         public readonly bool $isRequired = false,
+        public readonly bool $isMultiple = false,
         public readonly int $sortOrder = 0,
         public readonly array $items = [],
     ) {}
@@ -40,6 +41,7 @@ class ProductOptionData
         return new self(
             name: (string) ($data['name'] ?? ''),
             isRequired: (bool) ($data['is_required'] ?? false),
+            isMultiple: (bool) ($data['is_multiple'] ?? false),
             sortOrder: (int) ($data['sort_order'] ?? 0),
             items: $items,
         );

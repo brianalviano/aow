@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->boolean('is_required')->default(false);
             $table->integer('sort_order')->default(0);
+            $table->boolean('is_multiple')->default(false);
             $table->timestamps();
         });
     }

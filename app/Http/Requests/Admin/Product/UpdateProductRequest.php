@@ -35,6 +35,7 @@ class UpdateProductRequest extends FormRequest
             'options' => ['nullable', 'array'],
             'options.*.name' => ['required', 'string', 'max:255'],
             'options.*.is_required' => ['sometimes', 'boolean'],
+            'options.*.is_multiple' => ['sometimes', 'boolean'],
             'options.*.sort_order' => ['nullable', 'integer', 'min:0'],
             'options.*.items' => ['required', 'array', 'min:1'],
             'options.*.items.*.name' => ['required', 'string', 'max:255'],

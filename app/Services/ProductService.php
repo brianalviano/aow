@@ -65,6 +65,7 @@ class ProductService
                         $option = $product->productOptions()->create([
                             'name' => $optionData->name,
                             'is_required' => $optionData->isRequired,
+                            'is_multiple' => $optionData->isMultiple,
                             'sort_order' => $optionData->sortOrder,
                         ]);
 
@@ -132,6 +133,7 @@ class ProductService
                         $option = $product->productOptions()->create([
                             'name' => $optionData->name,
                             'is_required' => $optionData->isRequired,
+                            'is_multiple' => $optionData->isMultiple,
                             'sort_order' => $optionData->sortOrder,
                         ]);
 
