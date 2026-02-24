@@ -141,6 +141,12 @@ class HandleInertiaRequests extends Middleware
                         'icon'  => 'fa-location-dot',
                         'link'  => route('admin.drop-points.index'),
                     ],
+                    [
+                        'id'    => 'payment-methods',
+                        'label' => 'Metode Pembayaran',
+                        'icon'  => 'fa-credit-card',
+                        'link'  => route('admin.payment-methods.index'),
+                    ],
                 ],
             ],
             [

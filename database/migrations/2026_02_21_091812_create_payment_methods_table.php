@@ -16,10 +16,12 @@ return new class extends Migration
         Schema::create('payment_methods', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->text('description')->nullable();
             $table->string('photo')->nullable();
             $table->boolean('is_active')->default(true);
             $table->enum('type', ["cash", "online"])->default('online');
+            $table->enum('category', ['manual', 'gateway'])->default('manual');
+            $table->string('account_number')->nullable();
+            $table->string('account_name')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

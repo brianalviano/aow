@@ -2,18 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\{
-    LoginController as AdminLoginController,
-    SettingController,
     AccountSettingController,
+    LoginController as AdminLoginController,
+    CustomerController,
     DashboardController,
-    PasswordResetController,
+    DropPointController,
     NotificationController,
     OrderController,
-    ProductController,
+    PasswordResetController,
+    PaymentMethodController,
     ProductCategoryController,
-    DropPointController,
+    ProductController,
     ReportController,
-    CustomerController,
+    SettingController
 };
 use App\Http\Controllers\Customer\{
     AuthController,
@@ -122,6 +123,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/drop-points/{dropPoint}/edit', [DropPointController::class, 'edit'])->name('drop-points.edit');
         Route::put('/drop-points/{dropPoint}', [DropPointController::class, 'update'])->name('drop-points.update');
         Route::delete('/drop-points/{dropPoint}', [DropPointController::class, 'destroy'])->name('drop-points.destroy');
+
+        // Payment Methods
+        Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment-methods.index');
+        Route::get('/payment-methods/create', [PaymentMethodController::class, 'create'])->name('payment-methods.create');
+        Route::post('/payment-methods', [PaymentMethodController::class, 'store'])->name('payment-methods.store');
+        Route::get('/payment-methods/{paymentMethod}/edit', [PaymentMethodController::class, 'edit'])->name('payment-methods.edit');
+        Route::put('/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'update'])->name('payment-methods.update');
+        Route::delete('/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'destroy'])->name('payment-methods.destroy');
 
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
