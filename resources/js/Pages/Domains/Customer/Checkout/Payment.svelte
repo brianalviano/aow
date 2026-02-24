@@ -3,7 +3,7 @@
     import { router } from "@inertiajs/svelte";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
 
-    export let paymentMethods: any[] = [];
+    export let paymentMethods: Record<string, any[]> = {};
     export let customer: any = null;
     export let totalAmount: number = 0;
 
@@ -116,51 +116,63 @@
             </h2>
 
             <div class="border-t border-gray-100">
-                {#each paymentMethods as method}
-                    <button
-                        type="button"
-                        class="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-50"
-                        on:click={() => ($form.payment_method_id = method.id)}
+                {#each Object.entries(paymentMethods) as [category, methods]}
+                    <div
+                        class="bg-gray-50/50 px-6 py-2 border-b border-gray-100"
                     >
-                        <div class="flex items-center gap-4">
-                            {#if method.photo}
-                                <img
-                                    src={method.photo}
-                                    alt={method.name}
-                                    class="w-10 h-10 object-contain rounded-lg shadow-sm bg-white p-1"
-                                />
-                            {:else}
-                                <div
-                                    class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400"
-                                >
-                                    <i class="fa-solid fa-wallet"></i>
-                                </div>
-                            {/if}
-                            <div class="text-left">
-                                <p class="font-semibold text-gray-900">
-                                    {method.name}
-                                </p>
-                                {#if method.description}
-                                    <p class="text-xs text-gray-500 mt-0.5">
-                                        {method.description}
+                        <span
+                            class="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                        >
+                            {category}
+                        </span>
+                    </div>
+                    {#each methods as method}
+                        <button
+                            type="button"
+                            class="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-50 bg-white"
+                            on:click={() =>
+                                ($form.payment_method_id = method.id)}
+                        >
+                            <div class="flex items-center gap-4">
+                                {#if method.photo}
+                                    <img
+                                        src={method.photo}
+                                        alt={method.name}
+                                        class="w-10 h-10 object-contain rounded-lg shadow-sm bg-white p-1"
+                                    />
+                                {:else}
+                                    <div
+                                        class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400"
+                                    >
+                                        <i class="fa-solid fa-wallet"></i>
+                                    </div>
+                                {/if}
+                                <div class="text-left">
+                                    <p class="font-semibold text-gray-900">
+                                        {method.name}
                                     </p>
+                                    {#if method.description}
+                                        <p class="text-xs text-gray-500 mt-0.5">
+                                            {method.description}
+                                        </p>
+                                    {/if}
+                                </div>
+                            </div>
+                            <div
+                                class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                                class:border-[#CCFF33]={$form.payment_method_id ===
+                                    method.id}
+                                class:border-gray-300={$form.payment_method_id !==
+                                    method.id}
+                            >
+                                {#if $form.payment_method_id === method.id}
+                                    <div
+                                        class="w-3 h-3 rounded-full bg-[#CCFF33] shadow-sm animate-in zoom-in duration-200"
+                                    ></div>
                                 {/if}
                             </div>
-                        </div>
-                        <div
-                            class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
-                            class:border-[#CCFF33]={$form.payment_method_id ===
-                                method.id}
-                            class:border-gray-300={$form.payment_method_id !==
-                                method.id}
-                        >
-                            {#if $form.payment_method_id === method.id}
-                                <div
-                                    class="w-3 h-3 rounded-full bg-[#CCFF33] shadow-sm animate-in zoom-in duration-200"
-                                ></div>
-                            {/if}
-                        </div>
-                    </button>
+                        </button>
+                    {/each}
                 {/each}
                 {#if $form.errors.payment_method_id}
                     <p class="text-xs text-red-500 px-6 mt-2">

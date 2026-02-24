@@ -148,7 +148,10 @@ class CheckoutController extends Controller
             return redirect()->to(route('home'));
         }
 
-        $paymentMethods = PaymentMethod::where('is_active', true)->get();
+        $paymentMethods = PaymentMethod::where('is_active', true)
+            ->get()
+            ->groupBy(fn($method) => $method->category->label());
+
         $user = Auth::guard('customer')->user();
 
         // Calculate total for total amount display
