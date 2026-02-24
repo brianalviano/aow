@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\Checkout\ProcessOrderData;
+use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
 use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderSetting, DropPoint};
 use App\Traits\RetryableTransactionsTrait;
-use Illuminate\Support\Facades\{Auth, DB, Log};
+use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
 use Throwable;
 
 /**
@@ -94,18 +95,23 @@ class CheckoutService
                         $customer = Customer::where('email', $data->email)->first();
 
                         if (!$customer) {
+
+                            $password = '12345678';
+
                             $customer = Customer::create([
                                 'name' => $data->name,
                                 'phone' => $data->phone,
                                 'email' => $data->email,
-                                'username' => $data->email,
-                                'password' => '12345678',
+                                'password' => Hash::make($password),
                                 'school_class' => $data->schoolClass,
                                 'drop_point_id' => $data->dropPoint['id'],
                                 'is_active' => true,
                             ]);
 
-                            // TODO: Send email with credentials via event
+                            // Send welcome email with credentials
+                            DB::afterCommit(function () use ($customer, $password) {
+                                Mail::to($customer->email)->send(new CustomerWelcomeMail($customer, $password));
+                            });
                         }
 
                         Auth::guard('customer')->login($customer);
@@ -115,7 +121,7 @@ class CheckoutService
                     $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
 
                     $order = Order::create([
-                        'number' => 'ORD-' . strtoupper(uniqid()),
+                        'number' => $this->generateOrderNumber(),
                         'drop_point_id' => $data->dropPoint['id'],
                         'customer_id' => $customer->id,
                         'delivery_date' => $data->deliveryDate ?? now()->addDay()->format('Y-m-d'),
@@ -156,6 +162,11 @@ class CheckoutService
                         }
                     }
 
+                    // Send order confirmation email
+                    DB::afterCommit(function () use ($order) {
+                        Mail::to($order->customer->email)->send(new OrderPlacedMail($order));
+                    });
+
                     session()->forget(['checkout_cart', 'checkout_drop_point']);
 
                     return $order;
@@ -174,6 +185,33 @@ class CheckoutService
                 throw $e;
             }
         });
+    }
+
+    /**
+     * Generate a unique order number with format ORD/MMYYYY/XXXXXX.
+     * 
+     * The sequence number (XXXXXX) resets every month.
+     *
+     * @return string The generated order number.
+     */
+    private function generateOrderNumber(): string
+    {
+        $now = now();
+        $prefix = "ORD/" . $now->format('mY') . "/";
+
+        $lastOrder = Order::where('number', 'like', "{$prefix}%")
+            ->orderBy('number', 'desc')
+            ->lockForUpdate()
+            ->first();
+
+        $sequence = 1;
+        if ($lastOrder) {
+            $lastNumber = $lastOrder->number;
+            $lastSequence = (int) substr($lastNumber, strrpos($lastNumber, '/') + 1);
+            $sequence = $lastSequence + 1;
+        }
+
+        return $prefix . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
     }
 
     /**
