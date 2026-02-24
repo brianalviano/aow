@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Customer;
 
+use App\DTOs\Checkout\ProcessOrderData;
 use App\Http\Controllers\Controller;
-use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderSetting, PaymentMethod};
+use App\Http\Requests\Customer\Checkout\ProcessPaymentRequest;
+use App\Models\{OrderSetting, PaymentMethod};
+use App\Services\CheckoutService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, DB, Hash, Log};
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Support\Facades\Auth;
+use Inertia\{Inertia, Response};
+use Throwable;
 
 /**
  * Class CheckoutController
@@ -17,6 +20,15 @@ use Inertia\Response;
  */
 class CheckoutController extends Controller
 {
+    /**
+     * Create a new CheckoutController instance.
+     *
+     * @param CheckoutService $checkoutService Service for handling checkout logic.
+     */
+    public function __construct(
+        private readonly CheckoutService $checkoutService
+    ) {}
+
     /**
      * Display the checkout page with cart data from session.
      *
@@ -32,61 +44,23 @@ class CheckoutController extends Controller
             return redirect()->to(route('home'));
         }
 
-        // Fetch DropPoint model to get delivery_fee
-        $dropPoint = \App\Models\DropPoint::find($dropPointData['id']);
-
-        // Fetch settings for fees
-        $settings = OrderSetting::pluck('value', 'key')->toArray();
-
-        // Calculate Subtotal
-        $subtotal = collect($cart)->sum('totalPrice');
-
-        // Logic for Delivery Fee
-        $deliveryFeeMode = $settings['delivery_fee_mode'] ?? 'per_drop_point';
-        $minOrderFreeDelivery = (int) ($settings['free_courier_min_order'] ?? 0);
-
-        if ($subtotal >= $minOrderFreeDelivery && $minOrderFreeDelivery > 0) {
-            $deliveryFee = 0;
-        } else {
-            $deliveryFee = match ($deliveryFeeMode) {
-                'free' => 0,
-                'flat' => (int) ($settings['delivery_fee_flat'] ?? 0),
-                default => (int) ($dropPoint->delivery_fee ?? 0),
-            };
-        }
-
-        // Logic for Admin Fee
-        $adminFeeEnabled = ($settings['admin_fee_enabled'] ?? 'false') === 'true';
-        $adminFee = 0;
-        if ($adminFeeEnabled) {
-            $adminFeeType = $settings['admin_fee_type'] ?? 'fixed';
-            $adminFeeValue = (int) ($settings['admin_fee_value'] ?? 0);
-            $adminFee = $adminFeeType === 'fixed' ? $adminFeeValue : (int) round($subtotal * $adminFeeValue / 100);
-        }
-
-        // Logic for Tax
-        $taxEnabled = ($settings['tax_enabled'] ?? 'false') === 'true';
-        $taxPercentage = (int) ($settings['tax_percentage'] ?? 0);
-        $taxAmount = 0;
-        if ($taxEnabled) {
-            $taxAmount = (int) round($subtotal * $taxPercentage / 100);
-        }
+        $fees = $this->checkoutService->calculateFees($cart, (int) $dropPointData['id']);
 
         return Inertia::render('Domains/Customer/Checkout/Index', [
             'cart' => $cart,
             'dropPoint' => $dropPointData,
             'fees' => [
-                'deliveryFee' => $deliveryFee,
-                'adminFee' => $adminFee,
-                'taxAmount' => $taxAmount,
-                'taxPercentage' => $taxPercentage,
-                'taxEnabled' => $taxEnabled,
+                'deliveryFee' => $fees['deliveryFee'],
+                'adminFee' => $fees['adminFee'],
+                'taxAmount' => $fees['taxAmount'],
+                'taxPercentage' => $fees['taxPercentage'],
+                'taxEnabled' => $fees['taxEnabled'],
             ],
             'settings' => [
-                'delivery_fee_mode' => $deliveryFeeMode,
-                'free_courier_min_order' => $minOrderFreeDelivery,
-                'admin_fee_enabled' => $adminFeeEnabled,
-                'tax_enabled' => $taxEnabled,
+                'delivery_fee_mode' => $fees['deliveryFeeMode'],
+                'free_courier_min_order' => $fees['minOrderFreeDelivery'],
+                'admin_fee_enabled' => $fees['adminFeeEnabled'],
+                'tax_enabled' => $fees['taxEnabled'],
             ],
         ]);
     }
@@ -155,44 +129,8 @@ class CheckoutController extends Controller
 
         $user = Auth::guard('customer')->user();
 
-        // Calculate total for total amount display
-        $dropPoint = \App\Models\DropPoint::find($dropPointData['id']);
-        $settings = OrderSetting::pluck('value', 'key')->toArray();
-
-        $subtotal = collect($cart)->sum('totalPrice');
-
-        // Logic for Delivery Fee
-        $deliveryFeeMode = $settings['delivery_fee_mode'] ?? 'per_drop_point';
-        $minOrderFreeDelivery = (int) ($settings['free_courier_min_order'] ?? 0);
-
-        if ($subtotal >= $minOrderFreeDelivery && $minOrderFreeDelivery > 0) {
-            $deliveryFee = 0;
-        } else {
-            $deliveryFee = match ($deliveryFeeMode) {
-                'free' => 0,
-                'flat' => (int) ($settings['delivery_fee_flat'] ?? 0),
-                default => (int) ($dropPoint->delivery_fee ?? 0),
-            };
-        }
-
-        // Logic for Admin Fee
-        $adminFeeEnabled = ($settings['admin_fee_enabled'] ?? 'false') === 'true';
-        $adminFee = 0;
-        if ($adminFeeEnabled) {
-            $adminFeeType = $settings['admin_fee_type'] ?? 'fixed';
-            $adminFeeValue = (int) ($settings['admin_fee_value'] ?? 0);
-            $adminFee = $adminFeeType === 'fixed' ? $adminFeeValue : (int) round($subtotal * $adminFeeValue / 100);
-        }
-
-        // Logic for Tax
-        $taxEnabled = ($settings['tax_enabled'] ?? 'false') === 'true';
-        $taxPercentage = (int) ($settings['tax_percentage'] ?? 0);
-        $taxAmount = 0;
-        if ($taxEnabled) {
-            $taxAmount = (int) round($subtotal * $taxPercentage / 100);
-        }
-
-        $totalAmount = $subtotal + $deliveryFee + $taxAmount + $adminFee;
+        $fees = $this->checkoutService->calculateFees($cart, (int) $dropPointData['id']);
+        $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
 
         return Inertia::render('Domains/Customer/Checkout/Payment', [
             'paymentMethods' => $paymentMethods,
@@ -204,19 +142,12 @@ class CheckoutController extends Controller
     /**
      * Process the payment and create order.
      *
-     * @param Request $request
+     * @param ProcessPaymentRequest $request Handled validation.
      * @return \Illuminate\Http\RedirectResponse
+     * @throws Throwable
      */
-    public function processPayment(Request $request)
+    public function processPayment(ProcessPaymentRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:255',
-            'school_class' => 'required|string|max:50',
-            'payment_method_id' => 'required|exists:payment_methods,id',
-        ]);
-
         $cart = session('checkout_cart', []);
         $dropPoint = session('checkout_drop_point');
 
@@ -225,148 +156,24 @@ class CheckoutController extends Controller
         }
 
         try {
-            return DB::transaction(function () use ($request, $cart, $dropPoint) {
-                $customer = Auth::guard('customer')->user();
+            $data = ProcessOrderData::fromRequest($request, $cart, $dropPoint);
 
-                if (!$customer) {
-                    // Check if customer with this email already exists
-                    $customer = Customer::where('email', $request->email)->first();
+            $this->checkoutService->processOrder($data);
 
-                    if (!$customer) {
-                        // Create new customer account
-                        $customer = Customer::create([
-                            'name' => $request->name,
-                            'phone' => $request->phone,
-                            'email' => $request->email,
-                            'username' => $request->email, // Use email as username for simplicity
-                            'password' => '12345678', // Default password as requested
-                            'school_class' => $request->school_class,
-                            'drop_point_id' => $dropPoint['id'],
-                            'is_active' => true,
-                        ]);
-
-                        // TODO: Send email with credentials "12345678"
-                    }
-
-                    Auth::guard('customer')->login($customer);
-                }
-
-                // Calculate costs
-                $settings = OrderSetting::pluck('value', 'key')->toArray();
-                $subtotal = collect($cart)->sum('totalPrice');
-
-                $dropPointModel = \App\Models\DropPoint::find($dropPoint['id']);
-
-                // Logic for Delivery Fee
-                $deliveryFeeMode = $settings['delivery_fee_mode'] ?? 'per_drop_point';
-                $minOrderFreeDelivery = (int) ($settings['free_courier_min_order'] ?? 0);
-
-                if ($subtotal >= $minOrderFreeDelivery && $minOrderFreeDelivery > 0) {
-                    $deliveryFee = 0;
-                } else {
-                    $deliveryFee = match ($deliveryFeeMode) {
-                        'free' => 0,
-                        'flat' => (int) ($settings['delivery_fee_flat'] ?? 0),
-                        default => (int) ($dropPointModel->delivery_fee ?? 0),
-                    };
-                }
-
-                // Logic for Admin Fee
-                $adminFeeEnabled = ($settings['admin_fee_enabled'] ?? 'false') === 'true';
-                $adminFee = 0;
-                if ($adminFeeEnabled) {
-                    $adminFeeType = $settings['admin_fee_type'] ?? 'fixed';
-                    $adminFeeValue = (int) ($settings['admin_fee_value'] ?? 0);
-                    $adminFee = $adminFeeType === 'fixed' ? $adminFeeValue : (int) round($subtotal * $adminFeeValue / 100);
-                }
-
-                // Logic for Tax
-                $taxEnabled = ($settings['tax_enabled'] ?? 'false') === 'true';
-                $taxPercentage = (int) ($settings['tax_percentage'] ?? 0);
-                $taxAmount = 0;
-                if ($taxEnabled) {
-                    $taxAmount = (int) round($subtotal * $taxPercentage / 100);
-                }
-
-                $totalAmount = $subtotal + $deliveryFee + $taxAmount + $adminFee;
-
-                // Create Order
-                $order = Order::create([
-                    'number' => 'ORD-' . strtoupper(uniqid()),
-                    'drop_point_id' => $dropPoint['id'],
-                    'customer_id' => $customer->id,
-                    'delivery_date' => $request->delivery_date ?? now()->addDay()->format('Y-m-d'),
-                    'delivery_time' => $request->delivery_time ?? '12:00',
-                    'payment_method_id' => $request->payment_method_id,
-                    'payment_status' => 'pending',
-                    'order_status' => 'pending',
-                    'total_amount' => $totalAmount,
-                    'delivery_fee' => $deliveryFee,
-                    'admin_fee' => $adminFee,
-                    'tax_amount' => $taxAmount,
-                ]);
-
-                // Create Order Items
-                foreach ($cart as $item) {
-                    $orderItem = OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $item['product']['id'],
-                        'quantity' => $item['quantity'],
-                        'price' => $item['basePrice'],
-                        'subtotal' => $item['totalPrice'],
-                        'note' => $item['notes'] ?? null,
-                    ]);
-
-                    // Create Order Item Options
-                    if (isset($item['selectedOptions'])) {
-                        foreach ($item['selectedOptions'] as $optionId => $selection) {
-                            $itemIds = is_array($selection) ? $selection : [$selection];
-                            foreach ($itemIds as $optionItemId) {
-                                // Find extra price for this option item
-                                // This is a bit inefficient inside loop, but cart structure has it
-                                $extraPrice = 0;
-                                $options = $item['product']['options'] ?? [];
-                                $productOptions = is_array($options) ? $options : ($options['data'] ?? []);
-
-                                foreach ($productOptions as $opt) {
-                                    if ($opt['id'] === $optionId) {
-                                        foreach ($opt['items'] as $optItem) {
-                                            if ($optItem['id'] === $optionItemId) {
-                                                $extraPrice = $optItem['extra_price'] ?? 0;
-                                                break 2;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                OrderItemOption::create([
-                                    'order_item_id' => $orderItem->id,
-                                    'product_option_id' => $optionId,
-                                    'product_option_item_id' => $optionItemId,
-                                    'extra_price' => $extraPrice,
-                                ]);
-                            }
-                        }
-                    }
-                }
-
-                // Clear checkout session
-                session()->forget(['checkout_cart', 'checkout_drop_point']);
-
-                Inertia::flash('toast', [
-                    'message' => 'Pesanan berhasil dibuat',
-                    'type' => 'success',
-                ]);
-
-                return redirect()->route('home');
-            });
-        } catch (\Throwable $e) {
-            Log::error('Failed to process payment', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => Auth::guard('customer')->id(),
+            Inertia::flash('toast', [
+                'message' => 'Pesanan berhasil dibuat',
+                'type' => 'success',
             ]);
-            throw $e;
+
+            return redirect()->route('home');
+        } catch (Throwable $e) {
+            // Logging is handled within the service
+            Inertia::flash('toast', [
+                'message' => 'Gagal memproses pesanan: ' . $e->getMessage(),
+                'type' => 'error',
+            ]);
+
+            return back()->withInput();
         }
     }
 }
