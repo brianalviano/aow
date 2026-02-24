@@ -14,7 +14,6 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
-use Illuminate\Support\Facades\Log;
 
 class SettingController extends Controller
 {

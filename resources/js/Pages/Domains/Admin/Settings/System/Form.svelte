@@ -46,6 +46,9 @@
         whatsapp_notify_order_created: boolean;
         whatsapp_notify_order_confirmed: boolean;
         whatsapp_notify_order_delivered: boolean;
+
+        tax_enabled: boolean;
+        tax_percentage: string | null;
     };
 
     let settings = $derived(
@@ -98,6 +101,9 @@
                 settings?.whatsapp_notify_order_confirmed ?? false,
             whatsapp_notify_order_delivered:
                 settings?.whatsapp_notify_order_delivered ?? false,
+
+            tax_enabled: settings?.tax_enabled ?? false,
+            tax_percentage: settings?.tax_percentage?.toString() ?? "12",
         })),
     );
 
@@ -380,6 +386,28 @@
                                     label="Nilai Biaya Admin"
                                     bind:value={$form.admin_fee_value}
                                     error={$form.errors.admin_fee_value}
+                                />
+                            {/if}
+                        </div>
+                    {/snippet}
+                </Card>
+
+                <Card title="Pengaturan Pajak (PPN)" collapsible={false}>
+                    {#snippet children()}
+                        <div class="space-y-4">
+                            <Checkbox
+                                id="tax_enabled"
+                                bind:checked={$form.tax_enabled}
+                                label="Aktifkan PPN"
+                            />
+                            {#if $form.tax_enabled}
+                                <TextInput
+                                    id="tax_percentage"
+                                    name="tax_percentage"
+                                    type="number"
+                                    label="Persentase PPN (%)"
+                                    bind:value={$form.tax_percentage}
+                                    error={$form.errors.tax_percentage}
                                 />
                             {/if}
                         </div>

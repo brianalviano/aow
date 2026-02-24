@@ -51,6 +51,10 @@ class UpdateSettingRequest extends FormRequest
             'whatsapp_notify_order_created' => ['nullable', 'boolean'],
             'whatsapp_notify_order_confirmed' => ['nullable', 'boolean'],
             'whatsapp_notify_order_delivered' => ['nullable', 'boolean'],
+
+            // Tax (PPN)
+            'tax_enabled' => ['nullable', 'boolean'],
+            'tax_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ];
     }
 }

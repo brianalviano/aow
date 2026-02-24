@@ -142,6 +142,19 @@ class OrderSettingSeeder extends Seeder
                 'value'       => 'true',
                 'description' => 'Kirim notif WA ke customer saat order dikirim/delivered',
             ],
+            // -------------------------------------------------------
+            // Konfigurasi Pajak
+            // -------------------------------------------------------
+            [
+                'key'         => 'tax_enabled',
+                'value'       => 'false',
+                'description' => 'Aktifkan PPN: true | false',
+            ],
+            [
+                'key'         => 'tax_percentage',
+                'value'       => '12',
+                'description' => 'Persentase PPN (%)',
+            ],
         ];
 
         foreach ($settings as $setting) {

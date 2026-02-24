@@ -53,6 +53,9 @@ class SettingData
                 'whatsapp_notify_order_created' => isset($p['whatsapp_notify_order_created']) ? ($p['whatsapp_notify_order_created'] ? 'true' : 'false') : 'false',
                 'whatsapp_notify_order_confirmed' => isset($p['whatsapp_notify_order_confirmed']) ? ($p['whatsapp_notify_order_confirmed'] ? 'true' : 'false') : 'false',
                 'whatsapp_notify_order_delivered' => isset($p['whatsapp_notify_order_delivered']) ? ($p['whatsapp_notify_order_delivered'] ? 'true' : 'false') : 'false',
+
+                'tax_enabled' => isset($p['tax_enabled']) ? ($p['tax_enabled'] ? 'true' : 'false') : 'false',
+                'tax_percentage' => $p['tax_percentage'] ?? '12',
             ],
         );
     }
