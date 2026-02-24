@@ -361,7 +361,11 @@
                 <div class="grid grid-cols-2 gap-3">
                     {#each category.products as product}
                         <div
-                            class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col"
+                            class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col transition-all {(cartQuantities[
+                                product.id
+                            ] || 0) > 0
+                                ? 'border-b-4 border-b-[#8ec210]'
+                                : ''}"
                         >
                             <div class="aspect-4/3 w-full bg-gray-100 relative">
                                 {#if product.image_url}
@@ -401,10 +405,10 @@
                                 <div class="mt-2 h-7">
                                     {#if (cartQuantities[product.id] || 0) > 0}
                                         <div
-                                            class="flex items-center justify-between w-full h-full"
+                                            class="flex items-center justify-between w-full h-full px-1"
                                         >
                                             <button
-                                                class="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                                                class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-900 text-gray-900 focus:outline-none transition-colors active:bg-gray-100"
                                                 aria-label="Kurangi"
                                                 on:click={() =>
                                                     updateCartItemQuantity(
@@ -413,16 +417,16 @@
                                                     )}
                                             >
                                                 <i
-                                                    class="fa-solid fa-minus text-xs"
+                                                    class="fa-solid fa-minus text-sm"
                                                 ></i>
                                             </button>
                                             <span
-                                                class="text-sm font-semibold text-gray-900"
+                                                class="text-sm font-bold text-gray-900"
                                             >
                                                 {cartQuantities[product.id]}
                                             </span>
                                             <button
-                                                class="w-7 h-7 flex items-center justify-center rounded-full border border-gray-800 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                                                class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-900 text-gray-900 focus:outline-none transition-colors active:bg-gray-100"
                                                 aria-label="Tambah"
                                                 on:click={() =>
                                                     updateCartItemQuantity(
@@ -431,7 +435,7 @@
                                                     )}
                                             >
                                                 <i
-                                                    class="fa-solid fa-plus text-xs"
+                                                    class="fa-solid fa-plus text-sm"
                                                 ></i>
                                             </button>
                                         </div>
