@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { Link, router } from "@inertiajs/svelte";
-    import ProductDetailModal from "./ProductDetailModal.svelte";
+    import { router } from "@inertiajs/svelte";
+    import ProductDetailModal from "./Modal.svelte";
 
     export let dropPoint: {
         id: string;
@@ -268,9 +267,7 @@
                         <div
                             class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col"
                         >
-                            <div
-                                class="aspect-4/3 w-full bg-gray-100 relative"
-                            >
+                            <div class="aspect-4/3 w-full bg-gray-100 relative">
                                 {#if product.image_url}
                                     <img
                                         src={product.image_url}
