@@ -20,6 +20,7 @@ use App\Http\Controllers\Customer\{
     HomeController,
     MenuController,
     DropPointController as CustomerDropPointController,
+    ProductController as CustomerProductController,
     PrivacyPolicyController,
     TermsOfServiceController,
 };
@@ -32,7 +33,7 @@ use App\Http\Controllers\Customer\{
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/drop-points/{id}', [CustomerDropPointController::class, 'index'])->name('customer.drop-points');
-Route::get('/drop-points/{id}/products', [ProductController::class, 'index'])->name('customer.products');
+Route::get('/drop-points/{id}/products', [CustomerProductController::class, 'index'])->name('customer.products');
 Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('customer.privacy-policy');
 Route::get('/terms-of-service', [TermsOfServiceController::class, 'index'])->name('customer.terms-of-service');
