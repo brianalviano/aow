@@ -150,7 +150,7 @@ class CheckoutController extends Controller
 
         $paymentMethods = PaymentMethod::where('is_active', true)
             ->get()
-            ->groupBy(fn($method) => $method->category->label());
+            ->groupBy(fn($method) => $method->category?->label() ?? 'Lainnya');
 
         $user = Auth::guard('customer')->user();
 

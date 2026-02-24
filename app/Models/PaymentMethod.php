@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\{PaymentMethodCategory, PaymentMethodType};
+use App\Enums\PaymentMethodCategory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,7 +22,6 @@ class PaymentMethod extends Model
         'category',
         'photo',
         'is_active',
-        'type',
         'account_number',
         'account_name',
     ];
@@ -36,7 +35,6 @@ class PaymentMethod extends Model
     {
         return [
             'is_active' => 'boolean',
-            'type' => PaymentMethodType::class,
             'category' => PaymentMethodCategory::class,
         ];
     }

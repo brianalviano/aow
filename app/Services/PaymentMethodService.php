@@ -26,8 +26,7 @@ class PaymentMethodService
     {
         return PaymentMethod::query()
             ->when($search, function ($query, $search) {
-                $query->where('name', 'ilike', "%{$search}%")
-                    ->orWhere('type', 'ilike', "%{$search}%");
+                $query->where('name', 'ilike', "%{$search}%");
             })
             ->orderBy('name', 'asc')
             ->paginate($perPage);
@@ -50,7 +49,6 @@ class PaymentMethodService
                         'category' => $data->category,
                         'photo' => $photoPath,
                         'is_active' => $data->isActive,
-                        'type' => $data->type,
                         'account_number' => $data->accountNumber,
                         'account_name' => $data->accountName,
                     ]);
@@ -63,7 +61,6 @@ class PaymentMethodService
                         'category' => $data->category,
                         'has_photo' => $data->photo !== null,
                         'is_active' => $data->isActive,
-                        'type' => $data->type,
                     ],
                     'trace' => $e->getTraceAsString(),
                 ]);
@@ -89,7 +86,6 @@ class PaymentMethodService
                         'category' => $data->category,
                         'photo' => $photoPath,
                         'is_active' => $data->isActive,
-                        'type' => $data->type,
                         'account_number' => $data->accountNumber,
                         'account_name' => $data->accountName,
                     ]);
@@ -105,7 +101,6 @@ class PaymentMethodService
                         'category' => $data->category,
                         'has_photo' => $data->photo !== null,
                         'is_active' => $data->isActive,
-                        'type' => $data->type,
                     ],
                     'trace' => $e->getTraceAsString(),
                 ]);

@@ -18,8 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('photo')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->enum('type', ["cash", "online"])->default('online');
-            $table->enum('category', ['bank-transfer', 'e-wallet', 'virtual-account'])->nullable();
+            $table->enum('category', ['bank-transfer', 'e-wallet', 'virtual-account', 'cash'])->nullable();
             $table->string('account_number')->nullable();
             $table->string('account_name')->nullable();
             $table->timestamps();

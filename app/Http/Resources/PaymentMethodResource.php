@@ -27,7 +27,6 @@ class PaymentMethodResource extends JsonResource
             'category' => $this->resource->category,
             'photo' => $this->resource->photo ? asset('storage/' . $this->resource->photo) : null,
             'is_active' => $this->resource->is_active,
-            'type' => $this->resource->type,
             'account_number' => $this->resource->account_number,
             'account_name' => $this->resource->account_name,
             'created_at' => $this->resource->created_at?->format('Y-m-d H:i:s'),

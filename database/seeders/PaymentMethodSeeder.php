@@ -15,28 +15,24 @@ class PaymentMethodSeeder extends Seeder
         $methods = [
             [
                 'name' => 'Cash',
-                'category' => null,
-                'type' => 'cash',
+                'category' => 'cash',
                 'is_active' => true,
             ],
             [
-                'name' => 'Transfer Bank',
+                'name' => 'Transfer Bank BCA',
                 'category' => 'bank-transfer',
-                'type' => 'online',
                 'is_active' => true,
                 'account_number' => '7240081851',
                 'account_name' => 'NUNING RAHMAWATI SE',
             ],
             [
-                'name' => 'Virtual Account',
-                'category' => 'virtual-account',
-                'type' => 'online',
+                'name' => 'OVO',
+                'category' => 'e-wallet',
                 'is_active' => true,
             ],
             [
-                'name' => 'E-Wallet',
+                'name' => 'ShopeePay',
                 'category' => 'e-wallet',
-                'type' => 'online',
                 'is_active' => true,
             ],
         ];
