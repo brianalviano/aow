@@ -28,6 +28,8 @@ class StorePaymentMethodRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'category' => ['nullable', Rule::enum(PaymentMethodCategory::class)],
+            'type' => ['required', Rule::enum(PaymentMethodType::class)],
+            'code' => ['nullable', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'is_active' => ['required', 'boolean'],
             'account_number' => ['nullable', 'string', 'max:255'],

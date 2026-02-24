@@ -11,10 +11,16 @@
     interface PaymentMethod {
         id: string;
         name: string;
-        category: "bank-transfer" | "e-wallet" | "virtual-account" | null;
+        category:
+            | "bank-transfer"
+            | "e-wallet"
+            | "virtual-account"
+            | "cash"
+            | null;
         photo: string | null;
         is_active: boolean;
-        type: "cash" | "online";
+        type: "manual" | "gateway";
+        code: string | null;
         account_number: string | null;
         account_name: string | null;
         payment_guide_id: string | null;
@@ -33,10 +39,11 @@
         untrack(() => ({
             _method: paymentMethod ? "put" : "post",
             name: paymentMethod?.name ?? "",
-            category: paymentMethod?.category ?? "manual",
+            category: paymentMethod?.category ?? "bank-transfer",
+            type: paymentMethod?.type ?? "manual",
+            code: paymentMethod?.code ?? "",
             photo: null as File | null,
             is_active: paymentMethod?.is_active ?? true,
-            type: paymentMethod?.type ?? "online",
             account_number: paymentMethod?.account_number ?? "",
             account_name: paymentMethod?.account_name ?? "",
             payment_guide_id: paymentMethod?.payment_guide_id ?? "",
@@ -168,6 +175,7 @@
                                     <option value="virtual-account"
                                         >Virtual Account</option
                                     >
+                                    <option value="cash">Tunai (Cash)</option>
                                 </select>
                                 {#if $form.errors.category}
                                     <p class="text-sm text-red-600 mt-1">
@@ -191,9 +199,11 @@
                                 class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-primary-500 focus:border-primary-500"
                                 required
                             >
-                                <option value="online">Online / Transfer</option
+                                <option value="manual">Manual / Transfer</option
                                 >
-                                <option value="cash">Tunai (Cash)</option>
+                                <option value="gateway"
+                                    >Otomatis (Gateway)</option
+                                >
                             </select>
                             {#if $form.errors.type}
                                 <p class="text-sm text-red-600 mt-1">
@@ -202,7 +212,19 @@
                             {/if}
                         </div>
 
-                        {#if $form.type === "online" && $form.category === "bank-transfer"}
+                        {#if $form.type === "gateway"}
+                            <TextInput
+                                id="code"
+                                name="code"
+                                label="Kode Gateway"
+                                placeholder="Contoh: bca, gopay, qris"
+                                bind:value={$form.code}
+                                error={$form.errors.code}
+                                required
+                            />
+                        {/if}
+
+                        {#if $form.type === "manual" && $form.category === "bank-transfer"}
                             <div
                                 class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t dark:border-gray-700"
                             >

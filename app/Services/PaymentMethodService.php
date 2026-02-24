@@ -47,10 +47,13 @@ class PaymentMethodService
                     return PaymentMethod::create([
                         'name' => $data->name,
                         'category' => $data->category,
+                        'type' => $data->type,
+                        'code' => $data->code,
                         'photo' => $photoPath,
                         'is_active' => $data->isActive,
                         'account_number' => $data->accountNumber,
                         'account_name' => $data->accountName,
+                        'payment_guide_id' => $data->paymentGuideId,
                     ]);
                 });
             } catch (\Throwable $e) {
@@ -84,10 +87,13 @@ class PaymentMethodService
                     $paymentMethod->update([
                         'name' => $data->name,
                         'category' => $data->category,
+                        'type' => $data->type,
+                        'code' => $data->code,
                         'photo' => $photoPath,
                         'is_active' => $data->isActive,
                         'account_number' => $data->accountNumber,
                         'account_name' => $data->accountName,
+                        'payment_guide_id' => $data->paymentGuideId,
                     ]);
 
                     return $paymentMethod->refresh();

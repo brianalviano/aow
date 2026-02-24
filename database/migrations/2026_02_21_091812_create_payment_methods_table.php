@@ -16,12 +16,14 @@ return new class extends Migration
         Schema::create('payment_methods', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
+            $table->string('code')->nullable()->unique();
             $table->string('photo')->nullable();
             $table->boolean('is_active')->default(true);
             $table->enum('category', ['bank-transfer', 'e-wallet', 'virtual-account', 'cash'])->nullable();
             $table->string('account_number')->nullable();
             $table->string('account_name')->nullable();
             $table->foreignUuid('payment_guide_id')->nullable();
+            $table->enum('type', ['manual', 'gateway'])->default('manual');
             $table->timestamps();
             $table->softDeletes();
         });

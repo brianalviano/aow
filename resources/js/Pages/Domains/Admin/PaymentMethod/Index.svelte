@@ -13,10 +13,15 @@
     interface PaymentMethod {
         id: string;
         name: string;
-        category: "bank-transfer" | "e-wallet" | "virtual-account" | null;
+        category:
+            | "bank-transfer"
+            | "e-wallet"
+            | "virtual-account"
+            | "cash"
+            | null;
         photo: string | null;
         is_active: boolean;
-        type: "cash" | "online";
+        type: "manual" | "gateway";
         created_at: string;
         updated_at: string;
     }
@@ -94,7 +99,7 @@
     });
 
     function getTypeName(type: string) {
-        return type === "cash" ? "Tunai" : "Online / Transfer";
+        return type === "manual" ? "Manual" : "Otomatis";
     }
 </script>
 
@@ -206,7 +211,9 @@
                                                   : item.category ===
                                                       "virtual-account"
                                                     ? "warning"
-                                                    : "secondary"}
+                                                    : item.category === "cash"
+                                                      ? "info"
+                                                      : "secondary"}
                                             size="sm"
                                         >
                                             {#snippet children()}
@@ -219,7 +226,10 @@
                                                       : item.category ===
                                                           "virtual-account"
                                                         ? "Virtual Account"
-                                                        : "Tanpa Kategori"}
+                                                        : item.category ===
+                                                            "cash"
+                                                          ? "Tunai"
+                                                          : "Tanpa Kategori"}
                                             {/snippet}
                                         </Badge>
                                     </td>
@@ -228,7 +238,7 @@
                                             class="text-sm text-gray-600 dark:text-gray-400"
                                         >
                                             <Badge
-                                                variant={item.type === "cash"
+                                                variant={item.type === "manual"
                                                     ? "info"
                                                     : "primary"}
                                                 size="sm"
