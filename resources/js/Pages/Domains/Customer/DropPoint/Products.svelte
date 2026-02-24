@@ -39,7 +39,7 @@
     // State
     let searchQuery = "";
     let selectedCategory: string =
-        categories.length > 0 ? categories[0].id : "";
+        categories.length > 0 && categories[0] ? categories[0].id : "";
     let selectedProduct: any = null;
     let showModal = false;
 
@@ -178,8 +178,10 @@
 
         // Default to modifying the first one found (if they have multiple variations, they should edit from cart. Here we do simple +-)
         const cartItemId = cartItemIds[0];
+        if (!cartItemId) return;
 
         const item = cart[cartItemId];
+        if (!item) return;
         const newQuantity = item.quantity + delta;
 
         if (newQuantity <= 0) {
@@ -218,7 +220,7 @@
         <!-- Search Bar -->
         <div class="px-4 pb-3">
             <div
-                class="relative relative flex items-center w-full h-10 rounded-xl focus-within:shadow-lg bg-gray-50 overflow-hidden border border-gray-200"
+                class="relative flex items-center w-full h-10 rounded-xl focus-within:shadow-lg bg-gray-50 overflow-hidden border border-gray-200"
             >
                 <div class="grid place-items-center h-full w-12 text-gray-400">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -267,7 +269,7 @@
                             class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col"
                         >
                             <div
-                                class="aspect-[4/3] w-full bg-gray-100 relative"
+                                class="aspect-4/3 w-full bg-gray-100 relative"
                             >
                                 {#if product.image_url}
                                     <img
@@ -286,9 +288,9 @@
                                 {/if}
                             </div>
 
-                            <div class="p-3 flex flex-col flex-grow">
+                            <div class="p-3 flex flex-col grow">
                                 <h3
-                                    class="font-semibold text-gray-900 text-xs leading-tight line-clamp-2 min-h-[2rem]"
+                                    class="font-semibold text-gray-900 text-xs leading-tight line-clamp-2 min-h-8"
                                 >
                                     {product.name}
                                 </h3>
@@ -310,6 +312,7 @@
                                         >
                                             <button
                                                 class="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                                                aria-label="Kurangi"
                                                 on:click={() =>
                                                     updateCartItemQuantity(
                                                         product.id,
@@ -327,6 +330,7 @@
                                             </span>
                                             <button
                                                 class="w-7 h-7 flex items-center justify-center rounded-full border border-gray-800 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                                                aria-label="Tambah"
                                                 on:click={() =>
                                                     updateCartItemQuantity(
                                                         product.id,
