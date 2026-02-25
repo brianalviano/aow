@@ -277,30 +277,21 @@
 
         {#if dateRange === "custom"}
             <div
-                class="px-4 pb-4 flex flex-col gap-3 animate-in fade-in slide-in-from-top-1"
+                class="px-4 pb-4 flex flex-col gap-2 animate-in fade-in slide-in-from-top-1"
             >
-                <div class="flex items-start gap-2">
-                    <div class="flex-1 min-w-0">
-                        <DateInput
-                            bind:value={startDate}
-                            format="yyyy-mm-dd"
-                            placeholder="Dari Tanggal"
-                        />
-                    </div>
-                    <div class="pt-3 text-gray-400">
-                        <i class="fa-solid fa-minus text-[10px]"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <DateInput
-                            bind:value={endDate}
-                            format="yyyy-mm-dd"
-                            placeholder="Sampai Tanggal"
-                        />
-                    </div>
-                </div>
+                <DateInput
+                    bind:value={startDate}
+                    format="yyyy-mm-dd"
+                    placeholder="Tanggal Mulai"
+                />
+                <DateInput
+                    bind:value={endDate}
+                    format="yyyy-mm-dd"
+                    placeholder="Tanggal Selesai"
+                />
                 <button
                     on:click={applyFilters}
-                    class="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-sm active:scale-[0.98]"
+                    class="w-full mt-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-sm active:scale-[0.98]"
                 >
                     Terapkan Rentang Tanggal
                 </button>

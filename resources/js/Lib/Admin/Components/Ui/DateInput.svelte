@@ -325,7 +325,19 @@
         const viewportWidth = window.innerWidth;
         const dropdownWidth =
             (dropdownElement && dropdownElement.offsetWidth) || 256;
-        alignRight = rect.right + dropdownWidth > viewportWidth;
+
+        // If left-aligned dropdown would overflow on the right
+        if (rect.left + dropdownWidth > viewportWidth - 20) {
+            alignRight = true;
+        } else {
+            alignRight = false;
+        }
+
+        // If right-aligned dropdown would overflow on the left,
+        // fallback to left-aligned and hope for the best (usually screen is > 256px)
+        if (alignRight && rect.right - dropdownWidth < 20) {
+            alignRight = false;
+        }
     }
 
     /**
