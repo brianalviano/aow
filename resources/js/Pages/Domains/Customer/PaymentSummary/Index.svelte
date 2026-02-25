@@ -46,7 +46,32 @@
         }
     }
 
+    function isCashPaymentSelected() {
+        if (!$form.payment_method_id) return false;
+
+        for (const [category, methods] of Object.entries(paymentMethods)) {
+            const method = methods.find(
+                (m) => m.id === $form.payment_method_id,
+            );
+            if (method && method.category === "cash") {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    let isConfirmModalOpen = $state(false);
+
     function handleSubmit() {
+        if (isCashPaymentSelected()) {
+            isConfirmModalOpen = true;
+        } else {
+            processPayment();
+        }
+    }
+
+    function processPayment() {
+        isConfirmModalOpen = false;
         $form.post("/payment");
     }
 </script>
@@ -291,6 +316,17 @@
             </div>
         {/snippet}
     </Dialog>
+
+    <!-- Confirm Dialog -->
+    <Dialog
+        bind:isOpen={isConfirmModalOpen}
+        title="Konfirmasi Pesanan"
+        message="Apakah Anda yakin ingin menggunakan metode pembayaran Tunai? Pesanan Anda akan langsung diproses."
+        showCancel={true}
+        cancelText="Batal"
+        confirmText="Ya, Buat Pesanan"
+        onConfirm={processPayment}
+    />
 </div>
 
 <style>

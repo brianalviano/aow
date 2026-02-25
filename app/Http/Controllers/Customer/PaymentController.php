@@ -96,4 +96,40 @@ class PaymentController extends Controller
             return back()->withInput();
         }
     }
+
+    /**
+     * Upload payment proof for manual transfer.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Order $order
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function uploadProof(\Illuminate\Http\Request $request, \App\Models\Order $order)
+    {
+        $request->validate([
+            'proof' => 'required|image|max:2048',
+        ]);
+
+        try {
+            $path = $request->file('proof')->store('payment-proofs', 'public');
+
+            $order->update([
+                'payment_proof' => $path,
+            ]);
+
+            return redirect()->route('customer.payment-summary')->with('order', $order->load('paymentMethod'));
+        } catch (Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Upload payment proof failed', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            Inertia::flash('toast', [
+                'message' => 'Gagal mengunggah bukti pembayaran: ' . $e->getMessage(),
+                'type' => 'error',
+            ]);
+
+            return back();
+        }
+    }
 }

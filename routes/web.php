@@ -46,6 +46,7 @@ Route::post('/checkout/session', [CheckoutController::class, 'store'])->name('cu
 Route::post('/checkout/update-session', [CheckoutController::class, 'update'])->name('customer.checkout.update-session');
 Route::get('/payment-summary', [PaymentController::class, 'index'])->name('customer.payment-summary');
 Route::post('/payment', [PaymentController::class, 'processPayment'])->name('customer.payment.store');
+Route::post('/payment/{order}/proof', [PaymentController::class, 'uploadProof'])->name('customer.payment.proof');
 
 // Midtrans Redirects
 Route::get('/payment/finish', function () {

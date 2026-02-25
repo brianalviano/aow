@@ -45,6 +45,7 @@ class Order extends Model
         'admin_fee',
         'tax_amount',
         'delivery_time',
+        'payment_proof',
     ];
 
     /**
