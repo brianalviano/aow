@@ -34,10 +34,10 @@ class CheckoutService
      * Calculate checkout fees based on cart and drop point.
      *
      * @param array $cart The current items in the cart.
-     * @param int $dropPointId The selected drop point ID.
+     * @param string $dropPointId The selected drop point ID.
      * @return array Calculated fees including delivery, admin, and tax.
      */
-    public function calculateFees(array $cart, int $dropPointId): array
+    public function calculateFees(array $cart, string $dropPointId): array
     {
         $settings = OrderSetting::pluck('value', 'key')->toArray();
         $subtotal = collect($cart)->sum('totalPrice');
@@ -134,7 +134,7 @@ class CheckoutService
                         Auth::guard('customer')->login($customer);
                     }
 
-                    $fees = $this->calculateFees($data->cart, (int) $data->dropPoint['id']);
+                    $fees = $this->calculateFees($data->cart, $data->dropPoint['id']);
                     $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
 
                     $order = Order::create([

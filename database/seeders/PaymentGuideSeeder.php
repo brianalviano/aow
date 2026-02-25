@@ -54,6 +54,22 @@ class PaymentGuideSeeder extends Seeder
                     ],
                 ],
             ],
+            [
+                'name' => 'QRIS',
+                'content' => [
+                    [
+                        'title' => 'Cara Pembayaran',
+                        'items' => [
+                            'Pilih metode pembayaran QRIS saat checkout.',
+                            'Klik tombol "Bayar" untuk menampilkan Kode QR.',
+                            'Buka aplikasi e-wallet atau perbankan Anda (Gopay, OVO, Dana, LinkAja, BCA Mobile, dll).',
+                            'Gunakan fitur "Scan" atau "Bayar" dan arahkan ke Kode QR yang muncul.',
+                            'Periksa nominal yang muncul, pastikan sesuai dengan total tagihan.',
+                            'Tunggu hingga konfirmasi pembayaran muncul di aplikasi.',
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         foreach ($guides as $guide) {

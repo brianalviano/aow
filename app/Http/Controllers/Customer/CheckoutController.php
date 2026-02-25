@@ -44,7 +44,7 @@ class CheckoutController extends Controller
             return redirect()->to(route('home'));
         }
 
-        $fees = $this->checkoutService->calculateFees($cart, (int) $dropPointData['id']);
+        $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id']);
 
         return Inertia::render('Domains/Customer/Checkout/Index', [
             'cart' => $cart,
@@ -132,7 +132,7 @@ class CheckoutController extends Controller
 
         $user = Auth::guard('customer')->user();
 
-        $fees = $this->checkoutService->calculateFees($cart, (int) $dropPointData['id']);
+        $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id']);
         $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
 
         return Inertia::render('Domains/Customer/Checkout/Payment', [
