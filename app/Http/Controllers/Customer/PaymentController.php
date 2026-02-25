@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\{Inertia, Response};
 use Throwable;
 
-class PaymentSummaryController extends Controller
+class PaymentController extends Controller
 {
     /**
-     * Create a new CheckoutController instance.
+     * Create a new PaymentController instance.
      *
      * @param CheckoutService $checkoutService Service for handling checkout logic.
      */
