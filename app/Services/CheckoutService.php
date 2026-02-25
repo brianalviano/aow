@@ -121,7 +121,7 @@ class CheckoutService
                                 'email' => $data->email,
                                 'password' => Hash::make($password),
                                 'school_class' => $data->schoolClass,
-                                'drop_point_id' => $data->dropPoint['id'],
+                                'drop_point_id' => data_get($data->dropPoint, 'id'),
                                 'is_active' => true,
                             ]);
 
@@ -134,12 +134,12 @@ class CheckoutService
                         Auth::guard('customer')->login($customer);
                     }
 
-                    $fees = $this->calculateFees($data->cart, $data->dropPoint['id']);
+                    $fees = $this->calculateFees($data->cart, (string) data_get($data->dropPoint, 'id', ''));
                     $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
 
                     $order = Order::create([
                         'number' => $this->generateOrderNumber(),
-                        'drop_point_id' => $data->dropPoint['id'],
+                        'drop_point_id' => data_get($data->dropPoint, 'id'),
                         'customer_id' => $customer->id,
                         'delivery_date' => $data->deliveryDate ?? now()->addDay()->format('Y-m-d'),
                         'delivery_time' => $data->deliveryTime ?? '12:00',
@@ -155,7 +155,7 @@ class CheckoutService
                     foreach ($data->cart as $item) {
                         $orderItem = OrderItem::create([
                             'order_id' => $order->id,
-                            'product_id' => $item['product']['id'],
+                            'product_id' => data_get($item, 'product.id'),
                             'quantity' => $item['quantity'],
                             'price' => $item['basePrice'],
                             'subtotal' => $item['totalPrice'],
@@ -206,7 +206,7 @@ class CheckoutService
                     return $order;
                 });
             } catch (Throwable $e) {
-                Log::error('Failed to process order', [
+                Log::error('CheckoutService - Failed to process order', [
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
                     'customer_id' => Auth::guard('customer')->id(),
@@ -214,6 +214,8 @@ class CheckoutService
                         'email' => $data->email,
                         'payment_method_id' => $data->paymentMethodId,
                         'cart_count' => count($data->cart),
+                        'drop_point' => $data->dropPoint,
+                        'cart_sample' => collect($data->cart)->first(),
                     ],
                 ]);
                 throw $e;
@@ -258,14 +260,25 @@ class CheckoutService
      */
     private function resolveOptionExtraPrice(array $item, string $optionId, string $optionItemId): int
     {
-        $options = $item['product']['options'] ?? [];
-        $productOptions = is_array($options) ? $options : ($options['data'] ?? []);
+        $options = data_get($item, 'product.options', []);
+        $productOptions = isset($options['data']) ? $options['data'] : $options;
+
+        if (!is_array($productOptions)) {
+            return 0;
+        }
 
         foreach ($productOptions as $opt) {
-            if ((string) $opt['id'] === $optionId) {
-                foreach ($opt['items'] as $optItem) {
-                    if ((string) $optItem['id'] === $optionItemId) {
-                        return (int) ($optItem['extra_price'] ?? 0);
+            if ((string) data_get($opt, 'id') === $optionId) {
+                $items = data_get($opt, 'items', []);
+                $optionItems = isset($items['data']) ? $items['data'] : $items;
+
+                if (!is_array($optionItems)) {
+                    continue;
+                }
+
+                foreach ($optionItems as $optItem) {
+                    if ((string) data_get($optItem, 'id') === $optionItemId) {
+                        return (int) data_get($optItem, 'extra_price', 0);
                     }
                 }
             }

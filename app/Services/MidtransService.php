@@ -106,7 +106,7 @@ class MidtransService
                 'id' => 'ITEM-' . $item->id,
                 'price' => $unitPrice,
                 'quantity' => (int) $item->quantity,
-                'name' => $item->product->name,
+                'name' => data_get($item, 'product.name', 'Produk'),
             ];
 
             // Item-level discount handling (if stored separately as negative amount)
