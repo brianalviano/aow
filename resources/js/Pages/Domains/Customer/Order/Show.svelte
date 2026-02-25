@@ -183,12 +183,6 @@
                 </p>
                 <div class="flex gap-4">
                     <div class="flex-1 bg-gray-50 rounded-lg p-2.5">
-                        <div class="text-xs text-gray-500 mb-0.5">Metode</div>
-                        <div class="text-sm font-medium text-gray-900">
-                            Diantar via Drop Point
-                        </div>
-                    </div>
-                    <div class="flex-1 bg-gray-50 rounded-lg p-2.5">
                         <div class="text-xs text-gray-500 mb-0.5">
                             Estimasi Tiba
                         </div>
