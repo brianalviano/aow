@@ -13,6 +13,10 @@
         order_status: string;
         created_at: string;
         drop_point?: { name: string };
+        payment_method?: {
+            name: string;
+            category: string;
+        };
     }> = [];
 
     // Filter status
@@ -28,11 +32,14 @@
     ];
 
     $: filteredOrders = orders.filter((o) => {
+        const isCash = o.payment_method?.category === "cash";
+
         if (activeTab === "all") return true;
-        if (activeTab === "unpaid") return o.payment_status === "pending";
+        if (activeTab === "unpaid")
+            return o.payment_status === "pending" && !isCash;
         if (activeTab === "process")
             return (
-                o.payment_status !== "pending" &&
+                (o.payment_status !== "pending" || isCash) &&
                 (o.order_status === "pending" || o.order_status === "confirmed")
             );
         if (activeTab === "shipped") return o.order_status === "shipped";
@@ -53,7 +60,11 @@
         }).format(amount);
     }
 
-    function getStatusBadge(paymentStatus: string, orderStatus: string) {
+    function getStatusBadge(
+        paymentStatus: string,
+        orderStatus: string,
+        o?: any,
+    ) {
         if (orderStatus === "cancelled" || paymentStatus === "failed") {
             return {
                 text: "Dibatalkan",
@@ -67,6 +78,15 @@
             };
         }
         if (paymentStatus === "pending") {
+            const isCash = o?.payment_method?.category === "cash";
+
+            if (isCash) {
+                return {
+                    text: "Bayar di Tempat",
+                    classes: "bg-blue-50 text-blue-600 border border-blue-200",
+                };
+            }
+
             return {
                 text: "Belum Dibayar",
                 classes:
@@ -155,6 +175,7 @@
                 {@const badge = getStatusBadge(
                     order.payment_status,
                     order.order_status,
+                    order,
                 )}
                 <Link
                     href={`/orders/${order.id}`}

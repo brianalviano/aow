@@ -13,8 +13,12 @@
         order_status: string;
         created_at: string;
         delivery_date: string;
-        dropPoint?: { name: string; address: string };
-        paymentMethod?: { name: string; type: string };
+        drop_point?: { name: string; address: string };
+        payment_method?: {
+            name: string;
+            type: string;
+            category: string;
+        };
         items: Array<{
             id: string;
             quantity: number;
@@ -52,6 +56,13 @@
             };
         }
         if (paymentStatus === "pending") {
+            if (order.payment_method?.category === "cash") {
+                return {
+                    text: "Bayar di Tempat",
+                    classes: "bg-blue-50 text-blue-600 border border-blue-200",
+                    icon: "fa-solid fa-wallet", // More appropriate for cash/POD
+                };
+            }
             return {
                 text: "Belum Dibayar",
                 classes:
@@ -134,7 +145,7 @@
             </div>
         </div>
 
-        {#if order.payment_status === "pending"}
+        {#if order.payment_status === "pending" && order.payment_method?.category !== "cash"}
             <Link
                 href={`/payment/${order.id}`}
                 class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold rounded-xl transition-colors shadow-sm"
@@ -165,10 +176,10 @@
             </div>
             <div class="pt-2 border-t border-gray-50">
                 <div class="text-sm font-medium text-gray-900 mb-1">
-                    {order.dropPoint?.name || "Drop Point"}
+                    {order.drop_point?.name || "Drop Point"}
                 </div>
                 <p class="text-xs text-gray-500 leading-relaxed mb-3">
-                    {order.dropPoint?.address || ""}
+                    {order.drop_point?.address || ""}
                 </p>
                 <div class="flex gap-4">
                     <div class="flex-1 bg-gray-50 rounded-lg p-2.5">
@@ -311,7 +322,7 @@
                     <span class="text-sm text-gray-600">Metode Pembayaran</span>
                 </div>
                 <div class="font-medium text-sm text-gray-900">
-                    {order.paymentMethod?.name || "-"}
+                    {order.payment_method?.name || "-"}
                 </div>
             </div>
         </div>
