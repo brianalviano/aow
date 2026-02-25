@@ -30,10 +30,7 @@ class OrderPlacedMail extends Mailable
         $this->companyName = CompanyProfile::query()->first()?->name ?? 'AOW';
     }
 
-    /**
-     * Get the message envelope.
-     */
-    public function getEnvelope(): Envelope
+    public function envelope(): Envelope
     {
         return new Envelope(
             subject: "Konfirmasi Pesanan {$this->companyName} - #{$this->order->number}",
@@ -43,7 +40,7 @@ class OrderPlacedMail extends Mailable
     /**
      * Get the message content definition.
      */
-    public function getContent(): Content
+    public function content(): Content
     {
         return new Content(
             view: 'mail.order.placed',
