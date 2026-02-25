@@ -108,22 +108,16 @@
         }
     });
 
-    // Update value when files change
-    $effect(() => {
+    /**
+     * Update the bound value from internal files array
+     */
+    function updateValueFromFiles() {
         if (multiple) {
-            if (
-                !Array.isArray(value) ||
-                !filesEqual((value as File[]) ?? [], files)
-            ) {
-                value = files;
-            }
+            value = files;
         } else {
-            const next = (files.length > 0 ? files[0] : null) as File | null;
-            if (value !== next) {
-                value = next as File | File[] | null;
-            }
+            value = (files.length > 0 ? files[0] : null) as File | null;
         }
-    });
+    }
 
     /**
      * Format file size
@@ -433,6 +427,9 @@
                 files = nf ? [nf] : [];
             }
 
+            // Sync with bounded value
+            updateValueFromFiles();
+
             // Trigger onchange event
             if (onchange) {
                 onchange(files);
@@ -466,6 +463,9 @@
 
         // Remove from files array
         files = files.filter((_, i) => i !== index);
+
+        // Sync with bounded value
+        updateValueFromFiles();
 
         // Trigger onremove event
         if (onremove) {
@@ -666,7 +666,7 @@
         {accept}
         {capture}
         {multiple}
-        {required}
+        required={required && files.length === 0}
         {disabled}
         onchange={(e) => handleFileSelect(e.currentTarget.files)}
         class="sr-only"

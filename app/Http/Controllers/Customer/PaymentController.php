@@ -32,18 +32,10 @@ class PaymentController extends Controller
      */
     public function index(): Response|RedirectResponse
     {
-        $order = session('order');
-
-        if ($order) {
-            return Inertia::render('Domains/Customer/Pay/Index', [
-                'order' => $order->load('paymentMethod.paymentGuide'),
-            ]);
-        }
-
         $cart = session('checkout_cart', []);
         $dropPointData = session('checkout_drop_point');
 
-        // If no order and no checkout session, redirect home
+        // If no checkout session, redirect home
         if (empty($cart) || empty($dropPointData)) {
             return redirect()->to(route('home'));
         }
@@ -62,6 +54,19 @@ class PaymentController extends Controller
             'paymentMethods' => $paymentMethods,
             'customer' => $user,
             'totalAmount' => $totalAmount,
+        ]);
+    }
+
+    /**
+     * Display the payment page for an order.
+     *
+     * @param \App\Models\Order $order
+     * @return Response|RedirectResponse
+     */
+    public function show(\App\Models\Order $order): Response|RedirectResponse
+    {
+        return Inertia::render('Domains/Customer/Pay/Index', [
+            'order' => $order->load('paymentMethod.paymentGuide'),
         ]);
     }
 
@@ -86,7 +91,7 @@ class PaymentController extends Controller
 
             $order = $this->checkoutService->processOrder($data);
 
-            return redirect()->route('customer.payment-summary')->with('order', $order->load('paymentMethod'));
+            return redirect()->route('customer.payment.show', $order->id);
         } catch (Throwable $e) {
             Inertia::flash('toast', [
                 'message' => 'Gagal memproses pesanan: ' . $e->getMessage(),
@@ -117,7 +122,7 @@ class PaymentController extends Controller
                 'payment_proof' => $path,
             ]);
 
-            return redirect()->route('customer.payment-summary')->with('order', $order->load('paymentMethod'));
+            return redirect()->route('customer.payment.show', $order->id);
         } catch (Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Upload payment proof failed', [
                 'order_id' => $order->id,

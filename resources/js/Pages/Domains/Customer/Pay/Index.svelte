@@ -121,7 +121,9 @@
 
 <div>
     <section
-        class="my-5 px-6 space-y-6 w-full {isPaid || isCash
+        class="my-5 px-6 space-y-6 w-full {isPaid ||
+        isCash ||
+        (isManualTransfer && hasProof)
             ? 'flex flex-col items-center justify-center min-h-[70vh]'
             : ''}"
     >
@@ -421,7 +423,7 @@
         >
             <button
                 onclick={() => router.visit("/")}
-                class="w-full py-3 bg-[#CCFF33] text-gray-900 font-black rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-base"
+                class="w-full py-3 bg-white text-gray-900 border-2 border-gray-100 font-bold rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-gray-200 transition-all text-base"
             >
                 Kembali ke Beranda
             </button>

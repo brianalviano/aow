@@ -45,6 +45,7 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.ch
 Route::post('/checkout/session', [CheckoutController::class, 'store'])->name('customer.checkout.session');
 Route::post('/checkout/update-session', [CheckoutController::class, 'update'])->name('customer.checkout.update-session');
 Route::get('/payment-summary', [PaymentController::class, 'index'])->name('customer.payment-summary');
+Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('customer.payment.show');
 Route::post('/payment', [PaymentController::class, 'processPayment'])->name('customer.payment.store');
 Route::post('/payment/{order}/proof', [PaymentController::class, 'uploadProof'])->name('customer.payment.proof');
 
@@ -53,11 +54,23 @@ Route::get('/payment/finish', function () {
     return redirect()->route('customer.products')->with('success', 'Pembayaran sedang diproses atau sudah berhasil.');
 })->name('payment.finish');
 
-Route::get('/checkout/unfinish', function () {
+Route::get('/checkout/unfinish', function (\Illuminate\Http\Request $request) {
+    if ($request->has('order_id')) {
+        $order = \App\Models\Order::where('number', $request->order_id)->first();
+        if ($order) {
+            return redirect()->route('customer.payment.show', $order->id)->with('warning', 'Pembayaran belum diselesaikan.');
+        }
+    }
     return redirect()->route('customer.payment-summary')->with('warning', 'Pembayaran belum diselesaikan.');
 })->name('payment.unfinish');
 
-Route::get('/checkout/error', function () {
+Route::get('/checkout/error', function (\Illuminate\Http\Request $request) {
+    if ($request->has('order_id')) {
+        $order = \App\Models\Order::where('number', $request->order_id)->first();
+        if ($order) {
+            return redirect()->route('customer.payment.show', $order->id)->with('error', 'Terjadi kesalahan saat memproses pembayaran.');
+        }
+    }
     return redirect()->route('customer.payment-summary')->with('error', 'Terjadi kesalahan saat memproses pembayaran.');
 })->name('payment.error');
 
