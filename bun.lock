@@ -4,20 +4,21 @@
   "workspaces": {
     "": {
       "dependencies": {
-        "@inertiajs/svelte": "^2.3.15",
+        "@inertiajs/svelte": "^2.3.16",
         "axios": "^1.13.5",
         "chart.js": "^4.5.1",
+        "dayjs": "^1.11.19",
         "fuse.js": "^7.1.0",
       },
       "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^6.2.4",
-        "@tailwindcss/vite": "^4.2.0",
+        "@tailwindcss/vite": "^4.2.1",
         "@tsconfig/svelte": "^5.0.8",
         "@types/node": "^25.3.0",
         "concurrently": "^9.2.1",
         "laravel-vite-plugin": "^2.1.0",
         "svelte-check": "^4.4.3",
-        "tailwindcss": "^4.2.0",
+        "tailwindcss": "^4.2.1",
         "typescript": "^5.9.3",
         "vite": "^7.3.1",
       },
@@ -225,6 +226,8 @@
     "combined-stream": ["combined-stream@1.0.8", "", { "dependencies": { "delayed-stream": "~1.0.0" } }, "sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg=="],
 
     "concurrently": ["concurrently@9.2.1", "", { "dependencies": { "chalk": "4.1.2", "rxjs": "7.8.2", "shell-quote": "1.8.3", "supports-color": "8.1.1", "tree-kill": "1.2.2", "yargs": "17.7.2" }, "bin": { "conc": "dist/bin/concurrently.js", "concurrently": "dist/bin/concurrently.js" } }, "sha512-fsfrO0MxV64Znoy8/l1vVIjjHa29SZyyqPgQBwhiDcaW8wJc2W3XWVOGx4M3oJBnv/zdUZIIp1gDeS98GzP8Ng=="],
+
+    "dayjs": ["dayjs@1.11.19", "", {}, "sha512-t5EcLVS6QPBNqM2z8fakk/NKel+Xzshgt8FFKAn+qwlD1pzZWxh0nVCrvFK7ZDb6XucZeF9z8C7CBWTRIVApAw=="],
 
     "deepmerge": ["deepmerge@4.3.1", "", {}, "sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A=="],
 

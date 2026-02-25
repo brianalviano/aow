@@ -90,6 +90,10 @@ Route::middleware('auth:customer')->group(function () {
     Route::put('/profile', [\App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
     Route::get('/notifications', [\App\Http\Controllers\Customer\NotificationController::class, 'index'])->name('customer.notifications.index');
     Route::post('/notifications/mark-as-read', [\App\Http\Controllers\Customer\NotificationController::class, 'markAsRead'])->name('customer.notifications.mark-as-read');
+
+    // Orders
+    Route::get('/orders', [\App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Customer\OrderController::class, 'show'])->name('customer.orders.show');
 });
 
 /*

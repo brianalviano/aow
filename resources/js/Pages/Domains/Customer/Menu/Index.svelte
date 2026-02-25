@@ -111,7 +111,7 @@
                     {/if}
                 </Link>
                 <Link
-                    href="#"
+                    href="/orders"
                     class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
                 >
                     <div
