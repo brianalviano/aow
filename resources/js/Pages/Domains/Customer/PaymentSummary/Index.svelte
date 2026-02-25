@@ -29,11 +29,6 @@
     let guideModalOpen = $state(false);
     let activeGuide = $state<any>(null);
 
-    function showGuide(method: any) {
-        activeGuide = method.payment_guide;
-        guideModalOpen = true;
-    }
-
     function formatRupiah(amount: number) {
         return "Rp" + amount.toLocaleString("id-ID");
     }
@@ -207,20 +202,6 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">
-                                {#if method.payment_guide}
-                                    <button
-                                        type="button"
-                                        class="px-3 py-1.5 text-xs font-bold text-[#0060B2] bg-blue-50 hover:bg-blue-100 rounded-full transition-colors flex items-center gap-1 z-10"
-                                        onclick={(e) => {
-                                            e.stopPropagation();
-                                            showGuide(method);
-                                        }}
-                                    >
-                                        <i class="fa-solid fa-circle-question"
-                                        ></i>
-                                        Instruksi
-                                    </button>
-                                {/if}
                                 <div
                                     class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
                                     class:border-[#CCFF33]={$form.payment_method_id ===
