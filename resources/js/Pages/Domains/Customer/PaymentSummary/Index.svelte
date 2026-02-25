@@ -301,6 +301,7 @@
         showCancel={true}
         cancelText="Batal"
         confirmText="Ya, Buat Pesanan"
+        loading={$form.processing}
         onConfirm={processPayment}
     />
 </div>

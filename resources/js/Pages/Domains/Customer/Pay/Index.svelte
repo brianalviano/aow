@@ -144,7 +144,15 @@
                     dan jam
                     <strong>{formatTimeStr(order.delivery_time)}</strong>.
                     {#if isCash}
-                        <br /><span class="text-red-500 font-bold mt-2 block"
+                        <span
+                            class="block mt-4 mb-1 text-xs font-bold text-gray-400 uppercase tracking-widest"
+                            >Total yang harus disiapkan</span
+                        >
+                        <span
+                            class="block text-3xl font-black text-gray-900 mb-2"
+                            >{formatRupiah(order.total_amount)}</span
+                        >
+                        <span class="text-red-500 font-bold block"
                             >Harap siapkan uang pas ya kak!</span
                         >
                     {/if}
