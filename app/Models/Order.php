@@ -44,6 +44,7 @@ class Order extends Model
         'final_delivery_fee',
         'admin_fee',
         'tax_amount',
+        'delivery_time',
     ];
 
     /**
@@ -55,6 +56,7 @@ class Order extends Model
     {
         return [
             'delivery_date' => 'date',
+            'delivery_time' => 'datetime',
             'payment_expired_at' => 'timestamp',
             'payment_details' => 'array',
         ];

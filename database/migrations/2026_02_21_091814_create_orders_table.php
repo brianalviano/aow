@@ -40,6 +40,8 @@ return new class extends Migration
             $table->integer('final_delivery_fee')->default(0);
             $table->integer('admin_fee')->default(0);
             $table->json('payment_details')->nullable();
+            $table->integer('tax_amount')->default(0);
+            $table->time('delivery_time')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
