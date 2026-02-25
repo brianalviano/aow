@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Customer;
 use App\DTOs\Checkout\ProcessOrderData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Checkout\ProcessPaymentRequest;
-use App\Models\{OrderSetting, PaymentMethod};
+use App\Models\PaymentMethod;
 use App\Services\CheckoutService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
