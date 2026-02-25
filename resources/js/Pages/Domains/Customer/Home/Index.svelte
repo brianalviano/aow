@@ -13,6 +13,10 @@
         latitude: number | null;
         longitude: number | null;
     }> = [];
+    export let activeOrdersCount: number = 0;
+    export let unreadNotificationsCount: number = 0;
+
+    $: totalBadgeCount = activeOrdersCount + unreadNotificationsCount;
 
     let searchQuery = "";
     let userLocation: { lat: number; lng: number } | null = null;
@@ -136,10 +140,17 @@
         </div>
         <Link
             href="/menu"
-            class="text-gray-800 p-2 focus:outline-none"
+            class="relative text-gray-800 p-2 focus:outline-none"
             aria-label="Menu"
         >
             <i class="fa-solid fa-bars text-xl"></i>
+            {#if totalBadgeCount > 0}
+                <span
+                    class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white"
+                >
+                    {totalBadgeCount > 99 ? "99+" : totalBadgeCount}
+                </span>
+            {/if}
         </Link>
     </header>
 
