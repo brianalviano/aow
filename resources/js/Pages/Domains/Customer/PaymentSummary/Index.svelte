@@ -1,9 +1,10 @@
 <script lang="ts">
     import { useForm } from "@inertiajs/svelte";
-    import { router } from "@inertiajs/svelte";
+    import { router, page } from "@inertiajs/svelte";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
     import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
     import { untrack } from "svelte";
+    import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
 
     interface Props {
         paymentMethods?: Record<string, any[]>;
@@ -51,7 +52,7 @@
 </script>
 
 <svelte:head>
-    <title>Ringkasan Pembayaran</title>
+    <title>Ringkasan Pembayaran | {getSettingName($page.props.settings)}</title>
 </svelte:head>
 
 <div>

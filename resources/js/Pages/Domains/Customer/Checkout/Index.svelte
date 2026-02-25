@@ -1,18 +1,8 @@
 <script lang="ts">
-    import { router } from "@inertiajs/svelte";
+    import { router, page } from "@inertiajs/svelte";
     import ProductDetailModal from "../Product/Modal.svelte";
     import ScheduleModal from "./ScheduleModal.svelte";
-
-    /**
-     * @typedef {Object} CartItem
-     * @property {string} id
-     * @property {Object} product
-     * @property {number} quantity
-     * @property {Object} selectedOptions
-     * @property {string} notes
-     * @property {number} basePrice
-     * @property {number} totalPrice
-     */
+    import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
 
     export let cart: Record<string, any> = {};
     export let dropPoint: {
@@ -256,7 +246,7 @@
 </script>
 
 <svelte:head>
-    <title>Ringkasan Pesanan</title>
+    <title>Ringkasan Pesanan | {getSettingName($page.props.settings)}</title>
 </svelte:head>
 
 <div>
