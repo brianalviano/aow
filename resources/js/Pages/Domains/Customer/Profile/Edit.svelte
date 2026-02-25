@@ -73,10 +73,7 @@
     <main
         class="flex-1 w-full flex flex-col p-4 bg-white mt-2 border-t border-gray-100"
     >
-        <form
-            class="space-y-6 flex-1 flex flex-col mt-4"
-            onsubmit={handleSubmit}
-        >
+        <form class="space-y-6 flex-1 flex flex-col" onsubmit={handleSubmit}>
             <div class="space-y-4">
                 <TextInput
                     id="username"
@@ -172,11 +169,10 @@
                 />
             </div>
 
-            <div class="mt-8 mb-4">
+            <div class="mb-4">
                 <Button
                     type="submit"
-                    variant="primary"
-                    size="normal"
+                    variant="warning"
                     fullWidth={true}
                     disabled={$form.processing || !$form.isDirty}
                     loading={$form.processing}
