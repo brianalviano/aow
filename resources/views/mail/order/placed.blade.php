@@ -1,3 +1,7 @@
+@php
+    use App\Enums\PaymentMethodCategory;
+    $isCash = $order->paymentMethod?->category === PaymentMethodCategory::CASH;
+@endphp
 <!DOCTYPE html>
 <html>
 
@@ -76,10 +80,18 @@
             </div>
             <div class="content">
                 <p>Halo {{ $order->customer->name }},</p>
-                <p>Terima kasih atas pesanan Anda. Pesanan Anda telah kami terima dan sedang menunggu pembayaran.</p>
+                @if ($isCash)
+                    <p>Terima kasih atas pesanan Anda. Pesanan Anda telah kami terima dan akan kami siapkan untuk pengiriman.</p>
+                @else
+                    <p>Terima kasih atas pesanan Anda. Pesanan Anda telah kami terima dan sedang menunggu pembayaran.</p>
+                @endif
 
                 <div style="margin-bottom: 20px;">
-                    <span class="status">Status Pembayaran: Belum Dibayar (Pending)</span>
+                    @if ($isCash)
+                        <span class="status" style="background: #e1f5fe; color: #01579b;">Status Pembayaran: Bayar di Tempat (Tunai)</span>
+                    @else
+                        <span class="status">Status Pembayaran: Belum Dibayar (Pending)</span>
+                    @endif
                 </div>
 
                 <h3>Rincian Pesanan:</h3>
@@ -148,7 +160,11 @@
                     <strong>Metode Pembayaran:</strong> {{ $order->paymentMethod->name }}
                 </p>
 
-                <p>Silakan lakukan pembayaran sesuai dengan metode yang Anda pilih.</p>
+                @if ($isCash)
+                    <p>Silakan siapkan uang tunai sesuai total tagihan saat pesanan Anda diterima.</p>
+                @else
+                    <p>Silakan lakukan pembayaran sesuai dengan metode yang Anda pilih.</p>
+                @endif
             </div>
             <div class="footer">
                 <p>&copy; {{ date('Y') }} {{ $companyName }}. All rights reserved.</p>
