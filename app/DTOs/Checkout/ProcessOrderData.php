@@ -31,7 +31,7 @@ class ProcessOrderData
         public readonly string $name,
         public readonly string $phone,
         public readonly string $email,
-        public readonly string $schoolClass,
+        public readonly ?string $schoolClass,
         public readonly string $paymentMethodId,
         public readonly array $cart,
         public readonly array $dropPoint,

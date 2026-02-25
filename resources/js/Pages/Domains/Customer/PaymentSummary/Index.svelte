@@ -141,7 +141,6 @@
                     label="Kelas Sekolah"
                     bind:value={$form.school_class}
                     placeholder="Cth: XII IPA 1"
-                    required
                     error={$form.errors.school_class}
                     class="rounded-2xl! focus:ring-[#CCFF33]!"
                 />
