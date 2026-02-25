@@ -86,6 +86,8 @@ Route::middleware('guest:customer')->group(function () {
 // Customer Authenticated Routes
 Route::middleware('auth:customer')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('customer.logout');
+    Route::get('/profile', [\App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('customer.profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
 });
 
 /*
