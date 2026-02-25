@@ -147,7 +147,7 @@
 
         {#if order.payment_status === "pending" && order.payment_method?.category !== "cash"}
             <Link
-                href={`/payment/${order.id}`}
+                href={`/payment/${order.id}?from=detail`}
                 class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold rounded-xl transition-colors shadow-sm"
             >
                 Lanjutkan Pembayaran

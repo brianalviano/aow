@@ -63,10 +63,11 @@ class PaymentController extends Controller
      * @param \App\Models\Order $order
      * @return Response|RedirectResponse
      */
-    public function show(\App\Models\Order $order): Response|RedirectResponse
+    public function show(\Illuminate\Http\Request $request, \App\Models\Order $order): Response|RedirectResponse
     {
         return Inertia::render('Domains/Customer/Pay/Index', [
             'order' => $order->load('paymentMethod.paymentGuide'),
+            'from' => $request->query('from'),
         ]);
     }
 
@@ -91,7 +92,7 @@ class PaymentController extends Controller
 
             $order = $this->checkoutService->processOrder($data);
 
-            return redirect()->route('customer.payment.show', $order->id);
+            return redirect()->route('customer.payment.show', ['order' => $order->id, 'from' => 'checkout']);
         } catch (Throwable $e) {
             Inertia::flash('toast', [
                 'message' => 'Gagal memproses pesanan: ' . $e->getMessage(),

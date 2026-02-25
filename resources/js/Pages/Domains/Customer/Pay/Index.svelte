@@ -6,9 +6,10 @@
 
     interface Props {
         order: any;
+        from?: string;
     }
 
-    let { order }: Props = $props();
+    let { order, from }: Props = $props();
 
     let guideModalOpen = $state(false);
     let activeGuide = $state<any>(null);
@@ -113,6 +114,11 @@
     const isCash = $derived(order.payment_method?.category === "cash");
     const isManualTransfer = $derived(!isCash && !midtransData);
     const hasProof = $derived(!!order.payment_proof);
+
+    const backUrl = $derived(from === "detail" ? `/orders/${order.id}` : "/");
+    const backText = $derived(
+        from === "detail" ? "Kembali ke Detail Pesanan" : "Kembali ke Beranda",
+    );
 </script>
 
 <svelte:head>
@@ -431,10 +437,10 @@
             class="pt-2 w-70 flex items-center justify-center text-center mx-auto"
         >
             <button
-                onclick={() => router.visit("/")}
+                onclick={() => router.visit(backUrl)}
                 class="w-full py-3 bg-white text-gray-900 border-2 border-gray-100 font-bold rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-gray-200 transition-all text-base"
             >
-                Kembali ke Beranda
+                {backText}
             </button>
         </div>
     </section>
