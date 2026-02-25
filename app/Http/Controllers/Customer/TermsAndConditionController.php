@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class TermsOfServiceController extends Controller
+class TermsAndConditionController extends Controller
 {
     /**
      * Display the terms of service page.
@@ -17,7 +17,7 @@ class TermsOfServiceController extends Controller
      */
     public function index(): Response
     {
-        return Inertia::render('Domains/Customer/TermsOfService/Index', [
+        return Inertia::render('Domains/Customer/TermsAndCondition/Index', [
             'appUrl' => config('app.url'),
         ]);
     }

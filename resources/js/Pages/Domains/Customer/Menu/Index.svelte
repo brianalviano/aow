@@ -131,7 +131,7 @@
                     {/if}
                 </Link>
                 <Link
-                    href="#"
+                    href="/terms-and-conditions"
                     class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
                 >
                     <div class="w-5 flex justify-center text-gray-900 text-lg">
@@ -142,7 +142,7 @@
                     >
                 </Link>
                 <Link
-                    href="#"
+                    href="/privacy-policy"
                     class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
                 >
                     <div class="w-5 flex justify-center text-gray-900 text-lg">

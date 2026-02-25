@@ -24,7 +24,7 @@ use App\Http\Controllers\Customer\{
     DropPointController as CustomerDropPointController,
     ProductController as CustomerProductController,
     PrivacyPolicyController,
-    TermsOfServiceController,
+    TermsAndConditionController,
     CheckoutController,
     PaymentController,
 };
@@ -40,7 +40,7 @@ Route::get('/drop-points/{id}', [CustomerDropPointController::class, 'index'])->
 Route::get('/drop-points/{id}/products', [CustomerProductController::class, 'index'])->name('customer.products');
 Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('customer.privacy-policy');
-Route::get('/terms-of-service', [TermsOfServiceController::class, 'index'])->name('customer.terms-of-service');
+Route::get('/terms-and-conditions', [TermsAndConditionController::class, 'index'])->name('customer.terms-and-conditions');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
 Route::post('/checkout/session', [CheckoutController::class, 'store'])->name('customer.checkout.session');
 Route::post('/checkout/update-session', [CheckoutController::class, 'update'])->name('customer.checkout.update-session');
