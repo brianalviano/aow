@@ -22,6 +22,7 @@
         { id: "all", label: "Semua" },
         { id: "unpaid", label: "Belum Bayar" },
         { id: "process", label: "Diproses" },
+        { id: "shipped", label: "Dikirim" },
         { id: "completed", label: "Selesai" },
         { id: "cancelled", label: "Dibatalkan" },
     ];
@@ -34,6 +35,7 @@
                 o.payment_status !== "pending" &&
                 (o.order_status === "pending" || o.order_status === "confirmed")
             );
+        if (activeTab === "shipped") return o.order_status === "shipped";
         if (activeTab === "completed") return o.order_status === "delivered";
         if (activeTab === "cancelled")
             return (
@@ -69,6 +71,13 @@
                 text: "Belum Dibayar",
                 classes:
                     "bg-yellow-50 text-yellow-600 border border-yellow-200",
+            };
+        }
+        if (orderStatus === "shipped") {
+            return {
+                text: "Dikirim",
+                classes:
+                    "bg-purple-50 text-purple-600 border border-purple-200",
             };
         }
         if (orderStatus === "pending" || orderStatus === "confirmed") {

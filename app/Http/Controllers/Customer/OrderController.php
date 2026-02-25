@@ -48,4 +48,23 @@ class OrderController extends Controller
             'order' => $order,
         ]);
     }
+
+    /**
+     * Complete the shipped order.
+     */
+    public function complete(Order $order, \App\Services\OrderService $service)
+    {
+        // Ensure the order belongs to the authenticated customer
+        if ($order->customer_id !== auth('customer')->id()) {
+            abort(404);
+        }
+
+        try {
+            $service->completeOrder($order);
+
+            return redirect()->back()->with('success', 'Berhasil! Pesanan telah selesai.');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal menyelesaikan pesanan: ' . $e->getMessage());
+        }
+    }
 }

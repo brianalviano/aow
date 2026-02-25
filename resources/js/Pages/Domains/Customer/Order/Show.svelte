@@ -143,6 +143,18 @@
             </Link>
         {/if}
 
+        {#if order.order_status === "shipped"}
+            <Link
+                href={`/orders/${order.id}/complete`}
+                method="post"
+                as="button"
+                preserve-scroll
+                class="block w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white text-center font-bold rounded-xl transition-colors shadow-sm"
+            >
+                Pesanan Diterima (Selesaikan)
+            </Link>
+        {/if}
+
         <!-- Drop Point / Shipping Info -->
         <div
             class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-3"

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->text('delivery_detail')->nullable();
             $table->enum('shipping_method', ['online', 'free'])->default('free');
             $table->enum('payment_status', ["pending", "paid", "failed"]);
-            $table->enum('order_status', ["pending", "confirmed", "delivered", "cancelled"]);
+            $table->enum('order_status', ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']);
             $table->text('note')->nullable();
             $table->string('snap_token')->nullable();
             $table->string('payment_url')->nullable();
