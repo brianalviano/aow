@@ -111,16 +111,25 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Display the payment page.
+     * Display the payment summary page.
      *
      * @param Request $request
      * @return Response|\Illuminate\Http\RedirectResponse
      */
-    public function payment(Request $request): Response|\Illuminate\Http\RedirectResponse
+    public function paymentSummary(Request $request): Response|\Illuminate\Http\RedirectResponse
     {
+        $order = session('order');
+
+        if ($order) {
+            return Inertia::render('Domains/Customer/Checkout/Pay', [
+                'order' => $order->load('paymentMethod.paymentGuide'),
+            ]);
+        }
+
         $cart = session('checkout_cart', []);
         $dropPointData = session('checkout_drop_point');
 
+        // If no order and no checkout session, redirect home
         if (empty($cart) || empty($dropPointData)) {
             return redirect()->to(route('home'));
         }
@@ -135,7 +144,7 @@ class CheckoutController extends Controller
         $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id']);
         $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
 
-        return Inertia::render('Domains/Customer/Checkout/Payment', [
+        return Inertia::render('Domains/Customer/Checkout/PaymentSummary', [
             'paymentMethods' => $paymentMethods,
             'customer' => $user,
             'totalAmount' => $totalAmount,
@@ -163,7 +172,7 @@ class CheckoutController extends Controller
 
             $order = $this->checkoutService->processOrder($data);
 
-            return redirect()->route('customer.payment')->with('order', $order->load('paymentMethod'));
+            return redirect()->route('customer.payment-summary')->with('order', $order->load('paymentMethod'));
         } catch (Throwable $e) {
             // Logging is handled within the service
             Inertia::flash('toast', [

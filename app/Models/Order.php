@@ -62,6 +62,16 @@ class Order extends Model
         ];
     }
 
+    /**
+     * Get the items associated with this order.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function items(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     public function dropPoint(): BelongsTo
     {
         return $this->belongsTo(DropPoint::class);

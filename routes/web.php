@@ -43,20 +43,20 @@ Route::get('/terms-of-service', [TermsOfServiceController::class, 'index'])->nam
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
 Route::post('/checkout/session', [CheckoutController::class, 'store'])->name('customer.checkout.session');
 Route::post('/checkout/update-session', [CheckoutController::class, 'updateSession'])->name('customer.checkout.update-session');
-Route::get('/payment', [CheckoutController::class, 'payment'])->name('customer.payment');
+Route::get('/payment-summary', [CheckoutController::class, 'paymentSummary'])->name('customer.payment-summary');
 Route::post('/payment', [CheckoutController::class, 'processPayment'])->name('customer.payment.store');
 
 // Midtrans Redirects
 Route::get('/payment/finish', function () {
-    return redirect()->route('customer.product.index')->with('success', 'Pembayaran sedang diproses atau sudah berhasil.');
+    return redirect()->route('customer.products')->with('success', 'Pembayaran sedang diproses atau sudah berhasil.');
 })->name('payment.finish');
 
 Route::get('/checkout/unfinish', function () {
-    return redirect()->route('customer.payment')->with('warning', 'Pembayaran belum diselesaikan.');
+    return redirect()->route('customer.payment-summary')->with('warning', 'Pembayaran belum diselesaikan.');
 })->name('payment.unfinish');
 
 Route::get('/checkout/error', function () {
-    return redirect()->route('customer.payment')->with('error', 'Terjadi kesalahan saat memproses pembayaran.');
+    return redirect()->route('customer.payment-summary')->with('error', 'Terjadi kesalahan saat memproses pembayaran.');
 })->name('payment.error');
 
 // Customer Guest Routes
