@@ -123,7 +123,10 @@ class PaymentController extends Controller
                 'payment_proof' => $path,
             ]);
 
-            return redirect()->route('customer.payment.show', $order->id);
+            return redirect()->route('customer.payment.show', [
+                'order' => $order->id,
+                'from' => $request->query('from')
+            ]);
         } catch (Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Upload payment proof failed', [
                 'order_id' => $order->id,

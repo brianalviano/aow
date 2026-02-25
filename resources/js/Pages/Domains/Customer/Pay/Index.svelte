@@ -102,7 +102,7 @@
 
     function submitProof(e: Event) {
         e.preventDefault();
-        $form.post(`/payment/${order.id}/proof`, {
+        $form.post(`/payment/${order.id}/proof${from ? `?from=${from}` : ""}`, {
             preserveScroll: true,
         });
     }
