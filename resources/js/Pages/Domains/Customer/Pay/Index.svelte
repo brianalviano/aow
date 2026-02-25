@@ -161,7 +161,8 @@
                     Menunggu Verifikasi
                 </h2>
                 <p class="text-gray-500 text-sm max-w-[280px] mx-auto">
-                    Pesanan pending dan menunggu approval administrator.
+                    Pesanan Anda sedang diproses. Silakan tunggu konfirmasi dari
+                    admin.
                 </p>
             </div>
         {:else}
