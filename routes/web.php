@@ -15,7 +15,8 @@ use App\Http\Controllers\Admin\{
     ProductCategoryController,
     ProductController,
     ReportController,
-    SettingController
+    SettingController,
+    UserController
 };
 use App\Http\Controllers\Customer\{
     AuthController,
@@ -179,6 +180,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Customers
         Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
         Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+
+        // Users (Admins)
+        Route::resource('users', UserController::class)->middleware('can:admin-only');
 
         Route::get('/settings', [SettingController::class, 'index'])
             ->middleware('can:admin-only')
