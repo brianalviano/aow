@@ -96,7 +96,7 @@
     }
 
     function handleLanjutPembayaran() {
-        router.visit("/payment");
+        router.visit("/payment-summary");
     }
 
     function handleEditClick(item: any, key: string) {

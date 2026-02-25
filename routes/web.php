@@ -26,6 +26,7 @@ use App\Http\Controllers\Customer\{
     PrivacyPolicyController,
     TermsOfServiceController,
     CheckoutController,
+    PaymentSummaryController,
 };
 
 /*
@@ -42,9 +43,9 @@ Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('
 Route::get('/terms-of-service', [TermsOfServiceController::class, 'index'])->name('customer.terms-of-service');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
 Route::post('/checkout/session', [CheckoutController::class, 'store'])->name('customer.checkout.session');
-Route::post('/checkout/update-session', [CheckoutController::class, 'updateSession'])->name('customer.checkout.update-session');
-Route::get('/payment-summary', [CheckoutController::class, 'paymentSummary'])->name('customer.payment-summary');
-Route::post('/payment', [CheckoutController::class, 'processPayment'])->name('customer.payment.store');
+Route::post('/checkout/update-session', [CheckoutController::class, 'update'])->name('customer.checkout.update-session');
+Route::get('/payment-summary', [PaymentSummaryController::class, 'index'])->name('customer.payment-summary');
+Route::post('/payment', [PaymentSummaryController::class, 'processPayment'])->name('customer.payment.store');
 
 // Midtrans Redirects
 Route::get('/payment/finish', function () {

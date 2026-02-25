@@ -84,7 +84,7 @@
     <title>Selesaikan Pembayaran</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50">
+<div>
     <!-- Header -->
     <header class="flex items-center p-4 bg-white sticky top-0 z-30 shadow-sm">
         <button

@@ -4,20 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Customer;
 
-use App\DTOs\Checkout\ProcessOrderData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Customer\Checkout\ProcessPaymentRequest;
-use App\Models\PaymentMethod;
 use App\Services\CheckoutService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\{Inertia, Response};
-use Throwable;
 
-/**
- * Class CheckoutController
- * Handles the checkout process for customers.
- */
 class CheckoutController extends Controller
 {
     /**
@@ -32,10 +24,9 @@ class CheckoutController extends Controller
     /**
      * Display the checkout page with cart data from session.
      *
-     * @param Request $request
-     * @return Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
-    public function index(Request $request): Response|\Illuminate\Http\RedirectResponse
+    public function index(): Response|RedirectResponse
     {
         $cart = session('checkout_cart', []);
         $dropPointData = session('checkout_drop_point');
@@ -95,7 +86,7 @@ class CheckoutController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateSession(Request $request)
+    public function update(Request $request)
     {
         $request->validate([
             'cart' => 'required|array',
@@ -108,79 +99,5 @@ class CheckoutController extends Controller
         ]);
 
         return response()->json(['success' => true]);
-    }
-
-    /**
-     * Display the payment summary page.
-     *
-     * @param Request $request
-     * @return Response|\Illuminate\Http\RedirectResponse
-     */
-    public function paymentSummary(Request $request): Response|\Illuminate\Http\RedirectResponse
-    {
-        $order = session('order');
-
-        if ($order) {
-            return Inertia::render('Domains/Customer/Checkout/Pay', [
-                'order' => $order->load('paymentMethod.paymentGuide'),
-            ]);
-        }
-
-        $cart = session('checkout_cart', []);
-        $dropPointData = session('checkout_drop_point');
-
-        // If no order and no checkout session, redirect home
-        if (empty($cart) || empty($dropPointData)) {
-            return redirect()->to(route('home'));
-        }
-
-        $paymentMethods = PaymentMethod::where('is_active', true)
-            ->with('paymentGuide')
-            ->get()
-            ->groupBy(fn($method) => $method->category?->label() ?? 'Lainnya');
-
-        $user = Auth::guard('customer')->user();
-
-        $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id']);
-        $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
-
-        return Inertia::render('Domains/Customer/Checkout/PaymentSummary', [
-            'paymentMethods' => $paymentMethods,
-            'customer' => $user,
-            'totalAmount' => $totalAmount,
-        ]);
-    }
-
-    /**
-     * Process the payment and create order.
-     *
-     * @param ProcessPaymentRequest $request Handled validation.
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws Throwable
-     */
-    public function processPayment(ProcessPaymentRequest $request)
-    {
-        $cart = session('checkout_cart', []);
-        $dropPoint = session('checkout_drop_point');
-
-        if (empty($cart) || empty($dropPoint)) {
-            return redirect()->to(route('home'))->withErrors(['error' => 'Sesi checkout kadaluwarsa.']);
-        }
-
-        try {
-            $data = ProcessOrderData::fromRequest($request, $cart, $dropPoint);
-
-            $order = $this->checkoutService->processOrder($data);
-
-            return redirect()->route('customer.payment-summary')->with('order', $order->load('paymentMethod'));
-        } catch (Throwable $e) {
-            // Logging is handled within the service
-            Inertia::flash('toast', [
-                'message' => 'Gagal memproses pesanan: ' . $e->getMessage(),
-                'type' => 'error',
-            ]);
-
-            return back()->withInput();
-        }
     }
 }

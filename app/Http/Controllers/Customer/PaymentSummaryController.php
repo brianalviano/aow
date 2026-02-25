@@ -1,0 +1,99 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Customer;
+
+use App\DTOs\Checkout\ProcessOrderData;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Customer\Checkout\ProcessPaymentRequest;
+use App\Models\PaymentMethod;
+use App\Services\CheckoutService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Inertia\{Inertia, Response};
+use Throwable;
+
+class PaymentSummaryController extends Controller
+{
+    /**
+     * Create a new CheckoutController instance.
+     *
+     * @param CheckoutService $checkoutService Service for handling checkout logic.
+     */
+    public function __construct(
+        private readonly CheckoutService $checkoutService
+    ) {}
+
+    /**
+     * Display the payment summary page.
+     *
+     * @return Response|RedirectResponse
+     */
+    public function index(): Response|RedirectResponse
+    {
+        $order = session('order');
+
+        if ($order) {
+            return Inertia::render('Domains/Customer/Pay/Index', [
+                'order' => $order->load('paymentMethod.paymentGuide'),
+            ]);
+        }
+
+        $cart = session('checkout_cart', []);
+        $dropPointData = session('checkout_drop_point');
+
+        // If no order and no checkout session, redirect home
+        if (empty($cart) || empty($dropPointData)) {
+            return redirect()->to(route('home'));
+        }
+
+        $paymentMethods = PaymentMethod::where('is_active', true)
+            ->with('paymentGuide')
+            ->get()
+            ->groupBy(fn($method) => $method->category?->label() ?? 'Lainnya');
+
+        $user = Auth::guard('customer')->user();
+
+        $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id']);
+        $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
+
+        return Inertia::render('Domains/Customer/PaymentSummary/Index', [
+            'paymentMethods' => $paymentMethods,
+            'customer' => $user,
+            'totalAmount' => $totalAmount,
+        ]);
+    }
+
+    /**
+     * Process the payment and create order.
+     *
+     * @param ProcessPaymentRequest $request Handled validation.
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws Throwable
+     */
+    public function processPayment(ProcessPaymentRequest $request)
+    {
+        $cart = session('checkout_cart', []);
+        $dropPoint = session('checkout_drop_point');
+
+        if (empty($cart) || empty($dropPoint)) {
+            return redirect()->to(route('home'))->withErrors(['error' => 'Sesi checkout kadaluwarsa.']);
+        }
+
+        try {
+            $data = ProcessOrderData::fromRequest($request, $cart, $dropPoint);
+
+            $order = $this->checkoutService->processOrder($data);
+
+            return redirect()->route('customer.payment-summary')->with('order', $order->load('paymentMethod'));
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal memproses pesanan: ' . $e->getMessage(),
+                'type' => 'error',
+            ]);
+
+            return back()->withInput();
+        }
+    }
+}
