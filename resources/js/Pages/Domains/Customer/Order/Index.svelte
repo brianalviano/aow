@@ -21,6 +21,7 @@
 
     // Filter status
     let activeTab = "all"; // all, upaid, process, completed, cancelled
+    let navigatingId: string | null = null;
 
     const tabs = [
         { id: "all", label: "Semua" },
@@ -184,8 +185,18 @@
                 )}
                 <Link
                     href={`/orders/${order.id}`}
-                    class="block bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+                    class="block bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+                    on:click={() => (navigatingId = order.id)}
                 >
+                    {#if navigatingId === order.id}
+                        <div
+                            class="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center transition-all"
+                        >
+                            <div
+                                class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"
+                            ></div>
+                        </div>
+                    {/if}
                     <div
                         class="flex items-center justify-between mb-3 border-b border-gray-50 pb-3"
                     >

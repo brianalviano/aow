@@ -105,6 +105,8 @@
         (sum, item) => sum + item.price * item.quantity,
         0,
     );
+
+    let processing = false;
 </script>
 
 <svelte:head>
@@ -164,9 +166,17 @@
         {#if order.payment_status === "pending" && order.payment_method?.category !== "cash"}
             <Link
                 href={`/payment/${order.id}?from=detail`}
-                class="block w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold rounded-xl transition-colors shadow-sm"
+                class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 {processing
+                    ? 'opacity-80 pointer-events-none'
+                    : ''}"
+                on:click={() => (processing = true)}
             >
-                Lanjutkan Pembayaran
+                {#if processing}
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>Tunggu sebentar...</span>
+                {:else}
+                    Lanjutkan Pembayaran
+                {/if}
             </Link>
         {/if}
 
@@ -176,9 +186,18 @@
                 method="post"
                 as="button"
                 preserve-scroll
-                class="block w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white text-center font-bold rounded-xl transition-colors shadow-sm"
+                class="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white text-center font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 {processing
+                    ? 'opacity-80 pointer-events-none'
+                    : ''}"
+                on:click={() => (processing = true)}
+                on:finish={() => (processing = false)}
             >
-                Pesanan Diterima (Selesaikan)
+                {#if processing}
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>Memproses...</span>
+                {:else}
+                    Pesanan Diterima (Selesaikan)
+                {/if}
             </Link>
         {/if}
 
