@@ -1,6 +1,7 @@
 <script lang="ts">
     import { router, page, useForm } from "@inertiajs/svelte";
     import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
+    import FileUpload from "@/Lib/Admin/Components/Ui/FileUpload.svelte";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
 
     interface Props {
@@ -96,15 +97,6 @@
         }
 
         return null;
-    }
-
-    function handleFileChange(e: Event) {
-        const target = e.target as HTMLInputElement;
-        if (target.files?.length) {
-            $form.proof = target.files[0] || null;
-        } else {
-            $form.proof = null;
-        }
     }
 
     function submitProof(e: Event) {
@@ -396,18 +388,15 @@
                             Upload Bukti Pembayaran
                         </p>
                         <form onsubmit={submitProof} class="space-y-4">
-                            <input
-                                type="file"
+                            <FileUpload
+                                id="payment-proof"
+                                name="proof"
                                 accept="image/*"
-                                onchange={handleFileChange}
-                                required
-                                class="block w-full text-sm text-gray-500
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-full file:border-0
-                                file:text-sm file:font-semibold
-                                file:bg-blue-50 file:text-blue-700
-                                hover:file:bg-blue-100
-                                cursor-pointer border rounded-2xl p-2"
+                                required={true}
+                                variant="box"
+                                uploadText="Pilih atau seret gambar ke sini"
+                                uploadSubtext="Format: JPG, PNG. Maks: 10MB"
+                                bind:value={$form.proof}
                             />
                             <button
                                 type="submit"
