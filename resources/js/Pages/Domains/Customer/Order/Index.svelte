@@ -65,6 +65,8 @@
         orderStatus: string,
         o?: any,
     ) {
+        const isCash = o?.payment_method?.category === "cash";
+
         if (orderStatus === "cancelled" || paymentStatus === "failed") {
             return {
                 text: "Dibatalkan",
@@ -77,35 +79,38 @@
                 classes: "bg-green-50 text-green-600 border border-green-200",
             };
         }
-        if (paymentStatus === "pending") {
-            const isCash = o?.payment_method?.category === "cash";
 
-            if (isCash) {
-                return {
-                    text: "Bayar di Tempat",
-                    classes: "bg-blue-50 text-blue-600 border border-blue-200",
-                };
-            }
-
-            return {
-                text: "Belum Dibayar",
-                classes:
-                    "bg-yellow-50 text-yellow-600 border border-yellow-200",
-            };
-        }
         if (orderStatus === "shipped") {
             return {
-                text: "Dikirim",
+                text: isCash ? "Dikirim (COD)" : "Dikirim",
                 classes:
                     "bg-purple-50 text-purple-600 border border-purple-200",
             };
         }
+
         if (orderStatus === "pending" || orderStatus === "confirmed") {
+            if (paymentStatus === "pending") {
+                if (isCash) {
+                    return {
+                        text: "Diproses (COD)",
+                        classes:
+                            "bg-blue-50 text-blue-600 border border-blue-200",
+                    };
+                }
+
+                return {
+                    text: "Belum Dibayar",
+                    classes:
+                        "bg-yellow-50 text-yellow-600 border border-yellow-200",
+                };
+            }
+
             return {
                 text: "Diproses",
                 classes: "bg-blue-50 text-blue-600 border border-blue-200",
             };
         }
+
         return {
             text: "Status Tidak Diketahui",
             classes: "bg-gray-50 text-gray-600 border border-gray-200",

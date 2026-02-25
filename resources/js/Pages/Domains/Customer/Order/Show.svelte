@@ -41,6 +41,8 @@
     }
 
     function getStatusBadge(paymentStatus: string, orderStatus: string) {
+        const isCash = order.payment_method?.category === "cash";
+
         if (orderStatus === "cancelled" || paymentStatus === "failed") {
             return {
                 text: "Dibatalkan",
@@ -55,28 +57,42 @@
                 icon: "fa-solid fa-circle-check",
             };
         }
-        if (paymentStatus === "pending") {
-            if (order.payment_method?.category === "cash") {
-                return {
-                    text: "Bayar di Tempat",
-                    classes: "bg-blue-50 text-blue-600 border border-blue-200",
-                    icon: "fa-solid fa-wallet", // More appropriate for cash/POD
-                };
-            }
+
+        if (orderStatus === "shipped") {
             return {
-                text: "Belum Dibayar",
+                text: isCash ? "Dikirim (COD)" : "Dikirim",
                 classes:
-                    "bg-yellow-50 text-yellow-600 border border-yellow-200",
-                icon: "fa-solid fa-clock",
+                    "bg-purple-50 text-purple-600 border border-purple-200",
+                icon: "fa-solid fa-truck-fast",
             };
         }
+
         if (orderStatus === "pending" || orderStatus === "confirmed") {
+            if (paymentStatus === "pending") {
+                if (isCash) {
+                    return {
+                        text: "Diproses (COD)",
+                        classes:
+                            "bg-blue-50 text-blue-600 border border-blue-200",
+                        icon: "fa-solid fa-spinner fa-spin",
+                    };
+                }
+
+                return {
+                    text: "Belum Dibayar",
+                    classes:
+                        "bg-yellow-50 text-yellow-600 border border-yellow-200",
+                    icon: "fa-solid fa-clock",
+                };
+            }
+
             return {
                 text: "Diproses",
                 classes: "bg-blue-50 text-blue-600 border border-blue-200",
                 icon: "fa-solid fa-spinner fa-spin",
             };
         }
+
         return {
             text: "Status Tidak Diketahui",
             classes: "bg-gray-50 text-gray-600 border border-gray-200",
