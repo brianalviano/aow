@@ -298,7 +298,7 @@
                 onclick={() => router.visit("/")}
                 class="w-full py-5 bg-[#CCFF33] text-gray-900 font-black rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-base"
             >
-                Selesai, Kembali ke Home
+                Kembali ke Beranda
             </button>
         </div>
     </section>
