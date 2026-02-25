@@ -33,6 +33,14 @@ class MidtransService
         Config::$isProduction = config('services.midtrans.is_production', false);
         Config::$isSanitized = true;
         Config::$is3ds = true;
+
+        if (!Config::$isProduction) {
+            Config::$curlOptions = [
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_HTTPHEADER => [],
+            ];
+        }
     }
 
     /**
