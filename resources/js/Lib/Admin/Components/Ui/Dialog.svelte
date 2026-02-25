@@ -286,14 +286,14 @@
         onclick={handleBackdropClick}
     >
         <div
-            class="relative bg-white dark:bg-[#0f0f0f] rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] transform transition-all duration-300 scale-100"
+            class="relative bg-white dark:bg-[#0f0f0f] rounded-2xl shadow-2xl max-w-md w-[calc(100%-2rem)] sm:w-full max-h-[90vh] transform transition-all duration-300 scale-100"
             role="dialog"
             aria-labelledby="dialog-title"
             aria-describedby="dialog-message"
         >
             <!-- Header with Icon -->
-            <div class="flex items-start p-6 pb-4 space-x-4">
-                <div class="shrink-0">
+            <div class="flex items-center p-6 pb-4 space-x-4">
+                <div>
                     <div
                         class="w-12 h-12 rounded-full dark:bg-[#212121] {getTypeConfig()
                             .iconBg} flex items-center justify-center"
@@ -314,7 +314,7 @@
                     </div>
                 </div>
 
-                <div class="flex-1 min-w-0">
+                <div>
                     <h3
                         id="dialog-title"
                         class="text-lg font-semibold {getTypeConfig()
@@ -322,12 +322,6 @@
                     >
                         {title}
                     </h3>
-                    <p
-                        id="dialog-message"
-                        class="text-sm leading-relaxed text-gray-600 dark:text-gray-300"
-                    >
-                        {message}
-                    </p>
                 </div>
 
                 <!-- Close Button -->
@@ -353,6 +347,15 @@
                         </svg>
                     </button>
                 {/if}
+            </div>
+
+            <div class="px-6 pb-6">
+                <p
+                    id="dialog-message"
+                    class="text-sm leading-relaxed text-gray-600 dark:text-gray-300"
+                >
+                    {message}
+                </p>
             </div>
 
             <!-- Form Fields (if any) -->
