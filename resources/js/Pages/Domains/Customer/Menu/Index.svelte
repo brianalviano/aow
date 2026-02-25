@@ -6,6 +6,9 @@
     $: auth = $page.props.auth;
     $: user = auth.user;
 
+    $: activeOrdersCount = $page.props.activeOrdersCount || 0;
+    $: unreadNotificationsCount = $page.props.unreadNotificationsCount || 0;
+
     // Function to extract initials (e.g. "Vino N" -> "VN")
     function getInitials(name: string | null | undefined) {
         if (!name) return "?";
@@ -88,15 +91,44 @@
                     >
                 </Link>
                 <Link
+                    href="/customer/notifications"
+                    class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
+                >
+                    <div
+                        class="w-5 flex justify-center text-gray-900 text-lg relative"
+                    >
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <span class="text-gray-900 text-sm flex-1">Notifikasi</span>
+                    {#if unreadNotificationsCount > 0}
+                        <div
+                            class="bg-red-500 text-white flex items-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] h-[20px]"
+                        >
+                            {unreadNotificationsCount > 99
+                                ? "99+"
+                                : unreadNotificationsCount}
+                        </div>
+                    {/if}
+                </Link>
+                <Link
                     href="#"
                     class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
                 >
-                    <div class="w-5 flex justify-center text-gray-900 text-lg">
+                    <div
+                        class="w-5 flex justify-center text-gray-900 text-lg relative"
+                    >
                         <i class="fa-solid fa-clock-rotate-left"></i>
                     </div>
                     <span class="text-gray-900 text-sm flex-1"
                         >Riwayat Pesanan</span
                     >
+                    {#if activeOrdersCount > 0}
+                        <div
+                            class="bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] h-[20px]"
+                        >
+                            {activeOrdersCount > 99 ? "99+" : activeOrdersCount}
+                        </div>
+                    {/if}
                 </Link>
                 <Link
                     href="#"
