@@ -229,23 +229,19 @@
 
     <!-- Bottom Action Bar -->
     <div
-        class="fixed bottom-0 left-0 right-0 p-6 bg-white shadow-[0_-10px_40px_rgba(0,0,0,0.08)] rounded-t-[2.5rem] z-40 border-t border-gray-50"
+        class="fixed bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.05)] rounded-t-3xl z-40"
     >
-        <div class="max-w-7xl mx-auto flex items-center justify-between gap-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div>
-                <p
-                    class="text-gray-500 text-xs font-medium uppercase tracking-wider mb-1"
-                >
-                    Total Pembayaran
-                </p>
-                <p class="text-gray-900 font-extrabold text-2xl tracking-tight">
+                <p class="text-gray-500 text-xs">Total Pembayaran</p>
+                <p class="text-gray-900 font-bold text-base">
                     {formatRupiah(totalAmount)}
                 </p>
             </div>
             <button
                 onclick={handleSubmit}
                 disabled={$form.processing}
-                class="bg-[#CCFF33] text-gray-900 font-black py-4 px-10 rounded-2xl shadow-[0_8px_20px_rgba(204,255,51,0.3)] hover:shadow-[0_12px_25px_rgba(204,255,51,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none active:scale-95 text-base"
+                class="bg-[#CCFF33] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap text-sm disabled:opacity-50"
             >
                 {$form.processing ? "Memproses..." : "Bayar"}
             </button>

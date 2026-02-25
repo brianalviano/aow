@@ -24,6 +24,14 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
         ]);
 
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return route('admin.login');
+            }
+
+            return route('home');
+        });
+
         $middleware->validateCsrfTokens(except: [
             'api/midtrans/payment-notification',
             'api/midtrans/recurring-notification',
