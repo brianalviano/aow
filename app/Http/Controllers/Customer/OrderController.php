@@ -13,15 +13,19 @@ class OrderController extends Controller
     /**
      * Display a listing of the authenticated customer's orders.
      */
-    public function index(Request $request): Response
+    public function index(Request $request, \App\Services\OrderService $service): Response
     {
-        $orders = Order::with(['dropPoint', 'paymentMethod'])
-            ->where('customer_id', auth('customer')->id())
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $dto = \App\DTOs\Order\OrderFilterDTO::fromArray($request->all());
+
+        $orders = $service->getFilteredOrders(
+            auth('customer')->id(),
+            $dto,
+            perPage: 15
+        )->withQueryString();
 
         return Inertia::render('Domains/Customer/Order/Index', [
             'orders' => $orders,
+            'filters' => $request->only(['search', 'date_range', 'start_date', 'end_date', 'status']),
         ]);
     }
 

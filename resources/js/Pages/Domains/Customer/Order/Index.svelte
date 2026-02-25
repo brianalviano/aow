@@ -1,11 +1,13 @@
 <script lang="ts">
-    import { Link } from "@inertiajs/svelte";
+    import { Link, router } from "@inertiajs/svelte";
     import dayjs from "dayjs";
     import id from "dayjs/locale/id";
+    import DateInput from "@/Lib/Admin/Components/Ui/DateInput.svelte";
+    import { onMount } from "svelte";
 
     dayjs.locale(id);
 
-    export let orders: Array<{
+    interface Order {
         id: string;
         number: string;
         total_amount: number;
@@ -17,11 +19,29 @@
             name: string;
             category: string;
         };
-    }> = [];
+    }
 
-    // Filter status
-    let activeTab = "all"; // all, upaid, process, completed, cancelled
+    export let orders: {
+        data: Order[];
+        next_page_url: string | null;
+        current_page: number;
+    };
+    export let filters: {
+        search?: string;
+        date_range?: string;
+        start_date?: string;
+        end_date?: string;
+        status?: string;
+    };
+
+    let activeTab = filters.status || "all";
+    let search = filters.search || "";
+    let dateRange = filters.date_range || "all";
+    let startDate = filters.start_date || "";
+    let endDate = filters.end_date || "";
     let navigatingId: string | null = null;
+    let isLoadingMore = false;
+    let searchTimeout: ReturnType<typeof setTimeout>;
 
     const tabs = [
         { id: "all", label: "Semua" },
@@ -32,24 +52,85 @@
         { id: "cancelled", label: "Dibatalkan" },
     ];
 
-    $: filteredOrders = orders.filter((o) => {
-        const isCash = o.payment_method?.category === "cash";
+    function applyFilters() {
+        router.get(
+            "/orders",
+            {
+                search: search || undefined,
+                date_range: dateRange !== "all" ? dateRange : undefined,
+                start_date: dateRange === "custom" ? startDate : undefined,
+                end_date: dateRange === "custom" ? endDate : undefined,
+                status: activeTab !== "all" ? activeTab : undefined,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    }
 
-        if (activeTab === "all") return true;
-        if (activeTab === "unpaid")
-            return o.payment_status === "pending" && !isCash;
-        if (activeTab === "process")
-            return (
-                (o.payment_status !== "pending" || isCash) &&
-                (o.order_status === "pending" || o.order_status === "confirmed")
-            );
-        if (activeTab === "shipped") return o.order_status === "shipped";
-        if (activeTab === "completed") return o.order_status === "delivered";
-        if (activeTab === "cancelled")
-            return (
-                o.order_status === "cancelled" || o.payment_status === "failed"
-            );
-        return true;
+    function handleTabClick(tabId: string) {
+        activeTab = tabId;
+        applyFilters();
+    }
+
+    function handleSearchInput() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            applyFilters();
+        }, 500);
+    }
+
+    function handleDateRangeChange(range: string) {
+        dateRange = range;
+        if (range !== "custom") {
+            applyFilters();
+        }
+    }
+
+    function loadMore() {
+        if (!orders.next_page_url || isLoadingMore) return;
+
+        isLoadingMore = true;
+        router.get(
+            orders.next_page_url,
+            {
+                search: search || undefined,
+                date_range: dateRange !== "all" ? dateRange : undefined,
+                start_date: dateRange === "custom" ? startDate : undefined,
+                end_date: dateRange === "custom" ? endDate : undefined,
+                status: activeTab !== "all" ? activeTab : undefined,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                only: ["orders"],
+                // @ts-ignore - merge is a feature of Inertia 2.0
+                merge: true,
+                onFinish: () => {
+                    isLoadingMore = false;
+                },
+            },
+        );
+    }
+
+    let sentinel: HTMLElement;
+    onMount(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    loadMore();
+                }
+            },
+            { threshold: 1.0 },
+        );
+
+        if (sentinel) {
+            observer.observe(sentinel);
+        }
+
+        return () => observer.disconnect();
     });
 
     function formatCurrency(amount: number) {
@@ -123,12 +204,10 @@
     <title>Riwayat Pesanan</title>
 </svelte:head>
 
-<div>
+<div class="min-h-screen bg-gray-50 pb-20">
     <!-- Header -->
-    <header
-        class="bg-white px-4 py-4 flex items-center justify-between sticky top-0 z-20 shadow-sm"
-    >
-        <div class="flex items-center gap-3">
+    <header class="bg-white sticky top-0 z-30 shadow-sm">
+        <div class="px-4 py-4 flex items-center gap-3">
             <Link
                 href="/menu"
                 class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors"
@@ -139,28 +218,116 @@
                 Riwayat Pesanan
             </h1>
         </div>
-    </header>
 
-    <!-- Tabs -->
-    <div class="bg-white border-b border-gray-100 sticky top-[60px] z-10">
-        <div class="flex overflow-x-auto hide-scrollbar scroll-smooth">
-            {#each tabs as tab}
-                <button
-                    class="shrink-0 px-4 py-3 text-sm font-medium transition-colors border-b-2 {activeTab ===
-                    tab.id
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'}"
-                    on:click={() => (activeTab = tab.id)}
-                >
-                    {tab.label}
-                </button>
-            {/each}
+        <!-- Search Bar -->
+        <div class="px-4 pb-4">
+            <div class="relative">
+                <i
+                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+                ></i>
+                <input
+                    type="text"
+                    bind:value={search}
+                    on:input={handleSearchInput}
+                    placeholder="Cari nomor pesanan atau produk..."
+                    class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                />
+            </div>
         </div>
-    </div>
+
+        <!-- Date Filters -->
+        <div class="px-4 pb-4 flex gap-2 overflow-x-auto hide-scrollbar">
+            <button
+                class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
+                'all'
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                on:click={() => handleDateRangeChange("all")}
+            >
+                Semua Waktu
+            </button>
+            <button
+                class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
+                '30_days'
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                on:click={() => handleDateRangeChange("30_days")}
+            >
+                30 Hari Terakhir
+            </button>
+            <button
+                class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
+                '90_days'
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                on:click={() => handleDateRangeChange("90_days")}
+            >
+                90 Hari Terakhir
+            </button>
+            <button
+                class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
+                'custom'
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                on:click={() => handleDateRangeChange("custom")}
+            >
+                Pilih Tanggal
+            </button>
+        </div>
+
+        {#if dateRange === "custom"}
+            <div
+                class="px-4 pb-4 flex flex-col gap-3 animate-in fade-in slide-in-from-top-1"
+            >
+                <div class="flex items-start gap-2">
+                    <div class="flex-1 min-w-0">
+                        <DateInput
+                            bind:value={startDate}
+                            format="yyyy-mm-dd"
+                            placeholder="Dari Tanggal"
+                        />
+                    </div>
+                    <div class="pt-3 text-gray-400">
+                        <i class="fa-solid fa-minus text-[10px]"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <DateInput
+                            bind:value={endDate}
+                            format="yyyy-mm-dd"
+                            placeholder="Sampai Tanggal"
+                        />
+                    </div>
+                </div>
+                <button
+                    on:click={applyFilters}
+                    class="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-sm active:scale-[0.98]"
+                >
+                    Terapkan Rentang Tanggal
+                </button>
+            </div>
+        {/if}
+
+        <!-- Tabs -->
+        <div class="bg-white border-b border-gray-100 sticky top-[60px] z-10">
+            <div class="flex overflow-x-auto hide-scrollbar scroll-smooth">
+                {#each tabs as tab}
+                    <button
+                        class="shrink-0 px-4 py-3 text-sm font-medium transition-colors border-b-2 {activeTab ===
+                        tab.id
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700'}"
+                        on:click={() => handleTabClick(tab.id)}
+                    >
+                        {tab.label}
+                    </button>
+                {/each}
+            </div>
+        </div>
+    </header>
 
     <!-- Order List -->
     <div class="p-4 space-y-4">
-        {#if filteredOrders.length === 0}
+        {#if orders.data.length === 0}
             <div
                 class="flex flex-col items-center justify-center py-12 text-center"
             >
@@ -173,11 +340,11 @@
                     Tidak Ada Pesanan
                 </h3>
                 <p class="text-gray-500 text-sm">
-                    Belum ada pesanan dengan status ini.
+                    Belum ada pesanan dengan kriteria ini.
                 </p>
             </div>
         {:else}
-            {#each filteredOrders as order (order.id)}
+            {#each orders.data as order (order.id)}
                 {@const badge = getStatusBadge(
                     order.payment_status,
                     order.order_status,
@@ -237,6 +404,23 @@
                     </div>
                 </Link>
             {/each}
+
+            <!-- Loading Indicator for Infinite Scroll -->
+            <div
+                bind:this={sentinel}
+                class="flex justify-center py-4 {isLoadingMore
+                    ? 'visible'
+                    : 'invisible'}"
+            >
+                <div
+                    class="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"
+                ></div>
+            </div>
+            {#if !orders.next_page_url && orders.data.length > 0}
+                <p class="text-center text-xs text-gray-400 py-4">
+                    Semua pesanan telah ditampilkan
+                </p>
+            {/if}
         {/if}
     </div>
 </div>

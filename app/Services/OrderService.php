@@ -79,6 +79,79 @@ class OrderService
     }
 
     /**
+     * Get filtered and paginated orders for a customer.
+     *
+     * @param string $customerId
+     * @param \App\DTOs\Order\OrderFilterDTO $dto
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getFilteredOrders(string $customerId, \App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
+    {
+        $query = Order::query()
+            ->with(['dropPoint', 'paymentMethod'])
+            ->where('customer_id', $customerId);
+
+        // Filter by Status
+        if ($dto->status && $dto->status !== 'all') {
+            switch ($dto->status) {
+                case 'unpaid':
+                    $query->where('payment_status', 'pending')
+                        ->where(function ($q) {
+                            $q->whereDoesntHave('paymentMethod', function ($pq) {
+                                $pq->where('category', 'cash');
+                            });
+                        });
+                    break;
+                case 'process':
+                    $query->where(function ($q) {
+                        $q->where('payment_status', '!=', 'pending')
+                            ->orWhereHas('paymentMethod', function ($pq) {
+                                $pq->where('category', 'cash');
+                            });
+                    })->whereIn('order_status', ['pending', 'confirmed']);
+                    break;
+                case 'shipped':
+                    $query->where('order_status', 'shipped');
+                    break;
+                case 'completed':
+                    $query->where('order_status', 'delivered');
+                    break;
+                case 'cancelled':
+                    $query->where(function ($q) {
+                        $q->where('order_status', 'cancelled')
+                            ->orWhere('payment_status', 'failed');
+                    });
+                    break;
+            }
+        }
+
+        // Filter by Search (Order Number or Product Name)
+        if ($dto->search) {
+            $query->where(function ($q) use ($dto) {
+                $q->where('number', 'like', "%{$dto->search}%")
+                    ->orWhereHas('items.product', function ($pq) use ($dto) {
+                        $pq->where('name', 'like', "%{$dto->search}%");
+                    });
+            });
+        }
+
+        // Filter by Date
+        if ($dto->dateRange === '30_days') {
+            $query->where('created_at', '>=', now()->subDays(30));
+        } elseif ($dto->dateRange === '90_days') {
+            $query->where('created_at', '>=', now()->subDays(90));
+        } elseif ($dto->dateRange === 'custom' && $dto->startDate && $dto->endDate) {
+            $query->whereBetween('created_at', [
+                $dto->startDate . ' 00:00:00',
+                $dto->endDate . ' 23:59:59'
+            ]);
+        }
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
+    }
+
+    /**
      * Automatically cancel all expired unpaid orders.
      *
      * @return int Number of orders cancelled
