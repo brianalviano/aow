@@ -25,7 +25,6 @@ class Order extends Model
         'payment_method_id',
         'barcode',
         'tracking_number',
-        'delivery_detail',
         'shipping_method',
         'payment_status',
         'order_status',

@@ -26,7 +26,6 @@ class OrderResource extends JsonResource
             'payment_method_id' => $this->payment_method_id,
             'barcode' => $this->barcode,
             'tracking_number' => $this->tracking_number,
-            'delivery_detail' => $this->delivery_detail,
             'shipping_method' => $this->shipping_method,
             'payment_status' => $this->payment_status,
             'order_status' => $this->order_status,

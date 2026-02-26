@@ -22,7 +22,6 @@ return new class extends Migration
             $table->foreignUuid('payment_method_id')->constrained();
             $table->string('barcode')->unique()->nullable();
             $table->string('tracking_number')->unique()->nullable();
-            $table->text('delivery_detail')->nullable();
             $table->enum('shipping_method', ['online', 'free'])->default('free');
             $table->enum('payment_status', ["pending", "paid", "failed"]);
             $table->enum('order_status', ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']);

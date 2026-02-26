@@ -37,7 +37,6 @@
         delivery_date: string;
         delivery_time: string;
         shipping_method: string;
-        delivery_detail: string;
         order_status: string;
         payment_status: string;
         total_amount: number;
@@ -307,18 +306,6 @@
                             </div>
                             <div class="text-sm text-gray-500">
                                 Pukul {order.delivery_time || "-"}
-                            </div>
-                        </div>
-                        <div>
-                            <div
-                                class="text-sm font-semibold text-gray-500 uppercase tracking-wider"
-                            >
-                                Detail Alamat / Nama Penerima
-                            </div>
-                            <div
-                                class="mt-1 text-gray-900 dark:text-white whitespace-pre-line"
-                            >
-                                {order.delivery_detail || "-"}
                             </div>
                         </div>
                     </div>
