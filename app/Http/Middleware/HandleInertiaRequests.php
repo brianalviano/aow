@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Models\{CompanyProfile};
+use App\Models\{CompanyProfile, Order};
 use App\Enums\{RoleName};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, Cache};
+use Illuminate\Support\Facades\{Auth, Cache, DB};
 use Inertia\Middleware;
 use App\Services\NotificationService;
 
@@ -114,6 +114,15 @@ class HandleInertiaRequests extends Middleware
                         'label' => 'Pesanan',
                         'icon'  => 'fa-bag-shopping',
                         'link'  => route('admin.orders.index'),
+                        'badge' => Order::query()
+                            ->where(function ($q) {
+                                $q->where('payment_status', '!=', 'pending')
+                                    ->orWhereHas('paymentMethod', function ($pq) {
+                                        $pq->where('category', 'cash');
+                                    });
+                            })
+                            ->whereIn('order_status', ['pending', 'confirmed'])
+                            ->count(),
                     ],
                 ],
             ],

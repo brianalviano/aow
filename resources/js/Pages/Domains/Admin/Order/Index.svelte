@@ -3,7 +3,7 @@
     import Card from "@/Lib/Admin/Components/Ui/Card.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
-    import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
+    import Tab from "@/Lib/Admin/Components/Ui/Tab.svelte";
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import Pagination from "@/Lib/Admin/Components/Ui/Pagination.svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
@@ -40,6 +40,10 @@
         $page.props.filters as { search?: string; status?: string } | undefined,
     );
 
+    let statusCounts = $derived(
+        ($page.props.status_counts as Record<string, number>) || {},
+    );
+
     let searchQuery = $state(untrack(() => filters?.search || ""));
     let statusFilter = $state(untrack(() => filters?.status || "all"));
 
@@ -54,14 +58,39 @@
 
     let items = $derived(orders?.data ?? []);
 
-    const statusOptions = [
-        { value: "all", label: "Semua Status" },
-        { value: "unpaid", label: "Belum Bayar" },
-        { value: "process", label: "Diproses" },
-        { value: "shipped", label: "Dikirim" },
-        { value: "completed", label: "Selesai" },
-        { value: "cancelled", label: "Dibatalkan" },
-    ];
+    let orderTabs = $derived([
+        { id: "all", label: "Semua", badge: statusCounts.all || 0 },
+        {
+            id: "unpaid",
+            label: "Belum Bayar",
+            badge: statusCounts.unpaid || 0,
+            badgeVariant: "warning" as const,
+        },
+        {
+            id: "process",
+            label: "Diproses",
+            badge: statusCounts.process || 0,
+            badgeVariant: "primary" as const,
+        },
+        {
+            id: "shipped",
+            label: "Dikirim",
+            badge: statusCounts.shipped || 0,
+            badgeVariant: "info" as const,
+        },
+        {
+            id: "completed",
+            label: "Selesai",
+            badge: statusCounts.completed || 0,
+            badgeVariant: "success" as const,
+        },
+        {
+            id: "cancelled",
+            label: "Dibatalkan",
+            badge: statusCounts.cancelled || 0,
+            badgeVariant: "danger" as const,
+        },
+    ]);
 
     function goToPage(pageNumber: number) {
         const params = new URLSearchParams();
@@ -79,7 +108,7 @@
         router.get(
             "/admin/orders?" + params.toString(),
             {},
-            { preserveState: true, preserveScroll: true },
+            { preserveState: true, preserveScroll: true, replace: true },
         );
     }
 
@@ -172,180 +201,180 @@
             </p>
         </div>
     </header>
+    <Tab
+        tabs={orderTabs}
+        bind:activeTab={statusFilter}
+        variant="underline"
+        onTabChange={() => goToPage(1)}
+    />
 
-    <Card title="Daftar Pesanan" bodyWithoutPadding={true}>
-        {#snippet actions()}
-            <div
-                class="flex flex-col sm:flex-row items-center w-full max-w-2xl gap-2"
-            >
-                <div class="w-full sm:w-48">
-                    <Select
-                        id="status_filter"
-                        options={statusOptions}
-                        bind:value={statusFilter}
-                    />
-                </div>
-                <div class="flex-1 w-full">
-                    <TextInput
-                        id="search"
-                        name="search"
-                        placeholder="Cari nomor pesanan atau customer..."
-                        bind:value={searchQuery}
-                        class="mb-0!"
-                    />
-                </div>
-                <div class="flex gap-2">
-                    {#if searchQuery || (statusFilter && statusFilter !== "all")}
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onclick={() => {
-                                searchQuery = "";
-                                statusFilter = "all";
-                                handleSearch();
-                            }}
-                        >
-                            Reset
-                        </Button>
-                    {/if}
-                </div>
+    <div
+        class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800"
+    >
+        <div class="p-4 flex flex-col sm:flex-row items-center gap-4">
+            <div class="flex-1 w-full">
+                <TextInput
+                    id="search"
+                    name="search"
+                    placeholder="Cari nomor pesanan atau customer..."
+                    bind:value={searchQuery}
+                    class="mb-0!"
+                    icon="fa-solid fa-search"
+                />
             </div>
-        {/snippet}
+            <div class="flex gap-2 shrink-0">
+                {#if searchQuery || (statusFilter && statusFilter !== "all")}
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        onclick={() => {
+                            searchQuery = "";
+                            statusFilter = "all";
+                            handleSearch();
+                        }}
+                    >
+                        Reset Filter
+                    </Button>
+                {/if}
+            </div>
+        </div>
 
-        {#snippet children()}
-            <div class="overflow-x-auto">
-                <table class="custom-table min-w-full">
-                    <thead>
-                        <tr>
-                            <th>No. Pesanan</th>
-                            <th>Tanggal</th>
-                            <th>Tgl. Kirim</th>
-                            <th>Customer</th>
-                            <th>Total</th>
-                            <th>Status Pesanan</th>
-                            <th>Status Bayar</th>
-                            <th class="w-32 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#if items.length > 0}
-                            {#each items as item}
-                                {@const statusBadge = getStatusBadge(
-                                    item.order_status,
-                                )}
-                                {@const paymentBadge = getPaymentBadge(
-                                    item.payment_status,
-                                )}
-                                <tr>
-                                    <td
-                                        class="font-medium text-gray-900 dark:text-white"
-                                    >
-                                        {item.number}
-                                    </td>
-                                    <td>
-                                        <div
-                                            class="text-sm text-gray-900 dark:text-white"
-                                        >
-                                            {new Date(
-                                                item.created_at,
-                                            ).toLocaleDateString("id-ID")}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div
-                                            class="text-sm text-gray-900 dark:text-white"
-                                        >
-                                            {item.delivery_date
-                                                ? new Date(
-                                                      item.delivery_date,
-                                                  ).toLocaleDateString(
-                                                      "id-ID",
-                                                      {
-                                                          weekday: "short",
-                                                          day: "numeric",
-                                                          month: "short",
-                                                          year: "numeric",
-                                                      },
-                                                  )
-                                                : "-"}
-                                            {#if item.delivery_time}
-                                                <div
-                                                    class="text-[10px] text-gray-500 mt-0.5"
-                                                >
-                                                    Pukul {item.delivery_time} WIB
-                                                </div>
-                                            {/if}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div
-                                            class="text-sm font-medium text-gray-900 dark:text-white"
-                                        >
-                                            {item.customer?.name ?? "-"}
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            {item.customer?.email ?? ""}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div
-                                            class="text-sm font-bold text-gray-900 dark:text-white"
-                                        >
-                                            {formatCurrency(item.total_amount)}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <Badge
-                                            size="sm"
-                                            rounded="pill"
-                                            variant={statusBadge.variant}
-                                        >
-                                            {#snippet children()}{statusBadge.label}{/snippet}
-                                        </Badge>
-                                    </td>
-                                    <td>
-                                        <Badge
-                                            size="sm"
-                                            rounded="pill"
-                                            variant={paymentBadge.variant}
-                                        >
-                                            {#snippet children()}{paymentBadge.label}{/snippet}
-                                        </Badge>
-                                    </td>
-                                    <td
-                                        class="px-4 py-3 whitespace-nowrap text-center"
-                                    >
-                                        <div
-                                            class="flex gap-2 items-center justify-center"
-                                        >
-                                            <Button
-                                                variant="primary"
-                                                size="sm"
-                                                icon="fa-solid fa-eye"
-                                                href={`/admin/orders/${item.id}`}
-                                            >
-                                                Detail
-                                            </Button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {/each}
-                        {:else}
+        <div class="overflow-x-auto">
+            <table class="custom-table min-w-full">
+                <thead>
+                    <tr>
+                        <th>No. Pesanan</th>
+                        <th>Tanggal</th>
+                        <th>Tgl. Kirim</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Status Pesanan</th>
+                        <th>Status Bayar</th>
+                        <th class="w-32 text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#if items.length > 0}
+                        {#each items as item}
+                            {@const statusBadge = getStatusBadge(
+                                item.order_status,
+                            )}
+                            {@const paymentBadge = getPaymentBadge(
+                                item.payment_status,
+                            )}
                             <tr>
                                 <td
-                                    colspan="8"
-                                    class="py-6 text-sm text-center text-gray-500 dark:text-gray-400"
+                                    class="font-medium text-gray-900 dark:text-white"
                                 >
-                                    Tidak ada data
+                                    {item.number}
+                                </td>
+                                <td>
+                                    <div
+                                        class="text-sm text-gray-900 dark:text-white"
+                                    >
+                                        {new Date(
+                                            item.created_at,
+                                        ).toLocaleDateString("id-ID")}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div
+                                        class="text-sm text-gray-900 dark:text-white"
+                                    >
+                                        {item.delivery_date
+                                            ? new Date(
+                                                  item.delivery_date,
+                                              ).toLocaleDateString("id-ID", {
+                                                  weekday: "short",
+                                                  day: "numeric",
+                                                  month: "short",
+                                                  year: "numeric",
+                                              })
+                                            : "-"}
+                                        {#if item.delivery_time}
+                                            <div
+                                                class="text-[10px] text-gray-500 mt-0.5"
+                                            >
+                                                Pukul {item.delivery_time} WIB
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div
+                                        class="text-sm font-medium text-gray-900 dark:text-white"
+                                    >
+                                        {item.customer?.name ?? "-"}
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        {item.customer?.email ?? ""}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div
+                                        class="text-sm font-bold text-gray-900 dark:text-white"
+                                    >
+                                        {formatCurrency(item.total_amount)}
+                                    </div>
+                                </td>
+                                <td>
+                                    <Badge
+                                        size="sm"
+                                        rounded="pill"
+                                        variant={statusBadge.variant}
+                                    >
+                                        {#snippet children()}{statusBadge.label}{/snippet}
+                                    </Badge>
+                                </td>
+                                <td>
+                                    <Badge
+                                        size="sm"
+                                        rounded="pill"
+                                        variant={paymentBadge.variant}
+                                    >
+                                        {#snippet children()}{paymentBadge.label}{/snippet}
+                                    </Badge>
+                                </td>
+                                <td
+                                    class="px-4 py-3 whitespace-nowrap text-center"
+                                >
+                                    <div
+                                        class="flex gap-2 items-center justify-center"
+                                    >
+                                        <Button
+                                            variant="primary"
+                                            size="sm"
+                                            icon="fa-solid fa-eye"
+                                            href={`/admin/orders/${item.id}`}
+                                        >
+                                            Detail
+                                        </Button>
+                                    </div>
                                 </td>
                             </tr>
-                        {/if}
-                    </tbody>
-                </table>
-            </div>
-        {/snippet}
+                        {/each}
+                    {:else}
+                        <tr>
+                            <td
+                                colspan="8"
+                                class="py-12 text-sm text-center text-gray-500 dark:text-gray-400"
+                            >
+                                <div
+                                    class="flex flex-col items-center justify-center space-y-2"
+                                >
+                                    <i
+                                        class="fa-solid fa-inbox text-4xl text-gray-300"
+                                    ></i>
+                                    <p>Tidak ada data pesanan</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {/if}
+                </tbody>
+            </table>
+        </div>
 
-        {#snippet footer()}
+        <div class="p-4 border-t border-gray-200 dark:border-gray-800">
             <Pagination
                 currentPage={meta.current_page}
                 totalPages={meta.last_page}
@@ -354,6 +383,6 @@
                 onPageChange={goToPage}
                 showItemsPerPage={false}
             />
-        {/snippet}
-    </Card>
+        </div>
+    </div>
 </section>

@@ -31,6 +31,22 @@ class OrderController extends Controller
         return Inertia::render('Domains/Admin/Order/Index', [
             'orders'  => \App\Http\Resources\OrderResource::collection($orders),
             'filters' => $request->only(['search', 'date_range', 'start_date', 'end_date', 'status']),
+            'status_counts' => [
+                'all'       => Order::count(),
+                'unpaid'    => Order::where('payment_status', 'pending')
+                    ->whereDoesntHave('paymentMethod', fn($q) => $q->where('category', 'cash'))
+                    ->count(),
+                'process'   => Order::where(function ($q) {
+                    $q->where('payment_status', '!=', 'pending')
+                        ->orWhereHas('paymentMethod', fn($pq) => $pq->where('category', 'cash'));
+                })->whereIn('order_status', ['pending', 'confirmed'])->count(),
+                'shipped'   => Order::where('order_status', 'shipped')->count(),
+                'completed' => Order::where('order_status', 'delivered')->count(),
+                'cancelled' => Order::where(function ($q) {
+                    $q->where('order_status', 'cancelled')
+                        ->orWhere('payment_status', 'failed');
+                })->count(),
+            ],
         ]);
     }
 
