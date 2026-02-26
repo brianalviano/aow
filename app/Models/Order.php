@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Traits\FileHelperTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, FileHelperTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -127,5 +128,27 @@ class Order extends Model
         }
 
         return $this->delivered_at->addMinutes(30)->isPast();
+    }
+
+    /**
+     * Get the payment proof URL.
+     *
+     * @param string|null $value
+     * @return string|null
+     */
+    protected function getPaymentProofAttribute(?string $value): ?string
+    {
+        return $this->getFileUrl($value);
+    }
+
+    /**
+     * Get the delivery photo URL.
+     *
+     * @param string|null $value
+     * @return string|null
+     */
+    protected function getDeliveryPhotoAttribute(?string $value): ?string
+    {
+        return $this->getFileUrl($value);
     }
 }

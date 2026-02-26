@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Traits\FileHelperTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DropPoint extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, FileHelperTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -41,5 +42,16 @@ class DropPoint extends Model
             'longitude' => 'float',
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Get the photo URL.
+     *
+     * @param string|null $value
+     * @return string|null
+     */
+    protected function getPhotoAttribute(?string $value): ?string
+    {
+        return $this->getFileUrl($value);
     }
 }

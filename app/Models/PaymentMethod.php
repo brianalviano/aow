@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\{PaymentMethodCategory, PaymentMethodType};
+use App\Traits\FileHelperTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PaymentMethod extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, FileHelperTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -49,5 +50,16 @@ class PaymentMethod extends Model
     public function paymentGuide(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PaymentGuide::class);
+    }
+
+    /**
+     * Get the photo URL.
+     *
+     * @param string|null $value
+     * @return string|null
+     */
+    protected function getPhotoAttribute(?string $value): ?string
+    {
+        return $this->getFileUrl($value);
     }
 }

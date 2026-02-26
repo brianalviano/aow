@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Traits\FileHelperTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, FileHelperTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -54,5 +55,16 @@ class Product extends Model
     public function productOptions(): HasMany
     {
         return $this->hasMany(ProductOption::class);
+    }
+
+    /**
+     * Get the image URL.
+     *
+     * @param string|null $value
+     * @return string|null
+     */
+    protected function getImageAttribute(?string $value): ?string
+    {
+        return $this->getFileUrl($value);
     }
 }
