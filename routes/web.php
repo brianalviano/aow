@@ -28,6 +28,7 @@ use App\Http\Controllers\Customer\{
     TermsAndConditionController,
     CheckoutController,
     PaymentController,
+    FeedbackController,
 };
 
 /*
@@ -96,6 +97,10 @@ Route::middleware('auth:customer')->group(function () {
     Route::get('/orders', [\App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\Customer\OrderController::class, 'show'])->name('customer.orders.show');
     Route::post('/orders/{order}/complete', [\App\Http\Controllers\Customer\OrderController::class, 'complete'])->name('customer.orders.complete');
+
+    // Feedback
+    Route::get('/feedback', [FeedbackController::class, 'index'])->name('customer.feedback.index');
+    Route::post('/feedback', [FeedbackController::class, 'store'])->name('customer.feedback.store');
 });
 
 /*
