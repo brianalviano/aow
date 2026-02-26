@@ -22,8 +22,8 @@ class OrderItemOptionResource extends JsonResource
             'product_option_id' => $this->product_option_id,
             'product_option_item_id' => $this->product_option_item_id,
             'extra_price' => $this->extra_price,
-            'product_option' => new ProductOptionResource($this->whenLoaded('productOption')),
-            'product_option_item' => new ProductOptionItemResource($this->whenLoaded('productOptionItem')),
+            'product_option' => $this->whenLoaded('productOption', fn() => (new ProductOptionResource($this->productOption))->resolve()),
+            'product_option_item' => $this->whenLoaded('productOptionItem', fn() => (new ProductOptionItemResource($this->productOptionItem))->resolve()),
         ];
     }
 }
