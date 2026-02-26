@@ -8,7 +8,7 @@ use App\DTOs\Checkout\ProcessOrderData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Checkout\ProcessPaymentRequest;
 use App\Models\PaymentMethod;
-use App\Services\CheckoutService;
+use App\Services\{CheckoutService, OrderService};
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\{Inertia, Response};
@@ -20,9 +20,11 @@ class PaymentController extends Controller
      * Create a new PaymentController instance.
      *
      * @param CheckoutService $checkoutService Service for handling checkout logic.
+     * @param OrderService $orderService Service for handling order logic.
      */
     public function __construct(
-        private readonly CheckoutService $checkoutService
+        private readonly CheckoutService $checkoutService,
+        private readonly OrderService $orderService
     ) {}
 
     /**
@@ -90,7 +92,7 @@ class PaymentController extends Controller
         try {
             $data = ProcessOrderData::fromRequest($request, $cart, $dropPoint);
 
-            $order = $this->checkoutService->processOrder($data);
+            $order = $this->orderService->processOrder($data);
 
             return redirect()->route('customer.payment.show', ['order' => $order->id, 'from' => 'checkout']);
         } catch (Throwable $e) {
