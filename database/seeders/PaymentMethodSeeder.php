@@ -22,6 +22,7 @@ class PaymentMethodSeeder extends Seeder
                 'category' => \App\Enums\PaymentMethodCategory::CASH,
                 'type' => \App\Enums\PaymentMethodType::MANUAL,
                 'is_active' => true,
+                'photo' => 'payment_methods/rupiah.svg',
             ],
             [
                 'name' => 'Transfer Bank BCA',
@@ -31,6 +32,7 @@ class PaymentMethodSeeder extends Seeder
                 'account_number' => '7240081851',
                 'account_name' => 'NUNING RAHMAWATI SE',
                 'payment_guide_id' => $manualGuideId,
+                'photo' => 'payment_methods/bca.svg',
             ],
             [
                 'name' => 'QRIS',
@@ -39,6 +41,7 @@ class PaymentMethodSeeder extends Seeder
                 'code' => 'qris',
                 'is_active' => true,
                 'payment_guide_id' => $qrisGuideId,
+                'photo' => 'payment_methods/qris.svg',
             ],
             [
                 'name' => 'OVO',
@@ -47,6 +50,7 @@ class PaymentMethodSeeder extends Seeder
                 'type' => \App\Enums\PaymentMethodType::GATEWAY,
                 'is_active' => true,
                 'payment_guide_id' => $eWalletGuideId,
+                'photo' => 'payment_methods/ovo.svg',
             ],
             [
                 'name' => 'ShopeePay',
@@ -55,6 +59,7 @@ class PaymentMethodSeeder extends Seeder
                 'type' => \App\Enums\PaymentMethodType::GATEWAY,
                 'is_active' => true,
                 'payment_guide_id' => $eWalletGuideId,
+                'photo' => 'payment_methods/shopee-pay.svg',
             ],
         ];
 
