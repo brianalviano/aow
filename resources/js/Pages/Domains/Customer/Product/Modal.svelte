@@ -326,9 +326,21 @@
                     >
                         <i class="fa-solid fa-minus text-sm"></i>
                     </button>
-                    <span class="font-bold text-gray-900 w-4 text-center"
-                        >{quantity}</span
-                    >
+                    <input
+                        type="number"
+                        bind:value={quantity}
+                        min="1"
+                        class="font-bold text-gray-900 w-12 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        aria-label="Jumlah"
+                        on:input={(e) => {
+                            const val = parseInt(e.currentTarget.value);
+                            if (isNaN(val) || val < 1) {
+                                quantity = 1;
+                            } else {
+                                quantity = val;
+                            }
+                        }}
+                    />
                     <button
                         class="w-8 h-8 rounded-full border border-gray-800 flex items-center justify-center text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 active:scale-95 transition-transform"
                         on:click={() => quantity++}

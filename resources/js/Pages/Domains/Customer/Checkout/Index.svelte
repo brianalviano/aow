@@ -128,6 +128,19 @@
         updateSession();
     }
 
+    function setQuantity(key: string, value: number) {
+        const item = cart[key];
+        if (!item) return;
+
+        const newQuantity = Math.max(1, value);
+        const unitPrice = item.totalPrice / item.quantity;
+        item.quantity = newQuantity;
+        item.totalPrice = unitPrice * newQuantity;
+
+        cart = { ...cart };
+        updateSession();
+    }
+
     function handleUpdateItem(
         product: any,
         selectedOptions: any,
@@ -372,9 +385,29 @@
                                         <i class="fa-solid fa-minus text-[10px]"
                                         ></i>
                                     </button>
-                                    <span class="font-bold text-sm"
-                                        >{item.quantity}</span
-                                    >
+                                    <input
+                                        type="number"
+                                        value={item.quantity}
+                                        min="1"
+                                        class="font-bold text-sm w-12 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        aria-label="Jumlah"
+                                        on:input={(e) => {
+                                            const val = parseInt(
+                                                e.currentTarget.value,
+                                            );
+                                            if (!isNaN(val)) {
+                                                setQuantity(item._key, val);
+                                            }
+                                        }}
+                                        on:blur={(e) => {
+                                            const val = parseInt(
+                                                e.currentTarget.value,
+                                            );
+                                            if (isNaN(val) || val < 1) {
+                                                setQuantity(item._key, 1);
+                                            }
+                                        }}
+                                    />
                                     <button
                                         class="w-6 h-6 rounded-full border border-gray-400 flex items-center justify-center text-gray-600"
                                         aria-label="Tambah"

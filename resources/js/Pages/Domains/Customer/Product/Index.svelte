@@ -287,6 +287,27 @@
 
         cart = { ...cart }; // Trigger reactivity
     }
+
+    function updateCartItemQuantityWithValue(productId: string, value: number) {
+        const cartItemIds = Object.keys(cart).filter(
+            (id) => cart[id].product.id === productId,
+        );
+        if (cartItemIds.length === 0) return;
+
+        const cartItemId = cartItemIds[0];
+        if (!cartItemId) return;
+
+        const item = cart[cartItemId];
+        if (!item) return;
+
+        const newQuantity = Math.max(1, value);
+        const unitPrice = item.totalPrice / item.quantity;
+        item.quantity = newQuantity;
+        item.totalPrice = unitPrice * newQuantity;
+        cart[cartItemId] = item;
+
+        cart = { ...cart };
+    }
 </script>
 
 <svelte:head>
@@ -419,11 +440,37 @@
                                                     class="fa-solid fa-minus text-sm"
                                                 ></i>
                                             </button>
-                                            <span
-                                                class="text-sm font-bold text-gray-900"
-                                            >
-                                                {cartQuantities[product.id]}
-                                            </span>
+                                            <input
+                                                type="number"
+                                                value={cartQuantities[
+                                                    product.id
+                                                ]}
+                                                min="1"
+                                                class="text-sm font-bold text-gray-900 w-12 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                aria-label="Jumlah"
+                                                on:input={(e) => {
+                                                    const val = parseInt(
+                                                        e.currentTarget.value,
+                                                    );
+                                                    if (!isNaN(val)) {
+                                                        updateCartItemQuantityWithValue(
+                                                            product.id,
+                                                            val,
+                                                        );
+                                                    }
+                                                }}
+                                                on:blur={(e) => {
+                                                    const val = parseInt(
+                                                        e.currentTarget.value,
+                                                    );
+                                                    if (isNaN(val) || val < 1) {
+                                                        updateCartItemQuantityWithValue(
+                                                            product.id,
+                                                            1,
+                                                        );
+                                                    }
+                                                }}
+                                            />
                                             <button
                                                 class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-900 text-gray-900 focus:outline-none transition-colors active:bg-gray-100"
                                                 aria-label="Tambah"
