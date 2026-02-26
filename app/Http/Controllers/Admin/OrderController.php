@@ -49,7 +49,7 @@ class OrderController extends Controller
         ]);
 
         return Inertia::render('Domains/Admin/Order/Show', [
-            'order' => new \App\Http\Resources\OrderResource($order),
+            'order' => (new \App\Http\Resources\OrderResource($order))->resolve(),
         ]);
     }
 

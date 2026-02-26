@@ -52,7 +52,7 @@
         items: OrderItem[];
     }
 
-    let order = $derived($page.props.order.data as Order);
+    let order = $derived($page.props.order as Order);
 
     interface ConfirmDialog {
         open: boolean;

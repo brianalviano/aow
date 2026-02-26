@@ -21,6 +21,7 @@
         number: string;
         customer_id: string;
         delivery_date: string;
+        delivery_time?: string;
         order_status: string;
         payment_status: string;
         total_amount: number;
@@ -267,6 +268,13 @@
                                                       },
                                                   )
                                                 : "-"}
+                                            {#if item.delivery_time}
+                                                <div
+                                                    class="text-[10px] text-gray-500 mt-0.5"
+                                                >
+                                                    Pukul {item.delivery_time} WIB
+                                                </div>
+                                            {/if}
                                         </div>
                                     </td>
                                     <td>
