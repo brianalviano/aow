@@ -11,23 +11,25 @@ use Illuminate\Support\Facades\{DB, Log};
 class OrderService
 {
     /**
-     * Mark the given order as completed/delivered.
+     * Mark the given order as completed/delivered with photo proof.
      *
-     * @param Order $order
+     * @param Order  $order
+     * @param string $deliveryPhotoPath  Storage path of the delivery photo proof.
      * @return Order
      * @throws \Throwable
      */
-    public function completeOrder(Order $order): Order
+    public function completeOrder(Order $order, string $deliveryPhotoPath): Order
     {
         try {
-            return DB::transaction(function () use ($order) {
+            return DB::transaction(function () use ($order, $deliveryPhotoPath) {
                 // Ensure the order is currently shipped before marking as delivered
                 if ($order->order_status !== 'shipped') {
                     throw new \Exception("Pesanan tidak dapat diselesaikan karena status saat ini adalah {$order->order_status}.");
                 }
 
                 $order->update([
-                    'order_status' => 'delivered',
+                    'order_status'   => 'delivered',
+                    'delivery_photo' => $deliveryPhotoPath,
                 ]);
 
                 $order->load('customer');
@@ -37,10 +39,11 @@ class OrderService
             });
         } catch (\Throwable $e) {
             Log::error('Gagal menyelesaikan pesanan', [
-                'order_id' => $order->id,
-                'customer_id' => $order->customer_id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'order_id'            => $order->id,
+                'customer_id'         => $order->customer_id,
+                'delivery_photo_path' => $deliveryPhotoPath,
+                'error'               => $e->getMessage(),
+                'trace'               => $e->getTraceAsString(),
             ]);
 
             throw $e;

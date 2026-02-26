@@ -47,6 +47,7 @@
         payment_expired_at?: string;
         note?: string;
         cancellation_note?: string;
+        delivery_photo_url?: string;
         created_at: string;
         items: OrderItem[];
     }
@@ -72,6 +73,45 @@
     let isProcessing = $state(false);
     let cancelModalOpen = $state(false);
     let cancelNote = $state("");
+    let deliverModalOpen = $state(false);
+    let deliveryPhotoFile = $state<File | null>(null);
+    let deliveryPhotoPreview = $state<string | null>(null);
+    let deliveryPhotoError = $state<string | null>(null);
+
+    function onDeliveryPhotoChange(e: Event) {
+        const input = e.target as HTMLInputElement;
+        const file = input.files?.[0] ?? null;
+        deliveryPhotoFile = file;
+        deliveryPhotoError = null;
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                deliveryPhotoPreview = ev.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            deliveryPhotoPreview = null;
+        }
+    }
+
+    function submitDeliver() {
+        if (!deliveryPhotoFile) {
+            deliveryPhotoError = "Foto bukti penerimaan wajib diunggah.";
+            return;
+        }
+        isProcessing = true;
+        const formData = new FormData();
+        formData.append("delivery_photo", deliveryPhotoFile);
+        router.post(`/admin/orders/${order.id}/deliver`, formData, {
+            forceFormData: true,
+            onFinish: () => {
+                isProcessing = false;
+                deliverModalOpen = false;
+                deliveryPhotoFile = null;
+                deliveryPhotoPreview = null;
+            },
+        });
+    }
 
     function openConfirm(
         title: string,
@@ -278,13 +318,12 @@
                         size="sm"
                         icon="fa-solid fa-circle-check"
                         disabled={isProcessing}
-                        onclick={() =>
-                            openConfirm(
-                                "Tandai Sebagai Selesai",
-                                `Apakah Anda yakin pesanan #${order.number} sudah diterima oleh pelanggan?`,
-                                () => postAction("deliver"),
-                                "success",
-                            )}
+                        onclick={() => {
+                            deliveryPhotoFile = null;
+                            deliveryPhotoPreview = null;
+                            deliveryPhotoError = null;
+                            deliverModalOpen = true;
+                        }}
                     >
                         {#snippet children()}Tandai Selesai{/snippet}
                     </Button>
@@ -612,9 +651,131 @@
                     </div>
                 </Card>
             {/if}
+
+            {#if order.order_status === "delivered" && order.delivery_photo_url}
+                <Card title="Bukti Penerimaan">
+                    <div class="space-y-2">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Foto bukti pesanan diterima oleh pelanggan.
+                        </p>
+                        <a
+                            href={order.delivery_photo_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="block overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity"
+                        >
+                            <img
+                                src={order.delivery_photo_url}
+                                alt="Bukti penerimaan pesanan #{order.number}"
+                                class="w-full object-cover max-h-64"
+                            />
+                        </a>
+                    </div>
+                </Card>
+            {/if}
         </div>
     </div>
 </section>
+
+<!-- Deliver Order Modal (Upload Bukti Foto) -->
+{#if deliverModalOpen}
+    <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="deliver-modal-title"
+    >
+        <div
+            class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+        >
+            <div class="flex items-start gap-4">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                >
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+                <div class="flex-1">
+                    <h3
+                        id="deliver-modal-title"
+                        class="text-base font-semibold text-gray-900 dark:text-white"
+                    >
+                        Upload Bukti Penerimaan
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        Upload foto sebagai bukti bahwa pesanan
+                        <strong>#{order.number}</strong> telah diterima oleh pelanggan.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-4 space-y-3">
+                <div>
+                    <label
+                        for="delivery-photo"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                        Foto Bukti Penerimaan
+                        <span class="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input
+                        id="delivery-photo"
+                        type="file"
+                        accept="image/*"
+                        onchange={onDeliveryPhotoChange}
+                        class="mt-1.5 w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                            text-gray-900 file:mr-3 file:cursor-pointer file:rounded file:border-0
+                            file:bg-green-50 file:px-3 file:py-1 file:text-sm file:font-medium
+                            file:text-green-700 hover:file:bg-green-100
+                            dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    />
+                    {#if deliveryPhotoError}
+                        <p class="mt-1 text-xs text-red-500">
+                            {deliveryPhotoError}
+                        </p>
+                    {/if}
+                </div>
+
+                {#if deliveryPhotoPreview}
+                    <div
+                        class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
+                    >
+                        <img
+                            src={deliveryPhotoPreview}
+                            alt="Preview foto bukti penerimaan"
+                            class="w-full max-h-52 object-cover"
+                        />
+                    </div>
+                {/if}
+            </div>
+
+            <div class="mt-5 flex justify-end gap-3">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    onclick={() => (deliverModalOpen = false)}
+                    disabled={isProcessing}
+                >
+                    {#snippet children()}Kembali{/snippet}
+                </Button>
+                <Button
+                    variant="success"
+                    size="sm"
+                    disabled={isProcessing || !deliveryPhotoFile}
+                    onclick={submitDeliver}
+                >
+                    {#snippet children()}
+                        {#if isProcessing}
+                            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...
+                        {:else}
+                            <i class="fa-solid fa-circle-check mr-1"></i> Tandai
+                            Selesai
+                        {/if}
+                    {/snippet}
+                </Button>
+            </div>
+        </div>
+    </div>
+{/if}
 
 <!-- Cancel Order Modal -->
 {#if cancelModalOpen}

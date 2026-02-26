@@ -46,6 +46,7 @@ class Order extends Model
         'tax_amount',
         'delivery_time',
         'payment_proof',
+        'delivery_photo',
     ];
 
     /**
