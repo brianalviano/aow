@@ -3,6 +3,7 @@
     import Card from "@/Lib/Admin/Components/Ui/Card.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
+    import FileUpload from "@/Lib/Admin/Components/Ui/FileUpload.svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
 
     interface Product {
@@ -75,28 +76,11 @@
     let cancelNote = $state("");
     let deliverModalOpen = $state(false);
     let deliveryPhotoFile = $state<File | null>(null);
-    let deliveryPhotoPreview = $state<string | null>(null);
-    let deliveryPhotoError = $state<string | null>(null);
-
-    function onDeliveryPhotoChange(e: Event) {
-        const input = e.target as HTMLInputElement;
-        const file = input.files?.[0] ?? null;
-        deliveryPhotoFile = file;
-        deliveryPhotoError = null;
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                deliveryPhotoPreview = ev.target?.result as string;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            deliveryPhotoPreview = null;
-        }
-    }
+    let deliveryPhotoError = $state<string | undefined>(undefined);
 
     function submitDeliver() {
         if (!deliveryPhotoFile) {
-            deliveryPhotoError = "Foto bukti penerimaan wajib diunggah.";
+            deliveryPhotoError = undefined;
             return;
         }
         isProcessing = true;
@@ -108,7 +92,6 @@
                 isProcessing = false;
                 deliverModalOpen = false;
                 deliveryPhotoFile = null;
-                deliveryPhotoPreview = null;
             },
         });
     }
@@ -320,8 +303,7 @@
                         disabled={isProcessing}
                         onclick={() => {
                             deliveryPhotoFile = null;
-                            deliveryPhotoPreview = null;
-                            deliveryPhotoError = null;
+                            deliveryPhotoError = undefined;
                             deliverModalOpen = true;
                         }}
                     >
@@ -709,43 +691,15 @@
             </div>
 
             <div class="mt-4 space-y-3">
-                <div>
-                    <label
-                        for="delivery-photo"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                    >
-                        Foto Bukti Penerimaan
-                        <span class="text-red-500 ml-0.5">*</span>
-                    </label>
-                    <input
-                        id="delivery-photo"
-                        type="file"
-                        accept="image/*"
-                        onchange={onDeliveryPhotoChange}
-                        class="mt-1.5 w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
-                            text-gray-900 file:mr-3 file:cursor-pointer file:rounded file:border-0
-                            file:bg-green-50 file:px-3 file:py-1 file:text-sm file:font-medium
-                            file:text-green-700 hover:file:bg-green-100
-                            dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {#if deliveryPhotoError}
-                        <p class="mt-1 text-xs text-red-500">
-                            {deliveryPhotoError}
-                        </p>
-                    {/if}
-                </div>
-
-                {#if deliveryPhotoPreview}
-                    <div
-                        class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
-                    >
-                        <img
-                            src={deliveryPhotoPreview}
-                            alt="Preview foto bukti penerimaan"
-                            class="w-full max-h-52 object-cover"
-                        />
-                    </div>
-                {/if}
+                <FileUpload
+                    id="delivery_photo"
+                    name="delivery_photo"
+                    label="Foto Bukti Penerimaan"
+                    required={true}
+                    accept="image/*"
+                    bind:value={deliveryPhotoFile}
+                    error={deliveryPhotoError}
+                />
             </div>
 
             <div class="mt-5 flex justify-end gap-3">
