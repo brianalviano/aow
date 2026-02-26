@@ -294,10 +294,10 @@ function createNotificationStore() {
                     currentPageProps = pageData.props;
                 })();
 
-                if (!currentPageProps?.auth?.user) {
-                    console.log(
-                        "User not authenticated, skipping notification stats refresh",
-                    );
+                if (
+                    !currentPageProps?.auth?.user ||
+                    currentPageProps?.auth?.user?.role === "customer"
+                ) {
                     return;
                 }
 
@@ -319,9 +319,6 @@ function createNotificationStore() {
                         stats: data.stats,
                     }));
                 } else if (response.status === 401) {
-                    console.log(
-                        "User not authenticated for notification stats",
-                    );
                     // Clear any existing stats on authentication failure
                     update((state) => ({
                         ...state,
@@ -403,8 +400,11 @@ function createNotificationStore() {
                 currentPageProps = pageData.props;
             })();
 
-            // Only initialize if user is authenticated
-            if (currentPageProps?.auth?.user) {
+            // Only initialize if user is authenticated and not a customer
+            if (
+                currentPageProps?.auth?.user &&
+                currentPageProps?.auth?.user?.role !== "customer"
+            ) {
                 await this.refreshStats();
             }
         },
@@ -427,7 +427,10 @@ if (typeof window !== "undefined") {
 
     const checkAndInit = () => {
         unsubscribe = page.subscribe((pageData) => {
-            if (pageData.props?.auth?.user) {
+            if (
+                pageData.props?.auth?.user &&
+                pageData.props?.auth?.user?.role !== "customer"
+            ) {
                 notificationStore.init();
                 if (unsubscribe) {
                     unsubscribe();
