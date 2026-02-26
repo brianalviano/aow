@@ -8,6 +8,7 @@ use App\DTOs\Checkout\ProcessOrderData;
 use App\Enums\{PaymentMethodType};
 use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
 use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderSetting, DropPoint, PaymentMethod};
+use App\Notifications\OrderPlacedNotification;
 use App\Traits\RetryableTransactionsTrait;
 use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
 use Throwable;
@@ -196,9 +197,10 @@ class CheckoutService
                         }
                     }
 
-                    // Send order confirmation email
+                    // Send order confirmation email and database notification
                     DB::afterCommit(function () use ($order) {
                         Mail::to($order->customer->email)->send(new OrderPlacedMail($order));
+                        $order->customer->notify(new OrderPlacedNotification($order));
                     });
 
                     session()->forget(['checkout_cart', 'checkout_drop_point']);

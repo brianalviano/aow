@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Order;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Notifications\OrderStatusChangedNotification;
+use Illuminate\Support\Facades\{DB, Log};
 
 class OrderService
 {
@@ -27,6 +29,9 @@ class OrderService
                 $order->update([
                     'order_status' => 'delivered',
                 ]);
+
+                $order->load('customer');
+                $order->customer->notify(new OrderStatusChangedNotification($order, 'delivered'));
 
                 return $order->fresh();
             });
@@ -64,6 +69,9 @@ class OrderService
                     'cancellation_note' => $reason,
                 ]);
 
+                $order->load('customer');
+                $order->customer->notify(new OrderStatusChangedNotification($order, 'cancelled'));
+
                 return $order->fresh();
             });
         } catch (\Throwable $e) {
@@ -98,6 +106,9 @@ class OrderService
                     'order_status' => 'confirmed',
                 ]);
 
+                $order->load('customer');
+                $order->customer->notify(new OrderStatusChangedNotification($order, 'confirmed'));
+
                 return $order->fresh();
             });
         } catch (\Throwable $e) {
@@ -130,6 +141,9 @@ class OrderService
                 $order->update([
                     'order_status' => 'shipped',
                 ]);
+
+                $order->load('customer');
+                $order->customer->notify(new OrderStatusChangedNotification($order, 'shipped'));
 
                 return $order->fresh();
             });

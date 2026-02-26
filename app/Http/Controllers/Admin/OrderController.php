@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 /**
  * Handles admin CRUD operations and status transitions for customer orders.
@@ -65,9 +66,19 @@ class OrderController extends Controller
         try {
             $service->cancelOrder($order, $request->input('cancellation_note'));
 
-            return redirect()->back()->with('success', 'Pesanan berhasil dibatalkan.');
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Gagal membatalkan pesanan: ' . $e->getMessage());
+            Inertia::flash('toast', [
+                'message' => 'Pesanan berhasil dibatalkan.',
+                'type'    => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal membatalkan pesanan: ' . $e->getMessage(),
+                'type'    => 'error',
+            ]);
+
+            return redirect()->back();
         }
     }
 
@@ -81,9 +92,19 @@ class OrderController extends Controller
         try {
             $service->confirmOrder($order);
 
-            return redirect()->back()->with('success', 'Pesanan berhasil dikonfirmasi.');
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Gagal mengkonfirmasi pesanan: ' . $e->getMessage());
+            Inertia::flash('toast', [
+                'message' => 'Pesanan berhasil dikonfirmasi.',
+                'type'    => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal mengkonfirmasi pesanan: ' . $e->getMessage(),
+                'type'    => 'error',
+            ]);
+
+            return redirect()->back();
         }
     }
 
@@ -97,9 +118,19 @@ class OrderController extends Controller
         try {
             $service->shipOrder($order);
 
-            return redirect()->back()->with('success', 'Status pesanan berhasil diubah ke Dikirim.');
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui status pengiriman: ' . $e->getMessage());
+            Inertia::flash('toast', [
+                'message' => 'Status pesanan berhasil diubah ke Dikirim.',
+                'type'    => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal memperbarui status pengiriman: ' . $e->getMessage(),
+                'type'    => 'error',
+            ]);
+
+            return redirect()->back();
         }
     }
 
@@ -113,9 +144,19 @@ class OrderController extends Controller
         try {
             $service->completeOrder($order);
 
-            return redirect()->back()->with('success', 'Pesanan berhasil diselesaikan.');
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Gagal menyelesaikan pesanan: ' . $e->getMessage());
+            Inertia::flash('toast', [
+                'message' => 'Pesanan berhasil diselesaikan.',
+                'type'    => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal menyelesaikan pesanan: ' . $e->getMessage(),
+                'type'    => 'error',
+            ]);
+
+            return redirect()->back();
         }
     }
 }
