@@ -53,8 +53,8 @@ function createNotificationStore() {
 
                 // Use regular fetch for stats only
                 const url = new URL(
-                    "/notifications/stats",
-                    window.location.origin
+                    "/admin/notifications/stats",
+                    window.location.origin,
                 );
 
                 const response = await fetch(url.toString(), {
@@ -102,7 +102,10 @@ function createNotificationStore() {
         async fetchList(limit: number = 5) {
             update((state) => ({ ...state, loading: true, error: null }));
             try {
-                const url = new URL("/notifications/list", window.location.origin);
+                const url = new URL(
+                    "/admin/notifications/list",
+                    window.location.origin,
+                );
                 url.searchParams.append("limit", limit.toString());
                 const response = await fetch(url.toString(), {
                     method: "GET",
@@ -145,7 +148,7 @@ function createNotificationStore() {
          * Navigate to notifications page
          */
         async navigateToNotifications(page: number = 1, limit: number = 10) {
-            const url = new URL("/notifications", window.location.origin);
+            const url = new URL("/admin/notifications", window.location.origin);
             url.searchParams.append("page", page.toString());
             url.searchParams.append("limit", limit.toString());
 
@@ -171,7 +174,7 @@ function createNotificationStore() {
          */
         updateFromProps(
             notifications: Notification[],
-            stats: NotificationStats
+            stats: NotificationStats,
         ) {
             update((state) => ({
                 ...state,
@@ -189,7 +192,7 @@ function createNotificationStore() {
         async markAsRead(notificationId: string) {
             try {
                 const response = await fetch(
-                    `/notifications/${notificationId}`,
+                    `/admin/notifications/${notificationId}`,
                     {
                         method: "PATCH",
                         headers: {
@@ -199,7 +202,7 @@ function createNotificationStore() {
                                     .querySelector('meta[name="csrf-token"]')
                                     ?.getAttribute("content") || "",
                         },
-                    }
+                    },
                 );
 
                 if (response.ok) {
@@ -209,7 +212,7 @@ function createNotificationStore() {
                         notifications: state.notifications.map((n) =>
                             n.id === notificationId
                                 ? { ...n, read_at: new Date().toISOString() }
-                                : n
+                                : n,
                         ),
                         stats: {
                             ...state.stats,
@@ -228,16 +231,19 @@ function createNotificationStore() {
          */
         async markAllAsRead() {
             try {
-                const response = await fetch("/notifications/mark-all-read", {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN":
-                            document
-                                .querySelector('meta[name="csrf-token"]')
-                                ?.getAttribute("content") || "",
+                const response = await fetch(
+                    "/admin/notifications/mark-all-read",
+                    {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN":
+                                document
+                                    .querySelector('meta[name="csrf-token"]')
+                                    ?.getAttribute("content") || "",
+                        },
                     },
-                });
+                );
 
                 if (response.ok) {
                     // Update local state
@@ -257,7 +263,7 @@ function createNotificationStore() {
             } catch (error) {
                 console.error(
                     "Failed to mark all notifications as read:",
-                    error
+                    error,
                 );
             }
         },
@@ -290,12 +296,12 @@ function createNotificationStore() {
 
                 if (!currentPageProps?.auth?.user) {
                     console.log(
-                        "User not authenticated, skipping notification stats refresh"
+                        "User not authenticated, skipping notification stats refresh",
                     );
                     return;
                 }
 
-                const response = await fetch("/notifications/stats", {
+                const response = await fetch("/admin/notifications/stats", {
                     headers: {
                         Accept: "application/json",
                         "X-Requested-With": "XMLHttpRequest",
@@ -314,7 +320,7 @@ function createNotificationStore() {
                     }));
                 } else if (response.status === 401) {
                     console.log(
-                        "User not authenticated for notification stats"
+                        "User not authenticated for notification stats",
                     );
                     // Clear any existing stats on authentication failure
                     update((state) => ({
@@ -364,14 +370,14 @@ function createNotificationStore() {
         removeNotification(notificationId: string) {
             update((state) => {
                 const notification = state.notifications.find(
-                    (n) => n.id === notificationId
+                    (n) => n.id === notificationId,
                 );
                 if (!notification) return state;
 
                 return {
                     ...state,
                     notifications: state.notifications.filter(
-                        (n) => n.id !== notificationId
+                        (n) => n.id !== notificationId,
                     ),
                     stats: {
                         ...state.stats,
@@ -442,26 +448,26 @@ if (typeof window !== "undefined") {
 
 export const notifications = derived(
     notificationStore,
-    ($store) => $store.notifications
+    ($store) => $store.notifications,
 );
 
 export const notificationStats = derived(
     notificationStore,
-    ($store) => $store.stats
+    ($store) => $store.stats,
 );
 
 export const unreadNotifications = derived(notificationStore, ($store) =>
-    $store.notifications.filter((n) => !n.read_at)
+    $store.notifications.filter((n) => !n.read_at),
 );
 
 export const isLoadingNotifications = derived(
     notificationStore,
-    ($store) => $store.loading
+    ($store) => $store.loading,
 );
 
 export const notificationError = derived(
     notificationStore,
-    ($store) => $store.error
+    ($store) => $store.error,
 );
 
 /**
@@ -478,7 +484,7 @@ export function getNotificationIcon(type: Notification["type"]): string {
  * Get notification color based on priority
  */
 export function getNotificationColor(
-    priority: Notification["priority"]
+    priority: Notification["priority"],
 ): string {
     const colors = {
         low: "blue",
