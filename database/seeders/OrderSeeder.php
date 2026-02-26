@@ -27,7 +27,7 @@ class OrderSeeder extends Seeder
         $dropPoints = DropPoint::all();
         // Filter out gateway payment methods to avoid side effects during seeding
         $paymentMethods = PaymentMethod::where('type', '!=', 'gateway')->get();
-        $products = Product::with(['options.items'])->get();
+        $products = Product::with(['productOptions.items'])->get();
         $settings = OrderSetting::pluck('value', 'key')->toArray();
 
         if ($customers->isEmpty() || $dropPoints->isEmpty() || $paymentMethods->isEmpty() || $products->isEmpty()) {
@@ -55,7 +55,7 @@ class OrderSeeder extends Seeder
                     $selectedOptions = [];
                     $extraPriceTotal = 0;
 
-                    foreach ($product->options as $option) {
+                    foreach ($product->productOptions as $option) {
                         if ($option->isRequired || $faker->boolean(50)) {
                             $optionItems = $option->items;
                             if ($optionItems->isNotEmpty()) {
@@ -74,7 +74,7 @@ class OrderSeeder extends Seeder
                     $cart[] = [
                         'product' => [
                             'id' => $product->id,
-                            'options' => $product->options->toArray(), // Needed for resolveOptionExtraPrice
+                            'options' => $product->productOptions->toArray(), // Needed for resolveOptionExtraPrice
                         ],
                         'quantity' => $quantity,
                         'basePrice' => (int) $product->price,
@@ -101,10 +101,10 @@ class OrderSeeder extends Seeder
 
                 // Post-process: Randomize status and backdate timestamps
                 $orderStatus = $faker->randomElement(['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']);
-                $paymentStatus = $orderStatus === 'delivered' ? 'settlement' : ($orderStatus === 'cancelled' ? 'failed' : 'pending');
+                $paymentStatus = $orderStatus === 'delivered' ? 'paid' : ($orderStatus === 'cancelled' ? 'failed' : 'pending');
 
                 if ($paymentMethod->category === 'cash' && $orderStatus !== 'pending') {
-                    $paymentStatus = 'settlement';
+                    $paymentStatus = 'paid';
                 }
 
                 $deliveredAt = $orderStatus === 'delivered' ? $createdAt->copy()->addHours(rand(2, 24)) : null;
