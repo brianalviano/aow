@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page, Link } from "@inertiajs/svelte";
-    import { name } from "@/Lib/Admin/Utils/settings";
+    import { name, buildWaLink } from "@/Lib/Admin/Utils/settings";
 
     // Auth object holds user information
     $: auth = $page.props.auth;
@@ -141,6 +141,22 @@
                         >Kritik dan Saran</span
                     >
                 </Link>
+                <a
+                    href={buildWaLink(
+                        $page.props.settings?.whatsapp,
+                        "Halo Admin, saya ingin bertanya...",
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-green-300 transition-colors"
+                >
+                    <div class="w-5 flex justify-center text-green-600 text-lg">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </div>
+                    <span class="text-gray-900 text-sm flex-1"
+                        >Hubungi Admin</span
+                    >
+                </a>
                 <Link
                     href="/terms-and-conditions"
                     class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
@@ -196,6 +212,22 @@
                     </div>
                     <span class="text-gray-900 text-sm flex-1">Daftar</span>
                 </Link>
+                <a
+                    href={buildWaLink(
+                        $page.props.settings?.whatsapp,
+                        "Halo Admin, saya ingin bertanya...",
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-green-300 transition-colors"
+                >
+                    <div class="w-5 flex justify-center text-green-600 text-lg">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </div>
+                    <span class="text-gray-900 text-sm flex-1"
+                        >Hubungi Admin</span
+                    >
+                </a>
                 <Link
                     href="#"
                     class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
