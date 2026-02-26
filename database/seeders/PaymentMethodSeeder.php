@@ -17,13 +17,13 @@ class PaymentMethodSeeder extends Seeder
         $qrisGuideId = \App\Models\PaymentGuide::where('name', 'QRIS')->first()?->id;
 
         $methods = [
-            [
-                'name' => 'Cash',
-                'category' => \App\Enums\PaymentMethodCategory::CASH,
-                'type' => \App\Enums\PaymentMethodType::MANUAL,
-                'is_active' => true,
-                'photo' => 'payment_methods/rupiah.svg',
-            ],
+            // [
+            //     'name' => 'Cash',
+            //     'category' => \App\Enums\PaymentMethodCategory::CASH,
+            //     'type' => \App\Enums\PaymentMethodType::MANUAL,
+            //     'is_active' => true,
+            //     'photo' => 'payment_methods/rupiah.svg',
+            // ],
             [
                 'name' => 'Transfer Bank BCA',
                 'category' => \App\Enums\PaymentMethodCategory::BANK_TRANSFER,
