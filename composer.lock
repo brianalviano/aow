@@ -198,21 +198,21 @@
         },
         {
             "name": "buglinjo/laravel-webp",
-            "version": "v3.1.0",
+            "version": "v3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/buglinjo/laravel-webp.git",
-                "reference": "9ea1892b13e9725ed87154de65e2334c41d36a9a"
+                "reference": "69ebaa98cf89556303f1b8d87952ef4d693cf19a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/buglinjo/laravel-webp/zipball/9ea1892b13e9725ed87154de65e2334c41d36a9a",
-                "reference": "9ea1892b13e9725ed87154de65e2334c41d36a9a",
+                "url": "https://api.github.com/repos/buglinjo/laravel-webp/zipball/69ebaa98cf89556303f1b8d87952ef4d693cf19a",
+                "reference": "69ebaa98cf89556303f1b8d87952ef4d693cf19a",
                 "shasum": ""
             },
             "require": {
                 "ext-gd": "*",
-                "laravel/framework": "^10.0|^11.0|^12.0",
+                "laravel/framework": "^10.0|^11.0|^12.0|^13.0",
                 "php": "^8.0|^8.1"
             },
             "require-dev": {
@@ -257,9 +257,9 @@
             ],
             "support": {
                 "issues": "https://github.com/buglinjo/laravel-webp/issues",
-                "source": "https://github.com/buglinjo/laravel-webp/tree/v3.1.0"
+                "source": "https://github.com/buglinjo/laravel-webp/tree/v3.2.0"
             },
-            "time": "2025-02-16T23:44:03+00:00"
+            "time": "2026-02-25T20:46:47+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -4070,16 +4070,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "3.31.0",
+            "version": "3.32.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "1717e0b3642b0df65ecb0cc89cdd99fa840672ff"
+                "reference": "254b1595b16b22dbddaaef9ed6ca9fdac4956725"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/1717e0b3642b0df65ecb0cc89cdd99fa840672ff",
-                "reference": "1717e0b3642b0df65ecb0cc89cdd99fa840672ff",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/254b1595b16b22dbddaaef9ed6ca9fdac4956725",
+                "reference": "254b1595b16b22dbddaaef9ed6ca9fdac4956725",
                 "shasum": ""
             },
             "require": {
@@ -4147,9 +4147,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.31.0"
+                "source": "https://github.com/thephpleague/flysystem/tree/3.32.0"
             },
-            "time": "2026-01-23T15:38:47+00:00"
+            "time": "2026-02-25T17:01:41+00:00"
         },
         {
             "name": "league/flysystem-local",
