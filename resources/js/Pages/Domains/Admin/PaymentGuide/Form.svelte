@@ -60,6 +60,10 @@
         }
     }
 
+    function backToIndex() {
+        router.visit("/admin/payment-guides");
+    }
+
     function submit() {
         if (isEdit) {
             $form.put(`/admin/payment-guides/${paymentGuide.id}`);
@@ -77,24 +81,40 @@
     >
 </svelte:head>
 
-<section class="max-w-4xl mx-auto space-y-6">
-    <header class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
+<section class="space-y-6">
+    <header
+        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                {isEdit ? "Edit " : "Tambah "} Panduan Pembayaran
+            </h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+                Lengkapi form di bawah ini untuk mengelola panduan instruksi
+                pembayaran
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-2 sm:justify-end">
             <Button
                 variant="secondary"
                 icon="fa-solid fa-arrow-left"
-                href="/admin/payment-guides"
-                size="sm"
+                onclick={backToIndex}>Kembali</Button
             >
-                Kembali
+            <Button
+                variant="success"
+                type="submit"
+                loading={$form.processing}
+                disabled={$form.processing}
+                icon="fa-solid fa-save"
+                form="payment-guide-form"
+            >
+                Simpan
             </Button>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                {isEdit ? "Edit" : "Tambah"} Panduan
-            </h1>
         </div>
     </header>
 
     <form
+        id="payment-guide-form"
         onsubmit={(e) => {
             e.preventDefault();
             submit();
@@ -115,7 +135,7 @@
             </div>
         </Card>
 
-        <Card title="Konten Panduan (Indodax Style)">
+        <Card title="Konten Panduan">
             {#snippet actions()}
                 <Button
                     variant="info"
@@ -129,32 +149,34 @@
 
             <div class="space-y-8">
                 {#each $form.content as section, sIndex}
-                    <div
-                        class="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700 relative group"
-                    >
-                        <button
-                            type="button"
-                            class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                            onclick={() => removeSection(sIndex)}
-                            title="Hapus Seksi"
-                        >
-                            <i class="fa-solid fa-times"></i>
-                        </button>
-
+                    <div class="relative group">
                         <div class="space-y-4">
-                            <TextInput
-                                id={`section-title-${sIndex}`}
-                                name={`section-title-${sIndex}`}
-                                label={`Judul Seksi ${sIndex + 1}`}
-                                placeholder="Contoh: Transfer via ATM"
-                                bind:value={section.title}
-                                required
-                                class="mb-0!"
-                            />
-
-                            <div
-                                class="space-y-3 pl-4 border-l-2 border-primary/20"
+                            <span
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                             >
+                                {`Judul Seksi ${sIndex + 1}`}
+                            </span>
+                            <div class="flex gap-2 items-start">
+                                <div class="flex-1">
+                                    <TextInput
+                                        id={`section-title-${sIndex}`}
+                                        name={`section-title-${sIndex}`}
+                                        placeholder="Contoh: Transfer via ATM"
+                                        bind:value={section.title}
+                                        required
+                                        class="mb-0!"
+                                    />
+                                </div>
+                                <Button
+                                    variant="danger"
+                                    size="sm"
+                                    icon="fa-solid fa-minus"
+                                    onclick={() => removeSection(sIndex)}
+                                    class="mt-0.5"
+                                />
+                            </div>
+
+                            <div class="space-y-3 pl-4">
                                 <span
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                                 >
@@ -224,19 +246,5 @@
                 <p class="mt-2 text-sm text-red-500">{$form.errors.content}</p>
             {/if}
         </Card>
-
-        <div class="flex justify-end gap-3">
-            <Button variant="secondary" href="/admin/payment-guides">
-                Batal
-            </Button>
-            <Button
-                variant="primary"
-                type="submit"
-                loading={$form.processing}
-                icon="fa-solid fa-save"
-            >
-                Simpan Panduan
-            </Button>
-        </div>
     </form>
 </section>

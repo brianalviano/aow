@@ -4,6 +4,7 @@
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
     import Checkbox from "@/Lib/Admin/Components/Ui/Checkbox.svelte";
+    import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
     import FileUpload from "@/Lib/Admin/Components/Ui/FileUpload.svelte";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
     import { untrack } from "svelte";
@@ -49,6 +50,26 @@
             payment_guide_id: paymentMethod?.payment_guide_id ?? "",
         })),
     );
+
+    const categoryOptions = [
+        { value: "bank-transfer", label: "Bank Transfer" },
+        { value: "e-wallet", label: "E-Wallet" },
+        { value: "virtual-account", label: "Virtual Account" },
+        { value: "cash", label: "Tunai (Cash)" },
+    ];
+
+    const typeOptions = [
+        { value: "manual", label: "Manual / Transfer" },
+        { value: "gateway", label: "Otomatis (Gateway)" },
+    ];
+
+    const paymentGuideOptions = $derived([
+        { value: "", label: "- Tanpa Panduan -" },
+        ...($page.props.paymentGuides as any[]).map((guide) => ({
+            value: guide.id,
+            label: guide.name,
+        })),
+    ]);
 
     function backToIndex() {
         router.visit("/admin/payment-methods");
@@ -110,9 +131,9 @@
         </div>
     </header>
 
-    <div class="max-w-2xl">
+    <div>
         <form id="payment-method-form" onsubmit={submitForm}>
-            <Card title="Informasi Metode Pembayaran" collapsible={false}>
+            <Card collapsible={false}>
                 {#snippet children()}
                     <div class="space-y-6">
                         {#if paymentMethod?.photo}
@@ -153,64 +174,26 @@
                         />
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <label
-                                    for="category"
-                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
-                                >
-                                    Kategori
-                                </label>
-                                <select
-                                    id="category"
-                                    name="category"
-                                    bind:value={$form.category}
-                                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-primary-500 focus:border-primary-500"
-                                    required
-                                >
-                                    <option value="">- Tanpa Kategori -</option>
-                                    <option value="bank-transfer"
-                                        >Bank Transfer</option
-                                    >
-                                    <option value="e-wallet">E-Wallet</option>
-                                    <option value="virtual-account"
-                                        >Virtual Account</option
-                                    >
-                                    <option value="cash">Tunai (Cash)</option>
-                                </select>
-                                {#if $form.errors.category}
-                                    <p class="text-sm text-red-600 mt-1">
-                                        {$form.errors.category}
-                                    </p>
-                                {/if}
-                            </div>
+                            <Select
+                                id="category"
+                                name="category"
+                                label="Kategori"
+                                options={categoryOptions}
+                                bind:value={$form.category}
+                                error={$form.errors.category}
+                                required
+                            />
                         </div>
 
-                        <div class="space-y-2">
-                            <label
-                                for="type"
-                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
-                            >
-                                Tipe Pembayaran
-                            </label>
-                            <select
-                                id="type"
-                                name="type"
-                                bind:value={$form.type}
-                                class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-primary-500 focus:border-primary-500"
-                                required
-                            >
-                                <option value="manual">Manual / Transfer</option
-                                >
-                                <option value="gateway"
-                                    >Otomatis (Gateway)</option
-                                >
-                            </select>
-                            {#if $form.errors.type}
-                                <p class="text-sm text-red-600 mt-1">
-                                    {$form.errors.type}
-                                </p>
-                            {/if}
-                        </div>
+                        <Select
+                            id="type"
+                            name="type"
+                            label="Tipe Pembayaran"
+                            options={typeOptions}
+                            bind:value={$form.type}
+                            error={$form.errors.type}
+                            required
+                        />
 
                         {#if $form.type === "gateway"}
                             <TextInput
@@ -250,34 +233,20 @@
                         <div
                             class="space-y-2 pt-2 border-t dark:border-gray-700"
                         >
-                            <label
-                                for="payment_guide_id"
-                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
-                            >
-                                Panduan Pembayaran (Opsional)
-                            </label>
-                            <select
+                            <Select
                                 id="payment_guide_id"
                                 name="payment_guide_id"
+                                label="Panduan Pembayaran (Opsional)"
+                                options={paymentGuideOptions}
                                 bind:value={$form.payment_guide_id}
-                                class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring-primary-500 focus:border-primary-500"
-                            >
-                                <option value="">- Tanpa Panduan -</option>
-                                {#each $page.props.paymentGuides as guide}
-                                    <option value={guide.id}
-                                        >{guide.name}</option
-                                    >
-                                {/each}
-                            </select>
+                                error={$form.errors.payment_guide_id}
+                                searchable={true}
+                                placeholder="- Tanpa Panduan -"
+                            />
                             <p class="text-xs text-gray-500 dark:text-gray-400">
                                 Pilih panduan instruksi yang akan ditampilkan ke
                                 pelanggan saat checkout.
                             </p>
-                            {#if $form.errors.payment_guide_id}
-                                <p class="text-sm text-red-600 mt-1">
-                                    {$form.errors.payment_guide_id}
-                                </p>
-                            {/if}
                         </div>
 
                         <div class="flex items-center pt-2">
