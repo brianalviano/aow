@@ -134,21 +134,43 @@
             </div>
             <p class="mt-2 text-gray-600 dark:text-gray-400">#{order.number}</p>
         </div>
-        <div class="flex gap-2">
-            <Badge
-                size="lg"
-                variant={getStatusBadge(order.order_status).variant}
-            >
-                {#snippet children()}{getStatusBadge(order.order_status)
-                        .label}{/snippet}
-            </Badge>
-            <Badge
-                size="lg"
-                variant={getPaymentBadge(order.payment_status).variant}
-            >
-                {#snippet children()}{getPaymentBadge(order.payment_status)
-                        .label}{/snippet}
-            </Badge>
+        <div class="flex flex-wrap gap-4">
+            <div class="flex flex-col gap-1.5">
+                <span
+                    class="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                >
+                    Status Pesanan
+                </span>
+                <Badge
+                    size="sm"
+                    variant={getStatusBadge(order.order_status).variant}
+                    outlined={true}
+                    dot={true}
+                    rounded="pill"
+                    pulse={order.order_status === "pending"}
+                >
+                    {#snippet children()}{getStatusBadge(order.order_status)
+                            .label}{/snippet}
+                </Badge>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <span
+                    class="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                >
+                    Status Pembayaran
+                </span>
+                <Badge
+                    size="sm"
+                    variant={getPaymentBadge(order.payment_status).variant}
+                    outlined={true}
+                    dot={true}
+                    rounded="pill"
+                    pulse={order.payment_status === "pending"}
+                >
+                    {#snippet children()}{getPaymentBadge(order.payment_status)
+                            .label}{/snippet}
+                </Badge>
+            </div>
         </div>
     </header>
 

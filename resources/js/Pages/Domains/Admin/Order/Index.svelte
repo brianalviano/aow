@@ -218,6 +218,7 @@
                         <tr>
                             <th>No. Pesanan</th>
                             <th>Tanggal</th>
+                            <th>Tgl. Kirim</th>
                             <th>Customer</th>
                             <th>Total</th>
                             <th>Status Pesanan</th>
@@ -247,6 +248,25 @@
                                             {new Date(
                                                 item.created_at,
                                             ).toLocaleDateString("id-ID")}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div
+                                            class="text-sm text-gray-900 dark:text-white"
+                                        >
+                                            {item.delivery_date
+                                                ? new Date(
+                                                      item.delivery_date,
+                                                  ).toLocaleDateString(
+                                                      "id-ID",
+                                                      {
+                                                          weekday: "short",
+                                                          day: "numeric",
+                                                          month: "short",
+                                                          year: "numeric",
+                                                      },
+                                                  )
+                                                : "-"}
                                         </div>
                                     </td>
                                     <td>
@@ -305,7 +325,7 @@
                         {:else}
                             <tr>
                                 <td
-                                    colspan="7"
+                                    colspan="8"
                                     class="py-6 text-sm text-center text-gray-500 dark:text-gray-400"
                                 >
                                     Tidak ada data
