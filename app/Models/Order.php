@@ -45,6 +45,7 @@ class Order extends Model
         'admin_fee',
         'tax_amount',
         'delivery_time',
+        'delivered_at',
         'payment_proof',
         'delivery_photo',
     ];
@@ -59,6 +60,7 @@ class Order extends Model
         return [
             'delivery_date' => 'date',
             'delivery_time' => 'datetime',
+            'delivered_at' => 'datetime',
             'payment_expired_at' => 'timestamp',
             'payment_details' => 'array',
         ];
@@ -97,5 +99,33 @@ class Order extends Model
     public function shippingDiscount(): BelongsTo
     {
         return $this->belongsTo(Discount::class);
+    }
+
+    /**
+     * Get the testimonial associated with this order.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function testimonial(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Testimonial::class);
+    }
+
+    /**
+     * Determine if the customer can give a testimonial for this order.
+     *
+     * @return bool
+     */
+    public function canBeTestimonialed(): bool
+    {
+        if ($this->order_status !== 'delivered' || !$this->delivered_at) {
+            return false;
+        }
+
+        if ($this->testimonial()->exists()) {
+            return false;
+        }
+
+        return $this->delivered_at->addMinutes(30)->isPast();
     }
 }

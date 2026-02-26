@@ -97,6 +97,7 @@ Route::middleware('auth:customer')->group(function () {
     Route::get('/orders', [\App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\Customer\OrderController::class, 'show'])->name('customer.orders.show');
     Route::post('/orders/{order}/complete', [\App\Http\Controllers\Customer\OrderController::class, 'complete'])->name('customer.orders.complete');
+    Route::post('/orders/{order}/testimonial', [\App\Http\Controllers\Customer\OrderController::class, 'testimonial'])->name('customer.orders.testimonial');
 
     // Feedback
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('customer.feedback.index');

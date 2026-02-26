@@ -30,6 +30,7 @@ class OrderService
                 $order->update([
                     'order_status'   => 'delivered',
                     'delivery_photo' => $deliveryPhotoPath,
+                    'delivered_at'   => now(),
                 ]);
 
                 $order->load('customer');

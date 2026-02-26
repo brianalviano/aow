@@ -45,7 +45,8 @@ class OrderController extends Controller
             'customer',
             'paymentMethod',
             'productDiscount',
-            'shippingDiscount'
+            'shippingDiscount',
+            'testimonial'
         ]);
 
         return Inertia::render('Domains/Customer/Order/Show', [
@@ -69,6 +70,51 @@ class OrderController extends Controller
             return redirect()->back()->with('success', 'Berhasil! Pesanan telah selesai.');
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Gagal menyelesaikan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Store a testimonial for the specified order.
+     */
+    public function testimonial(Order $order, \App\Http\Requests\Customer\TestimonialRequest $request)
+    {
+        // Ensure the order belongs to the authenticated customer
+        if ($order->customer_id !== auth('customer')->id()) {
+            abort(404);
+        }
+
+        // Check if the order is eligible for a testimonial
+        if (!$order->canBeTestimonialed()) {
+            return redirect()->back()->with('error', 'Pesanan belum dapat diberi testimoni. Mohon tunggu 30 menit setelah diterima.');
+        }
+
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($order, $request) {
+                $photoPath = null;
+                if ($request->hasFile('photo')) {
+                    $photoPath = $request->file('photo')->store('testimonials', 'public');
+                }
+
+                \App\Models\Testimonial::updateOrCreate(
+                    ['order_id' => $order->id],
+                    [
+                        'customer_id' => $order->customer_id,
+                        'rating'      => $request->rating,
+                        'content'     => $request->content,
+                        'photo'       => $photoPath,
+                    ]
+                );
+            });
+
+            return redirect()->back()->with('success', 'Terima kasih atas testimoni Anda!');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal menyimpan testimoni', [
+                'order_id'    => $order->id,
+                'customer_id' => $order->customer_id,
+                'error'       => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', 'Gagal menyimpan testimoni: ' . $e->getMessage());
         }
     }
 }

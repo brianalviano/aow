@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string('payment_proof')->nullable();
             $table->text('cancellation_note')->nullable();
             $table->string('delivery_photo')->nullable();
+            $table->timestamp('delivered_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
