@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\{
     CustomerController,
     DashboardController,
     DropPointController,
+    FoodRequestController as AdminFoodRequestController,
     NotificationController,
     OrderController,
     PasswordResetController,
@@ -29,6 +30,7 @@ use App\Http\Controllers\Customer\{
     CheckoutController,
     PaymentController,
     FeedbackController,
+    FoodRequestController,
 };
 
 /*
@@ -102,6 +104,10 @@ Route::middleware('auth:customer')->group(function () {
     // Feedback
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('customer.feedback.index');
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('customer.feedback.store');
+
+    // Food Request
+    Route::get('/food-requests', [FoodRequestController::class, 'index'])->name('customer.food-requests.index');
+    Route::post('/food-requests', [FoodRequestController::class, 'store'])->name('customer.food-requests.store');
 });
 
 /*
@@ -192,6 +198,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Customers
         Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
         Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+
+        // Food Requests
+        Route::get('/food-requests', [AdminFoodRequestController::class, 'index'])->name('food-requests.index');
+        Route::patch('/food-requests/{foodRequest}', [AdminFoodRequestController::class, 'update'])->name('food-requests.update');
 
         // Users (Admins)
         Route::resource('users', UserController::class)->middleware('can:admin-only');

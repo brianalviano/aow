@@ -183,6 +183,17 @@ class HandleInertiaRequests extends Middleware
                     ],
                 ],
             ],
+            [
+                'title' => 'Lainnya',
+                'items' => [
+                    [
+                        'id'    => 'food-requests',
+                        'label' => 'Request Menu',
+                        'icon'  => 'fa-utensils',
+                        'link'  => route('admin.food-requests.index'),
+                    ],
+                ],
+            ],
         ];
     }
 }

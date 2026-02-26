@@ -131,6 +131,17 @@
                     {/if}
                 </Link>
                 <Link
+                    href="/food-requests"
+                    class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
+                >
+                    <div class="w-5 flex justify-center text-blue-600 text-lg">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <span class="text-gray-900 text-sm flex-1"
+                        >Ingin Request Makanan Baru?</span
+                    >
+                </Link>
+                <Link
                     href="/feedback"
                     class="flex items-center gap-4 bg-white px-4 py-3.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-colors"
                 >
