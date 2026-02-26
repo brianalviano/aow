@@ -17,16 +17,34 @@ class OrderController extends Controller
     /**
      * Display a listing of orders.
      */
-    public function index(): Response
+    public function index(Request $request, \App\Services\OrderService $service): Response
     {
-        return Inertia::render('Domains/Admin/Order/Index');
+        $dto = \App\DTOs\Order\OrderFilterDTO::fromArray($request->all());
+
+        $orders = $service->getFilteredOrdersForAdmin($dto, perPage: 15)->withQueryString();
+
+        return Inertia::render('Domains/Admin/Order/Index', [
+            'orders' => \App\Http\Resources\OrderResource::collection($orders),
+            'filters' => $request->only(['search', 'date_range', 'start_date', 'end_date', 'status']),
+        ]);
     }
 
     /**
      * Display the specified order detail.
      */
-    public function show(int $id): Response
+    public function show(\App\Models\Order $order): Response
     {
-        return Inertia::render('Domains/Admin/Order/Show');
+        $order->load([
+            'items.product',
+            'items.options.productOption',
+            'items.options.productOptionItem',
+            'customer',
+            'dropPoint',
+            'paymentMethod'
+        ]);
+
+        return Inertia::render('Domains/Admin/Order/Show', [
+            'order' => new \App\Http\Resources\OrderResource($order),
+        ]);
     }
 }
