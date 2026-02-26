@@ -27,8 +27,8 @@ class OrderItemResource extends JsonResource
             'final_price' => $this->final_price,
             'subtotal' => $this->subtotal,
             'note' => $this->note,
-            'product' => new ProductResource($this->whenLoaded('product')),
-            'options' => OrderItemOptionResource::collection($this->whenLoaded('options')),
+            'product' => $this->whenLoaded('product', fn() => (new ProductResource($this->product))->resolve()),
+            'options' => $this->whenLoaded('options', fn() => OrderItemOptionResource::collection($this->options)->resolve()),
         ];
     }
 }

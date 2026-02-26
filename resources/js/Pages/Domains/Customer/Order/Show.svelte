@@ -15,6 +15,7 @@
         order_status: string;
         created_at: string;
         delivery_date: string;
+        delivery_time?: string;
         cancellation_note?: string;
         drop_point?: { name: string; address: string };
         payment_method?: {
@@ -289,6 +290,10 @@
                                       "DD MMM YYYY",
                                   )
                                 : "-"}
+                            {#if order.delivery_time}
+                                <span class="text-gray-400 mx-1">•</span>
+                                <span>{order.delivery_time} WIB</span>
+                            {/if}
                         </div>
                     </div>
                 </div>

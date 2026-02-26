@@ -50,11 +50,11 @@ class OrderResource extends JsonResource
             'updated_at'               => $this->updated_at?->toIso8601String(),
 
             // Relationships
-            'items'          => OrderItemResource::collection($this->whenLoaded('items')),
-            'drop_point'     => new DropPointResource($this->whenLoaded('dropPoint')),
-            'customer'       => new CustomerResource($this->whenLoaded('customer')),
-            'payment_method' => new PaymentMethodResource($this->whenLoaded('paymentMethod')),
-            'testimonial'    => new TestimonialResource($this->whenLoaded('testimonial')),
+            'items'          => $this->whenLoaded('items', fn() => OrderItemResource::collection($this->items)->resolve()),
+            'drop_point'     => $this->whenLoaded('dropPoint', fn() => (new DropPointResource($this->dropPoint))->resolve()),
+            'customer'       => $this->whenLoaded('customer', fn() => (new CustomerResource($this->customer))->resolve()),
+            'payment_method' => $this->whenLoaded('paymentMethod', fn() => (new PaymentMethodResource($this->paymentMethod))->resolve()),
+            'testimonial'    => $this->whenLoaded('testimonial', fn() => (new TestimonialResource($this->testimonial))->resolve()),
         ];
     }
 }
