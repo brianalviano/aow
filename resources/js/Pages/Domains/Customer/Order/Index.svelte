@@ -14,6 +14,7 @@
         payment_status: string;
         order_status: string;
         created_at: string;
+        cancellation_note?: string;
         drop_point?: { name: string };
         payment_method?: {
             name: string;
@@ -393,6 +394,18 @@
                             {formatCurrency(order.total_amount)}
                         </div>
                     </div>
+
+                    {#if order.order_status === "cancelled" && order.cancellation_note}
+                        <div
+                            class="mt-2 flex items-start gap-1.5 text-xs text-red-500"
+                        >
+                            <i class="fa-solid fa-circle-info mt-0.5 shrink-0"
+                            ></i>
+                            <span class="line-clamp-2"
+                                >{order.cancellation_note}</span
+                            >
+                        </div>
+                    {/if}
                 </Link>
             {/each}
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { page } from "@inertiajs/svelte";
+    import { page, router } from "@inertiajs/svelte";
     import Card from "@/Lib/Admin/Components/Ui/Card.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
@@ -46,11 +46,64 @@
         tax_amount: number;
         payment_expired_at?: string;
         note?: string;
+        cancellation_note?: string;
         created_at: string;
         items: OrderItem[];
     }
 
     let order = $derived($page.props.order.data as Order);
+
+    interface ConfirmDialog {
+        open: boolean;
+        title: string;
+        message: string;
+        action: (() => void) | null;
+        variant: "danger" | "primary" | "success" | "warning";
+    }
+
+    let confirmDialog = $state<ConfirmDialog>({
+        open: false,
+        title: "",
+        message: "",
+        action: null,
+        variant: "primary",
+    });
+
+    let isProcessing = $state(false);
+    let cancelModalOpen = $state(false);
+    let cancelNote = $state("");
+
+    function openConfirm(
+        title: string,
+        message: string,
+        action: () => void,
+        variant: ConfirmDialog["variant"] = "primary",
+    ) {
+        confirmDialog = { open: true, title, message, action, variant };
+    }
+
+    function closeConfirm() {
+        confirmDialog = { ...confirmDialog, open: false, action: null };
+    }
+
+    function executeAction() {
+        if (!confirmDialog.action) return;
+        isProcessing = true;
+        confirmDialog.action();
+        closeConfirm();
+    }
+
+    function postAction(routeName: string) {
+        router.post(
+            `/admin/orders/${order.id}/${routeName}`,
+            {},
+            {
+                onFinish: () => {
+                    isProcessing = false;
+                },
+            },
+        );
+    }
 
     function formatCurrency(amount: number) {
         return new Intl.NumberFormat("id-ID", {
@@ -133,7 +186,7 @@
             </div>
             <p class="mt-2 text-gray-600 dark:text-gray-400">#{order.number}</p>
         </div>
-        <div class="flex flex-wrap gap-4">
+        <div class="flex flex-wrap items-end gap-4">
             <div class="flex flex-col gap-1.5">
                 <span
                     class="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
@@ -169,6 +222,73 @@
                     {#snippet children()}{getPaymentBadge(order.payment_status)
                             .label}{/snippet}
                 </Badge>
+            </div>
+
+            <!-- Status Action Buttons -->
+            <div class="flex flex-wrap gap-2">
+                {#if order.order_status === "pending"}
+                    <Button
+                        variant="primary"
+                        icon="fa-solid fa-check"
+                        disabled={isProcessing}
+                        onclick={() =>
+                            openConfirm(
+                                "Konfirmasi Pesanan",
+                                `Apakah Anda yakin ingin mengkonfirmasi pesanan #${order.number}?`,
+                                () => postAction("confirm"),
+                                "primary",
+                            )}
+                    >
+                        {#snippet children()}Konfirmasi{/snippet}
+                    </Button>
+                    <Button
+                        variant="danger"
+                        icon="fa-solid fa-xmark"
+                        disabled={isProcessing}
+                        onclick={() => {
+                            cancelNote = "";
+                            cancelModalOpen = true;
+                        }}
+                    >
+                        {#snippet children()}Batalkan{/snippet}
+                    </Button>
+                {/if}
+
+                {#if order.order_status === "confirmed"}
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        icon="fa-solid fa-truck"
+                        disabled={isProcessing}
+                        onclick={() =>
+                            openConfirm(
+                                "Tandai Sebagai Dikirim",
+                                `Apakah Anda yakin pesanan #${order.number} sudah dikirim?`,
+                                () => postAction("ship"),
+                                "primary",
+                            )}
+                    >
+                        {#snippet children()}Tandai Dikirim{/snippet}
+                    </Button>
+                {/if}
+
+                {#if order.order_status === "shipped"}
+                    <Button
+                        variant="success"
+                        size="sm"
+                        icon="fa-solid fa-circle-check"
+                        disabled={isProcessing}
+                        onclick={() =>
+                            openConfirm(
+                                "Tandai Sebagai Selesai",
+                                `Apakah Anda yakin pesanan #${order.number} sudah diterima oleh pelanggan?`,
+                                () => postAction("deliver"),
+                                "success",
+                            )}
+                    >
+                        {#snippet children()}Tandai Selesai{/snippet}
+                    </Button>
+                {/if}
             </div>
         </div>
     </header>
@@ -482,6 +602,171 @@
                     {/if}
                 </div>
             </Card>
+
+            {#if order.order_status === "cancelled" && order.cancellation_note}
+                <Card title="Alasan Pembatalan">
+                    <div
+                        class="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400 italic"
+                    >
+                        "{order.cancellation_note}"
+                    </div>
+                </Card>
+            {/if}
         </div>
     </div>
 </section>
+
+<!-- Cancel Order Modal -->
+{#if cancelModalOpen}
+    <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cancel-modal-title"
+    >
+        <div
+            class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+        >
+            <div class="flex items-start gap-4">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                >
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="flex-1">
+                    <h3
+                        id="cancel-modal-title"
+                        class="text-base font-semibold text-gray-900 dark:text-white"
+                    >
+                        Batalkan Pesanan
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        Apakah Anda yakin ingin membatalkan pesanan
+                        <strong>#{order.number}</strong>? Tindakan ini tidak
+                        dapat dibatalkan.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <label
+                    for="cancellation-note"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                    Catatan Pembatalan
+                    <span class="ml-1 font-normal text-gray-400"
+                        >(opsional)</span
+                    >
+                </label>
+                <textarea
+                    id="cancellation-note"
+                    bind:value={cancelNote}
+                    rows="3"
+                    maxlength="500"
+                    placeholder="Tuliskan alasan pembatalan..."
+                    class="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
+                        placeholder:text-gray-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500
+                        dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500
+                        dark:focus:border-indigo-400"
+                ></textarea>
+                <p class="mt-1 text-right text-xs text-gray-400">
+                    {cancelNote.length}/500
+                </p>
+            </div>
+            <div class="mt-4 flex justify-end gap-3">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    onclick={() => (cancelModalOpen = false)}
+                    disabled={isProcessing}
+                >
+                    {#snippet children()}Kembali{/snippet}
+                </Button>
+                <Button
+                    variant="danger"
+                    size="sm"
+                    disabled={isProcessing}
+                    onclick={() => {
+                        isProcessing = true;
+                        router.post(
+                            `/admin/orders/${order.id}/cancel`,
+                            { cancellation_note: cancelNote || null },
+                            {
+                                onFinish: () => {
+                                    isProcessing = false;
+                                    cancelModalOpen = false;
+                                },
+                            },
+                        );
+                    }}
+                >
+                    {#snippet children()}Ya, Batalkan Pesanan{/snippet}
+                </Button>
+            </div>
+        </div>
+    </div>
+{/if}
+
+<!-- Confirmation Dialog Modal -->
+{#if confirmDialog.open}
+    <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
+    >
+        <div
+            class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+        >
+            <div class="flex items-start gap-4">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full
+                        {confirmDialog.variant === 'danger'
+                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                        : confirmDialog.variant === 'success'
+                          ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                          : confirmDialog.variant === 'warning'
+                            ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+                            : 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'}"
+                >
+                    <i
+                        class="fa-solid
+                            {confirmDialog.variant === 'danger'
+                            ? 'fa-triangle-exclamation'
+                            : confirmDialog.variant === 'success'
+                              ? 'fa-circle-check'
+                              : confirmDialog.variant === 'warning'
+                                ? 'fa-circle-exclamation'
+                                : 'fa-circle-question'}"
+                    ></i>
+                </div>
+                <div class="flex-1">
+                    <h3
+                        id="confirm-dialog-title"
+                        class="text-base font-semibold text-gray-900 dark:text-white"
+                    >
+                        {confirmDialog.title}
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        {confirmDialog.message}
+                    </p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <Button variant="secondary" size="sm" onclick={closeConfirm}>
+                    {#snippet children()}Batal{/snippet}
+                </Button>
+                <Button
+                    variant={confirmDialog.variant === "danger"
+                        ? "danger"
+                        : confirmDialog.variant === "success"
+                          ? "success"
+                          : "primary"}
+                    size="sm"
+                    onclick={executeAction}
+                >
+                    {#snippet children()}Ya, Lanjutkan{/snippet}
+                </Button>
+            </div>
+        </div>
+    </div>
+{/if}

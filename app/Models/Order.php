@@ -29,6 +29,7 @@ class Order extends Model
         'payment_status',
         'order_status',
         'note',
+        'cancellation_note',
         'snap_token',
         'payment_url',
         'payment_reference',

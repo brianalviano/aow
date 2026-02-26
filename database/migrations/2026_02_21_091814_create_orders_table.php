@@ -42,6 +42,7 @@ return new class extends Migration
             $table->integer('tax_amount')->default(0);
             $table->time('delivery_time')->nullable();
             $table->string('payment_proof')->nullable();
+            $table->text('cancellation_note')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

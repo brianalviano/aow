@@ -60,18 +60,85 @@ class OrderService
                 }
 
                 $order->update([
-                    'order_status' => 'cancelled',
+                    'order_status'      => 'cancelled',
+                    'cancellation_note' => $reason,
                 ]);
 
                 return $order->fresh();
             });
         } catch (\Throwable $e) {
             Log::error('Gagal membatalkan pesanan', [
-                'order_id' => $order->id,
+                'order_id'    => $order->id,
                 'customer_id' => $order->customer_id,
-                'reason' => $reason,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'reason'      => $reason,
+                'error'       => $e->getMessage(),
+                'trace'       => $e->getTraceAsString(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Confirm the given pending order.
+     *
+     * @param Order $order
+     * @return Order
+     * @throws \Throwable
+     */
+    public function confirmOrder(Order $order): Order
+    {
+        try {
+            return DB::transaction(function () use ($order) {
+                if ($order->order_status !== 'pending') {
+                    throw new \Exception("Pesanan tidak dapat dikonfirmasi karena status saat ini adalah {$order->order_status}.");
+                }
+
+                $order->update([
+                    'order_status' => 'confirmed',
+                ]);
+
+                return $order->fresh();
+            });
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengkonfirmasi pesanan', [
+                'order_id'    => $order->id,
+                'customer_id' => $order->customer_id,
+                'error'       => $e->getMessage(),
+                'trace'       => $e->getTraceAsString(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Mark the given confirmed order as shipped.
+     *
+     * @param Order $order
+     * @return Order
+     * @throws \Throwable
+     */
+    public function shipOrder(Order $order): Order
+    {
+        try {
+            return DB::transaction(function () use ($order) {
+                if ($order->order_status !== 'confirmed') {
+                    throw new \Exception("Pesanan tidak dapat dikirim karena status saat ini adalah {$order->order_status}.");
+                }
+
+                $order->update([
+                    'order_status' => 'shipped',
+                ]);
+
+                return $order->fresh();
+            });
+        } catch (\Throwable $e) {
+            Log::error('Gagal mengubah status pesanan ke dikirim', [
+                'order_id'    => $order->id,
+                'customer_id' => $order->customer_id,
+                'error'       => $e->getMessage(),
+                'trace'       => $e->getTraceAsString(),
             ]);
 
             throw $e;

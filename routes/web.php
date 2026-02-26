@@ -138,6 +138,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Orders
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+        Route::post('/orders/{order}/ship', [OrderController::class, 'ship'])->name('orders.ship');
+        Route::post('/orders/{order}/deliver', [OrderController::class, 'deliver'])->name('orders.deliver');
 
         // Products
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');

@@ -13,6 +13,7 @@
         order_status: string;
         created_at: string;
         delivery_date: string;
+        cancellation_note?: string;
         drop_point?: { name: string; address: string };
         payment_method?: {
             name: string;
@@ -162,6 +163,23 @@
                 </div>
             </div>
         </div>
+
+        {#if order.order_status === "cancelled" && order.cancellation_note}
+            <div
+                class="bg-red-50 border border-red-200 rounded-xl p-4 flex gap-3"
+            >
+                <i class="fa-solid fa-circle-info text-red-500 mt-0.5 shrink-0"
+                ></i>
+                <div>
+                    <div class="text-sm font-semibold text-red-700 mb-1">
+                        Alasan Pembatalan
+                    </div>
+                    <p class="text-sm text-red-600 leading-relaxed">
+                        {order.cancellation_note}
+                    </p>
+                </div>
+            </div>
+        {/if}
 
         {#if order.payment_status === "pending" && order.payment_method?.category !== "cash"}
             <Link
