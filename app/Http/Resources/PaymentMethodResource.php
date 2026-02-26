@@ -25,7 +25,7 @@ class PaymentMethodResource extends JsonResource
             'id' => $this->resource->id,
             'name' => $this->resource->name,
             'category' => $this->resource->category,
-            'photo' => $this->resource->photo ? asset('storage/' . $this->resource->photo) : null,
+            'photo' => $this->resource->photo,
             'is_active' => $this->resource->is_active,
             'type' => $this->resource->type,
             'code' => $this->resource->code,

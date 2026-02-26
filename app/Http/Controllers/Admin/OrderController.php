@@ -7,11 +7,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use App\Traits\FileHelperTrait;
+use Illuminate\Http\{RedirectResponse, Request};
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\{Inertia, Response};
 use Throwable;
 
 /**
@@ -19,6 +18,8 @@ use Throwable;
  */
 class OrderController extends Controller
 {
+    use FileHelperTrait;
+
     /**
      * Display a listing of orders.
      */
@@ -62,6 +63,7 @@ class OrderController extends Controller
             'customer',
             'dropPoint',
             'paymentMethod',
+            'testimonial',
         ]);
 
         return Inertia::render('Domains/Admin/Order/Show', [
@@ -159,17 +161,11 @@ class OrderController extends Controller
     public function deliver(Request $request, Order $order, OrderService $service): RedirectResponse
     {
         $request->validate([
-            'delivery_photo' => ['required', 'image', 'max:5120'],
-        ], [
-            'delivery_photo.required' => 'Foto bukti penerimaan wajib diunggah.',
-            'delivery_photo.image'    => 'File harus berupa gambar (jpg, png, webp, dll).',
-            'delivery_photo.max'      => 'Ukuran foto maksimal 5 MB.',
+            'delivery_photo' => $this->getFileValidationRules(true),
         ]);
 
-        $path = $request->file('delivery_photo')->store('orders/delivery', 'public');
-
         try {
-            $service->completeOrder($order, $path);
+            $service->completeOrder($order, $request->file('delivery_photo'));
 
             Inertia::flash('toast', [
                 'message' => 'Pesanan berhasil diselesaikan.',
@@ -178,9 +174,6 @@ class OrderController extends Controller
 
             return redirect()->back();
         } catch (Throwable $e) {
-            // Clean up the uploaded photo if order completion fails
-            Storage::disk('public')->delete($path);
-
             Inertia::flash('toast', [
                 'message' => 'Gagal menyelesaikan pesanan: ' . $e->getMessage(),
                 'type'    => 'error',

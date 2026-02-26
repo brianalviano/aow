@@ -23,7 +23,7 @@ class TestimonialResource extends JsonResource
             'order_id'    => $this->order_id,
             'rating'      => $this->rating,
             'content'     => $this->content,
-            'photo_url'   => $this->photo ? Storage::url($this->photo) : null,
+            'photo_url'   => $this->photo,
             'is_approved' => $this->is_approved,
             'created_at'  => $this->created_at?->toIso8601String(),
         ];

@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Checkout\ProcessPaymentRequest;
 use App\Models\PaymentMethod;
 use App\Services\{CheckoutService, OrderService};
+use App\Traits\FileHelperTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\{Inertia, Response};
@@ -16,6 +17,8 @@ use Throwable;
 
 class PaymentController extends Controller
 {
+    use FileHelperTrait;
+
     /**
      * Create a new PaymentController instance.
      *
@@ -119,7 +122,7 @@ class PaymentController extends Controller
         ]);
 
         try {
-            $path = $request->file('proof')->store('payment-proofs', 'public');
+            $path = $this->handleFileInput($request->file('proof'), null, 'payment-proofs');
 
             $order->update([
                 'payment_proof' => $path,

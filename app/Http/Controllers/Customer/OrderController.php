@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Traits\FileHelperTrait;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OrderController extends Controller
 {
+    use FileHelperTrait;
+
     /**
      * Display a listing of the authenticated customer's orders.
      */
@@ -90,10 +93,7 @@ class OrderController extends Controller
 
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($order, $request) {
-                $photoPath = null;
-                if ($request->hasFile('photo')) {
-                    $photoPath = $request->file('photo')->store('testimonials', 'public');
-                }
+                $photoPath = $this->handleFileInput($request->file('photo'), null, 'testimonials');
 
                 \App\Models\Testimonial::updateOrCreate(
                     ['order_id' => $order->id],

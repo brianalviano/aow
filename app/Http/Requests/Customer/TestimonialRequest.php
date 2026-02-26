@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Customer;
 
+use App\Traits\FileHelperTrait;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TestimonialRequest extends FormRequest
 {
+    use FileHelperTrait;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -26,7 +29,7 @@ class TestimonialRequest extends FormRequest
         return [
             'rating'  => ['required', 'string', 'in:1,2,3,4,5'],
             'content' => ['nullable', 'string', 'max:1000'],
-            'photo'   => ['nullable', 'image', 'max:2048'], // Max 2MB
+            'photo'   => $this->getFileValidationRules(false, ['max_size' => 2 * 1024 * 1024]),
         ];
     }
 

@@ -32,9 +32,7 @@ class OrderResource extends JsonResource
             'order_status'      => $this->order_status,
             'note'               => $this->note,
             'cancellation_note'  => $this->cancellation_note,
-            'delivery_photo_url' => $this->delivery_photo
-                ? Storage::url($this->delivery_photo)
-                : null,
+            'delivery_photo_url' => $this->delivery_photo,
             'discount_amount'          => $this->discount_amount,
             'total_amount'             => $this->total_amount,
             'delivery_fee'             => $this->delivery_fee,

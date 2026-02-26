@@ -49,8 +49,15 @@
         note?: string;
         cancellation_note?: string;
         delivery_photo_url?: string;
+        delivered_at?: string;
         created_at: string;
         items: OrderItem[];
+        testimonial?: {
+            rating: string;
+            content: string;
+            photo_url: string;
+            created_at: string;
+        };
     }
 
     let order = $derived($page.props.order as Order);
@@ -630,6 +637,60 @@
                         class="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400 italic"
                     >
                         "{order.cancellation_note}"
+                    </div>
+                </Card>
+            {/if}
+
+            {#if order.testimonial}
+                <Card title="Testimoni Pelanggan">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-1">
+                            {#each Array(5) as _, i}
+                                <i
+                                    class="fa-solid fa-star {i <
+                                    parseInt(order.testimonial.rating)
+                                        ? 'text-yellow-400'
+                                        : 'text-gray-200 dark:text-gray-700'}"
+                                ></i>
+                            {/each}
+                            <span
+                                class="ml-2 text-xs text-gray-500 font-medium"
+                            >
+                                ({order.testimonial.rating}/5)
+                            </span>
+                        </div>
+                        <div
+                            class="rounded-lg bg-yellow-50/50 p-3 text-sm text-gray-700 dark:bg-yellow-900/10 dark:text-gray-300 italic border border-yellow-100/50 dark:border-yellow-900/20"
+                        >
+                            "{order.testimonial.content || "Tanpa komentar"}"
+                        </div>
+                        {#if order.testimonial.photo_url}
+                            <div class="space-y-2">
+                                <a
+                                    href={order.testimonial.photo_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="block overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity"
+                                >
+                                    <img
+                                        src={order.testimonial.photo_url}
+                                        alt="Foto Testimoni"
+                                        class="w-full object-cover max-h-64"
+                                    />
+                                </a>
+                            </div>
+                        {/if}
+                        <div class="text-[10px] text-gray-400">
+                            Dikirim pada {new Date(
+                                order.testimonial.created_at,
+                            ).toLocaleString("id-ID", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            })}
+                        </div>
                     </div>
                 </Card>
             {/if}

@@ -9,13 +9,13 @@ use App\Enums\PaymentMethodType;
 use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
 use App\Models\{Customer, Order, OrderItem, OrderItemOption, PaymentMethod};
 use App\Notifications\{OrderPlacedNotification, OrderStatusChangedNotification};
-use App\Traits\RetryableTransactionsTrait;
+use App\Traits\{FileHelperTrait, RetryableTransactionsTrait};
 use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
 use Throwable;
 
 class OrderService
 {
-    use RetryableTransactionsTrait;
+    use RetryableTransactionsTrait, FileHelperTrait;
 
     /**
      * Create a new OrderService instance.
@@ -31,11 +31,11 @@ class OrderService
      * Mark the given order as completed/delivered with photo proof.
      *
      * @param Order       $order
-     * @param string|null $deliveryPhotoPath  Storage path of the delivery photo proof.
+     * @param \Illuminate\Http\UploadedFile|string|null $deliveryPhotoPath Storage path or UploadedFile of the delivery photo proof.
      * @return Order
      * @throws \Throwable
      */
-    public function completeOrder(Order $order, ?string $deliveryPhotoPath = null): Order
+    public function completeOrder(Order $order, $deliveryPhotoPath = null): Order
     {
         try {
             return DB::transaction(function () use ($order, $deliveryPhotoPath) {
@@ -44,9 +44,11 @@ class OrderService
                     throw new \Exception("Pesanan tidak dapat diselesaikan karena status saat ini adalah {$order->order_status}.");
                 }
 
+                $photoPath = $this->handleFileInput($deliveryPhotoPath, null, 'orders/delivery');
+
                 $order->update([
                     'order_status'   => 'delivered',
-                    'delivery_photo' => $deliveryPhotoPath,
+                    'delivery_photo' => $photoPath,
                     'delivered_at'   => now(),
                 ]);
 
@@ -190,7 +192,7 @@ class OrderService
     public function getFilteredOrdersForAdmin(\App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
-            ->with(['dropPoint', 'paymentMethod', 'customer']);
+            ->with(['dropPoint', 'paymentMethod', 'customer', 'testimonial']);
 
         // Filter by Status
         if ($dto->status && $dto->status !== 'all') {
@@ -265,7 +267,7 @@ class OrderService
     public function getFilteredOrders(string $customerId, \App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
-            ->with(['dropPoint', 'paymentMethod'])
+            ->with(['dropPoint', 'paymentMethod', 'testimonial'])
             ->where('customer_id', $customerId);
 
         // Filter by Status
