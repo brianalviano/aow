@@ -24,7 +24,7 @@ class OrderController extends Controller
         )->withQueryString();
 
         return Inertia::render('Domains/Customer/Order/Index', [
-            'orders' => $orders,
+            'orders'  => $orders,
             'filters' => $request->only(['search', 'date_range', 'start_date', 'end_date', 'status']),
         ]);
     }
@@ -49,7 +49,7 @@ class OrderController extends Controller
         ]);
 
         return Inertia::render('Domains/Customer/Order/Show', [
-            'order' => $order,
+            'order' => (new \App\Http\Resources\OrderResource($order))->resolve(),
         ]);
     }
 

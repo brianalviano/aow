@@ -30,6 +30,7 @@
         admin_fee: number;
         final_delivery_fee: number;
         discount_amount: number;
+        delivery_photo_url?: string;
     };
 
     function formatCurrency(amount: number) {
@@ -250,6 +251,36 @@
                 </div>
             </div>
         </div>
+
+        {#if order.order_status === "delivered" && order.delivery_photo_url}
+            <div
+                class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm overflow-hidden"
+            >
+                <div
+                    class="font-bold text-gray-900 flex items-center gap-2 mb-3"
+                >
+                    <i class="fa-solid fa-camera text-green-500"></i>
+                    Bukti Penerimaan
+                </div>
+                <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+                    Foto bukti pesanan yang telah diterima.
+                </p>
+                <div class="rounded-lg overflow-hidden border border-gray-50">
+                    <a
+                        href={order.delivery_photo_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="block"
+                    >
+                        <img
+                            src={order.delivery_photo_url}
+                            alt="Bukti Penerimaan"
+                            class="w-full h-auto object-cover max-h-64 hover:opacity-90 transition-opacity"
+                        />
+                    </a>
+                </div>
+            </div>
+        {/if}
 
         <!-- Order Items -->
         <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">

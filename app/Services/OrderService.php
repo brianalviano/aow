@@ -13,12 +13,12 @@ class OrderService
     /**
      * Mark the given order as completed/delivered with photo proof.
      *
-     * @param Order  $order
-     * @param string $deliveryPhotoPath  Storage path of the delivery photo proof.
+     * @param Order       $order
+     * @param string|null $deliveryPhotoPath  Storage path of the delivery photo proof.
      * @return Order
      * @throws \Throwable
      */
-    public function completeOrder(Order $order, string $deliveryPhotoPath): Order
+    public function completeOrder(Order $order, ?string $deliveryPhotoPath = null): Order
     {
         try {
             return DB::transaction(function () use ($order, $deliveryPhotoPath) {
