@@ -93,27 +93,31 @@
             </Link>
 
             <!-- Option 2: Use Other Address -->
-            <div
-                class="group block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 opacity-80 cursor-not-allowed"
+            <Link
+                href="/custom-address"
+                class="group block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-[#CCFF33] transition-all transform active:scale-[0.98]"
             >
                 <div class="flex items-center gap-4">
                     <div
-                        class="bg-gray-100 w-14 h-14 rounded-xl flex items-center justify-center text-gray-400 text-2xl"
+                        class="bg-gray-50 w-14 h-14 rounded-xl flex items-center justify-center text-gray-600 text-2xl group-hover:bg-[#CCFF33] group-hover:text-slate-800 transition-colors"
                     >
                         <i class="fa-solid fa-map-location-dot"></i>
                     </div>
                     <div class="flex-1">
                         <h3
-                            class="font-bold text-gray-400 text-lg leading-tight"
+                            class="font-bold text-gray-800 text-lg leading-tight group-hover:text-slate-900 transition-colors"
                         >
                             Gunakan Alamat Lain
                         </h3>
-                        <p class="text-gray-400 text-xs mt-1">
-                            Segera hadir untuk lokasi Anda
+                        <p class="text-gray-500 text-xs mt-1">
+                            Pesan dari lokasi Anda saat ini
                         </p>
                     </div>
+                    <i
+                        class="fa-solid fa-chevron-right text-gray-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all"
+                    ></i>
                 </div>
-            </div>
+            </Link>
         </div>
     </main>
 

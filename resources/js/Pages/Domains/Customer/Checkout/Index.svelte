@@ -9,7 +9,14 @@
         id: string;
         name: string;
         address: string;
-    };
+    } | null = null;
+    export let address: {
+        id: string;
+        name: string;
+        phone: string;
+        address: string;
+        note?: string;
+    } | null = null;
     export let fees: {
         deliveryFee: number;
         baseDeliveryFee: number;
@@ -82,7 +89,11 @@
     }
 
     function goBack() {
-        router.visit(`/drop-points/${dropPoint.id}/products`);
+        if (dropPoint) {
+            router.visit(`/drop-points/${dropPoint.id}/products`);
+        } else {
+            router.visit(`/products`);
+        }
     }
 
     function handleLanjutPembayaran() {
@@ -108,7 +119,7 @@
                         ) as HTMLMetaElement
                     )?.content || "",
             },
-            body: JSON.stringify({ cart, dropPoint }),
+            body: JSON.stringify({ cart, dropPoint, address }),
         });
     }
 
@@ -284,12 +295,29 @@
                 <i class="fa-solid fa-location-dot text-[#f44336] text-lg"></i>
             </div>
             <div>
-                <h3 class="font-bold text-gray-900 text-base">
-                    {dropPoint.name}
-                </h3>
-                <p class="text-gray-500 text-xs leading-relaxed">
-                    {dropPoint.address}
-                </p>
+                {#if dropPoint}
+                    <h3 class="font-bold text-gray-900 text-base">
+                        {dropPoint.name}
+                    </h3>
+                    <p class="text-gray-500 text-xs leading-relaxed">
+                        {dropPoint.address}
+                    </p>
+                {:else if address}
+                    <h3 class="font-bold text-gray-900 text-base">
+                        {address.name}
+                        <span class="text-xs font-normal text-gray-500"
+                            >({address.phone})</span
+                        >
+                    </h3>
+                    <p class="text-gray-500 text-xs leading-relaxed">
+                        {address.address}
+                        {#if address.note}
+                            <br /><span class="italic text-gray-400"
+                                >Catatan: {address.note}</span
+                            >
+                        {/if}
+                    </p>
+                {/if}
             </div>
         </section>
 

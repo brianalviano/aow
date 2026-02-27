@@ -22,17 +22,18 @@ class CheckoutService
     public function __construct() {}
 
     /**
-     * Calculate checkout fees based on cart and drop point.
+     * Calculate checkout fees based on cart and drop point or custom address.
      *
      * @param array $cart The current items in the cart.
-     * @param string $dropPointId The selected drop point ID.
+     * @param string|null $dropPointId The selected drop point ID.
+     * @param string|null $addressId The selected custom address ID.
      * @return array Calculated fees including delivery, admin, and tax.
      */
-    public function calculateFees(array $cart, string $dropPointId): array
+    public function calculateFees(array $cart, ?string $dropPointId = null, ?string $addressId = null): array
     {
         $settings = OrderSetting::pluck('value', 'key')->toArray();
         $subtotal = collect($cart)->sum('totalPrice');
-        $dropPoint = DropPoint::find($dropPointId);
+        $dropPoint = $dropPointId ? DropPoint::find($dropPointId) : null;
 
         // Logic for Delivery Fee
         $deliveryFeeMode = $settings['delivery_fee_mode'] ?? 'per_drop_point';
@@ -44,7 +45,7 @@ class CheckoutService
             $deliveryFee = match ($deliveryFeeMode) {
                 'free' => 0,
                 'flat' => (int) ($settings['delivery_fee_flat'] ?? 0),
-                default => (int) ($dropPoint->delivery_fee ?? 0),
+                default => (int) ($dropPoint?->delivery_fee ?? $settings['delivery_fee_flat'] ?? 0),
             };
         }
 
@@ -78,7 +79,7 @@ class CheckoutService
             'baseDeliveryFee' => match ($deliveryFeeMode) {
                 'free' => 0,
                 'flat' => (int) ($settings['delivery_fee_flat'] ?? 0),
-                default => (int) ($dropPoint->delivery_fee ?? 0),
+                default => (int) ($dropPoint?->delivery_fee ?? $settings['delivery_fee_flat'] ?? 0),
             },
             'adminFeeType' => $settings['admin_fee_type'] ?? 'fixed',
             'adminFeeValue' => (int) ($settings['admin_fee_value'] ?? 0),

@@ -30,16 +30,18 @@ class CheckoutController extends Controller
     {
         $cart = session('checkout_cart', []);
         $dropPointData = session('checkout_drop_point');
+        $addressData = session('checkout_address');
 
-        if (empty($cart) || empty($dropPointData)) {
+        if (empty($cart) || (empty($dropPointData) && empty($addressData))) {
             return redirect()->to(route('home'));
         }
 
-        $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id']);
+        $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id'] ?? null, $addressData['id'] ?? null);
 
         return Inertia::render('Domains/Customer/Checkout/Index', [
             'cart' => $cart,
             'dropPoint' => $dropPointData,
+            'address' => $addressData,
             'fees' => [
                 'deliveryFee' => $fees['deliveryFee'],
                 'baseDeliveryFee' => $fees['baseDeliveryFee'],
@@ -69,12 +71,14 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'cart' => 'required|array',
-            'dropPoint' => 'required|array',
+            'dropPoint' => 'nullable|array',
+            'address' => 'nullable|array',
         ]);
 
         session([
             'checkout_cart' => $request->input('cart'),
             'checkout_drop_point' => $request->input('dropPoint'),
+            'checkout_address' => $request->input('address'),
         ]);
 
         return redirect()->to(route('customer.checkout'));
@@ -90,12 +94,14 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'cart' => 'required|array',
-            'dropPoint' => 'required|array',
+            'dropPoint' => 'nullable|array',
+            'address' => 'nullable|array',
         ]);
 
         session([
             'checkout_cart' => $request->input('cart'),
             'checkout_drop_point' => $request->input('dropPoint'),
+            'checkout_address' => $request->input('address'),
         ]);
 
         return response()->json(['success' => true]);

@@ -25,6 +25,28 @@ class ProductController extends Controller
             ->where('is_active', true)
             ->findOrFail($id);
 
+        return $this->renderProducts($dropPoint);
+    }
+
+    /**
+     * Display the general products page for custom addresses.
+     */
+    public function generalIndex(): Response|\Illuminate\Http\RedirectResponse
+    {
+        $address = session('checkout_address');
+
+        if (!$address) {
+            return redirect()->route('home');
+        }
+
+        return $this->renderProducts();
+    }
+
+    /**
+     * Shared logic to render the products page.
+     */
+    private function renderProducts(?DropPoint $dropPoint = null): Response
+    {
         $categories = ProductCategory::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
@@ -44,7 +66,7 @@ class ProductController extends Controller
             ->get();
 
         return Inertia::render('Domains/Customer/Product/Index', [
-            'dropPoint' => DropPointResource::make($dropPoint)->resolve(),
+            'dropPoint' => $dropPoint ? DropPointResource::make($dropPoint)->resolve() : null,
             'categories' => ProductCategoryResource::collection($categories)->resolve(),
             'products' => ProductResource::collection($products)->resolve(),
             'savedCart' => session('checkout_cart', []),
