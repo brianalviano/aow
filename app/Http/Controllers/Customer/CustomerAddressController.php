@@ -21,7 +21,13 @@ class CustomerAddressController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Domains/Customer/Address/Create');
+        return Inertia::render('Domains/Customer/Address/Create', [
+            'tomtomApiKey' => config('tomtom.api_key'),
+            'defaultCenter' => [
+                'lat' => config('tomtom.geofence.center_lat'),
+                'lng' => config('tomtom.geofence.center_long'),
+            ],
+        ]);
     }
 
     /**

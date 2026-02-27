@@ -81,7 +81,6 @@
     let marker: any = null;
     let mapLoaded = $state(false);
 
-    let searchLocationQuery = $state("");
     let searchLocationResults = $state<any[]>([]);
 
     const searchLocation = debounce(async (query: string) => {
@@ -104,9 +103,10 @@
         }
     }, 500);
 
-    $effect(() => {
-        searchLocation(searchLocationQuery);
-    });
+    function handleAddressInput(e: Event) {
+        const target = e.target as HTMLTextAreaElement;
+        searchLocation(target.value);
+    }
 
     // Effect to update map when inputs change manually
     $effect(() => {
@@ -121,12 +121,12 @@
 
     function selectLocation(result: any) {
         if (result.position) {
+            searchLocationResults = [];
+            searchLocation.cancel();
+
             $form.latitude = result.position.lat;
             $form.longitude = result.position.lon;
-            searchLocationQuery = result.poi
-                ? result.poi.name
-                : result.address.streetName || result.address.freeformAddress;
-            searchLocationResults = [];
+            $form.address = result.address.freeformAddress;
         }
     }
 
@@ -302,16 +302,52 @@
                                 required
                             />
 
-                            <TextArea
-                                id="address"
-                                name="address"
-                                label="Alamat Lengkap"
-                                placeholder="Jelaskan detail alamat titik bangunan"
-                                bind:value={$form.address}
-                                error={$form.errors.address}
-                                rows={3}
-                                required
-                            />
+                            <div class="relative">
+                                <TextArea
+                                    id="address"
+                                    name="address"
+                                    label="Alamat Lengkap"
+                                    placeholder="Jelaskan detail alamat titik bangunan"
+                                    bind:value={$form.address}
+                                    oninput={handleAddressInput}
+                                    error={$form.errors.address}
+                                    rows={3}
+                                    required
+                                />
+                                {#if searchLocationResults.length > 0}
+                                    <ul
+                                        class="absolute z-60 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto"
+                                    >
+                                        {#each searchLocationResults as result}
+                                            <li>
+                                                <button
+                                                    type="button"
+                                                    class="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none border-b border-gray-50 dark:border-gray-700 last:border-0 transition-colors"
+                                                    onclick={() =>
+                                                        selectLocation(result)}
+                                                >
+                                                    <div
+                                                        class="text-sm font-bold text-gray-900 dark:text-white"
+                                                    >
+                                                        {result.poi
+                                                            ? result.poi.name
+                                                            : result.address
+                                                                  .streetName ||
+                                                              result.address
+                                                                  .freeformAddress}
+                                                    </div>
+                                                    <div
+                                                        class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"
+                                                    >
+                                                        {result.address
+                                                            .freeformAddress}
+                                                    </div>
+                                                </button>
+                                            </li>
+                                        {/each}
+                                    </ul>
+                                {/if}
+                            </div>
 
                             <TextInput
                                 id="phone"
@@ -405,52 +441,10 @@
                     {#snippet children()}
                         <div class="space-y-4 h-full flex flex-col">
                             <p class="text-sm text-gray-600 dark:text-gray-400">
-                                Geser pin atau cari lokasi untuk menentukan
-                                kordinat titik pengiriman.
+                                Geser pin atau klik peta untuk menentukan titik
+                                pengiriman yang akurat. Ketik alamat di form
+                                sebelah kiri untuk mencari koordinat otomatis.
                             </p>
-
-                            <div class="relative">
-                                <TextInput
-                                    id="search_location"
-                                    name="search_location"
-                                    placeholder="Cari nama jalan atau tempat..."
-                                    bind:value={searchLocationQuery}
-                                    class="mb-0!"
-                                />
-                                {#if searchLocationResults.length > 0}
-                                    <ul
-                                        class="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto"
-                                    >
-                                        {#each searchLocationResults as result}
-                                            <li>
-                                                <button
-                                                    type="button"
-                                                    class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
-                                                    onclick={() =>
-                                                        selectLocation(result)}
-                                                >
-                                                    <div
-                                                        class="text-sm font-medium text-gray-900 dark:text-white"
-                                                    >
-                                                        {result.poi
-                                                            ? result.poi.name
-                                                            : result.address
-                                                                  .streetName ||
-                                                              result.address
-                                                                  .freeformAddress}
-                                                    </div>
-                                                    <div
-                                                        class="text-xs text-gray-500 dark:text-gray-400"
-                                                    >
-                                                        {result.address
-                                                            .freeformAddress}
-                                                    </div>
-                                                </button>
-                                            </li>
-                                        {/each}
-                                    </ul>
-                                {/if}
-                            </div>
 
                             <div
                                 class="w-full h-80 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
