@@ -25,8 +25,58 @@
     let map: any = null;
     let marker: any = null;
     let mapLoaded = $state(false);
+    let isLocating = $state(false);
 
     let searchLocationResults = $state<any[]>([]);
+
+    async function reverseGeocode(lat: number, lng: number) {
+        try {
+            const response = await fetch(
+                `https://api.tomtom.com/search/2/reverseGeocode/${lat},${lng}.json?key=${tomtomApiKey}`,
+            );
+            const data = await response.json();
+            if (data.addresses && data.addresses.length > 0) {
+                $form.address = data.addresses[0].address.freeformAddress;
+            }
+        } catch (error) {
+            console.error("Reverse geocoding failed", error);
+        }
+    }
+
+    function getCurrentLocation() {
+        if (!navigator.geolocation) {
+            alert("Geolocation tidak didukung oleh browser Anda.");
+            return;
+        }
+
+        isLocating = true;
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                $form.latitude = latitude;
+                $form.longitude = longitude;
+
+                if (map && marker) {
+                    const newCenter = [longitude, latitude];
+                    marker.setLngLat(newCenter);
+                    map.flyTo({ center: newCenter, zoom: 17 });
+                }
+
+                await reverseGeocode(latitude, longitude);
+                isLocating = false;
+            },
+            (error) => {
+                console.error("Error getting location", error);
+                isLocating = false;
+                let message = "Gagal mendapatkan lokasi.";
+                if (error.code === error.PERMISSION_DENIED) {
+                    message = "Izin lokasi ditolak oleh pengguna.";
+                }
+                alert(message);
+            },
+            { enableHighAccuracy: true },
+        );
+    }
 
     const searchLocation = debounce(async (query: string) => {
         if (!query || query.length < 3) {
@@ -208,10 +258,31 @@
             />
 
             <div class="relative">
+                <div class="flex items-center justify-between mb-1">
+                    <label
+                        for="address"
+                        class="block text-sm font-medium text-gray-700"
+                    >
+                        Alamat Lengkap <span class="text-red-500">*</span>
+                    </label>
+                    <button
+                        type="button"
+                        onclick={getCurrentLocation}
+                        disabled={isLocating}
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#0060B2] bg-blue-50 hover:bg-blue-100 transition-colors disabled:opacity-50"
+                    >
+                        {#if isLocating}
+                            <i class="fa-solid fa-spinner fa-spin"></i> Mencari...
+                        {:else}
+                            <i class="fa-solid fa-location-crosshairs"></i> Gunakan
+                            Lokasi Saat Ini
+                        {/if}
+                    </button>
+                </div>
                 <TextArea
                     id="address"
                     name="address"
-                    label="Alamat Lengkap"
+                    label=""
                     placeholder="Contoh: Jl. Sudirman No. 123, RT 01/RW 02, Patokan: Pagar Hitam"
                     bind:value={$form.address}
                     oninput={handleAddressInput}
