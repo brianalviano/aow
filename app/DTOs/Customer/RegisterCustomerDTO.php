@@ -13,7 +13,6 @@ readonly class RegisterCustomerDTO
         public ?string $address,
         public ?string $email,
         public string $password,
-        public string $drop_point_id,
         public ?string $school_class = null,
     ) {}
 }

@@ -59,6 +59,7 @@ class PaymentController extends Controller
             'paymentMethods' => $paymentMethods,
             'customer' => $user,
             'totalAmount' => $totalAmount,
+            'dropPoint' => $dropPointData,
         ]);
     }
 

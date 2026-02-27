@@ -25,7 +25,6 @@ class CustomerAuthService
         try {
             return DB::transaction(function () use ($dto) {
                 $customer = Customer::create([
-                    'drop_point_id' => $dto->drop_point_id,
                     'name'          => $dto->name,
                     'username'      => $dto->username,
                     'phone'         => $dto->phone,

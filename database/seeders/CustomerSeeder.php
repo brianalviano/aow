@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\{Customer, DropPoint};
+use App\Models\Customer;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\{DB, Hash, Log};
 use Faker\Factory as Faker;
@@ -22,13 +22,6 @@ class CustomerSeeder extends Seeder
 
         try {
             DB::transaction(function () use ($faker): void {
-                $dropPoints = DropPoint::all();
-
-                if ($dropPoints->isEmpty()) {
-                    $this->command->warn('No drop points found. Skipping CustomerSeeder.');
-                    return;
-                }
-
                 $password = Hash::make('password');
 
                 // Seed specific test customers
@@ -53,7 +46,6 @@ class CustomerSeeder extends Seeder
                     Customer::query()->updateOrCreate(
                         ['phone' => $data['phone']],
                         array_merge($data, [
-                            'drop_point_id' => $dropPoints->random()->id,
                             'password' => $password,
                             'address' => $faker->address(),
                             'is_active' => true,
@@ -71,7 +63,6 @@ class CustomerSeeder extends Seeder
                     Customer::query()->updateOrCreate(
                         ['phone' => $phone],
                         [
-                            'drop_point_id' => $dropPoints->random()->id,
                             'name' => $firstName . ' ' . $lastName,
                             'username' => strtolower($firstName) . $faker->randomNumber(3, true),
                             'email' => $email,

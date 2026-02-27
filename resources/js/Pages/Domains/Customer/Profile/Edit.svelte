@@ -1,34 +1,24 @@
 <script lang="ts">
     import { page, useForm, Link } from "@inertiajs/svelte";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
-    import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import { name as appName } from "@/Lib/Admin/Utils/settings";
 
-    const { customer, dropPoints } = $page.props as {
+    const { customer } = $page.props as {
         customer: {
             name: string;
             email: string;
-            phone: string;
             username: string;
             schoolClass: string;
-            dropPointId: string;
         };
-        dropPoints: { id: string; name: string }[];
     };
-
-    const dropPointOptions = dropPoints.map((dp) => ({
-        value: dp.id,
-        label: dp.name,
-    }));
 
     const form = useForm({
         username: customer.username ?? "",
         name: customer.name ?? "",
         email: customer.email ?? "",
-        phone: customer.phone ?? "",
+        phone: "",
         schoolClass: customer.schoolClass ?? "",
-        dropPointId: customer.dropPointId ?? "",
         password: "",
         password_confirmation: "",
     });
@@ -98,17 +88,6 @@
                 />
 
                 <TextInput
-                    id="phone"
-                    name="phone"
-                    label="Nomor Telepon/WA"
-                    type="text"
-                    required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.phone}
-                    error={$form.errors.phone}
-                />
-
-                <TextInput
                     id="email"
                     name="email"
                     label="Email"
@@ -117,17 +96,6 @@
                     disabled={$form.processing}
                     bind:value={$form.email}
                     error={$form.errors.email}
-                />
-
-                <Select
-                    id="dropPointId"
-                    name="dropPointId"
-                    label="Pilih Drop Point"
-                    options={dropPointOptions}
-                    required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.dropPointId}
-                    error={$form.errors.dropPointId}
                 />
 
                 <TextInput

@@ -31,7 +31,6 @@ class RegisterCustomerRequest extends FormRequest
             'address' => ['nullable', 'string'],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:customers,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'dropPointId' => ['required', 'uuid', 'exists:drop_points,id'],
             'schoolClass' => ['nullable', 'string', 'max:255'],
         ];
     }
@@ -48,7 +47,6 @@ class RegisterCustomerRequest extends FormRequest
             address: $this->validated('address'),
             email: $this->validated('email'),
             password: $this->validated('password'),
-            drop_point_id: $this->validated('dropPointId'),
             school_class: $this->validated('schoolClass'),
         );
     }

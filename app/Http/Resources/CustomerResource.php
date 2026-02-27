@@ -18,7 +18,6 @@ class CustomerResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'drop_point_id' => $this->drop_point_id,
             'name' => $this->name,
             'username' => $this->username,
             'phone' => $this->phone,
@@ -28,7 +27,6 @@ class CustomerResource extends JsonResource
             'is_active' => $this->is_active,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'drop_point' => new DropPointResource($this->whenLoaded('dropPoint')),
         ];
     }
 }

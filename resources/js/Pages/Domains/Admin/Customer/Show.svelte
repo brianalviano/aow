@@ -14,10 +14,6 @@
         email: string | null;
         school_class: string | null;
         is_active: boolean;
-        drop_point?: {
-            id: string;
-            name: string;
-        };
         created_at: string;
         updated_at: string;
     }
@@ -136,16 +132,6 @@
                             class="mt-1 text-base text-gray-900 dark:text-white"
                         >
                             {data.phone || "-"}
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-sm font-medium text-gray-500">
-                            Titik Jemput (Drop Point)
-                        </div>
-                        <div
-                            class="mt-1 text-base text-gray-900 dark:text-white"
-                        >
-                            {data.drop_point?.name || "-"}
                         </div>
                     </div>
                     <div>

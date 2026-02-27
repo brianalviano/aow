@@ -34,7 +34,6 @@ class ProfileUpdateRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', Rule::unique('customers', 'email')->ignore($customerId)],
             'phone' => ['required', 'string', 'max:20', Rule::unique('customers', 'phone')->ignore($customerId)],
             'schoolClass' => ['nullable', 'string', 'max:255'],
-            'dropPointId' => ['required', 'uuid', 'exists:drop_points,id'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
     }
@@ -47,7 +46,6 @@ class ProfileUpdateRequest extends FormRequest
         return new UpdateProfileDTO(
             name: $this->validated('name'),
             phone: $this->validated('phone'),
-            drop_point_id: $this->validated('dropPointId'),
             username: $this->validated('username'),
             email: $this->validated('email'),
             password: $this->validated('password'),

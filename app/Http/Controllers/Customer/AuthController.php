@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\LoginCustomerRequest;
 use App\Http\Requests\Customer\RegisterCustomerRequest;
-use App\Models\DropPoint;
 use App\Services\CustomerAuthService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -79,12 +78,7 @@ class AuthController extends Controller
             return redirect()->route('home');
         }
 
-        // Fetch drop points for the registration form dropdown
-        $dropPoints = DropPoint::orderBy('name')->get(['id', 'name', 'address']);
-
-        return Inertia::render('Domains/Customer/Auth/Register/Index', [
-            'dropPoints' => $dropPoints,
-        ]);
+        return Inertia::render('Domains/Customer/Auth/Register/Index');
     }
 
     /**

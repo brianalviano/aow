@@ -30,7 +30,6 @@ class CustomerProfileService
                 $lockedCustomer->username = $dto->username;
                 $lockedCustomer->phone = $dto->phone;
                 $lockedCustomer->email = $dto->email;
-                $lockedCustomer->drop_point_id = $dto->drop_point_id;
                 $lockedCustomer->school_class = $dto->school_class;
 
                 if (!empty($dto->password)) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Customer\Checkout;
 
+use App\Enums\DropPointCategory;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -30,11 +31,14 @@ class ProcessPaymentRequest extends FormRequest
      */
     public function rules(): array
     {
+        $dropPoint = session('checkout_drop_point');
+        $isSchool = ($dropPoint['category'] ?? '') === DropPointCategory::SCHOOL->value;
+
         return [
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
-            'school_class' => 'nullable|string|max:255',
+            'school_class' => ($isSchool ? 'required' : 'nullable') . '|string|max:255',
             'payment_method_id' => 'required|exists:payment_methods,id',
             'delivery_date' => 'nullable|date_format:Y-m-d',
             'delivery_time' => 'nullable|date_format:H:i',

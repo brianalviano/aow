@@ -10,13 +10,25 @@
         paymentMethods?: Record<string, any[]>;
         customer?: any;
         totalAmount?: number;
+        dropPoint?: any;
     }
 
     let {
         paymentMethods = {},
         customer = null,
         totalAmount = 0,
+        dropPoint = null,
     }: Props = $props();
+
+    const isSchool = $derived(dropPoint?.category === "school");
+
+    $effect(() => {
+        if (!isSchool) {
+            untrack(() => {
+                $form.school_class = "";
+            });
+        }
+    });
 
     const form = useForm({
         name: untrack(() => customer?.name || ""),
@@ -134,16 +146,19 @@
                     class="rounded-2xl! focus:ring-[#CCFF33]!"
                 />
 
-                <!-- Kelas Sekolah -->
-                <TextInput
-                    id="school_class"
-                    name="school_class"
-                    label="Kelas Sekolah"
-                    bind:value={$form.school_class}
-                    placeholder="Cth: XII IPA 1"
-                    error={$form.errors.school_class}
-                    class="rounded-2xl! focus:ring-[#CCFF33]!"
-                />
+                {#if isSchool}
+                    <!-- Kelas Sekolah -->
+                    <TextInput
+                        id="school_class"
+                        name="school_class"
+                        label="Kelas Sekolah"
+                        bind:value={$form.school_class}
+                        placeholder="Cth: XII IPA 1"
+                        required={isSchool}
+                        error={$form.errors.school_class}
+                        class="rounded-2xl! focus:ring-[#CCFF33]!"
+                    />
+                {/if}
             </div>
         </section>
 

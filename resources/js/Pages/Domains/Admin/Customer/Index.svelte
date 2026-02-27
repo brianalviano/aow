@@ -18,10 +18,6 @@
         email: string | null;
         school_class: string | null;
         is_active: boolean;
-        drop_point?: {
-            id: string;
-            name: string;
-        };
         created_at: string;
     }
 
@@ -75,7 +71,6 @@
             handleSearch();
         }
     });
-
 </script>
 
 <svelte:head>
@@ -83,7 +78,9 @@
 </svelte:head>
 
 <section class="space-y-6">
-    <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <header
+        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
                 Customer
@@ -96,7 +93,9 @@
 
     <Card title="Daftar Customer" bodyWithoutPadding={true}>
         {#snippet actions()}
-            <div class="flex flex-col sm:flex-row items-center w-full max-w-lg gap-2">
+            <div
+                class="flex flex-col sm:flex-row items-center w-full max-w-lg gap-2"
+            >
                 <div class="flex-1 w-full">
                     <TextInput
                         id="search"
@@ -139,52 +138,76 @@
                             {#each items as item}
                                 <tr>
                                     <td>
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                        <div
+                                            class="text-sm font-medium text-gray-900 dark:text-white"
+                                        >
                                             {item.name}
                                         </div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        <div
+                                            class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                                        >
                                             @{item.username}
                                         </div>
                                     </td>
                                     <td>
                                         {#if item.email}
-                                            <div class="text-sm text-gray-900 dark:text-white">
-                                                <i class="fa-solid fa-envelope text-gray-400 mr-1"></i>
+                                            <div
+                                                class="text-sm text-gray-900 dark:text-white"
+                                            >
+                                                <i
+                                                    class="fa-solid fa-envelope text-gray-400 mr-1"
+                                                ></i>
                                                 {item.email}
                                             </div>
                                         {/if}
                                         {#if item.phone}
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                <i class="fa-solid fa-phone text-gray-400 mr-1"></i>
+                                            <div
+                                                class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                                            >
+                                                <i
+                                                    class="fa-solid fa-phone text-gray-400 mr-1"
+                                                ></i>
                                                 {item.phone}
                                             </div>
                                         {/if}
                                     </td>
                                     <td>
-                                        <div class="text-sm text-gray-900 dark:text-white">
-                                            <i class="fa-solid fa-location-dot text-gray-400 mr-1"></i>
-                                            {item.drop_point?.name || '-'}
+                                        <div
+                                            class="text-sm text-gray-900 dark:text-white"
+                                        >
+                                            <i
+                                                class="fa-solid fa-graduation-cap text-gray-400 mr-1"
+                                            ></i>
+                                            Kelas: {item.school_class || "-"}
                                         </div>
-                                        {#if item.school_class}
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                <i class="fa-solid fa-graduation-cap text-gray-400 mr-1"></i>
-                                                Kelas: {item.school_class}
-                                            </div>
-                                        {/if}
                                     </td>
                                     <td>
                                         {#if item.is_active}
-                                            <Badge size="sm" rounded="pill" variant="success" title="Aktif">
+                                            <Badge
+                                                size="sm"
+                                                rounded="pill"
+                                                variant="success"
+                                                title="Aktif"
+                                            >
                                                 {#snippet children()}Aktif{/snippet}
                                             </Badge>
                                         {:else}
-                                            <Badge size="sm" rounded="pill" variant="danger" title="Nonaktif">
+                                            <Badge
+                                                size="sm"
+                                                rounded="pill"
+                                                variant="danger"
+                                                title="Nonaktif"
+                                            >
                                                 {#snippet children()}Nonaktif{/snippet}
                                             </Badge>
                                         {/if}
                                     </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-center">
-                                        <div class="flex gap-2 items-center justify-center">
+                                    <td
+                                        class="px-4 py-3 whitespace-nowrap text-center"
+                                    >
+                                        <div
+                                            class="flex gap-2 items-center justify-center"
+                                        >
                                             <Button
                                                 variant="secondary"
                                                 size="sm"
@@ -199,7 +222,10 @@
                             {/each}
                         {:else}
                             <tr>
-                                <td colspan="5" class="py-6 text-sm text-center text-gray-500 dark:text-gray-400">
+                                <td
+                                    colspan="5"
+                                    class="py-6 text-sm text-center text-gray-500 dark:text-gray-400"
+                                >
                                     Tidak ada data
                                 </td>
                             </tr>

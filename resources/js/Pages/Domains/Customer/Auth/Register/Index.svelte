@@ -3,23 +3,14 @@
     import { name as appName } from "@/Lib/Admin/Utils/settings";
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
-    import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
 
     const currentYear = new Date().getFullYear();
-    const dropPoints: { id: string; name: string }[] =
-        $page.props.dropPoints || [];
-
-    const dropPointOptions = dropPoints.map((dp) => ({
-        value: dp.id,
-        label: dp.name,
-    }));
 
     const form = useForm({
         name: "",
         username: "",
         email: "",
         phone: "",
-        dropPointId: "",
         schoolClass: "",
         password: "",
         password_confirmation: "",
@@ -112,18 +103,6 @@
                     bind:value={$form.phone}
                     placeholder="Cth: 08123456789"
                     error={$form.errors.phone}
-                />
-
-                <Select
-                    id="dropPointId"
-                    name="dropPointId"
-                    label="Pilih Drop Point"
-                    options={dropPointOptions}
-                    required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.dropPointId}
-                    error={$form.errors.dropPointId}
-                    placeholder="Pilih Drop Point terdekat"
                 />
 
                 <TextInput

@@ -19,7 +19,6 @@ class Customer extends Authenticatable
      * @var array<string>
      */
     protected $fillable = [
-        'drop_point_id',
         'name',
         'username',
         'phone',
@@ -52,10 +51,5 @@ class Customer extends Authenticatable
             'is_active' => 'boolean',
             'password'  => 'hashed',
         ];
-    }
-
-    public function dropPoint(): BelongsTo
-    {
-        return $this->belongsTo(DropPoint::class);
     }
 }

@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\ProfileUpdateRequest;
-use App\Models\DropPoint;
 use App\Services\CustomerProfileService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -25,19 +24,14 @@ class ProfileController extends Controller
     {
         $customer = auth('customer')->user();
 
-        // Fetch drop points for the dropdown
-        $dropPoints = DropPoint::orderBy('name')->get(['id', 'name', 'address']);
-
         return Inertia::render('Domains/Customer/Profile/Edit', [
             'customer' => [
                 'name' => $customer->name,
                 'email' => $customer->email,
                 'phone' => $customer->phone,
                 'schoolClass' => $customer->school_class,
-                'dropPointId' => $customer->drop_point_id,
                 'username' => $customer->username,
             ],
-            'dropPoints' => $dropPoints,
         ]);
     }
 

@@ -383,7 +383,6 @@ class OrderService
                                 'email'         => $data->email,
                                 'password'      => Hash::make($password),
                                 'school_class'  => $data->schoolClass,
-                                'drop_point_id' => data_get($data->dropPoint, 'id'),
                                 'is_active'     => true,
                             ]);
 

@@ -41,8 +41,6 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer): Response
     {
-        $customer->load('dropPoint');
-
         return Inertia::render('Domains/Admin/Customer/Show', [
             'customer' => new CustomerResource($customer),
         ]);
