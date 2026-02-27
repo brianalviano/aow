@@ -41,5 +41,8 @@ createInertiaApp({
         future: {
             useDialogForErrorModal: true,
         },
+        visitOptions: () => {
+            return { viewTransition: true };
+        },
     },
 });
