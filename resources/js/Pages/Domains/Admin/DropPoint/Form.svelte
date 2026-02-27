@@ -10,10 +10,6 @@
     import { untrack, onMount, onDestroy } from "svelte";
     import debounce from "lodash-es/debounce";
 
-    // TomTom Map Types
-    type TomTomMap = any;
-    type TomTomMarker = any;
-
     interface DropPoint {
         id: string;
         name: string;
