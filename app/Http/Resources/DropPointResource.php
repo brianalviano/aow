@@ -24,6 +24,8 @@ class DropPointResource extends JsonResource
             'photo' => $this->photo,
             'photo_url' => $this->getFileUrl($this->photo),
             'address' => $this->address,
+            'category' => $this->category?->value,
+            'category_label' => $this->category?->label(),
             'phone' => $this->phone,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,

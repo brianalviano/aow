@@ -25,6 +25,7 @@ class StoreDropPointRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', new \Illuminate\Validation\Rules\Enum(\App\Enums\DropPointCategory::class)],
             'photo' => ['nullable', 'image', 'max:2048'],
             'address' => ['required', 'string'],
             'phone' => ['nullable', 'string', 'max:20'],

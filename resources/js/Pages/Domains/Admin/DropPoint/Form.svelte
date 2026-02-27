@@ -6,6 +6,7 @@
     import TextArea from "@/Lib/Admin/Components/Ui/TextArea.svelte";
     import Checkbox from "@/Lib/Admin/Components/Ui/Checkbox.svelte";
     import FileUpload from "@/Lib/Admin/Components/Ui/FileUpload.svelte";
+    import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
     import { untrack, onMount, onDestroy } from "svelte";
     import debounce from "lodash-es/debounce";
@@ -21,6 +22,7 @@
         longitude: number;
         pic_name: string | null;
         pic_phone: string | null;
+        category: string;
         is_active: boolean;
         delivery_fee: number;
         created_at: string;
@@ -34,6 +36,7 @@
     let defaultCenter = $derived(
         $page.props.defaultCenter as { lat: number; lng: number },
     );
+    let categories = $derived($page.props.categories as any[]);
 
     let isEditMode = $derived(!!dropPoint);
 
@@ -41,6 +44,7 @@
     const DEFAULT_FORM_STATE = {
         _method: "post",
         name: "",
+        category: "other",
         photo: null as File | null,
         address: "",
         phone: "",
@@ -56,6 +60,7 @@
         untrack(() => ({
             _method: dropPoint ? "put" : "post",
             name: dropPoint?.name ?? DEFAULT_FORM_STATE.name,
+            category: dropPoint?.category ?? DEFAULT_FORM_STATE.category,
             photo: DEFAULT_FORM_STATE.photo,
             address: dropPoint?.address ?? DEFAULT_FORM_STATE.address,
             phone: dropPoint?.phone ?? DEFAULT_FORM_STATE.phone,
@@ -299,6 +304,16 @@
                                 placeholder="Contoh: Titik Jemput Utama Cabang 1"
                                 bind:value={$form.name}
                                 error={$form.errors.name}
+                                required
+                            />
+
+                            <Select
+                                id="category"
+                                name="category"
+                                label="Kategori"
+                                options={categories}
+                                bind:value={$form.category}
+                                error={$form.errors.category}
                                 required
                             />
 

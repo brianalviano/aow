@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTOs\DropPoint;
 
+use App\Enums\DropPointCategory;
 use App\Http\Requests\Admin\DropPoint\StoreDropPointRequest;
 use App\Http\Requests\Admin\DropPoint\UpdateDropPointRequest;
 use Illuminate\Http\UploadedFile;
@@ -15,6 +16,7 @@ class DropPointData
 {
     public function __construct(
         public readonly string $name,
+        public readonly DropPointCategory $category,
         public readonly ?UploadedFile $photo,
         public readonly string $address,
         public readonly ?string $phone,
@@ -33,6 +35,7 @@ class DropPointData
     {
         return new self(
             name: (string) $request->validated('name'),
+            category: DropPointCategory::from((string) $request->validated('category')),
             photo: $request->file('photo'),
             address: (string) $request->validated('address'),
             phone: $request->validated('phone') === null ? null : (string) $request->validated('phone'),
@@ -52,6 +55,7 @@ class DropPointData
     {
         return new self(
             name: (string) $request->validated('name'),
+            category: DropPointCategory::from((string) $request->validated('category')),
             photo: $request->file('photo'),
             address: (string) $request->validated('address'),
             phone: $request->validated('phone') === null ? null : (string) $request->validated('phone'),

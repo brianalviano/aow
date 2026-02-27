@@ -22,6 +22,8 @@
         pic_name: string;
         pic_phone: string;
         is_active: boolean;
+        category: string;
+        category_label: string;
         delivery_fee: number;
         created_at: string;
         updated_at: string;
@@ -172,6 +174,7 @@
                         <tr>
                             <th class="w-16">Foto</th>
                             <th>Nama & Alamat</th>
+                            <th>Kategori</th>
                             <th>Kontak & PIC</th>
                             <th>Biaya Pengiriman</th>
                             <th>Status</th>
@@ -210,6 +213,15 @@
                                         >
                                             {item.address}
                                         </div>
+                                    </td>
+                                    <td>
+                                        <Badge
+                                            size="sm"
+                                            rounded="pill"
+                                            variant="secondary"
+                                        >
+                                            {#snippet children()}{item.category_label}{/snippet}
+                                        </Badge>
                                     </td>
                                     <td>
                                         <div
@@ -302,7 +314,7 @@
                         {:else}
                             <tr>
                                 <td
-                                    colspan="6"
+                                    colspan="7"
                                     class="py-6 text-sm text-center text-gray-500 dark:text-gray-400"
                                 >
                                     Tidak ada data

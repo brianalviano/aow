@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\DTOs\DropPoint\DropPointData;
+use App\Enums\DropPointCategory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\DropPoint\StoreDropPointRequest;
 use App\Http\Requests\Admin\DropPoint\UpdateDropPointRequest;
@@ -58,6 +59,7 @@ class DropPointController extends Controller
                 'lat' => config('tomtom.geofence.center_lat'),
                 'lng' => config('tomtom.geofence.center_long'),
             ],
+            'categories' => DropPointCategory::options(),
         ]);
     }
 
@@ -99,6 +101,7 @@ class DropPointController extends Controller
                 'lat' => config('tomtom.geofence.center_lat'),
                 'lng' => config('tomtom.geofence.center_long'),
             ],
+            'categories' => DropPointCategory::options(),
         ]);
     }
 
