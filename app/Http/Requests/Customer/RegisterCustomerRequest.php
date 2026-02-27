@@ -30,8 +30,7 @@ class RegisterCustomerRequest extends FormRequest
             'phone' => ['required', 'string', 'max:20', 'unique:customers,phone'],
             'address' => ['nullable', 'string'],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:customers,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'schoolClass' => ['nullable', 'string', 'max:255'],
+            'password' => ['required', 'string', 'min:8', 'confirmed']
         ];
     }
 
@@ -46,8 +45,7 @@ class RegisterCustomerRequest extends FormRequest
             phone: $this->validated('phone'),
             address: $this->validated('address'),
             email: $this->validated('email'),
-            password: $this->validated('password'),
-            school_class: $this->validated('schoolClass'),
+            password: $this->validated('password')
         );
     }
 }

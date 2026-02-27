@@ -11,7 +11,6 @@
         username: "",
         email: "",
         phone: "",
-        schoolClass: "",
         password: "",
         password_confirmation: "",
     });
@@ -103,18 +102,6 @@
                     bind:value={$form.phone}
                     placeholder="Cth: 08123456789"
                     error={$form.errors.phone}
-                />
-
-                <TextInput
-                    id="schoolClass"
-                    name="schoolClass"
-                    label="Kelas Sekolah (Opsional)"
-                    type="text"
-                    required={false}
-                    disabled={$form.processing}
-                    bind:value={$form.schoolClass}
-                    placeholder="Cth: 12 IPA 1"
-                    error={$form.errors.schoolClass}
                 />
 
                 <TextInput
