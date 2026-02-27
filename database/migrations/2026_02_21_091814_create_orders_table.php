@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\{OrderStatus, PaymentStatus, ShippingMethod};
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,9 +23,9 @@ return new class extends Migration
             $table->foreignUuid('payment_method_id')->constrained();
             $table->string('barcode')->unique()->nullable();
             $table->string('tracking_number')->unique()->nullable();
-            $table->enum('shipping_method', ['online', 'free'])->default('free');
-            $table->enum('payment_status', ["pending", "paid", "failed"]);
-            $table->enum('order_status', ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']);
+            $table->enum('shipping_method', ShippingMethod::values())->default(ShippingMethod::FREE->value);
+            $table->enum('payment_status', PaymentStatus::values());
+            $table->enum('order_status', OrderStatus::values());
             $table->text('note')->nullable();
             $table->string('snap_token')->nullable();
             $table->string('payment_url')->nullable();

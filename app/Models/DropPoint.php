@@ -19,6 +19,7 @@ class DropPoint extends Model
      */
     protected $fillable = [
         'name',
+        'category',
         'photo',
         'address',
         'phone',
@@ -41,6 +42,7 @@ class DropPoint extends Model
             'latitude' => 'float',
             'longitude' => 'float',
             'is_active' => 'boolean',
+            'category' => \App\Enums\DropPointCategory::class,
         ];
     }
 

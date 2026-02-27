@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Enums;
 
 /**
- * Enum for Payment Method Type.
+ * Enum for Discount Type.
  */
-enum PaymentMethodType: string
+enum DiscountType: string
 {
-    case MANUAL = 'manual';
-    case GATEWAY = 'gateway';
+    case PERCENTAGE = 'percentage';
+    case FIXED = 'fixed';
 
     /**
      * Get the label for the type.
@@ -18,8 +18,8 @@ enum PaymentMethodType: string
     public function label(): string
     {
         return match ($this) {
-            self::MANUAL => 'Manual',
-            self::GATEWAY => 'Otomatis',
+            self::PERCENTAGE => 'Persentase',
+            self::FIXED => 'Potongan Tetap',
         };
     }
 
@@ -29,8 +29,8 @@ enum PaymentMethodType: string
     public function description(): string
     {
         return match ($this) {
-            self::MANUAL => 'Pembayaran yang memerlukan verifikasi manual oleh admin.',
-            self::GATEWAY => 'Pembayaran yang terintegrasi dengan payment gateway (otomatis).',
+            self::PERCENTAGE => 'Potongan harga berdasarkan persentase dari total pesanan.',
+            self::FIXED => 'Potongan harga dengan nilai nominal tetap.',
         };
     }
 

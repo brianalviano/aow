@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\{DiscountScope, DiscountType};
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,6 +43,8 @@ class Discount extends Model
             'start_date' => 'date',
             'end_date' => 'date',
             'is_active' => 'boolean',
+            'type' => DiscountType::class,
+            'scope' => DiscountScope::class,
         ];
     }
 }

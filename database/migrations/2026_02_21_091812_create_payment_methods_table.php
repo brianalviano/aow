@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\{PaymentMethodCategory, PaymentMethodType};
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,11 +20,11 @@ return new class extends Migration
             $table->string('code')->nullable()->unique();
             $table->string('photo')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->enum('category', ['bank-transfer', 'e-wallet', 'virtual-account', 'cash'])->nullable();
+            $table->enum('category', PaymentMethodCategory::values())->nullable();
             $table->string('account_number')->nullable();
             $table->string('account_name')->nullable();
             $table->foreignUuid('payment_guide_id')->nullable();
-            $table->enum('type', ['manual', 'gateway'])->default('manual');
+            $table->enum('type', PaymentMethodType::values())->default(PaymentMethodType::MANUAL->value);
             $table->timestamps();
             $table->softDeletes();
         });

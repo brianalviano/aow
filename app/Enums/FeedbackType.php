@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Enums;
 
 /**
- * Enum for Payment Method Type.
+ * Enum for Feedback Type.
  */
-enum PaymentMethodType: string
+enum FeedbackType: string
 {
-    case MANUAL = 'manual';
-    case GATEWAY = 'gateway';
+    case KRITIK = 'kritik';
+    case SARAN = 'saran';
+    case LAINNYA = 'lainnya';
 
     /**
      * Get the label for the type.
@@ -18,8 +19,9 @@ enum PaymentMethodType: string
     public function label(): string
     {
         return match ($this) {
-            self::MANUAL => 'Manual',
-            self::GATEWAY => 'Otomatis',
+            self::KRITIK => 'Kritik',
+            self::SARAN => 'Saran',
+            self::LAINNYA => 'Lainnya',
         };
     }
 
@@ -29,8 +31,9 @@ enum PaymentMethodType: string
     public function description(): string
     {
         return match ($this) {
-            self::MANUAL => 'Pembayaran yang memerlukan verifikasi manual oleh admin.',
-            self::GATEWAY => 'Pembayaran yang terintegrasi dengan payment gateway (otomatis).',
+            self::KRITIK => 'Masukan berupa keluhan atau kekurangan.',
+            self::SARAN => 'Ide atau usulan untuk pengembangan.',
+            self::LAINNYA => 'Pesan lain di luar kritik dan saran.',
         };
     }
 

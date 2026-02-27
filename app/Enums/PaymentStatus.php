@@ -4,20 +4,24 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum FoodRequestStatus: string
+/**
+ * Enum for Payment Status.
+ */
+enum PaymentStatus: string
 {
     case PENDING = 'pending';
-    case APPROVED = 'approved';
-    case REJECTED = 'rejected';
-    case COMPLETED = 'completed';
+    case PAID = 'paid';
+    case FAILED = 'failed';
 
+    /**
+     * Get the label for the status.
+     */
     public function label(): string
     {
         return match ($this) {
-            self::PENDING => 'Menunggu',
-            self::APPROVED => 'Disetujui',
-            self::REJECTED => 'Ditolak',
-            self::COMPLETED => 'Selesai',
+            self::PENDING => 'Menunggu Pembayaran',
+            self::PAID => 'Sudah Dibayar',
+            self::FAILED => 'Gagal',
         };
     }
 
@@ -27,10 +31,9 @@ enum FoodRequestStatus: string
     public function description(): string
     {
         return match ($this) {
-            self::PENDING => 'Permintaan sedang menunggu peninjauan admin.',
-            self::APPROVED => 'Permintaan telah disetujui.',
-            self::REJECTED => 'Permintaan ditolak.',
-            self::COMPLETED => 'Permintaan telah selesai diproses.',
+            self::PENDING => 'Pesanan sedang menunggu pembayaran dari pelanggan.',
+            self::PAID => 'Pembayaran telah berhasil diverifikasi.',
+            self::FAILED => 'Pembayaran gagal atau dibatalkan.',
         };
     }
 

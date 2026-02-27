@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\DropPointCategory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,6 +16,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('photo')->nullable();
+            $table->enum('category', array_column(DropPointCategory::cases(), 'value'))->default(DropPointCategory::OTHER->value);
             $table->string('address');
             $table->string('phone')->nullable();
             $table->float('latitude');

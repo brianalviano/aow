@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\{OrderStatus, PaymentStatus, ShippingMethod};
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Traits\FileHelperTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -64,6 +65,9 @@ class Order extends Model
             'delivered_at' => 'datetime',
             'payment_expired_at' => 'timestamp',
             'payment_details' => 'array',
+            'shipping_method' => ShippingMethod::class,
+            'payment_status' => PaymentStatus::class,
+            'order_status' => OrderStatus::class,
         ];
     }
 

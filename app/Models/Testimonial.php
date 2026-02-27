@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TestimonialRating;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Traits\FileHelperTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,7 @@ class Testimonial extends Model
     {
         return [
             'is_approved' => 'boolean',
+            'rating' => TestimonialRating::class,
         ];
     }
 

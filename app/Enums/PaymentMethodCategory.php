@@ -26,4 +26,27 @@ enum PaymentMethodCategory: string
             self::CASH => 'Tunai',
         };
     }
+
+    /**
+     * Get the description for the category.
+     */
+    public function description(): string
+    {
+        return match ($this) {
+            self::BANK_TRANSFER => 'Pembayaran melalui transfer antar bank manual.',
+            self::E_WALLET => 'Pembayaran menggunakan dompet digital (OVO, Dana, ShopeePay, dll).',
+            self::VIRTUAL_ACCOUNT => 'Pembayaran otomatis melalui nomor Virtual Account.',
+            self::CASH => 'Pembayaran tunai saat pengambilan atau pengantaran.',
+        };
+    }
+
+    /**
+     * Get all values of the enum.
+     *
+     * @return string[]
+     */
+    public static function values(): array
+    {
+        return array_map(static fn(self $c): string => $c->value, self::cases());
+    }
 }

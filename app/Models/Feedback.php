@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\FeedbackType;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ class Feedback extends Model
     {
         return [
             'is_read' => 'boolean',
+            'type' => FeedbackType::class,
         ];
     }
 
