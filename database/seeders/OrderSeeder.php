@@ -9,7 +9,7 @@ use App\Models\{Customer, DropPoint, Order, OrderItem, OrderItemOption, OrderSet
 use App\Services\{DailySummaryService, OrderService};
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\{DB, Mail, Notification};
 use Faker\Factory as Faker;
 
 class OrderSeeder extends Seeder
@@ -22,6 +22,9 @@ class OrderSeeder extends Seeder
      */
     public function run(DailySummaryService $summaryService, OrderService $orderService): void
     {
+        Mail::fake();
+        Notification::fake();
+
         $faker = Faker::create('id_ID');
         $customers = Customer::all();
         $dropPoints = DropPoint::all();
