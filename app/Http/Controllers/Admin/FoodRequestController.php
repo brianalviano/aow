@@ -9,6 +9,7 @@ use App\Models\FoodRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -46,7 +47,7 @@ class FoodRequestController extends Controller
     public function update(Request $request, FoodRequest $foodRequest): RedirectResponse
     {
         $validated = $request->validate([
-            'status' => ['required', 'string', 'in:pending,approved,rejected'],
+            'status' => ['required', Rule::enum(\App\Enums\FoodRequestStatus::class)],
         ]);
 
         try {

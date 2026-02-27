@@ -17,7 +17,7 @@
         customer_id: number;
         name: string;
         notes: string | null;
-        status: "pending" | "approved" | "rejected";
+        status: "pending" | "approved" | "rejected" | "completed";
         created_at: string;
         customer: Customer;
     }
@@ -68,6 +68,8 @@
                 return "Disetujui";
             case "rejected":
                 return "Ditolak";
+            case "completed":
+                return "Selesai";
             default:
                 return status;
         }
@@ -81,6 +83,8 @@
                 return "success";
             case "rejected":
                 return "danger";
+            case "completed":
+                return "primary";
             default:
                 return "secondary";
         }
@@ -231,6 +235,20 @@
                                                         )}
                                                 >
                                                     Pending
+                                                </Button>
+                                            {/if}
+                                            {#if item.status === "approved"}
+                                                <Button
+                                                    variant="primary"
+                                                    size="sm"
+                                                    icon="fa-solid fa-flag-checkered"
+                                                    onclick={() =>
+                                                        updateStatus(
+                                                            item.id,
+                                                            "completed",
+                                                        )}
+                                                >
+                                                    Selesai
                                                 </Button>
                                             {/if}
                                         </div>

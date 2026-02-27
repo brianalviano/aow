@@ -41,6 +41,18 @@ class FoodRequest extends Model
     ];
 
     /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => \App\Enums\FoodRequestStatus::class,
+        ];
+    }
+
+    /**
      * Get the customer that made the request.
      * 
      * @return BelongsTo

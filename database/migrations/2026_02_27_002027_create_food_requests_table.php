@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('food_requests', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('customer_id')->constrained('customers')->cascadeOnDelete();
+            $table->foreignUuid('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
             $table->string('name');
             $table->text('notes')->nullable();
-            $table->string('status')->default('pending');
+            $table->enum('status', array_column(\App\Enums\FoodRequestStatus::cases(), 'value'))->default(\App\Enums\FoodRequestStatus::PENDING->value);
             $table->timestamps();
         });
     }

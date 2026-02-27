@@ -61,7 +61,7 @@ class FoodRequestController extends Controller
                 'customer_id' => $user->id,
                 'name'        => $validated['name'],
                 'notes'       => $validated['notes'],
-                'status'      => 'pending',
+                'status'      => \App\Enums\FoodRequestStatus::PENDING->value,
             ]);
 
             return back()->with('success', 'Permintaan makanan baru berhasil dikirim!');
