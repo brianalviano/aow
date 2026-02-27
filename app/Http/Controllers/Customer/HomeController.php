@@ -20,10 +20,6 @@ class HomeController extends Controller
      */
     public function index(): Response
     {
-        $activeDropPoints = DropPoint::query()
-            ->where('is_active', true)
-            ->get();
-
         $activeOrdersCount = 0;
         $unreadNotificationsCount = 0;
 
@@ -38,8 +34,6 @@ class HomeController extends Controller
         }
 
         return Inertia::render('Domains/Customer/Home/Index', [
-            'totalDropPoints'          => $activeDropPoints->count(),
-            'dropPoints'               => $activeDropPoints,
             'activeOrdersCount'        => $activeOrdersCount,
             'unreadNotificationsCount' => $unreadNotificationsCount,
         ]);
