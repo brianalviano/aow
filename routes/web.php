@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\{
     ProductController,
     ReportController,
     SettingController,
+    SliderController,
     UserController
 };
 use App\Http\Controllers\Customer\{
@@ -176,6 +177,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/product-categories/{category}/edit', [ProductCategoryController::class, 'edit'])->name('product-categories.edit');
         Route::put('/product-categories/{category}', [ProductCategoryController::class, 'update'])->name('product-categories.update');
         Route::delete('/product-categories/{category}', [ProductCategoryController::class, 'destroy'])->name('product-categories.destroy');
+
+        // Sliders
+        Route::get('/sliders', [SliderController::class, 'index'])->name('sliders.index');
+        Route::get('/sliders/create', [SliderController::class, 'create'])->name('sliders.create');
+        Route::post('/sliders', [SliderController::class, 'store'])->name('sliders.store');
+        Route::get('/sliders/{slider}/edit', [SliderController::class, 'edit'])->name('sliders.edit');
+        Route::put('/sliders/{slider}', [SliderController::class, 'update'])->name('sliders.update');
+        Route::delete('/sliders/{slider}', [SliderController::class, 'destroy'])->name('sliders.destroy');
 
         // Drop Points
         Route::get('/drop-points', [DropPointController::class, 'index'])->name('drop-points.index');

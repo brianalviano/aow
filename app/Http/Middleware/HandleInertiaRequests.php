@@ -198,6 +198,12 @@ class HandleInertiaRequests extends Middleware
                         'icon'  => 'fa-utensils',
                         'link'  => route('admin.food-requests.index'),
                     ],
+                    [
+                        'id'    => 'sliders',
+                        'label' => 'Slider',
+                        'icon'  => 'fa-images',
+                        'link'  => route('admin.sliders.index'),
+                    ],
                 ],
             ],
         ];

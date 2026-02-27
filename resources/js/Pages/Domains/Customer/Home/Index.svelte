@@ -1,15 +1,23 @@
 <script lang="ts">
     import icon from "@img/icon.png";
+
     import { name } from "@/Lib/Admin/Utils/settings";
     import { page, Link } from "@inertiajs/svelte";
 
     // Props from controller
-    export let activeOrdersCount: number = 0;
-    export let unreadNotificationsCount: number = 0;
+    let {
+        sliders = { data: [] },
+        activeOrdersCount = 0,
+        unreadNotificationsCount = 0,
+    } = $props();
 
-    $: totalBadgeCount = activeOrdersCount + unreadNotificationsCount;
+    let totalBadgeCount = $derived(
+        activeOrdersCount + unreadNotificationsCount,
+    );
 
     const APP_NAME = name($page.props.settings);
+
+    let displayItems = $derived(sliders.data.length > 0 ? sliders.data : []);
 </script>
 
 <svelte:head>
@@ -54,8 +62,39 @@
     </header>
 
     <!-- Main Content -->
-    <main class="p-4 flex flex-col items-center justify-center space-y-6 pt-12">
-        <div class="text-center space-y-2 mb-4">
+    <main class="py-4 flex flex-col items-center justify-center space-y-6">
+        <!-- Promotional Section -->
+        {#if displayItems.length > 0}
+            <section class="w-full overflow-hidden">
+                <div
+                    class="flex gap-4 overflow-x-auto px-4 pb-4 no-scrollbar snap-x snap-mandatory"
+                >
+                    {#each displayItems as item}
+                        <div
+                            class="relative flex-none w-[85%] max-w-[320px] aspect-video rounded-2xl overflow-hidden shadow-lg snap-center transform transition-transform duration-300"
+                        >
+                            <img
+                                src={item.photo}
+                                alt={item.name}
+                                class="absolute inset-0 w-full h-full object-cover"
+                                loading="lazy"
+                            />
+                            <div
+                                class="absolute inset-0 bg-linear-to-t from-slate-900/50 flex flex-col justify-end p-4"
+                            >
+                                <p
+                                    class="text-white font-bold text-lg leading-tight drop-shadow-md"
+                                >
+                                    {item.name}
+                                </p>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            </section>
+        {/if}
+
+        <div class="px-4 text-center space-y-2 mb-4">
             <h2 class="text-2xl font-black text-gray-900 leading-tight">
                 Mau Pesan Ke Mana?
             </h2>
@@ -64,11 +103,11 @@
             </p>
         </div>
 
-        <div class="w-full max-w-sm space-y-4">
+        <div class="px-4 w-full max-w-sm space-y-4">
             <!-- Option 1: Choose Drop Point -->
             <Link
                 href="/drop-points"
-                class="group block bg-[#CCFF33] hover:bg-[#bdf33c] p-6 rounded-2xl shadow-sm border border-[#bdf33c] transition-all transform active:scale-[0.98]"
+                class="group block bg-[#FFD700] hover:bg-[#FFC700] p-6 rounded-2xl shadow-sm border border-[#FFC700] transition-all transform active:scale-[0.98]"
             >
                 <div class="flex items-center gap-4">
                     <div
@@ -120,11 +159,4 @@
             </Link>
         </div>
     </main>
-
-    <!-- Footer Decoration -->
-    <div
-        class="fixed bottom-0 left-0 right-0 p-8 flex justify-center opacity-10 pointer-events-none"
-    >
-        <img src={icon} alt="" class="w-32 h-32 grayscale" />
-    </div>
 </div>
