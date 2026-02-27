@@ -28,7 +28,9 @@ class ProductController extends Controller
         $categories = ProductCategory::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
-            ->whereHas('products')
+            ->whereHas('products', function ($query) {
+                $query->where('is_active', true)->whereHas('chefs');
+            })
             ->get();
 
         $products = Product::with(['productCategory', 'productOptions' => function ($query) {
@@ -37,6 +39,7 @@ class ProductController extends Controller
             }]);
         }])
             ->where('is_active', true)
+            ->whereHas('chefs')
             ->orderBy('sort_order')
             ->get();
 

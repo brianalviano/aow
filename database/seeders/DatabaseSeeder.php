@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             DropPointSeeder::class,
             ProductCategorySeeder::class,
             ProductSeeder::class,
+            ChefSeeder::class,
             CustomerSeeder::class,
             PaymentGuideSeeder::class,
             PaymentMethodSeeder::class,

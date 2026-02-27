@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\{
     AccountSettingController,
+    ChefController,
     LoginController as AdminLoginController,
     CustomerController,
     DashboardController,
@@ -202,6 +203,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Food Requests
         Route::get('/food-requests', [AdminFoodRequestController::class, 'index'])->name('food-requests.index');
         Route::patch('/food-requests/{foodRequest}', [AdminFoodRequestController::class, 'update'])->name('food-requests.update');
+
+        // Chefs
+        Route::get('/chefs', [ChefController::class, 'index'])->name('chefs.index');
+        Route::get('/chefs/create', [ChefController::class, 'create'])->name('chefs.create');
+        Route::post('/chefs', [ChefController::class, 'store'])->name('chefs.store');
+        Route::get('/chefs/{chef}', [ChefController::class, 'show'])->name('chefs.show');
+        Route::get('/chefs/{chef}/edit', [ChefController::class, 'edit'])->name('chefs.edit');
+        Route::put('/chefs/{chef}', [ChefController::class, 'update'])->name('chefs.update');
+        Route::delete('/chefs/{chef}', [ChefController::class, 'destroy'])->name('chefs.destroy');
+        Route::post('/chefs/{chef}/transfers', [ChefController::class, 'storeTransfer'])->name('chefs.transfers.store');
 
         // Users (Admins)
         Route::resource('users', UserController::class)->middleware('can:admin-only');

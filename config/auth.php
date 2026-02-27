@@ -45,6 +45,11 @@ return [
             'driver' => 'session',
             'provider' => 'customers',
         ],
+
+        'chef' => [
+            'driver' => 'session',
+            'provider' => 'chefs',
+        ],
     ],
 
     /*
@@ -73,6 +78,11 @@ return [
         'customers' => [
             'driver' => 'eloquent',
             'model' => App\Models\Customer::class,
+        ],
+
+        'chefs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Chef::class,
         ],
     ],
 
@@ -105,7 +115,14 @@ return [
 
         'customers' => [
             'provider' => 'customers',
-            'table' => 'customer_password_reset_tokens',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'chefs' => [
+            'provider' => 'chefs',
+            'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
         ],

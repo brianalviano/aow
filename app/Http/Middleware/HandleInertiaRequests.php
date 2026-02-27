@@ -147,6 +147,12 @@ class HandleInertiaRequests extends Middleware
                 'title' => 'Operasional',
                 'items' => [
                     [
+                        'id'    => 'chefs',
+                        'label' => 'Chef',
+                        'icon'  => 'fa-user-chef',
+                        'link'  => route('admin.chefs.index'),
+                    ],
+                    [
                         'id'    => 'customers',
                         'label' => 'Customer',
                         'icon'  => 'fa-users',
