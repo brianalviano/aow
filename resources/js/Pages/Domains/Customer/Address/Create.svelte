@@ -9,6 +9,8 @@
     let defaultCenter = $derived(
         $page.props.defaultCenter as { lat: number; lng: number },
     );
+    let isAuthenticated = $derived($page.props.isAuthenticated as boolean);
+    let savedAddresses = $derived($page.props.savedAddresses as any[]);
 
     // Initialize the form with empty strings
     const form = useForm({
@@ -18,7 +20,12 @@
         note: "",
         latitude: null as number | null,
         longitude: null as number | null,
+        email: "",
+        password: "",
+        password_confirmation: "",
     });
+
+    let editingId = $state<string | null>(null);
 
     // Map Implementation
     let mapContainer: HTMLElement;
@@ -188,15 +195,73 @@
         mapLoaded = true;
     }
 
+    function handleSelectAddress(address: any) {
+        $form.name = address.name;
+        $form.phone = address.phone;
+        $form.address = address.address;
+        $form.note = address.note || "";
+        $form.latitude = address.latitude;
+        $form.longitude = address.longitude;
+
+        if (map && marker) {
+            const newCenter = [address.longitude, address.latitude];
+            marker.setLngLat(newCenter);
+            map.flyTo({ center: newCenter, zoom: 17 });
+        }
+
+        // Scroll to form
+        const formElement = document.querySelector("form");
+        if (formElement) {
+            formElement.scrollIntoView({ behavior: "smooth" });
+        }
+    }
+
+    function handleEditAddress(address: any) {
+        handleSelectAddress(address);
+        editingId = address.id;
+    }
+
+    function resetForm() {
+        $form.reset();
+        editingId = null;
+        if (defaultCenter) {
+            $form.latitude = defaultCenter.lat;
+            $form.longitude = defaultCenter.lng;
+            if (map && marker) {
+                const newCenter = [defaultCenter.lng, defaultCenter.lat];
+                marker.setLngLat(newCenter);
+                map.flyTo({ center: newCenter, zoom: 15 });
+            }
+        }
+    }
+
+    function handleDeleteAddress(id: string) {
+        if (confirm("Apakah Anda yakin ingin menghapus alamat ini?")) {
+            $form.delete(`/custom-address/${id}`, {
+                preserveScroll: true,
+            });
+        }
+    }
+
     // Handle form submission
     const submit = (e: SubmitEvent) => {
         e.preventDefault();
-        $form.post("/custom-address", {
-            preserveScroll: true,
-            onError: (errors: Record<string, string>) => {
-                console.error("Validation errors:", errors);
-            },
-        });
+
+        if (editingId) {
+            $form.put(`/custom-address/${editingId}`, {
+                preserveScroll: true,
+                onError: (errors: Record<string, string>) => {
+                    console.error("Validation errors:", errors);
+                },
+            });
+        } else {
+            $form.post("/custom-address", {
+                preserveScroll: true,
+                onError: (errors: Record<string, string>) => {
+                    console.error("Validation errors:", errors);
+                },
+            });
+        }
     };
 </script>
 
@@ -231,10 +296,99 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 px-4 w-full max-w-lg mx-auto">
+    <main class="flex-1 px-4 w-full max-w-lg mx-auto pb-10">
+        {#if isAuthenticated && savedAddresses.length > 0}
+            <div class="mt-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-bold text-gray-900">Alamat Tersimpan</h2>
+                    {#if editingId}
+                        <button
+                            type="button"
+                            onclick={resetForm}
+                            class="text-xs font-bold text-blue-600 hover:text-blue-700"
+                        >
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah Baru
+                        </button>
+                    {/if}
+                </div>
+
+                <div class="grid grid-cols-1 gap-3">
+                    {#each savedAddresses as address}
+                        <div
+                            class="bg-white p-4 rounded-2xl border {editingId ===
+                            address.id
+                                ? 'border-[#CCFF33] ring-1 ring-[#CCFF33]'
+                                : 'border-gray-100'} shadow-sm relative group"
+                        >
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="font-bold text-gray-900 text-sm">
+                                        {address.name}
+                                    </h3>
+                                    <p class="text-xs text-gray-500">
+                                        {address.phone}
+                                    </p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onclick={() =>
+                                            handleEditAddress(address)}
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                        title="Edit Alamat"
+                                    >
+                                        <i
+                                            class="fa-solid fa-pen-to-square text-xs"
+                                        ></i>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onclick={() =>
+                                            handleDeleteAddress(address.id)}
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                        title="Hapus Alamat"
+                                    >
+                                        <i class="fa-solid fa-trash-can text-xs"
+                                        ></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 line-clamp-2 mb-3">
+                                {address.address}
+                            </p>
+                            <button
+                                type="button"
+                                onclick={() => handleSelectAddress(address)}
+                                class="w-full py-2 px-4 rounded-xl text-xs font-bold transition-all {editingId ===
+                                address.id
+                                    ? 'bg-gray-100 text-gray-400 cursor-default'
+                                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}"
+                                disabled={editingId === address.id}
+                            >
+                                {editingId === address.id
+                                    ? "Sedang Diedit"
+                                    : "Gunakan Alamat Ini"}
+                            </button>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {/if}
+
+        <div class="mt-8 mb-4">
+            <h2 class="font-bold text-gray-900">
+                {editingId ? "Edit Alamat" : "Tambah Alamat Baru"}
+            </h2>
+            <p class="text-xs text-gray-500">
+                {editingId
+                    ? "Perbarui detail alamat pengiriman Anda"
+                    : "Isi detail alamat pengiriman baru"}
+            </p>
+        </div>
+
         <form
             onsubmit={submit}
-            class="space-y-5 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-4 mb-5"
+            class="space-y-5 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-5"
         >
             <TextInput
                 id="name"
@@ -346,6 +500,56 @@
                 ></div>
             </div>
 
+            <!-- Registration Section for Guests -->
+            {#if !isAuthenticated}
+                <div class="space-y-5 pt-6 border-t border-gray-100">
+                    <div class="mb-4">
+                        <h2 class="text-lg font-bold text-gray-900">
+                            Buat Akun Baru
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Lengkapi data di bawah ini untuk menyimpan alamat
+                            ini ke akun Anda.
+                        </p>
+                    </div>
+
+                    <TextInput
+                        id="email"
+                        name="email"
+                        type="email"
+                        label="Alamat Email"
+                        placeholder="rino@example.com"
+                        bind:value={$form.email}
+                        error={$form.errors.email}
+                        required
+                    />
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <TextInput
+                            id="password"
+                            name="password"
+                            type="password"
+                            label="Kata Sandi"
+                            placeholder="••••••••"
+                            bind:value={$form.password}
+                            error={$form.errors.password}
+                            required
+                        />
+
+                        <TextInput
+                            id="password_confirmation"
+                            name="password_confirmation"
+                            type="password"
+                            label="Konfirmasi Kata Sandi"
+                            placeholder="••••••••"
+                            bind:value={$form.password_confirmation}
+                            error={$form.errors.password_confirmation}
+                            required
+                        />
+                    </div>
+                </div>
+            {/if}
+
             <!-- Submit Button -->
             <div class="pt-6">
                 <button
@@ -356,9 +560,8 @@
                     {#if $form.processing}
                         <i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...
                     {:else}
-                        Simpan & Lanjut Pilih Menu <i
-                            class="fa-solid fa-arrow-right ml-2"
-                        ></i>
+                        {editingId ? "Perbarui &" : "Simpan &"} Lanjut Pilih Menu
+                        <i class="fa-solid fa-arrow-right ml-2"></i>
                     {/if}
                 </button>
             </div>

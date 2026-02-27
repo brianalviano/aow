@@ -14,6 +14,10 @@ use Inertia\Response;
 
 class CustomerAddressController extends Controller
 {
+    public function __construct(
+        private readonly \App\Services\CustomerAuthService $authService,
+    ) {}
+
     /**
      * Show the form for creating a new custom address.
      *
@@ -21,12 +25,21 @@ class CustomerAddressController extends Controller
      */
     public function create(): Response
     {
+        $savedAddresses = [];
+        if (Auth::guard('customer')->check()) {
+            $savedAddresses = CustomerAddress::where('customer_id', Auth::guard('customer')->id())
+                ->latest()
+                ->get();
+        }
+
         return Inertia::render('Domains/Customer/Address/Create', [
             'tomtomApiKey' => config('tomtom.api_key'),
             'defaultCenter' => [
                 'lat' => config('tomtom.geofence.center_lat'),
                 'lng' => config('tomtom.geofence.center_long'),
             ],
+            'isAuthenticated' => Auth::guard('customer')->check(),
+            'savedAddresses' => $savedAddresses,
         ]);
     }
 
@@ -40,17 +53,112 @@ class CustomerAddressController extends Controller
     {
         $data = $request->validated();
 
-        $address = null;
+        try {
+            return \Illuminate\Support\Facades\DB::transaction(function () use ($request, $data) {
+                $customerId = Auth::guard('customer')->id();
 
-        // If user is logged in, optionally save it to their profile if we want to store history
-        // Or we can just store the data in DB. Since customer_id is nullable, we can associate if logged in.
-        if (Auth::guard('customer')->check()) {
-            $data['customer_id'] = Auth::guard('customer')->id();
+                // Handle guest registration
+                if (!$customerId) {
+                    $dto = new \App\DTOs\Customer\RegisterCustomerDTO(
+                        name: $data['name'],
+                        username: null,
+                        phone: $data['phone'],
+                        address: $data['address'],
+                        email: $data['email'],
+                        password: $data['password'],
+                    );
+
+                    $customer = $this->authService->register($dto);
+                    Auth::guard('customer')->login($customer);
+                    $request->session()->regenerate();
+                    $customerId = $customer->id;
+                }
+
+                $data['customer_id'] = $customerId;
+                $address = CustomerAddress::create($data);
+
+                $this->setCheckoutAddressInSession($address);
+
+                \Inertia\Inertia::flash('toast', [
+                    'message' => 'Alamat berhasil disimpan',
+                    'type' => 'success',
+                ]);
+
+                return redirect()->route('customer.products.general');
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to store address and register customer', [
+                'error' => $e->getMessage(),
+                'payload' => $data,
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Update the specified address.
+     *
+     * @param StoreCustomerAddressRequest $request
+     * @param CustomerAddress $address
+     * @return RedirectResponse
+     */
+    public function update(StoreCustomerAddressRequest $request, CustomerAddress $address): RedirectResponse
+    {
+        // Security check
+        if ($address->customer_id !== Auth::guard('customer')->id()) {
+            abort(403);
         }
 
-        $address = CustomerAddress::create($data);
+        $data = $request->validated();
+        $address->update($data);
 
-        // Store the selected address in the session, similar to checkout_drop_point
+        $this->setCheckoutAddressInSession($address);
+
+        \Inertia\Inertia::flash('toast', [
+            'message' => 'Alamat berhasil diperbarui',
+            'type' => 'success',
+        ]);
+
+        return redirect()->route('customer.products.general');
+    }
+
+    /**
+     * Remove the specified address.
+     *
+     * @param CustomerAddress $address
+     * @return RedirectResponse
+     */
+    public function destroy(CustomerAddress $address): RedirectResponse
+    {
+        // Security check
+        if ($address->customer_id !== Auth::guard('customer')->id()) {
+            abort(403);
+        }
+
+        $address->delete();
+
+        // If the deleted address was in session, clear it
+        if (session('checkout_address.id') === $address->id) {
+            session(['checkout_address' => null]);
+        }
+
+        \Inertia\Inertia::flash('toast', [
+            'message' => 'Alamat berhasil dihapus',
+            'type' => 'success',
+        ]);
+
+        return back();
+    }
+
+    /**
+     * Helper to set checkout address in session.
+     *
+     * @param CustomerAddress $address
+     * @return void
+     */
+    private function setCheckoutAddressInSession(CustomerAddress $address): void
+    {
         session([
             'checkout_address' => [
                 'id' => $address->id,
@@ -64,7 +172,5 @@ class CustomerAddressController extends Controller
             // Clear any previously selected drop point
             'checkout_drop_point' => null,
         ]);
-
-        return redirect()->route('customer.products.general');
     }
 }

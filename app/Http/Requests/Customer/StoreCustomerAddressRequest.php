@@ -24,7 +24,7 @@ class StoreCustomerAddressRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string'],
             'phone' => ['required', 'string', 'max:20'],
@@ -32,5 +32,13 @@ class StoreCustomerAddressRequest extends FormRequest
             'longitude' => ['nullable', 'numeric'],
             'note' => ['nullable', 'string', 'max:500'],
         ];
+
+        // If user is guest, they must provide registration details
+        if (!auth()->guard('customer')->check()) {
+            $rules['email'] = ['required', 'string', 'email', 'max:255', 'unique:customers,email'];
+            $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
+        }
+
+        return $rules;
     }
 }

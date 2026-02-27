@@ -48,6 +48,8 @@ Route::get('/drop-points/{id}', [CustomerDropPointController::class, 'show'])->n
 Route::get('/drop-points/{id}/products', [CustomerProductController::class, 'index'])->name('customer.products');
 Route::get('/custom-address', [CustomerAddressController::class, 'create'])->name('customer.addresses.create');
 Route::post('/custom-address', [CustomerAddressController::class, 'store'])->name('customer.addresses.store');
+Route::put('/custom-address/{address}', [CustomerAddressController::class, 'update'])->name('customer.addresses.update');
+Route::delete('/custom-address/{address}', [CustomerAddressController::class, 'destroy'])->name('customer.addresses.destroy');
 Route::get('/products', [CustomerProductController::class, 'generalIndex'])->name('customer.products.general');
 Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('customer.privacy-policy');
