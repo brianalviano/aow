@@ -21,6 +21,10 @@ use App\Http\Controllers\Admin\{
     SliderController,
     UserController
 };
+use App\Http\Controllers\Chef\{
+    DashboardController as ChefDashboardController,
+    LoginController as ChefLoginController
+};
 use App\Http\Controllers\Customer\{
     AuthController,
     HomeController,
@@ -261,5 +265,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('notifications.mark');
         Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAll'])
             ->name('notifications.mark_all');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Chef Routes (/chef prefix)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('chef')->name('chef.')->group(function () {
+
+    // Chef authenticated routes
+    Route::middleware('auth:chef')->group(function () {
+        Route::get('/', [ChefDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/logout', [ChefLoginController::class, 'logout'])->name('logout');
+    });
+
+    // Chef guest routes
+    Route::middleware('guest:chef')->group(function () {
+        Route::get('/login', [ChefLoginController::class, 'show'])->name('login');
+        Route::post('/login', [ChefLoginController::class, 'login'])->name('login.store');
     });
 });

@@ -4,6 +4,7 @@ import { hydrate, mount } from "svelte";
 import "@css/vendor/fontawesome/all.css";
 import AdminLayout from "@/Lib/Admin/Layouts/Default.svelte";
 import CustomerLayout from "@/Lib/Customer/Layouts/Default.svelte";
+import ChefLayout from "@/Lib/Chef/Layouts/Default.svelte";
 import { setRoleConfig } from "@/Lib/Admin/Utils/roles";
 
 createInertiaApp({
@@ -15,6 +16,7 @@ createInertiaApp({
         const page = pages[`./Pages/${name}.svelte`];
         const isAdmin = name.startsWith("Domains/Admin/");
         const isCustomer = name.startsWith("Domains/Customer/");
+        const isChef = name.startsWith("Domains/Chef/");
         return {
             default: page.default,
             layout:
@@ -23,7 +25,9 @@ createInertiaApp({
                     ? AdminLayout
                     : isCustomer
                       ? CustomerLayout
-                      : undefined),
+                      : isChef
+                        ? ChefLayout
+                        : undefined),
         };
     },
     setup({ el, App, props }: { el: HTMLElement; App: any; props: any }) {

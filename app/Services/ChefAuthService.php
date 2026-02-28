@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+
+use App\DTOs\Chef\LoginChefDTO;
+use Illuminate\Support\Facades\Auth;
+
+/**
+ * Service handling Chef authentication.
+ */
+class ChefAuthService
+{
+    /**
+     * Attempt to login a chef.
+     *
+     * @param LoginChefDTO $dto
+     * @return bool
+     */
+    public function login(LoginChefDTO $dto): bool
+    {
+        $login = $dto->login;
+        $password = $dto->password;
+        $remember = $dto->remember;
+
+        $attempt = function (array $fields) use ($password, $remember): bool {
+            return Auth::guard('chef')->attempt(array_merge($fields, ['password' => $password]), $remember);
+        };
+
+        // Try login by email
+        if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
+            if ($attempt(['email' => $login, 'is_active' => true])) {
+                return true;
+            }
+        }
+
+        // Try login by phone
+        $normalizedPhone = $this->normalizePhone($login);
+        if ($normalizedPhone !== '' && $attempt(['phone' => $normalizedPhone, 'is_active' => true])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Normalize phone number to start with '0'.
+     *
+     * @param string $input
+     * @return string
+     */
+    private function normalizePhone(string $input): string
+    {
+        $digits = preg_replace('/\D+/', '', $input);
+        if ($digits === null || $digits === '') {
+            return '';
+        }
+        if (str_starts_with($digits, '62')) {
+            return '0' . substr($digits, 2);
+        }
+        if (str_starts_with($digits, '0')) {
+            return $digits;
+        }
+        return '0' . $digits;
+    }
+}

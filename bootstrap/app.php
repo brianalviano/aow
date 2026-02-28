@@ -29,6 +29,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return route('admin.login');
             }
 
+            if ($request->is('chef') || $request->is('chef/*')) {
+                return route('chef.login');
+            }
+
             return route('home');
         });
 
