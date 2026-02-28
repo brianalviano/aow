@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\ChefOrderType;
 use App\Models\{Chef, Product};
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\{DB, Hash, Log};
@@ -38,19 +39,22 @@ class ChefSeeder extends Seeder
                 // Seed specific test chefs
                 $testChefs = [
                     [
-                        'name'  => 'Chef Rani Kusuma',
-                        'email' => 'rani@example.com',
-                        'phone' => '081300000001',
+                        'name'          => 'Chef Rani Kusuma',
+                        'business_name' => 'Dapur Rani',
+                        'email'         => 'rani@example.com',
+                        'phone'         => '081300000001',
                     ],
                     [
-                        'name'  => 'Chef Dimas Pratama',
-                        'email' => 'dimas@example.com',
-                        'phone' => '081300000002',
+                        'name'          => 'Chef Dimas Pratama',
+                        'business_name' => 'Dimas Catering',
+                        'email'         => 'dimas@example.com',
+                        'phone'         => '081300000002',
                     ],
                     [
-                        'name'  => 'Chef Lestari',
-                        'email' => 'lestari@example.com',
-                        'phone' => '081300000003',
+                        'name'          => 'Chef Lestari',
+                        'business_name' => 'RM Lestari',
+                        'email'         => 'lestari@example.com',
+                        'phone'         => '081300000003',
                     ],
                 ];
 
@@ -64,8 +68,11 @@ class ChefSeeder extends Seeder
                             'account_name'   => $data['name'],
                             'fee_percentage' => $faker->randomElement([5, 10, 15]),
                             'address'        => $faker->address(),
+                            'longitude'      => $faker->longitude(95, 141),
+                            'latitude'       => $faker->latitude(-11, 6),
                             'note'           => null,
                             'is_active'      => true,
+                            'order_types'    => [ChefOrderType::INSTANT, ChefOrderType::PREORDER],
                         ])
                     );
 
@@ -85,6 +92,7 @@ class ChefSeeder extends Seeder
                         ['email' => $email],
                         [
                             'name'           => $chefName,
+                            'business_name'  => $faker->company(),
                             'phone'          => $faker->unique()->numerify('0813########'),
                             'password'       => $password,
                             'bank_name'      => $faker->randomElement($banks),
@@ -92,8 +100,15 @@ class ChefSeeder extends Seeder
                             'account_name'   => $chefName,
                             'fee_percentage' => $faker->randomElement([5, 8, 10, 12, 15, 20]),
                             'address'        => $faker->address(),
+                            'longitude'      => $faker->longitude(95, 141),
+                            'latitude'       => $faker->latitude(-11, 6),
                             'note'           => $faker->boolean(30) ? $faker->sentence() : null,
                             'is_active'      => $faker->boolean(85),
+                            'order_types'    => $faker->randomElement([
+                                [ChefOrderType::INSTANT, ChefOrderType::PREORDER],
+                                [ChefOrderType::INSTANT],
+                                [ChefOrderType::PREORDER],
+                            ]),
                         ]
                     );
 
