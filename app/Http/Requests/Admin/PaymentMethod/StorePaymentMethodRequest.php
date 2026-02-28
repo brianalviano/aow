@@ -35,6 +35,8 @@ class StorePaymentMethodRequest extends FormRequest
             'account_number' => ['nullable', 'string', 'max:255'],
             'account_name' => ['nullable', 'string', 'max:255'],
             'payment_guide_id' => ['nullable', 'exists:payment_guides,id'],
+            'service_fee_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'service_fee_fixed' => ['nullable', 'integer', 'min:0'],
         ];
     }
 }

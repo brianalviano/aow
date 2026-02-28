@@ -24,6 +24,28 @@
         delivery_time = "",
     }: Props = $props();
 
+    let selectedMethod = $derived(
+        Object.values(paymentMethods)
+            .flat()
+            .find((m) => m.id === $form.payment_method_id),
+    );
+
+    let serviceFee = $derived.by(() => {
+        if (!selectedMethod) return 0;
+        const subtotal = totalAmount; // Actually, totalAmount passed from props is subtotal + other fees already? Let's check PaymentController.
+        // Re-calculate based on subtotal from backend if possible, or just apply to totalAmount.
+        // User said: "QRIS itu kan 0.7% dari transaksi".
+        // In PaymentController: $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
+        // So props.totalAmount is the base total without payment service fee.
+        return (
+            Math.round(
+                (totalAmount * (selectedMethod.service_fee_rate || 0)) / 100,
+            ) + (selectedMethod.service_fee_fixed || 0)
+        );
+    });
+
+    let finalTotal = $derived(totalAmount + serviceFee);
+
     const isSchool = $derived(dropPoint?.category === "school");
 
     $effect(() => {
@@ -255,8 +277,13 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div>
                 <p class="text-gray-500 text-xs">Total Pembayaran</p>
+                {#if serviceFee > 0}
+                    <p class="text-xs text-gray-500 italic">
+                        (Inc. Biaya Layanan {formatRupiah(serviceFee)})
+                    </p>
+                {/if}
                 <p class="text-gray-900 font-bold text-base">
-                    {formatRupiah(totalAmount)}
+                    {formatRupiah(finalTotal)}
                 </p>
             </div>
             <button

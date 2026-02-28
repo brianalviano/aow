@@ -54,6 +54,8 @@ class PaymentMethodService
                         'account_number' => $data->accountNumber,
                         'account_name' => $data->accountName,
                         'payment_guide_id' => $data->paymentGuideId,
+                        'service_fee_rate' => $data->serviceFeeRate,
+                        'service_fee_fixed' => $data->serviceFeeFixed,
                     ]);
                 });
             } catch (\Throwable $e) {
@@ -94,6 +96,8 @@ class PaymentMethodService
                         'account_number' => $data->accountNumber,
                         'account_name' => $data->accountName,
                         'payment_guide_id' => $data->paymentGuideId,
+                        'service_fee_rate' => $data->serviceFeeRate,
+                        'service_fee_fixed' => $data->serviceFeeFixed,
                     ]);
 
                     return $paymentMethod->refresh();

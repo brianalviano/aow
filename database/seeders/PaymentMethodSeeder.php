@@ -42,15 +42,7 @@ class PaymentMethodSeeder extends Seeder
                 'is_active' => true,
                 'payment_guide_id' => $qrisGuideId,
                 'photo' => 'payment_methods/qris.svg',
-            ],
-            [
-                'name' => 'OVO',
-                'code' => 'ovo',
-                'category' => \App\Enums\PaymentMethodCategory::E_WALLET,
-                'type' => \App\Enums\PaymentMethodType::GATEWAY,
-                'is_active' => true,
-                'payment_guide_id' => $eWalletGuideId,
-                'photo' => 'payment_methods/ovo.svg',
+                'service_fee_rate' => 0.7,
             ],
             [
                 'name' => 'ShopeePay',
@@ -60,6 +52,7 @@ class PaymentMethodSeeder extends Seeder
                 'is_active' => true,
                 'payment_guide_id' => $eWalletGuideId,
                 'photo' => 'payment_methods/shopee-pay.svg',
+                'service_fee_rate' => 2,
             ],
         ];
 

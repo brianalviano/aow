@@ -398,9 +398,10 @@ class OrderService
                     $fees = $this->checkoutService->calculateFees(
                         $data->cart,
                         (string) data_get($data->dropPoint, 'id', ''),
-                        (string) data_get($data->address, 'id', '')
+                        (string) data_get($data->address, 'id', ''),
+                        $data->paymentMethodId
                     );
-                    $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
+                    $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'] + $fees['serviceFee'];
 
                     $order = Order::create([
                         'number'             => $this->generateOrderNumber(),
@@ -415,6 +416,7 @@ class OrderService
                         'total_amount'       => $totalAmount,
                         'delivery_fee'       => $fees['deliveryFee'],
                         'admin_fee'          => $fees['adminFee'],
+                        'service_fee'        => $fees['serviceFee'],
                         'tax_amount'         => $fees['taxAmount'],
                     ]);
 

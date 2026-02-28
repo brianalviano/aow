@@ -23,6 +23,8 @@ class PaymentMethodData
         public readonly ?string $accountNumber = null,
         public readonly ?string $accountName = null,
         public readonly ?string $paymentGuideId = null,
+        public readonly float $serviceFeeRate = 0,
+        public readonly int $serviceFeeFixed = 0,
     ) {}
 
     /**
@@ -40,6 +42,8 @@ class PaymentMethodData
             accountNumber: (string) $request->validated('account_number'),
             accountName: (string) $request->validated('account_name'),
             paymentGuideId: (string) $request->validated('payment_guide_id'),
+            serviceFeeRate: (float) $request->validated('service_fee_rate', 0),
+            serviceFeeFixed: (int) $request->validated('service_fee_fixed', 0),
         );
     }
 
@@ -58,6 +62,8 @@ class PaymentMethodData
             accountNumber: (string) $request->validated('account_number'),
             accountName: (string) $request->validated('account_name'),
             paymentGuideId: (string) $request->validated('payment_guide_id'),
+            serviceFeeRate: (float) $request->validated('service_fee_rate', 0),
+            serviceFeeFixed: (int) $request->validated('service_fee_fixed', 0),
         );
     }
 }

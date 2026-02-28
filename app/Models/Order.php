@@ -46,6 +46,7 @@ class Order extends Model
         'delivery_discount_amount',
         'final_delivery_fee',
         'admin_fee',
+        'service_fee',
         'tax_amount',
         'delivery_time',
         'delivered_at',

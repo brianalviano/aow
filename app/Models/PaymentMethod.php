@@ -28,6 +28,8 @@ class PaymentMethod extends Model
         'account_number',
         'account_name',
         'payment_guide_id',
+        'service_fee_rate',
+        'service_fee_fixed',
     ];
 
     /**
@@ -41,6 +43,8 @@ class PaymentMethod extends Model
             'is_active' => 'boolean',
             'category' => PaymentMethodCategory::class,
             'type' => PaymentMethodType::class,
+            'service_fee_rate' => 'float',
+            'service_fee_fixed' => 'integer',
         ];
     }
 

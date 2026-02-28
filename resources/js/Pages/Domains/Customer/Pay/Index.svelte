@@ -358,6 +358,19 @@
                         </p>
                     </div>
 
+                    <div
+                        class="bg-blue-50 rounded-3xl p-6 text-center space-y-2 border border-blue-100"
+                    >
+                        <p
+                            class="text-xs font-bold text-blue-400 uppercase tracking-widest"
+                        >
+                            Jumlah yang harus ditransfer
+                        </p>
+                        <p class="text-3xl font-black text-blue-900">
+                            {formatRupiah(order.total_amount)}
+                        </p>
+                    </div>
+
                     {#if order.payment_method?.account_number}
                         <div
                             class="bg-gray-50 rounded-3xl p-6 text-center space-y-3"

@@ -25,6 +25,8 @@
         account_number: string | null;
         account_name: string | null;
         payment_guide_id: string | null;
+        service_fee_rate: number;
+        service_fee_fixed: number;
         created_at: string;
         updated_at: string;
     }
@@ -48,6 +50,8 @@
             account_number: paymentMethod?.account_number ?? "",
             account_name: paymentMethod?.account_name ?? "",
             payment_guide_id: paymentMethod?.payment_guide_id ?? "",
+            service_fee_rate: paymentMethod?.service_fee_rate ?? 0,
+            service_fee_fixed: paymentMethod?.service_fee_fixed ?? 0,
         })),
     );
 
@@ -229,6 +233,50 @@
                                 />
                             </div>
                         {/if}
+
+                        <div
+                            class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t dark:border-gray-700"
+                        >
+                            <TextInput
+                                id="service_fee_rate"
+                                name="service_fee_rate"
+                                label="Biaya Layanan (%)"
+                                type="number"
+                                step={0.01}
+                                placeholder="Contoh: 0.7"
+                                value={$form.service_fee_rate.toString()}
+                                oninput={(e) => {
+                                    if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "numericValue" in e
+                                    ) {
+                                        $form.service_fee_rate =
+                                            e.numericValue ?? 0;
+                                    }
+                                }}
+                                error={$form.errors.service_fee_rate}
+                            />
+                            <TextInput
+                                id="service_fee_fixed"
+                                name="service_fee_fixed"
+                                label="Biaya Layanan Tetap (Rp)"
+                                type="number"
+                                placeholder="Contoh: 2500"
+                                value={$form.service_fee_fixed.toString()}
+                                oninput={(e) => {
+                                    if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "numericValue" in e
+                                    ) {
+                                        $form.service_fee_fixed =
+                                            e.numericValue ?? 0;
+                                    }
+                                }}
+                                error={$form.errors.service_fee_fixed}
+                            />
+                        </div>
 
                         <div
                             class="space-y-2 pt-2 border-t dark:border-gray-700"

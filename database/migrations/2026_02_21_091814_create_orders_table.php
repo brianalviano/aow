@@ -47,6 +47,7 @@ return new class extends Migration
             $table->text('cancellation_note')->nullable();
             $table->string('delivery_photo')->nullable();
             $table->timestamp('delivered_at')->nullable();
+            $table->integer('service_fee')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

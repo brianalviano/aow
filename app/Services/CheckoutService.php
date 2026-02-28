@@ -29,7 +29,7 @@ class CheckoutService
      * @param string|null $addressId The selected custom address ID.
      * @return array Calculated fees including delivery, admin, and tax.
      */
-    public function calculateFees(array $cart, ?string $dropPointId = null, ?string $addressId = null): array
+    public function calculateFees(array $cart, ?string $dropPointId = null, ?string $addressId = null, ?string $paymentMethodId = null): array
     {
         $settings = OrderSetting::pluck('value', 'key')->toArray();
         $subtotal = collect($cart)->sum('totalPrice');
@@ -75,10 +75,20 @@ class CheckoutService
             $taxAmount = (int) round($subtotal * $taxPercentage / 100);
         }
 
+        // Logic for Payment Method Service Fee
+        $serviceFee = 0;
+        if ($paymentMethodId) {
+            $paymentMethod = \App\Models\PaymentMethod::find($paymentMethodId);
+            if ($paymentMethod) {
+                $serviceFee = (int) round($subtotal * (float) $paymentMethod->service_fee_rate / 100) + (int) $paymentMethod->service_fee_fixed;
+            }
+        }
+
         return [
             'subtotal' => $subtotal,
             'deliveryFee' => $deliveryFee,
             'adminFee' => $adminFee,
+            'serviceFee' => $serviceFee,
             'taxAmount' => $taxAmount,
             'taxPercentage' => $taxPercentage,
             'taxEnabled' => $taxEnabled,
