@@ -132,6 +132,7 @@ class Product extends Model
     {
         $realStats = $this->testimonials()
             ->selectRaw('count(*) as count, sum(CAST(rating AS NUMERIC)) as sum')
+            ->groupBy('order_items.product_id')
             ->first();
 
         $realCount = (int) ($realStats->count ?? 0);

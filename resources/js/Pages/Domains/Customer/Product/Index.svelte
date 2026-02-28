@@ -115,7 +115,12 @@
     $: uniqueChefIds = [
         ...new Set(
             Object.values(cart).flatMap((item) => {
-                const productChefs = item.product.chefs || [];
+                const rawChefs = item.product.chefs;
+                const productChefs = Array.isArray(rawChefs)
+                    ? rawChefs
+                    : rawChefs?.data && Array.isArray(rawChefs.data)
+                      ? rawChefs.data
+                      : [];
                 return productChefs.map((c: any) => c.id);
             }),
         ),
