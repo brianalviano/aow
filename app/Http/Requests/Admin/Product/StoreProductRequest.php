@@ -41,6 +41,9 @@ class StoreProductRequest extends FormRequest
             'options.*.items.*.name' => ['required', 'string', 'max:255'],
             'options.*.items.*.extra_price' => ['nullable', 'integer', 'min:0'],
             'options.*.items.*.sort_order' => ['nullable', 'integer', 'min:0'],
+            'fake_sales_count' => ['nullable', 'integer', 'min:0'],
+            'fake_testimonials_count' => ['nullable', 'integer', 'min:0'],
+            'is_manipulation_active' => ['sometimes', 'boolean'],
         ];
     }
 }

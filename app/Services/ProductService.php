@@ -78,6 +78,12 @@ class ProductService
                         }
                     }
 
+                    $product->manipulation()->create([
+                        'fake_sales_count' => $data->fakeSalesCount,
+                        'fake_testimonials_count' => $data->fakeTestimonialsCount,
+                        'is_active' => $data->isManipulationActive,
+                    ]);
+
                     return $product;
                 });
             } catch (\Throwable $e) {
@@ -145,6 +151,15 @@ class ProductService
                             ]);
                         }
                     }
+
+                    $product->manipulation()->updateOrCreate(
+                        ['product_id' => $product->id],
+                        [
+                            'fake_sales_count' => $data->fakeSalesCount,
+                            'fake_testimonials_count' => $data->fakeTestimonialsCount,
+                            'is_active' => $data->isManipulationActive,
+                        ]
+                    );
 
                     return $product->refresh();
                 });

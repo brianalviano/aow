@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\{
     ReportController,
     SettingController,
     SliderController,
+    TestimonialTemplateController,
     UserController
 };
 use App\Http\Controllers\Chef\{
@@ -199,6 +200,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/sliders/{slider}/edit', [SliderController::class, 'edit'])->name('sliders.edit');
         Route::put('/sliders/{slider}', [SliderController::class, 'update'])->name('sliders.update');
         Route::delete('/sliders/{slider}', [SliderController::class, 'destroy'])->name('sliders.destroy');
+
+        // Testimonial Templates
+        Route::resource('testimonial-templates', TestimonialTemplateController::class)->except(['show']);
 
         // Drop Points
         Route::get('/drop-points', [DropPointController::class, 'index'])->name('drop-points.index');

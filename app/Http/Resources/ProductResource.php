@@ -39,6 +39,15 @@ class ProductResource extends JsonResource
             'total_sales' => $this->total_sales,
             'average_rating' => $this->average_rating,
             'testimonials_count' => $this->testimonials_count,
+            'manipulation' => $this->manipulation ? [
+                'fake_sales_count' => $this->manipulation->fake_sales_count,
+                'fake_testimonials_count' => $this->manipulation->fake_testimonials_count,
+                'is_active' => $this->manipulation->is_active,
+            ] : [
+                'fake_sales_count' => 0,
+                'fake_testimonials_count' => 0,
+                'is_active' => false,
+            ],
         ];
     }
 }

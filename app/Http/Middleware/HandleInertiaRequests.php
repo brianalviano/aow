@@ -204,6 +204,12 @@ class HandleInertiaRequests extends Middleware
                         'icon'  => 'fa-images',
                         'link'  => route('admin.sliders.index'),
                     ],
+                    [
+                        'id'    => 'testimonial-templates',
+                        'label' => 'Template Testimoni',
+                        'icon'  => 'fa-comments',
+                        'link'  => route('admin.testimonial-templates.index'),
+                    ],
                 ],
             ],
         ];

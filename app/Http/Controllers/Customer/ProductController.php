@@ -86,11 +86,13 @@ class ProductController extends Controller
      */
     public function testimonials(Product $product): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $testimonials = $product->testimonials()
+        $realTestimonials = $product->testimonials()
             ->with('customer')
             ->latest()
-            ->paginate(5);
+            ->get();
 
-        return \App\Http\Resources\TestimonialResource::collection($testimonials);
+        $merged = $product->getManipulatedTestimonials(50); // Get up to 50 merged items
+
+        return \App\Http\Resources\TestimonialResource::collection($merged);
     }
 }

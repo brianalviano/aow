@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Traits\FileHelperTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasManyThrough};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasManyThrough, HasOne};
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -75,6 +75,16 @@ class Product extends Model
     }
 
     /**
+     * Get the manipulation settings for this product.
+     *
+     * @return HasOne
+     */
+    public function manipulation(): HasOne
+    {
+        return $this->hasOne(ProductManipulation::class);
+    }
+
+    /**
      * Get the testimonials for this product.
      *
      * @return HasManyThrough
@@ -98,7 +108,7 @@ class Product extends Model
      */
     public function getTotalSalesAttribute(): int
     {
-        return (int) $this->orderItems()
+        $realSales = (int) $this->orderItems()
             ->whereHas('order', function ($query) {
                 $query->whereIn('order_status', [
                     \App\Enums\OrderStatus::CONFIRMED->value,
@@ -107,6 +117,10 @@ class Product extends Model
                 ]);
             })
             ->sum('quantity');
+
+        $fakeSales = $this->manipulation?->is_active ? $this->manipulation->fake_sales_count : 0;
+
+        return $realSales + $fakeSales;
     }
 
     /**
@@ -116,9 +130,29 @@ class Product extends Model
      */
     public function getAverageRatingAttribute(): float
     {
-        return (float) $this->testimonials()
-            ->selectRaw('avg(CAST(rating AS NUMERIC)) as aggregate')
-            ->value('aggregate') ?: 0.0;
+        $realStats = $this->testimonials()
+            ->selectRaw('count(*) as count, sum(CAST(rating AS NUMERIC)) as sum')
+            ->first();
+
+        $realCount = (int) ($realStats->count ?? 0);
+        $realSum = (float) ($realStats->sum ?? 0);
+
+        $fakeCount = $this->manipulation?->is_active ? $this->manipulation->fake_testimonials_count : 0;
+
+        if ($fakeCount > 0) {
+            // We'll use the average of the templates to simulate the fake rating contribution
+            $templateAvg = TestimonialTemplate::where('is_active', true)
+                ->avg('rating') ?: 5.0;
+
+            $fakeSum = $fakeCount * $templateAvg;
+
+            $totalCount = $realCount + $fakeCount;
+            $totalSum = $realSum + $fakeSum;
+
+            return (float) ($totalSum / $totalCount);
+        }
+
+        return $realCount > 0 ? (float) ($realSum / $realCount) : 0.0;
     }
 
     /**
@@ -128,7 +162,56 @@ class Product extends Model
      */
     public function getTestimonialsCountAttribute(): int
     {
-        return $this->testimonials()->count();
+        $realCount = $this->testimonials()->count();
+        $fakeCount = $this->manipulation?->is_active ? $this->manipulation->fake_testimonials_count : 0;
+
+        return $realCount + $fakeCount;
+    }
+
+    /**
+     * Get merged real and fake testimonials.
+     *
+     * @param int $limit
+     * @return \Illuminate\Support\Collection
+     */
+    public function getManipulatedTestimonials(int $limit = 10)
+    {
+        $realTestimonials = $this->testimonials()
+            ->with('customer')
+            ->latest()
+            ->get()
+            ->map(fn($t) => [
+                'id' => $t->id,
+                'customer_name' => $t->customer?->name ?? 'User',
+                'rating' => $t->rating,
+                'content' => $t->content,
+                'photo' => $t->photo,
+                'is_fake' => false,
+                'created_at' => $t->created_at,
+            ]);
+
+        $fakeCount = $this->manipulation?->is_active ? $this->manipulation->fake_testimonials_count : 0;
+
+        if ($fakeCount > 0) {
+            $templates = TestimonialTemplate::where('is_active', true)
+                ->inRandomOrder()
+                ->limit($fakeCount)
+                ->get()
+                ->map(fn($t, $index) => [
+                    'id' => 'fake-' . $t->id . '-' . $index,
+                    'customer_name' => $t->customer_name,
+                    'rating' => $t->rating,
+                    'content' => $t->content,
+                    'photo' => null,
+                    'is_fake' => true,
+                    // Simulate random dates in the past 30 days
+                    'created_at' => now()->subDays(rand(1, 30))->subHours(rand(1, 23)),
+                ]);
+
+            $realTestimonials = $realTestimonials->concat($templates);
+        }
+
+        return $realTestimonials->sortByDesc('created_at')->take($limit)->values();
     }
 
     /**

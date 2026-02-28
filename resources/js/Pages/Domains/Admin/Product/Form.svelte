@@ -45,6 +45,11 @@
         created_at: string;
         updated_at: string;
         options?: ProductOption[];
+        manipulation?: {
+            fake_sales_count: number;
+            fake_testimonials_count: number;
+            is_active: boolean;
+        };
     }
 
     let product = $derived(
@@ -77,6 +82,9 @@
         sort_order: 0,
         image: null as File | null,
         options: [] as ProductOption[],
+        fake_sales_count: 0,
+        fake_testimonials_count: 0,
+        is_manipulation_active: false,
     };
 
     const form = useForm(
@@ -93,6 +101,15 @@
             sort_order: product?.sort_order ?? DEFAULT_FORM_STATE.sort_order,
             image: DEFAULT_FORM_STATE.image,
             options: product?.options ?? DEFAULT_FORM_STATE.options,
+            fake_sales_count:
+                product?.manipulation?.fake_sales_count ??
+                DEFAULT_FORM_STATE.fake_sales_count,
+            fake_testimonials_count:
+                product?.manipulation?.fake_testimonials_count ??
+                DEFAULT_FORM_STATE.fake_testimonials_count,
+            is_manipulation_active:
+                product?.manipulation?.is_active ??
+                DEFAULT_FORM_STATE.is_manipulation_active,
         })),
     );
 
@@ -624,6 +641,94 @@
                                 </div>
                             </div>
                         {/each}
+                    {/if}
+                </div>
+            {/snippet}
+        </Card>
+        <div class="mt-6"></div>
+        <Card title="Manipulasi Data (Social Proof)" collapsible={false}>
+            {#snippet children()}
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div class="flex items-center md:col-span-2">
+                        <Checkbox
+                            id="is_manipulation_active"
+                            name="is_manipulation_active"
+                            label="Aktifkan Manipulasi Data"
+                            bind:checked={$form.is_manipulation_active}
+                            error={$form.errors.is_manipulation_active}
+                        />
+                    </div>
+
+                    {#if $form.is_manipulation_active}
+                        <div>
+                            <TextInput
+                                id="fake_sales_count"
+                                name="fake_sales_count"
+                                label="Jumlah Pembelian Palsu"
+                                type="number"
+                                placeholder="0"
+                                value={$form.fake_sales_count.toString()}
+                                oninput={(e) => {
+                                    if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "numericValue" in e &&
+                                        e.numericValue !== null
+                                    ) {
+                                        $form.fake_sales_count = e.numericValue;
+                                    } else if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "target" in e
+                                    ) {
+                                        $form.fake_sales_count = Number(
+                                            (e.target as HTMLInputElement)
+                                                .value,
+                                        );
+                                    }
+                                }}
+                                error={$form.errors.fake_sales_count}
+                            />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Angka ini akan ditambahkan ke jumlah pembelian
+                                asli.
+                            </p>
+                        </div>
+
+                        <div>
+                            <TextInput
+                                id="fake_testimonials_count"
+                                name="fake_testimonials_count"
+                                label="Jumlah Testimoni Palsu"
+                                type="number"
+                                placeholder="0"
+                                value={$form.fake_testimonials_count.toString()}
+                                oninput={(e) => {
+                                    if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "numericValue" in e &&
+                                        e.numericValue !== null
+                                    ) {
+                                        $form.fake_testimonials_count =
+                                            e.numericValue;
+                                    } else if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "target" in e
+                                    ) {
+                                        $form.fake_testimonials_count = Number(
+                                            (e.target as HTMLInputElement)
+                                                .value,
+                                        );
+                                    }
+                                }}
+                                error={$form.errors.fake_testimonials_count}
+                            />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Akan mengambil testimoni acak dari template.
+                            </p>
+                        </div>
                     {/if}
                 </div>
             {/snippet}

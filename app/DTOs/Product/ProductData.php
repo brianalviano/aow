@@ -24,6 +24,9 @@ class ProductData
         public readonly int $sortOrder = 0,
         /** @var array<int, ProductOptionData> */
         public readonly array $options = [],
+        public readonly int $fakeSalesCount = 0,
+        public readonly int $fakeTestimonialsCount = 0,
+        public readonly bool $isManipulationActive = false,
     ) {}
 
     /**
@@ -54,6 +57,9 @@ class ProductData
             isActive: (bool) $request->validated('is_active', true),
             sortOrder: (int) $request->validated('sort_order', 0),
             options: $options,
+            fakeSalesCount: (int) $request->validated('fake_sales_count', 0),
+            fakeTestimonialsCount: (int) $request->validated('fake_testimonials_count', 0),
+            isManipulationActive: (bool) $request->validated('is_manipulation_active', false),
         );
     }
 
@@ -85,6 +91,9 @@ class ProductData
             isActive: (bool) $request->validated('is_active', true),
             sortOrder: (int) $request->validated('sort_order', 0),
             options: $options,
+            fakeSalesCount: (int) $request->validated('fake_sales_count', 0),
+            fakeTestimonialsCount: (int) $request->validated('fake_testimonials_count', 0),
+            isManipulationActive: (bool) $request->validated('is_manipulation_active', false),
         );
     }
 }
