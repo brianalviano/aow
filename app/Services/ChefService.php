@@ -29,15 +29,48 @@ class ChefService
      */
     public function getPaginated(int $perPage = 15, ?string $search = null): LengthAwarePaginator
     {
-        return Chef::query()
+        $paginator = Chef::query()
             ->when($search, function ($query, $search) {
                 $query->where('name', 'ilike', "%{$search}%")
                     ->orWhere('email', 'ilike', "%{$search}%")
                     ->orWhere('phone', 'ilike', "%{$search}%");
             })
+            ->select('chefs.*')
+            ->selectSub(function ($query) {
+                $query->from('order_items')
+                    ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                    ->join('chef_product', 'order_items.product_id', '=', 'chef_product.product_id')
+                    ->whereColumn('chef_product.chef_id', 'chefs.id')
+                    ->where('orders.payment_status', 'paid')
+                    ->where('orders.order_status', '!=', 'cancelled')
+                    ->selectRaw('COALESCE(SUM(order_items.subtotal), 0)');
+            }, 'total_sales')
+            ->selectSub(function ($query) {
+                $query->from('chef_transfers')
+                    ->whereColumn('chef_transfers.chef_id', 'chefs.id')
+                    ->selectRaw('COALESCE(SUM(chef_transfers.amount), 0)');
+            }, 'total_transferred')
             ->withCount('products')
             ->orderBy('name', 'asc')
             ->paginate($perPage);
+
+        // Enrich with calculated fields (net_sales, outstanding_balance, etc)
+        $paginator->getCollection()->transform(function ($chef) {
+            $feePercentage = (float) $chef->fee_percentage;
+            $totalSales    = (int) $chef->total_sales;
+
+            $totalFeeAmount   = (int) round($totalSales * $feePercentage / 100);
+            $netSales         = $totalSales - $totalFeeAmount;
+            $totalTransferred = (int) $chef->total_transferred;
+
+            $chef->total_fee_amount    = $totalFeeAmount;
+            $chef->net_sales           = $netSales;
+            $chef->outstanding_balance = $netSales - $totalTransferred;
+
+            return $chef;
+        });
+
+        return $paginator;
     }
 
     /**

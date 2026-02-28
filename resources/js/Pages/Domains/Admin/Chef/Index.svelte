@@ -18,7 +18,9 @@
         fee_percentage: number;
         is_active: boolean;
         order_types: ("instant" | "preorder")[];
-        products_count?: number;
+        total_sales: number;
+        total_transferred: number;
+        outstanding_balance: number;
         created_at: string;
     }
 
@@ -92,6 +94,14 @@
             handleSearch();
         }
     });
+
+    function formatCurrency(amount: number): string {
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+        }).format(amount);
+    }
 </script>
 
 <svelte:head>
@@ -159,8 +169,9 @@
                             <th>Nama</th>
                             <th>Kontak</th>
                             <th>Fee (%)</th>
-                            <th>Produk</th>
-                            <th>Tipe Pesanan</th>
+                            <th>Total Penjualan</th>
+                            <th>Sudah Ditransfer</th>
+                            <th>Belum Ditransfer</th>
                             <th>Status</th>
                             <th class="w-40 text-center">Aksi</th>
                         </tr>
@@ -204,32 +215,31 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <Badge
-                                            size="sm"
-                                            rounded="pill"
-                                            variant="info"
+                                        <div
+                                            class="text-sm font-medium text-blue-600 dark:text-blue-400"
                                         >
-                                            {#snippet children()}{item.products_count ??
-                                                    0} produk{/snippet}
-                                        </Badge>
+                                            {formatCurrency(item.total_sales)}
+                                        </div>
                                     </td>
                                     <td>
-                                        <div class="flex flex-wrap gap-1">
-                                            {#each item.order_types as type}
-                                                <Badge
-                                                    size="sm"
-                                                    rounded="pill"
-                                                    variant={type === "instant"
-                                                        ? "success"
-                                                        : "warning"}
-                                                >
-                                                    {#snippet children()}
-                                                        {type === "instant"
-                                                            ? "Instant"
-                                                            : "PO Only"}
-                                                    {/snippet}
-                                                </Badge>
-                                            {/each}
+                                        <div
+                                            class="text-sm font-medium text-teal-600 dark:text-teal-400"
+                                        >
+                                            {formatCurrency(
+                                                item.total_transferred,
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div
+                                            class="text-sm font-bold {item.outstanding_balance >
+                                            0
+                                                ? 'text-orange-600 dark:text-orange-400'
+                                                : 'text-green-600 dark:text-green-400'}"
+                                        >
+                                            {formatCurrency(
+                                                item.outstanding_balance,
+                                            )}
                                         </div>
                                     </td>
                                     <td>
