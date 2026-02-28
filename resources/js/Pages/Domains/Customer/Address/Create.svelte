@@ -296,7 +296,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 px-4 w-full max-w-lg mx-auto pb-10">
+    <main class="flex-1 px-4 w-full max-w-lg mx-auto pb-10 pt-3">
         {#if isAuthenticated && savedAddresses.length > 0}
             <div class="mt-6 space-y-4">
                 <div class="flex items-center justify-between">
@@ -375,21 +375,20 @@
             </div>
         {/if}
 
-        <div class="mt-8 mb-4">
-            <h2 class="font-bold text-gray-900">
-                {editingId ? "Edit Alamat" : "Tambah Alamat Baru"}
-            </h2>
-            <p class="text-xs text-gray-500">
-                {editingId
-                    ? "Perbarui detail alamat pengiriman Anda"
-                    : "Isi detail alamat pengiriman baru"}
-            </p>
-        </div>
-
         <form
             onsubmit={submit}
             class="space-y-5 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-5"
         >
+            <div class="mb-4">
+                <h2 class="font-bold text-gray-900">
+                    {editingId ? "Edit Alamat" : "Tambah Alamat Baru"}
+                </h2>
+                <p class="text-xs text-gray-500">
+                    {editingId
+                        ? "Perbarui detail alamat pengiriman Anda"
+                        : "Isi detail alamat pengiriman baru"}
+                </p>
+            </div>
             <TextInput
                 id="name"
                 name="name"
