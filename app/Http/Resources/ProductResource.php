@@ -32,6 +32,7 @@ class ProductResource extends JsonResource
             'sort_order' => $this->sort_order,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'chefs' => ChefResource::collection($this->whenLoaded('chefs')),
             'product_category' => new ProductCategoryResource($this->whenLoaded('productCategory')),
             'options' => ProductOptionResource::collection($this->whenLoaded('productOptions')),
             'testimonials' => TestimonialResource::collection($this->whenLoaded('testimonials')),

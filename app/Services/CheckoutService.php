@@ -39,14 +39,23 @@ class CheckoutService
         $deliveryFeeMode = $settings['delivery_fee_mode'] ?? 'per_drop_point';
         $minOrderFreeDelivery = (int) ($settings['free_courier_min_order'] ?? 0);
 
+        // Get unique chefs from cart
+        $uniqueChefIds = collect($cart)->map(function ($item) {
+            $chefs = data_get($item, 'product.chefs', []);
+            return collect($chefs)->pluck('id');
+        })->flatten()->unique()->filter();
+
+        $chefCount = max(1, $uniqueChefIds->count());
+
         if ($subtotal >= $minOrderFreeDelivery && $minOrderFreeDelivery > 0) {
             $deliveryFee = 0;
         } else {
-            $deliveryFee = match ($deliveryFeeMode) {
+            $baseDeliveryFee = match ($deliveryFeeMode) {
                 'free' => 0,
                 'flat' => (int) ($settings['delivery_fee_flat'] ?? 0),
                 default => (int) ($dropPoint?->delivery_fee ?? $settings['delivery_fee_flat'] ?? 0),
             };
+            $deliveryFee = $baseDeliveryFee * $chefCount;
         }
 
         // Logic for Admin Fee

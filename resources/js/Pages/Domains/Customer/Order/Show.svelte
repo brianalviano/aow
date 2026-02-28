@@ -470,6 +470,7 @@
                                                             ) >= parseInt(star)
                                                                 ? 'bg-yellow-50 border-yellow-400 text-yellow-600'
                                                                 : 'bg-white border-gray-200 text-gray-300'}"
+                                                            aria-label="Pilih rating {star} bintang"
                                                         >
                                                             <i
                                                                 class="fa-solid fa-star text-xs"

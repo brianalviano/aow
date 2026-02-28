@@ -64,6 +64,8 @@
         categories.length > 0 && categories[0] ? categories[0].id : "";
     let selectedProduct: any = null;
     let showModal = false;
+    let showChefWarningModal = false;
+    let baseDeliveryFee: number = 0;
 
     // Scroll Spy State
     let isScrollingFromClick = false;
@@ -109,6 +111,29 @@
         },
         {} as Record<string, number>,
     );
+
+    $: uniqueChefIds = [
+        ...new Set(
+            Object.values(cart).flatMap((item) => {
+                const productChefs = item.product.chefs || [];
+                return productChefs.map((c: any) => c.id);
+            }),
+        ),
+    ].filter(Boolean);
+
+    $: chefCount = Math.max(1, uniqueChefIds.length);
+
+    async function fetchBaseDeliveryFee() {
+        // We can get this from dropPoint if available, or we might need a small API call if it's dynamic.
+        // For now, let's assume we can derive it or get it from the first checkout attempt's fees.
+        // But better yet, let's just use the dropPoint.delivery_fee if it exists.
+        baseDeliveryFee = (dropPoint as any)?.deliveryFee || 0;
+    }
+
+    onMount(() => {
+        setupObserver();
+        fetchBaseDeliveryFee();
+    });
 
     function goBack() {
         router.visit("/"); // Or `/drop-points/${dropPoint.id}`
@@ -581,6 +606,11 @@
                     class="text-white font-bold text-sm bg-[#FFC700] px-4 py-2 rounded-lg flex items-center justify-center min-w-[120px] disabled:opacity-75 disabled:cursor-not-allowed"
                     disabled={isCheckoutLoading}
                     on:click|stopPropagation={() => {
+                        if (chefCount > 1) {
+                            showChefWarningModal = true;
+                            return;
+                        }
+
                         isCheckoutLoading = true;
                         router.post(
                             "/checkout/session",
@@ -616,6 +646,68 @@
         onClose={() => (showModal = false)}
         onAdd={addToCart}
     />
+{/if}
+
+{#if showChefWarningModal}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+        class="fixed inset-0 bg-black/60 z-60 flex items-center justify-center p-4"
+        on:click={() => (showChefWarningModal = false)}
+    >
+        <div
+            class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+            on:click|stopPropagation
+        >
+            <div class="p-6 text-center">
+                <div
+                    class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600"
+                >
+                    <i class="fa-solid fa-kitchen-set text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">
+                    Dapur Berbeda-beda
+                </h3>
+                <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+                    Produk yang kamu pilih berasal dari <strong
+                        >{chefCount} dapur</strong
+                    > yang berbeda. Hal ini akan menyebabkan biaya ongkir menjadi
+                    berkali lipat sesuai jumlah dapur.
+                </p>
+
+                <div class="flex flex-col gap-3">
+                    <button
+                        class="w-full py-3 bg-[#FFD700] text-gray-900 font-bold rounded-xl active:scale-[0.98] transition-all"
+                        on:click={() => {
+                            showChefWarningModal = false;
+                            isCheckoutLoading = true;
+                            router.post(
+                                "/checkout/session",
+                                {
+                                    cart,
+                                    dropPoint,
+                                    address,
+                                },
+                                {
+                                    onFinish: () => {
+                                        isCheckoutLoading = false;
+                                    },
+                                },
+                            );
+                        }}
+                    >
+                        Lanjutkan Checkout
+                    </button>
+                    <button
+                        class="w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-xl active:scale-[0.98] transition-all"
+                        on:click={() => (showChefWarningModal = false)}
+                    >
+                        Kembali
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 {/if}
 
 <style>
