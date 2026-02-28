@@ -38,10 +38,17 @@ class CheckoutController extends Controller
 
         $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id'] ?? null, $addressData['id'] ?? null);
 
+        $orderType = session('checkout_order_type', 'preorder');
+        $deliveryDate = session('checkout_delivery_date');
+        $deliveryTime = session('checkout_delivery_time');
+
         return Inertia::render('Domains/Customer/Checkout/Index', [
             'cart' => (object) $cart,
             'dropPoint' => $dropPointData,
             'address' => $addressData,
+            'orderType' => $orderType,
+            'delivery_date' => $deliveryDate,
+            'delivery_time' => $deliveryTime,
             'fees' => [
                 'deliveryFee' => $fees['deliveryFee'],
                 'baseDeliveryFee' => $fees['baseDeliveryFee'],
@@ -57,6 +64,8 @@ class CheckoutController extends Controller
                 'admin_fee_type' => $fees['adminFeeType'],
                 'admin_fee_value' => $fees['adminFeeValue'],
                 'tax_enabled' => $fees['taxEnabled'],
+                'order_cutoff_time' => \App\Models\OrderSetting::where('key', 'order_cutoff_time')->value('value') ?? '20:00',
+                'order_min_days_ahead' => (int) (\App\Models\OrderSetting::where('key', 'order_min_days_ahead')->value('value') ?? 1),
             ],
         ]);
     }
@@ -79,6 +88,8 @@ class CheckoutController extends Controller
             'checkout_cart' => $request->input('cart'),
             'checkout_drop_point' => $request->input('dropPoint'),
             'checkout_address' => $request->input('address'),
+            'checkout_delivery_date' => $request->input('delivery_date'),
+            'checkout_delivery_time' => $request->input('delivery_time'),
         ]);
 
         return redirect()->to(route('customer.checkout'));
@@ -102,6 +113,8 @@ class CheckoutController extends Controller
             'checkout_cart' => $request->input('cart'),
             'checkout_drop_point' => $request->input('dropPoint'),
             'checkout_address' => $request->input('address'),
+            'checkout_delivery_date' => $request->input('delivery_date'),
+            'checkout_delivery_time' => $request->input('delivery_time'),
         ]);
 
         return response()->json(['success' => true]);

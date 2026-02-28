@@ -62,6 +62,8 @@ class PaymentController extends Controller
             'totalAmount' => $totalAmount,
             'dropPoint' => $dropPointData,
             'address' => $addressData,
+            'delivery_date' => session('checkout_delivery_date'),
+            'delivery_time' => session('checkout_delivery_time'),
         ]);
     }
 

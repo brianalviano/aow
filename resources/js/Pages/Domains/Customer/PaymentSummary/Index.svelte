@@ -11,6 +11,8 @@
         customer?: any;
         totalAmount?: number;
         dropPoint?: any;
+        delivery_date?: string;
+        delivery_time?: string;
     }
 
     let {
@@ -18,6 +20,8 @@
         customer = null,
         totalAmount = 0,
         dropPoint = null,
+        delivery_date = "",
+        delivery_time = "",
     }: Props = $props();
 
     const isSchool = $derived(dropPoint?.category === "school");
@@ -36,6 +40,8 @@
         email: untrack(() => customer?.email || ""),
         school_class: untrack(() => customer?.school_class || ""),
         payment_method_id: "",
+        delivery_date: untrack(() => delivery_date),
+        delivery_time: untrack(() => delivery_time),
     });
 
     let guideModalOpen = $state(false);

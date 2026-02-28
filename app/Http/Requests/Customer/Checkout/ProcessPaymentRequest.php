@@ -40,8 +40,8 @@ class ProcessPaymentRequest extends FormRequest
             'email' => 'required|email|max:255',
             'school_class' => ($isSchool ? 'required' : 'nullable') . '|string|max:255',
             'payment_method_id' => 'required|exists:payment_methods,id',
-            'delivery_date' => 'nullable|date_format:Y-m-d',
-            'delivery_time' => 'nullable|date_format:H:i',
+            'delivery_date' => 'nullable|date',
+            'delivery_time' => 'nullable',
         ];
     }
 }

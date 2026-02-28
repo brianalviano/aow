@@ -4,66 +4,76 @@
     import ScheduleModal from "./ScheduleModal.svelte";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
 
-    export let cart: Record<string, any> =
-        Array.isArray($$props.cart) && $$props.cart.length === 0
-            ? {}
-            : $$props.cart || {};
-    export let dropPoint: {
-        id: string;
-        name: string;
-        address: string;
-    } | null = null;
-    export let address: {
-        id: string;
-        name: string;
-        phone: string;
-        address: string;
-        note?: string;
-    } | null = null;
-    export let fees: {
-        deliveryFee: number;
-        baseDeliveryFee: number;
-        adminFee: number;
-        taxAmount: number;
-        taxPercentage: number;
-        taxEnabled: boolean;
-    } = {
-        deliveryFee: 0,
-        baseDeliveryFee: 0,
-        adminFee: 0,
-        taxAmount: 0,
-        taxPercentage: 0,
-        taxEnabled: false,
-    };
-    export let settings: {
-        delivery_fee_mode: string;
-        free_courier_min_order: number;
-        admin_fee_enabled: boolean;
-        admin_fee_type: string;
-        admin_fee_value: number;
-        tax_enabled: boolean;
-    } = {
-        delivery_fee_mode: "per_drop_point",
-        free_courier_min_order: 0,
-        admin_fee_enabled: false,
-        admin_fee_type: "fixed",
-        admin_fee_value: 0,
-        tax_enabled: false,
-    };
+    interface Props {
+        cart?: Record<string, any>;
+        dropPoint?: {
+            id: string;
+            name: string;
+            address: string;
+        } | null;
+        address?: {
+            id: string;
+            name: string;
+            phone: string;
+            address: string;
+            note?: string;
+        } | null;
+        fees: {
+            deliveryFee: number;
+            baseDeliveryFee: number;
+            adminFee: number;
+            taxAmount: number;
+            taxPercentage: number;
+            taxEnabled: boolean;
+        };
+        settings: {
+            delivery_fee_mode: string;
+            free_courier_min_order: number;
+            admin_fee_enabled: boolean;
+            admin_fee_type: string;
+            admin_fee_value: number;
+            tax_enabled: boolean;
+            order_cutoff_time: string;
+            order_min_days_ahead: number;
+        };
+        orderType?: "instant" | "preorder";
+        delivery_date?: string;
+        delivery_time?: string;
+    }
+
+    let {
+        cart = $bindable({}),
+        dropPoint = $bindable(null),
+        address = $bindable(null),
+        fees,
+        settings,
+        orderType = "preorder",
+        delivery_date = "",
+        delivery_time = "",
+    }: Props = $props();
+
+    // Ensure cart is an object even if passed as empty array from PHP
+    if (Array.isArray(cart) && cart.length === 0) {
+        cart = {};
+    }
 
     // State for Editing
-    let showModal = false;
-    let showScheduleModal = false;
-    let selectedItem: any = null;
-    let editingItemKey: string | null = null;
+    let showModal = $state(false);
+    let showScheduleModal = $state(false);
+    let selectedItem: any = $state(null);
+    let editingItemKey: string | null = $state(null);
 
     // Convert cart object to array for easier iteration
-    $: items = Object.keys(cart).map((key) => ({ ...cart[key], _key: key }));
+    const items = $derived(
+        Object.keys(cart).map((key) => ({ ...cart[key], _key: key })),
+    );
 
-    $: subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
+    const subtotal = $derived(
+        items.reduce((sum, item) => sum + item.totalPrice, 0),
+    );
 
     // Recalculate fees locally to handle quantity changes
-    $: localDeliveryFee = (() => {
+    const localDeliveryFee = $derived.by(() => {
         if (
             settings.free_courier_min_order > 0 &&
             subtotal >= settings.free_courier_min_order
@@ -71,21 +81,24 @@
             return 0;
         }
         return fees.baseDeliveryFee;
-    })();
+    });
 
-    $: localTaxAmount = settings.tax_enabled
-        ? Math.round((subtotal * fees.taxPercentage) / 100)
-        : 0;
+    const localTaxAmount = $derived(
+        settings.tax_enabled
+            ? Math.round((subtotal * fees.taxPercentage) / 100)
+            : 0,
+    );
 
-    $: localAdminFee = (() => {
+    const localAdminFee = $derived.by(() => {
         if (!settings.admin_fee_enabled) return 0;
         if (settings.admin_fee_type === "fixed")
             return settings.admin_fee_value;
         return Math.round((subtotal * settings.admin_fee_value) / 100);
-    })();
+    });
 
-    $: totalAmount =
-        subtotal + localDeliveryFee + localTaxAmount + localAdminFee;
+    const totalAmount = $derived(
+        subtotal + localDeliveryFee + localTaxAmount + localAdminFee,
+    );
 
     function formatRupiah(amount: number) {
         return "Rp" + amount.toLocaleString("id-ID");
@@ -107,23 +120,6 @@
         selectedItem = item;
         editingItemKey = key;
         showModal = true;
-    }
-
-    function updateSession() {
-        // Use fetch or router.post with preserveState/scroll to sync session quietly
-        fetch("/checkout/update-session", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN":
-                    (
-                        document.querySelector(
-                            'meta[name="csrf-token"]',
-                        ) as HTMLMetaElement
-                    )?.content || "",
-            },
-            body: JSON.stringify({ cart, dropPoint, address }),
-        });
     }
 
     function updateQuantity(key: string, delta: number) {
@@ -242,36 +238,94 @@
     }
 
     // Delivery Date & Time Logic
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    let deliveryDateIso = $state("");
+    let deliveryTime = $state("");
 
-    // Initial values
-    let deliveryDateIso = "";
-    let deliveryTime = "";
+    $effect(() => {
+        deliveryDateIso = delivery_date || "";
+    });
 
-    const minDateIso = (() => {
-        const year = tomorrow.getFullYear();
-        const month = String(tomorrow.getMonth() + 1).padStart(2, "0");
-        const day = String(tomorrow.getDate()).padStart(2, "0");
+    $effect(() => {
+        deliveryTime = delivery_time || "";
+    });
+
+    const minDateIso = $derived.by(() => {
+        const now = new Date();
+        if (orderType === "instant") {
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, "0");
+            const day = String(now.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        }
+
+        // Pre-order logic
+        const cutoffParts = (settings.order_cutoff_time || "20:00").split(":");
+        const cutoffHour = Number(cutoffParts[0] || 20);
+        const cutoffMinute = Number(cutoffParts[1] || 0);
+
+        const cutoffDate = new Date();
+        cutoffDate.setHours(cutoffHour, cutoffMinute, 0, 0);
+
+        let targetDate = new Date();
+        const minDays =
+            typeof settings.order_min_days_ahead === "number"
+                ? settings.order_min_days_ahead
+                : 1;
+        targetDate.setDate(now.getDate() + minDays);
+
+        if (now > cutoffDate) {
+            targetDate.setDate(targetDate.getDate() + 1);
+        }
+
+        const year = targetDate.getFullYear();
+        const month = String(targetDate.getMonth() + 1).padStart(2, "0");
+        const day = String(targetDate.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
-    })();
+    });
+
+    function updateSession() {
+        // Use fetch or router.post with preserveState/scroll to sync session quietly
+        fetch("/checkout/update-session", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN":
+                    (
+                        document.querySelector(
+                            'meta[name="csrf-token"]',
+                        ) as HTMLMetaElement
+                    )?.content || "",
+            },
+            body: JSON.stringify({
+                cart,
+                dropPoint,
+                address,
+                delivery_date: deliveryDateIso,
+                delivery_time: deliveryTime,
+            }),
+        });
+    }
 
     // Reactive Date Object for display strings
-    $: deliveryDate = deliveryDateIso ? new Date(deliveryDateIso) : null;
+    const deliveryDate = $derived(
+        deliveryDateIso ? new Date(deliveryDateIso) : null,
+    );
 
-    $: deliveryDateStr =
+    const deliveryDateStr = $derived(
         deliveryDate && !isNaN(deliveryDate.getTime())
             ? new Intl.DateTimeFormat("id-ID", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
               }).format(deliveryDate)
-            : "";
+            : "",
+    );
 
-    function handleUpdateSchedule(dateIso: string, time: string) {
+    function handleUpdateSchedule(dateIso: string, timeValue: string) {
         deliveryDateIso = dateIso;
-        deliveryTime = time;
+        deliveryTime = timeValue;
         showScheduleModal = false;
+        updateSession();
     }
 </script>
 
@@ -283,7 +337,7 @@
     <!-- Header -->
     <header class="flex items-center p-4 bg-white sticky top-0 z-30">
         <button
-            on:click={goBack}
+            onclick={goBack}
             class="w-10 h-10 flex items-center justify-center text-gray-900"
             aria-label="Kembali"
         >
@@ -339,7 +393,7 @@
                     </h3>
                     <button
                         class="text-[#2196f3] text-xs font-semibold"
-                        on:click={() => (showScheduleModal = true)}
+                        onclick={() => (showScheduleModal = true)}
                     >
                         {deliveryDateIso ? "Ubah" : "Pilih"}
                     </button>
@@ -386,8 +440,7 @@
                             </h3>
                             <button
                                 class="absolute top-0 right-0 text-[#2196f3] text-xs font-semibold"
-                                on:click={() =>
-                                    handleEditClick(item, item._key)}
+                                onclick={() => handleEditClick(item, item._key)}
                                 >Ubah</button
                             >
 
@@ -417,7 +470,7 @@
                                     <button
                                         class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 bg-gray-50 active:bg-gray-100 transition-colors"
                                         aria-label="Kurangi"
-                                        on:click={() =>
+                                        onclick={() =>
                                             updateQuantity(item._key, -1)}
                                     >
                                         <i class="fa-solid fa-minus text-[10px]"
@@ -429,7 +482,7 @@
                                         min="1"
                                         class="font-bold text-sm w-10 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         aria-label="Jumlah"
-                                        on:input={(e) => {
+                                        oninput={(e) => {
                                             const val = parseInt(
                                                 e.currentTarget.value,
                                             );
@@ -437,7 +490,7 @@
                                                 setQuantity(item._key, val);
                                             }
                                         }}
-                                        on:blur={(e) => {
+                                        onblur={(e) => {
                                             const val = parseInt(
                                                 e.currentTarget.value,
                                             );
@@ -449,7 +502,7 @@
                                     <button
                                         class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 bg-gray-50 active:bg-gray-100 transition-colors"
                                         aria-label="Tambah"
-                                        on:click={() =>
+                                        onclick={() =>
                                             updateQuantity(item._key, 1)}
                                     >
                                         <i class="fa-solid fa-plus text-[10px]"
@@ -537,7 +590,7 @@
                 </p>
             </div>
             <button
-                on:click={handleLanjutPembayaran}
+                onclick={handleLanjutPembayaran}
                 class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap text-sm"
             >
                 Lanjut Pembayaran
@@ -566,6 +619,7 @@
         initialDateIso={deliveryDateIso}
         initialTime={deliveryTime}
         {minDateIso}
+        {orderType}
         onClose={() => (showScheduleModal = false)}
         onSave={handleUpdateSchedule}
     />
