@@ -10,16 +10,19 @@
     export let onClose: () => void;
     export let onSave: (dateIso: string, time: string) => void;
 
-    let dateIso = initialDateIso;
-    let time = initialTime;
+    let dateIso = initialDateIso || minDateIso;
+    let time = initialTime || "08:00";
 
     // Internal reactive state for display in the modal
-    $: dateObject = new Date(dateIso);
-    $: dateStr = new Intl.DateTimeFormat("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    }).format(dateObject);
+    $: dateObject = dateIso ? new Date(dateIso) : null;
+    $: dateStr =
+        dateObject && !isNaN(dateObject.getTime())
+            ? new Intl.DateTimeFormat("id-ID", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+              }).format(dateObject)
+            : "";
 
     function handleSave() {
         onSave(dateIso, time);

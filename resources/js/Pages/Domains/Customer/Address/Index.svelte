@@ -308,7 +308,7 @@
     <!-- Main Content -->
     <main class="flex-1 px-4 w-full max-w-lg mx-auto pb-5 pt-3">
         {#if isAuthenticated && savedAddresses.length > 0}
-            <div class="mt-6 space-y-4">
+            <div class="space-y-4 mb-3">
                 <div class="flex items-center justify-between">
                     <h2 class="font-bold text-gray-900">Alamat Tersimpan</h2>
                     {#if editingId}
@@ -548,7 +548,7 @@
                         {#if isLocating}
                             <i class="fa-solid fa-spinner fa-spin"></i> Mencari...
                         {:else}
-                            <i class="fa-solid fa-location-crosshairs"></i> Gunakan
+                            <i class="fa-solid fa-location-crosshairs"></i>
                             Lokasi Saat Ini
                         {/if}
                     </button>
@@ -621,7 +621,7 @@
             </div>
 
             <!-- Submit Button -->
-            <div class="pt-6">
+            <div class="pt-3">
                 <button
                     type="submit"
                     disabled={$form.processing}

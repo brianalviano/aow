@@ -246,24 +246,27 @@
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Initial values
-    let deliveryDateIso = (() => {
+    let deliveryDateIso = "";
+    let deliveryTime = "";
+
+    const minDateIso = (() => {
         const year = tomorrow.getFullYear();
         const month = String(tomorrow.getMonth() + 1).padStart(2, "0");
         const day = String(tomorrow.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
     })();
-    let deliveryTime = "12:00";
-
-    const minDateIso = deliveryDateIso;
 
     // Reactive Date Object for display strings
-    $: deliveryDate = new Date(deliveryDateIso);
+    $: deliveryDate = deliveryDateIso ? new Date(deliveryDateIso) : null;
 
-    $: deliveryDateStr = new Intl.DateTimeFormat("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    }).format(deliveryDate);
+    $: deliveryDateStr =
+        deliveryDate && !isNaN(deliveryDate.getTime())
+            ? new Intl.DateTimeFormat("id-ID", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+              }).format(deliveryDate)
+            : "";
 
     function handleUpdateSchedule(dateIso: string, time: string) {
         deliveryDateIso = dateIso;
@@ -338,12 +341,16 @@
                         class="text-[#2196f3] text-xs font-semibold"
                         on:click={() => (showScheduleModal = true)}
                     >
-                        Ubah
+                        {deliveryDateIso ? "Ubah" : "Pilih"}
                     </button>
                 </div>
                 <p class="text-gray-500 text-xs leading-relaxed">
-                    {deliveryDateStr}
-                    {deliveryTime} WIB
+                    {#if deliveryDateIso && deliveryTime}
+                        {deliveryDateStr}
+                        {deliveryTime} WIB
+                    {:else}
+                        Mau dikirim kapan kak?
+                    {/if}
                 </p>
             </div>
         </section>
