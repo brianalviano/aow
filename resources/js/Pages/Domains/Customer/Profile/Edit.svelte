@@ -9,7 +9,6 @@
             name: string;
             email: string;
             username: string;
-            schoolClass: string;
         };
     };
 
@@ -18,7 +17,6 @@
         name: customer.name ?? "",
         email: customer.email ?? "",
         phone: "",
-        schoolClass: customer.schoolClass ?? "",
         password: "",
         password_confirmation: "",
     });
@@ -96,17 +94,6 @@
                     disabled={$form.processing}
                     bind:value={$form.email}
                     error={$form.errors.email}
-                />
-
-                <TextInput
-                    id="schoolClass"
-                    name="schoolClass"
-                    label="Kelas Sekolah"
-                    type="text"
-                    required={false}
-                    disabled={$form.processing}
-                    bind:value={$form.schoolClass}
-                    error={$form.errors.schoolClass}
                 />
             </div>
 

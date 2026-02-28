@@ -42,9 +42,9 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 w-full flex flex-col items-center">
+    <main class="flex-1 w-full flex flex-col items-center pb-5">
         <!-- User Profile Area -->
-        <div class="w-full flex items-center p-6 gap-4 mb-4">
+        <div class="w-full flex items-center p-6 gap-4 mb-2">
             {#if user}
                 <div
                     class="size-14 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-800"
