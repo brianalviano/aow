@@ -493,19 +493,22 @@
             transition:fade={{ duration: 400, delay: 200 }}
         >
             <!-- Title and Counter -->
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
                 <div class="text-white">
-                    <h3 class="text-lg font-semibold">
+                    <h3
+                        class="text-base sm:text-lg font-semibold truncate"
+                        title={currentItem.title || `Item ${currentIndex + 1}`}
+                    >
                         {currentItem.title || `Item ${currentIndex + 1}`}
                     </h3>
-                    <p class="text-sm text-gray-300">
+                    <p class="text-xs sm:text-sm text-gray-300">
                         {currentIndex + 1} / {normalizedItems.length}
                     </p>
                 </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex items-center space-x-2">
+            <div class="flex shrink-0 items-center space-x-1 sm:space-x-2">
                 {#if enableDownload}
                     <button
                         type="button"

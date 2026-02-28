@@ -5,47 +5,53 @@
     import TextArea from "@/Lib/Admin/Components/Ui/TextArea.svelte";
     import FileUpload from "@/Lib/Admin/Components/Ui/FileUpload.svelte";
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
+    import MediaViewer from "@/Lib/Admin/Components/Ui/MediaViewer.svelte";
 
     dayjs.locale(id);
 
-    export let order: {
-        id: string;
-        number: string;
-        total_amount: number;
-        payment_status: string;
-        order_status: string;
-        created_at: string;
-        delivery_date: string;
-        delivery_time?: string;
-        cancellation_note?: string;
-        drop_point?: { name: string; address: string };
-        customer_address?: { name: string; address: string; note?: string };
-        payment_method?: {
-            name: string;
-            type: string;
-            category: string;
-        };
-        items: Array<{
+    interface Props {
+        order: {
             id: string;
-            quantity: number;
-            price: number;
-            product: { name: string; image_url: string };
-            can_give_testimonial?: boolean;
-            testimonial?: {
-                rating: string;
-                content: string;
-                photo_url: string;
-                created_at: string;
-                is_approved: boolean;
+            number: string;
+            total_amount: number;
+            payment_status: string;
+            order_status: string;
+            created_at: string;
+            delivery_date: string;
+            delivery_time?: string;
+            cancellation_note?: string;
+            drop_point?: { name: string; address: string };
+            customer_address?: { name: string; address: string; note?: string };
+            payment_method?: {
+                name: string;
+                type: string;
+                category: string;
             };
-        }>;
-        tax_amount: number;
-        admin_fee: number;
-        final_delivery_fee: number;
-        discount_amount: number;
-        delivery_photo_url?: string;
-        delivered_at?: string;
-    };
+            items: Array<{
+                id: string;
+                quantity: number;
+                price: number;
+                product: { name: string; image_url: string };
+                can_give_testimonial?: boolean;
+                testimonial?: {
+                    rating: string;
+                    content: string;
+                    photo_url: string;
+                    created_at: string;
+                    is_approved: boolean;
+                };
+            }>;
+            tax_amount: number;
+            admin_fee: number;
+            final_delivery_fee: number;
+            discount_amount: number;
+            delivery_photo_url?: string;
+            payment_proof_url?: string;
+            delivered_at?: string;
+        };
+    }
+
+    let { order }: Props = $props();
 
     function formatCurrency(amount: number) {
         return new Intl.NumberFormat("id-ID", {
@@ -94,6 +100,15 @@
                     };
                 }
 
+                if (order.payment_proof_url) {
+                    return {
+                        text: "Menunggu Verifikasi",
+                        classes:
+                            "bg-orange-50 text-orange-600 border border-orange-200",
+                        icon: "fa-solid fa-clock-rotate-left",
+                    };
+                }
+
                 return {
                     text: "Belum Dibayar",
                     classes:
@@ -116,14 +131,15 @@
         };
     }
 
-    const badge = getStatusBadge(order.payment_status, order.order_status);
-    const subtotal = order.items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
+    const badge = $derived(
+        getStatusBadge(order.payment_status, order.order_status),
+    );
+    const subtotal = $derived(
+        order.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     );
 
-    let processing = false;
-    let activeTestimonialItemId: string | null = null;
+    let processing = $state(false);
+    let activeTestimonialItemId = $state<string | null>(null);
 
     const testimonialForm = useForm({
         rating: "5",
@@ -139,6 +155,16 @@
                 $testimonialForm.reset();
             },
         });
+    }
+
+    let isMediaViewerOpen = $state(false);
+    let mediaViewerItems = $state<string | string[]>([]);
+    let mediaViewerInitialIndex = $state(0);
+
+    function openMediaViewer(items: string | string[], index: number = 0) {
+        mediaViewerItems = items;
+        mediaViewerInitialIndex = index;
+        isMediaViewerOpen = true;
     }
 </script>
 
@@ -213,13 +239,13 @@
             </div>
         {/if}
 
-        {#if order.payment_status === "pending" && order.payment_method?.category !== "cash"}
+        {#if order.payment_status === "pending" && order.payment_method?.category !== "cash" && !order.payment_proof_url}
             <Link
                 href={`/payment/${order.id}?from=detail`}
                 class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 {processing
                     ? 'opacity-80 pointer-events-none'
                     : ''}"
-                on:click={() => (processing = true)}
+                onclick={() => (processing = true)}
             >
                 {#if processing}
                     <i class="fa-solid fa-spinner fa-spin"></i>
@@ -239,8 +265,8 @@
                 class="w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white text-center font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 {processing
                     ? 'opacity-80 pointer-events-none'
                     : ''}"
-                on:click={() => (processing = true)}
-                on:finish={() => (processing = false)}
+                onclick={() => (processing = true)}
+                onfinish={() => (processing = false)}
             >
                 {#if processing}
                     <i class="fa-solid fa-spinner fa-spin"></i>
@@ -300,6 +326,37 @@
             </div>
         </div>
 
+        {#if order.payment_proof_url}
+            <div
+                class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm overflow-hidden"
+            >
+                <div
+                    class="font-bold text-gray-900 flex items-center gap-2 mb-3"
+                >
+                    <i class="fa-solid fa-receipt text-blue-500"></i>
+                    Bukti Pembayaran
+                </div>
+                <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+                    Bukti bayar yang telah Anda unggah. Tim kami akan segera
+                    memverifikasinya.
+                </p>
+                <div class="rounded-lg overflow-hidden border border-gray-50">
+                    <button
+                        type="button"
+                        class="block w-full text-left"
+                        onclick={() =>
+                            openMediaViewer(order.payment_proof_url!)}
+                    >
+                        <img
+                            src={order.payment_proof_url}
+                            alt="Bukti Pembayaran"
+                            class="w-full h-auto object-cover max-h-64 hover:opacity-90 transition-opacity"
+                        />
+                    </button>
+                </div>
+            </div>
+        {/if}
+
         {#if order.order_status === "delivered" && order.delivery_photo_url}
             <div
                 class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm overflow-hidden"
@@ -314,18 +371,18 @@
                     Foto bukti pesanan yang telah diterima.
                 </p>
                 <div class="rounded-lg overflow-hidden border border-gray-50">
-                    <a
-                        href={order.delivery_photo_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="block"
+                    <button
+                        type="button"
+                        class="block w-full text-left"
+                        onclick={() =>
+                            openMediaViewer(order.delivery_photo_url!)}
                     >
                         <img
                             src={order.delivery_photo_url}
                             alt="Bukti Penerimaan"
                             class="w-full h-auto object-cover max-h-64 hover:opacity-90 transition-opacity"
                         />
-                    </a>
+                    </button>
                 </div>
             </div>
         {/if}
@@ -349,11 +406,20 @@
                                 class="w-16 h-16 bg-white rounded-xl overflow-hidden shadow-sm shrink-0 relative border border-gray-100"
                             >
                                 {#if item.product?.image_url}
-                                    <img
-                                        src={item.product?.image_url}
-                                        alt={item.product?.name}
-                                        class="w-full h-full object-cover"
-                                    />
+                                    <button
+                                        type="button"
+                                        class="w-full h-full block"
+                                        onclick={() =>
+                                            openMediaViewer(
+                                                item.product.image_url,
+                                            )}
+                                    >
+                                        <img
+                                            src={item.product?.image_url}
+                                            alt={item.product?.name}
+                                            class="w-full h-full object-cover"
+                                        />
+                                    </button>
                                 {:else}
                                     <div
                                         class="w-full h-full flex items-center justify-center text-gray-300"
@@ -420,8 +486,14 @@
                                                 "Tanpa komentar"}"
                                         </p>
                                         {#if item.testimonial.photo_url}
-                                            <div
-                                                class="rounded-lg overflow-hidden border border-gray-100 max-w-[120px]"
+                                            <button
+                                                type="button"
+                                                class="rounded-lg overflow-hidden border border-gray-100 max-w-[120px] block text-left"
+                                                onclick={() =>
+                                                    openMediaViewer(
+                                                        item.testimonial!
+                                                            .photo_url,
+                                                    )}
                                             >
                                                 <img
                                                     src={item.testimonial
@@ -429,14 +501,14 @@
                                                     alt="Foto Testimoni"
                                                     class="w-full h-auto object-cover"
                                                 />
-                                            </div>
+                                            </button>
                                         {/if}
                                     </div>
                                 {:else if item.can_give_testimonial}
                                     {#if activeTestimonialItemId !== item.id}
                                         <button
                                             type="button"
-                                            on:click={() =>
+                                            onclick={() =>
                                                 (activeTestimonialItemId =
                                                     item.id)}
                                             class="w-full py-2 px-4 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs font-bold rounded-lg transition-all border border-orange-100 flex items-center justify-center gap-2"
@@ -447,8 +519,10 @@
                                         </button>
                                     {:else}
                                         <form
-                                            on:submit|preventDefault={() =>
-                                                submitItemTestimonial(item.id)}
+                                            onsubmit={(e) => {
+                                                e.preventDefault();
+                                                submitItemTestimonial(item.id);
+                                            }}
                                             class="space-y-3 pt-1"
                                         >
                                             <div
@@ -462,7 +536,7 @@
                                                     {#each ["1", "2", "3", "4", "5"] as star}
                                                         <button
                                                             type="button"
-                                                            on:click={() =>
+                                                            onclick={() =>
                                                                 ($testimonialForm.rating =
                                                                     star)}
                                                             class="w-7 h-7 rounded-md flex items-center justify-center border transition-all {parseInt(
@@ -508,7 +582,7 @@
                                             <div class="flex gap-2 pt-1">
                                                 <button
                                                     type="button"
-                                                    on:click={() =>
+                                                    onclick={() =>
                                                         (activeTestimonialItemId =
                                                             null)}
                                                     class="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-all"
@@ -617,3 +691,9 @@
         </div>
     </div>
 </div>
+
+<MediaViewer
+    bind:isOpen={isMediaViewerOpen}
+    items={mediaViewerItems}
+    initialIndex={mediaViewerInitialIndex}
+/>

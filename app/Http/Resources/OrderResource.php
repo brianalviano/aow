@@ -32,7 +32,7 @@ class OrderResource extends JsonResource
             'order_status'      => $this->order_status,
             'note'               => $this->note,
             'cancellation_note'  => $this->cancellation_note,
-            'delivery_photo_url' => $this->delivery_photo,
+            'payment_proof_url' => $this->payment_proof,
             'discount_amount'          => $this->discount_amount,
             'total_amount'             => $this->total_amount,
             'delivery_fee'             => $this->delivery_fee,
@@ -42,7 +42,6 @@ class OrderResource extends JsonResource
             'tax_amount'               => $this->tax_amount,
             'payment_expired_at'       => $this->payment_expired_at?->toIso8601String(),
             'delivered_at'             => $this->delivered_at?->toIso8601String(),
-            'delivered_at'             => $this->delivered_at?->toIso8601String(),
             'created_at'               => $this->created_at?->toIso8601String(),
             'updated_at'               => $this->updated_at?->toIso8601String(),
 
@@ -51,7 +50,6 @@ class OrderResource extends JsonResource
             'drop_point'     => $this->whenLoaded('dropPoint', fn() => (new DropPointResource($this->dropPoint))->resolve()),
             'customer_address' => $this->whenLoaded('customerAddress', fn() => (new CustomerAddressResource($this->customerAddress))->resolve()),
             'customer'       => $this->whenLoaded('customer', fn() => (new CustomerResource($this->customer))->resolve()),
-            'payment_method' => $this->whenLoaded('paymentMethod', fn() => (new PaymentMethodResource($this->paymentMethod))->resolve()),
             'payment_method' => $this->whenLoaded('paymentMethod', fn() => (new PaymentMethodResource($this->paymentMethod))->resolve()),
         ];
     }
