@@ -276,7 +276,7 @@
                                                     class="peer opacity-0 absolute w-full h-full cursor-pointer z-10"
                                                 />
                                                 <div
-                                                    class="w-5 h-5 border border-gray-300 rounded peer-checked:border-[#CCFF33] peer-checked:bg-[#CCFF33] flex items-center justify-center transition-colors"
+                                                    class="w-5 h-5 border border-gray-300 rounded peer-checked:border-[#FFD700] peer-checked:bg-[#FFD700] flex items-center justify-center transition-colors"
                                                 >
                                                     {#if Array.isArray(selectedOptions[option.id]) && (selectedOptions[option.id] as string[])?.includes(item.id)}
                                                         <i
@@ -297,7 +297,7 @@
                                                     class="peer opacity-0 absolute w-full h-full cursor-pointer z-10"
                                                 />
                                                 <div
-                                                    class="w-5 h-5 border border-gray-300 rounded-full peer-checked:border-[#CCFF33] peer-checked:bg-[#CCFF33] flex items-center justify-center transition-colors"
+                                                    class="w-5 h-5 border border-gray-300 rounded-full peer-checked:border-[#FFD700] peer-checked:bg-[#FFD700] flex items-center justify-center transition-colors"
                                                 >
                                                     {#if selectedOptions[option.id] === item.id}
                                                         <i
@@ -437,7 +437,7 @@
                 <textarea
                     bind:value={notes}
                     placeholder="Contoh: jangan pedas, banyakin kecap..."
-                    class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-[#CCFF33] focus:border-[#CCFF33] transition-colors resize-none h-24 placeholder-gray-400"
+                    class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-[#FFD700] focus:border-[#FFD700] transition-colors resize-none h-24 placeholder-gray-400"
                 ></textarea>
             </div>
         </div>
@@ -486,7 +486,7 @@
             </div>
 
             <button
-                class="w-full bg-[#CCFF33] hover:bg-[#bdf33c] text-[#111] font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
+                class="w-full bg-[#FFD700] hover:bg-[#FFC700] text-[#111] font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                 on:click={handleAdd}
                 disabled={!isSelectionValid}
             >

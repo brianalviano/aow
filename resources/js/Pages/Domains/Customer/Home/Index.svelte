@@ -134,11 +134,11 @@
             <!-- Option 2: Use Other Address -->
             <Link
                 href="/custom-address"
-                class="group block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-[#CCFF33] transition-all transform active:scale-[0.98]"
+                class="group block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-[#FFD700] transition-all transform active:scale-[0.98]"
             >
                 <div class="flex items-center gap-4">
                     <div
-                        class="bg-gray-50 w-14 h-14 rounded-xl flex items-center justify-center text-gray-600 text-2xl group-hover:bg-[#CCFF33] group-hover:text-slate-800 transition-colors"
+                        class="bg-gray-50 w-14 h-14 rounded-xl flex items-center justify-center text-gray-600 text-2xl group-hover:bg-[#FFD700] group-hover:text-slate-800 transition-colors"
                     >
                         <i class="fa-solid fa-map-location-dot"></i>
                     </div>

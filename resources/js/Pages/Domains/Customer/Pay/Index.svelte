@@ -418,7 +418,7 @@
                             <button
                                 type="submit"
                                 disabled={$form.processing || !$form.proof}
-                                class="w-full py-4 bg-[#CCFF33] text-gray-900 font-black rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="w-full py-4 bg-[#FFD700] text-gray-900 font-black rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {#if $form.processing}
                                     <i class="fa-solid fa-spinner fa-spin mr-2"
@@ -461,7 +461,7 @@
                     {#each activeGuide.content as section}
                         <div class="space-y-3">
                             <h4
-                                class="font-bold text-gray-900 border-l-4 border-[#CCFF33] pl-3"
+                                class="font-bold text-gray-900 border-l-4 border-[#FFD700] pl-3"
                             >
                                 {section.title}
                             </h4>

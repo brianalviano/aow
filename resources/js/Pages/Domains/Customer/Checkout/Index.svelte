@@ -396,7 +396,7 @@
                                     <p
                                         class="text-gray-500 text-[10px] leading-tight flex items-start gap-1"
                                     >
-                                        <span class="text-[#8ec210]">•</span>
+                                        <span class="text-[#FFD700]">•</span>
                                         {label}
                                     </p>
                                 {/each}
@@ -492,7 +492,7 @@
                 <span class="text-gray-600">Biaya Pengiriman</span>
                 <span class="font-semibold text-gray-900">
                     {#if localDeliveryFee === 0}
-                        <span class="text-[#8ec210] font-bold">Gratis</span>
+                        <span class="text-[#FFD700] font-bold">Gratis</span>
                     {:else}
                         {formatRupiah(localDeliveryFee)}
                     {/if}
@@ -538,7 +538,7 @@
             </div>
             <button
                 on:click={handleLanjutPembayaran}
-                class="bg-[#CCFF33] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap text-sm"
+                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap text-sm"
             >
                 Lanjut Pembayaran
             </button>

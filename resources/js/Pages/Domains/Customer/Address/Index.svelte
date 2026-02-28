@@ -339,7 +339,7 @@
                         <div
                             class="bg-white p-4 rounded-2xl border {editingId ===
                             address.id
-                                ? 'border-[#CCFF33] ring-1 ring-[#CCFF33]'
+                                ? 'border-[#FFD700] ring-1 ring-[#FFD700]'
                                 : 'border-gray-100'} shadow-sm relative group"
                         >
                             <div class="flex justify-between items-start mb-2">
@@ -637,7 +637,7 @@
                 <button
                     type="submit"
                     disabled={$form.processing}
-                    class="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-slate-900 bg-[#CCFF33] hover:bg-[#bdf33c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CCFF33] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-slate-900 bg-[#FFD700] hover:bg-[#FFC700] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFD700] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {#if $form.processing}
                         <i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...

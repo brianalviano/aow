@@ -384,7 +384,7 @@
                     data-category-id={category.id}
                     class="whitespace-nowrap px-4 py-3 text-sm font-semibold border-b-2 transition-colors {selectedCategory ===
                     category.id
-                        ? 'border-[#CCFF33] text-gray-900'
+                        ? 'border-[#FFD700] text-gray-900'
                         : 'border-transparent text-gray-500'}"
                     on:click={() => scrollToCategory(category.id)}
                 >
@@ -410,7 +410,7 @@
                             class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col transition-all {(cartQuantities[
                                 product.id
                             ] || 0) > 0
-                                ? 'border-b-4 border-b-[#8ec210]'
+                                ? 'border-b-4 border-b-[#FFD700]'
                                 : ''}"
                         >
                             <div class="aspect-4/3 w-full bg-gray-100 relative">
@@ -535,7 +535,7 @@
                                         <button
                                             on:click={() =>
                                                 handleTambahClick(product)}
-                                            class="w-full h-full rounded border border-[#CCFF33] text-[#86ab16] font-semibold text-xs flex items-center justify-center hover:bg-[#f6ffde] transition-colors"
+                                            class="w-full h-full rounded border border-[#FFD700] text-[#997A00] font-semibold text-xs flex items-center justify-center hover:bg-[#FFF9E6] transition-colors"
                                         >
                                             Tambah
                                         </button>
@@ -559,13 +559,13 @@
     {#if totalCartItems > 0}
         <div class="fixed bottom-0 left-0 right-0 p-4 z-40">
             <div
-                class="bg-[#8ec210] rounded-xl shadow-lg p-3 flex items-center justify-between cursor-pointer hover:bg-[#7ea60f] transition-colors"
+                class="bg-[#FFD700] rounded-xl shadow-lg p-3 flex items-center justify-between cursor-pointer hover:bg-[#FFC700] transition-colors"
                 role="button"
                 tabindex="0"
             >
                 <div class="flex items-center gap-3">
                     <div
-                        class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#8ec210]"
+                        class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#FFD700]"
                     >
                         <i class="fa-solid fa-cart-shopping text-xl"></i>
                     </div>
@@ -578,7 +578,7 @@
                 </div>
 
                 <button
-                    class="text-white font-bold text-sm bg-[#78a20d] px-4 py-2 rounded-lg flex items-center justify-center min-w-[120px] disabled:opacity-75 disabled:cursor-not-allowed"
+                    class="text-white font-bold text-sm bg-[#FFC700] px-4 py-2 rounded-lg flex items-center justify-center min-w-[120px] disabled:opacity-75 disabled:cursor-not-allowed"
                     disabled={isCheckoutLoading}
                     on:click|stopPropagation={() => {
                         isCheckoutLoading = true;

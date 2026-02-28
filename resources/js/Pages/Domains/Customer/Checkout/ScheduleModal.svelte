@@ -101,7 +101,7 @@
         <!-- Action Bar -->
         <div class="p-4 border-t border-gray-100 bg-white">
             <button
-                class="w-full bg-[#CCFF33] hover:bg-[#bdf33c] text-[#111] font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
+                class="w-full bg-[#FFD700] hover:bg-[#FFC700] text-[#111] font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
                 on:click={handleSave}
             >
                 Simpan Jadwal

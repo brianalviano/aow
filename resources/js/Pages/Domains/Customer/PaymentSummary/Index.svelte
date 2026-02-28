@@ -156,7 +156,7 @@
                         placeholder="Cth: XII IPA 1"
                         required={isSchool}
                         error={$form.errors.school_class}
-                        class="rounded-2xl! focus:ring-[#CCFF33]!"
+                        class="rounded-2xl! focus:ring-[#FFD700]!"
                     />
                 {/if}
             </div>
@@ -218,14 +218,14 @@
                             <div class="flex items-center gap-3">
                                 <div
                                     class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
-                                    class:border-[#CCFF33]={$form.payment_method_id ===
+                                    class:border-[#FFD700]={$form.payment_method_id ===
                                         method.id}
                                     class:border-gray-300={$form.payment_method_id !==
                                         method.id}
                                 >
                                     {#if $form.payment_method_id === method.id}
                                         <div
-                                            class="w-3 h-3 rounded-full bg-[#CCFF33] shadow-sm animate-in zoom-in duration-200"
+                                            class="w-3 h-3 rounded-full bg-[#FFD700] shadow-sm animate-in zoom-in duration-200"
                                         ></div>
                                     {/if}
                                 </div>
@@ -256,7 +256,7 @@
             <button
                 onclick={handleSubmit}
                 disabled={$form.processing}
-                class="bg-[#CCFF33] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap text-sm disabled:opacity-50"
+                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap text-sm disabled:opacity-50"
             >
                 {$form.processing ? "Memproses..." : "Bayar"}
             </button>
@@ -279,7 +279,7 @@
                     {#each activeGuide.content as section}
                         <div class="space-y-3">
                             <h4
-                                class="font-bold text-gray-900 border-l-4 border-[#CCFF33] pl-3"
+                                class="font-bold text-gray-900 border-l-4 border-[#FFD700] pl-3"
                             >
                                 {section.title}
                             </h4>
