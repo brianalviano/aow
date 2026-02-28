@@ -17,7 +17,8 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('number')->unique();
-            $table->foreignUuid('drop_point_id')->constrained();
+            $table->foreignUuid('drop_point_id')->nullable()->constrained('drop_points');
+            $table->foreignUuid('customer_address_id')->nullable()->constrained('customer_addresses');
             $table->foreignUuid('customer_id')->constrained();
             $table->date('delivery_date');
             $table->foreignUuid('payment_method_id')->constrained();

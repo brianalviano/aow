@@ -20,10 +20,11 @@ class ProcessOrderData
      * @param string $name Customer's full name.
      * @param string $phone Customer's phone number.
      * @param string $email Customer's email address.
-     * @param string $schoolClass Customer's school/class description.
-     * @param int $paymentMethodId Selected payment method ID.
+     * @param string|null $schoolClass Customer's school/class description.
+     * @param string $paymentMethodId Selected payment method ID.
      * @param array $cart Items currently in the customer's cart.
-     * @param array $dropPoint Target drop point information.
+     * @param array|null $dropPoint Target drop point information.
+     * @param array|null $address Target custom address information.
      * @param string|null $deliveryDate Scheduled delivery date (YYYY-MM-DD).
      * @param string|null $deliveryTime Scheduled delivery time (HH:MM).
      */
@@ -34,7 +35,8 @@ class ProcessOrderData
         public readonly ?string $schoolClass,
         public readonly string $paymentMethodId,
         public readonly array $cart,
-        public readonly array $dropPoint,
+        public readonly ?array $dropPoint = null,
+        public readonly ?array $address = null,
         public readonly ?string $deliveryDate = null,
         public readonly ?string $deliveryTime = null,
     ) {}
@@ -44,10 +46,11 @@ class ProcessOrderData
      *
      * @param ProcessPaymentRequest $request The validated request containing user input.
      * @param array $cart The cart data retrieved from session.
-     * @param array $dropPoint The drop point data retrieved from session.
+     * @param array|null $dropPoint The drop point data retrieved from session.
+     * @param array|null $address The custom address data retrieved from session.
      * @return self
      */
-    public static function fromRequest(ProcessPaymentRequest $request, array $cart, array $dropPoint): self
+    public static function fromRequest(ProcessPaymentRequest $request, array $cart, ?array $dropPoint = null, ?array $address = null): self
     {
         return new self(
             name: $request->validated('name'),
@@ -57,6 +60,7 @@ class ProcessOrderData
             paymentMethodId: $request->validated('payment_method_id'),
             cart: $cart,
             dropPoint: $dropPoint,
+            address: $address,
             deliveryDate: $request->validated('delivery_date'),
             deliveryTime: $request->validated('delivery_time'),
         );

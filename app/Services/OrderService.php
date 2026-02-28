@@ -395,12 +395,17 @@ class OrderService
                         Auth::guard('customer')->login($customer);
                     }
 
-                    $fees = $this->checkoutService->calculateFees($data->cart, (string) data_get($data->dropPoint, 'id', ''));
+                    $fees = $this->checkoutService->calculateFees(
+                        $data->cart,
+                        (string) data_get($data->dropPoint, 'id', ''),
+                        (string) data_get($data->address, 'id', '')
+                    );
                     $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
 
                     $order = Order::create([
                         'number'             => $this->generateOrderNumber(),
                         'drop_point_id'      => data_get($data->dropPoint, 'id'),
+                        'customer_address_id' => data_get($data->address, 'id'),
                         'customer_id'        => $customer->id,
                         'delivery_date'      => $data->deliveryDate ?? now()->addDay()->format('Y-m-d'),
                         'delivery_time'      => $data->deliveryTime ?? '12:00',
@@ -463,7 +468,7 @@ class OrderService
                         $order->customer->notify(new OrderPlacedNotification($order));
                     });
 
-                    session()->forget(['checkout_cart', 'checkout_drop_point']);
+                    session()->forget(['checkout_cart', 'checkout_drop_point', 'checkout_address']);
 
                     return $order;
                 });

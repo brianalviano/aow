@@ -32,7 +32,7 @@ class ProcessPaymentRequest extends FormRequest
     public function rules(): array
     {
         $dropPoint = session('checkout_drop_point');
-        $isSchool = ($dropPoint['category'] ?? '') === DropPointCategory::SCHOOL->value;
+        $isSchool = $dropPoint && ($dropPoint['category'] ?? '') === DropPointCategory::SCHOOL->value;
 
         return [
             'name' => 'required|string|max:255',

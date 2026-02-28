@@ -22,6 +22,7 @@ class Order extends Model
     protected $fillable = [
         'number',
         'drop_point_id',
+        'customer_address_id',
         'customer_id',
         'delivery_date',
         'payment_method_id',
@@ -89,6 +90,16 @@ class Order extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * Get the customer address associated with this order.
+     *
+     * @return BelongsTo
+     */
+    public function customerAddress(): BelongsTo
+    {
+        return $this->belongsTo(CustomerAddress::class);
     }
 
     public function paymentMethod(): BelongsTo

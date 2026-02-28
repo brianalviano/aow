@@ -39,9 +39,10 @@ class PaymentController extends Controller
     {
         $cart = session('checkout_cart', []);
         $dropPointData = session('checkout_drop_point');
+        $addressData = session('checkout_address');
 
         // If no checkout session, redirect home
-        if (empty($cart) || empty($dropPointData)) {
+        if (empty($cart) || (empty($dropPointData) && empty($addressData))) {
             return redirect()->to(route('home'));
         }
 
@@ -52,7 +53,7 @@ class PaymentController extends Controller
 
         $user = Auth::guard('customer')->user();
 
-        $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id']);
+        $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id'] ?? null, $addressData['id'] ?? null);
         $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'];
 
         return Inertia::render('Domains/Customer/PaymentSummary/Index', [
@@ -60,6 +61,7 @@ class PaymentController extends Controller
             'customer' => $user,
             'totalAmount' => $totalAmount,
             'dropPoint' => $dropPointData,
+            'address' => $addressData,
         ]);
     }
 
@@ -88,13 +90,14 @@ class PaymentController extends Controller
     {
         $cart = session('checkout_cart', []);
         $dropPoint = session('checkout_drop_point');
+        $address = session('checkout_address');
 
-        if (empty($cart) || empty($dropPoint)) {
+        if (empty($cart) || (empty($dropPoint) && empty($address))) {
             return redirect()->to(route('home'))->withErrors(['error' => 'Sesi checkout kadaluwarsa.']);
         }
 
         try {
-            $data = ProcessOrderData::fromRequest($request, $cart, $dropPoint);
+            $data = ProcessOrderData::fromRequest($request, $cart, $dropPoint, $address);
 
             $order = $this->orderService->processOrder($data);
 
