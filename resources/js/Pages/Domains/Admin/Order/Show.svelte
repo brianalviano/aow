@@ -34,6 +34,13 @@
         number: string;
         customer: { name: string; email: string; phone: string };
         drop_point?: { name: string; address: string };
+        customer_address?: {
+            name: string;
+            address: string;
+            latitude?: number;
+            longitude?: number;
+            note?: string;
+        };
         payment_method?: { name: string; category: string };
         delivery_date: string;
         delivery_time: string;
@@ -425,14 +432,34 @@
                             <div
                                 class="text-sm font-semibold text-gray-500 uppercase tracking-wider"
                             >
-                                Drop Point
+                                {order.drop_point
+                                    ? "Drop Point"
+                                    : "Alamat Pengiriman"}
                             </div>
                             <div class="mt-1 text-gray-900 dark:text-white">
-                                {order.drop_point?.name ?? "Tidak ada"}
+                                {order.drop_point?.name ||
+                                    order.customer_address?.name ||
+                                    "Tidak ada"}
                             </div>
                             <div class="text-sm text-gray-500">
-                                {order.drop_point?.address ?? ""}
+                                {order.drop_point?.address ||
+                                    order.customer_address?.address ||
+                                    ""}
                             </div>
+                            {#if order.customer_address?.note}
+                                <div class="mt-1 text-xs text-amber-600 italic">
+                                    Catatan: {order.customer_address.note}
+                                </div>
+                            {/if}
+                            {#if order.customer_address?.latitude && order.customer_address?.longitude}
+                                <div
+                                    class="mt-1 text-[10px] text-blue-500 flex items-center gap-1"
+                                >
+                                    <i class="fa-solid fa-map-pin"></i>
+                                    {order.customer_address.latitude}, {order
+                                        .customer_address.longitude}
+                                </div>
+                            {/if}
                         </div>
                         <div>
                             <div

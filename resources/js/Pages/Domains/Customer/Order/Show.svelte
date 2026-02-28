@@ -18,6 +18,7 @@
         delivery_time?: string;
         cancellation_note?: string;
         drop_point?: { name: string; address: string };
+        customer_address?: { name: string; address: string; note?: string };
         payment_method?: {
             name: string;
             type: string;
@@ -274,11 +275,24 @@
             </div>
             <div class="pt-2 border-t border-gray-50">
                 <div class="text-sm font-medium text-gray-900 mb-1">
-                    {order.drop_point?.name || "Drop Point"}
+                    {order.drop_point?.name ||
+                        order.customer_address?.name ||
+                        "Alamat Kustom"}
                 </div>
-                <p class="text-xs text-gray-500 leading-relaxed mb-3">
-                    {order.drop_point?.address || ""}
+                <p class="text-xs text-gray-500 leading-relaxed mb-1">
+                    {order.drop_point?.address ||
+                        order.customer_address?.address ||
+                        ""}
                 </p>
+                {#if order.customer_address?.note}
+                    <p
+                        class="text-[10px] text-amber-600 italic leading-relaxed mb-3"
+                    >
+                        Catatan: {order.customer_address.note}
+                    </p>
+                {:else}
+                    <div class="mb-3"></div>
+                {/if}
                 <div class="flex gap-4">
                     <div class="flex-1 bg-gray-50 rounded-lg p-2.5">
                         <div class="text-xs text-gray-500 mb-0.5">

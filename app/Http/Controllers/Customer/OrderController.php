@@ -45,6 +45,7 @@ class OrderController extends Controller
         $order->load([
             'items.product',
             'dropPoint',
+            'customerAddress',
             'customer',
             'paymentMethod',
             'productDiscount',

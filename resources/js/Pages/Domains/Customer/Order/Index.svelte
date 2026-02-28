@@ -16,6 +16,7 @@
         created_at: string;
         cancellation_note?: string;
         drop_point?: { name: string };
+        customer_address?: { name: string };
         payment_method?: {
             name: string;
             category: string;
@@ -363,7 +364,9 @@
                             <i class="fa-solid fa-shop text-gray-400 text-sm"
                             ></i>
                             <span class="text-sm font-medium text-gray-900"
-                                >{order.drop_point?.name || "Drop Point"}</span
+                                >{order.drop_point?.name ||
+                                    order.customer_address?.name ||
+                                    "Alamat Kustom"}</span
                             >
                         </div>
                         <span

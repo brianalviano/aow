@@ -62,6 +62,7 @@ class OrderController extends Controller
             'items.options.productOptionItem',
             'customer',
             'dropPoint',
+            'customerAddress',
             'paymentMethod',
             'testimonial',
         ]);
