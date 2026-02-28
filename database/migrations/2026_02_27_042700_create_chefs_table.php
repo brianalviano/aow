@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('chefs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
+            $table->string('business_name')->nullable();
             $table->string('phone')->nullable();
             $table->string('bank_name')->nullable();
             $table->string('account_number')->nullable();

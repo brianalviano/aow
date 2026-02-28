@@ -28,6 +28,7 @@ class StoreChefRequest extends FormRequest
     {
         return [
             'name'           => ['required', 'string', 'max:255'],
+            'business_name'  => ['nullable', 'string', 'max:255'],
             'email'          => ['required', 'email', 'max:255', 'unique:chefs,email'],
             'password'       => ['required', 'string', 'min:8'],
             'phone'          => ['nullable', 'string', 'max:20'],

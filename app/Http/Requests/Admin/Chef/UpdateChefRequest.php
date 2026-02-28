@@ -29,6 +29,7 @@ class UpdateChefRequest extends FormRequest
     {
         return [
             'name'           => ['required', 'string', 'max:255'],
+            'business_name'  => ['nullable', 'string', 'max:255'],
             'email'          => ['required', 'email', 'max:255', Rule::unique('chefs')->ignore($this->route('chef'))],
             'password'       => ['nullable', 'string', 'min:8'],
             'phone'          => ['nullable', 'string', 'max:20'],

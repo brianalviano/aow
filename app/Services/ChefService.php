@@ -88,6 +88,7 @@ class ChefService
                 return DB::transaction(function () use ($data) {
                     $chef = Chef::create([
                         'name'           => $data->name,
+                        'business_name'  => $data->businessName,
                         'email'          => $data->email,
                         'password'       => $data->password,
                         'phone'          => $data->phone,
@@ -139,6 +140,7 @@ class ChefService
                 return DB::transaction(function () use ($chef, $data) {
                     $updateData = [
                         'name'           => $data->name,
+                        'business_name'  => $data->businessName,
                         'email'          => $data->email,
                         'phone'          => $data->phone,
                         'bank_name'      => $data->bankName,

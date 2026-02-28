@@ -30,6 +30,7 @@
     interface Chef {
         id: string;
         name: string;
+        business_name: string | null;
         email: string;
         phone: string | null;
         bank_name: string | null;
@@ -199,7 +200,7 @@
                             Nama
                         </div>
                         <div
-                            class="mt-1 text-base text-gray-900 dark:text-white flex items-center gap-2"
+                            class="mt-1 text-base font-bold text-gray-900 dark:text-white flex items-center gap-2"
                         >
                             {chef.name}
                             {#if chef.is_active}
@@ -221,6 +222,19 @@
                             {/if}
                         </div>
                     </div>
+                    {#if chef.business_name}
+                        <div>
+                            <div class="text-sm font-medium text-gray-500">
+                                Nama Usaha
+                            </div>
+                            <div
+                                class="mt-1 text-base text-primary font-semibold"
+                            >
+                                <i class="fa-solid fa-shop mr-1"></i>
+                                {chef.business_name}
+                            </div>
+                        </div>
+                    {/if}
                     <div>
                         <div class="text-sm font-medium text-gray-500">
                             Email

@@ -17,6 +17,7 @@ class ChefData
 {
     /**
      * @param string $name Nama chef
+     * @param string|null $businessName Nama usaha chef
      * @param string $email Email chef (unique, digunakan untuk login)
      * @param string|null $password Password chef (null saat update jika tidak diubah)
      * @param string|null $phone Nomor telepon
@@ -34,6 +35,7 @@ class ChefData
      */
     public function __construct(
         public readonly string $name,
+        public readonly ?string $businessName,
         public readonly string $email,
         public readonly ?string $password,
         public readonly ?string $phone,
@@ -62,6 +64,7 @@ class ChefData
 
         return new self(
             name: (string) $request->validated('name'),
+            businessName: $request->validated('business_name') === null ? null : (string) $request->validated('business_name'),
             email: (string) $request->validated('email'),
             password: (string) $request->validated('password'),
             phone: $request->validated('phone') === null ? null : (string) $request->validated('phone'),
@@ -93,6 +96,7 @@ class ChefData
 
         return new self(
             name: (string) $request->validated('name'),
+            businessName: $request->validated('business_name') === null ? null : (string) $request->validated('business_name'),
             email: (string) $request->validated('email'),
             password: $request->validated('password') === null ? null : (string) $request->validated('password'),
             phone: $request->validated('phone') === null ? null : (string) $request->validated('phone'),

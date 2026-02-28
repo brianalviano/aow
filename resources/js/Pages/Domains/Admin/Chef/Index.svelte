@@ -13,6 +13,7 @@
     interface Chef {
         id: string;
         name: string;
+        business_name: string | null;
         email: string;
         phone: string | null;
         fee_percentage: number;
@@ -166,7 +167,7 @@
                 <table class="custom-table min-w-full">
                     <thead>
                         <tr>
-                            <th>Nama</th>
+                            <th>Nama & Usaha</th>
                             <th>Kontak</th>
                             <th>Fee (%)</th>
                             <th>Total Penjualan</th>
@@ -182,10 +183,19 @@
                                 <tr>
                                     <td>
                                         <div
-                                            class="text-sm font-medium text-gray-900 dark:text-white"
+                                            class="text-sm font-bold text-gray-900 dark:text-white"
                                         >
                                             {item.name}
                                         </div>
+                                        {#if item.business_name}
+                                            <div
+                                                class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                                            >
+                                                <i class="fa-solid fa-shop mr-1"
+                                                ></i>
+                                                {item.business_name}
+                                            </div>
+                                        {/if}
                                     </td>
                                     <td>
                                         <div

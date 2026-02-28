@@ -25,6 +25,7 @@ class ChefResource extends JsonResource
         return [
             'id'              => $this->id,
             'name'            => $this->name,
+            'business_name'   => $this->business_name,
             'phone'           => $this->phone,
             'bank_name'       => $this->bank_name,
             'account_number'  => $this->account_number,

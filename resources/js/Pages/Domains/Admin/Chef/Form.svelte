@@ -16,6 +16,7 @@
     interface Chef {
         id: string;
         name: string;
+        business_name: string | null;
         email: string;
         phone: string | null;
         bank_name: string | null;
@@ -47,6 +48,7 @@
         untrack(() => ({
             _method: chef ? "put" : "post",
             name: chef?.name ?? "",
+            business_name: chef?.business_name ?? "",
             email: chef?.email ?? "",
             password: "",
             phone: chef?.phone ?? "",
@@ -163,6 +165,15 @@
                                 bind:value={$form.name}
                                 error={$form.errors.name}
                                 required
+                            />
+                            +
+                            <TextInput
+                                id="business_name"
+                                name="business_name"
+                                label="Nama Usaha"
+                                placeholder="Nama usaha/toko chef"
+                                bind:value={$form.business_name}
+                                error={$form.errors.business_name}
                             />
 
                             <TextInput
