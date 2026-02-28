@@ -39,7 +39,7 @@ class CheckoutController extends Controller
         $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id'] ?? null, $addressData['id'] ?? null);
 
         return Inertia::render('Domains/Customer/Checkout/Index', [
-            'cart' => $cart,
+            'cart' => (object) $cart,
             'dropPoint' => $dropPointData,
             'address' => $addressData,
             'fees' => [

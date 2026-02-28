@@ -4,7 +4,10 @@
     import ScheduleModal from "./ScheduleModal.svelte";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
 
-    export let cart: Record<string, any> = {};
+    export let cart: Record<string, any> =
+        Array.isArray($$props.cart) && $$props.cart.length === 0
+            ? {}
+            : $$props.cart || {};
     export let dropPoint: {
         id: string;
         name: string;

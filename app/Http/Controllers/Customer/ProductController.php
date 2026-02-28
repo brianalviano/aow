@@ -39,13 +39,13 @@ class ProductController extends Controller
             return redirect()->route('home');
         }
 
-        return $this->renderProducts();
+        return $this->renderProducts(null, $address);
     }
 
     /**
      * Shared logic to render the products page.
      */
-    private function renderProducts(?DropPoint $dropPoint = null): Response
+    private function renderProducts(?DropPoint $dropPoint = null, ?array $address = null): Response
     {
         $categories = ProductCategory::query()
             ->where('is_active', true)
@@ -67,9 +67,10 @@ class ProductController extends Controller
 
         return Inertia::render('Domains/Customer/Product/Index', [
             'dropPoint' => $dropPoint ? DropPointResource::make($dropPoint)->resolve() : null,
+            'address' => $address,
             'categories' => ProductCategoryResource::collection($categories)->resolve(),
             'products' => ProductResource::collection($products)->resolve(),
-            'savedCart' => session('checkout_cart', []),
+            'savedCart' => (object) session('checkout_cart', []),
         ]);
     }
 }

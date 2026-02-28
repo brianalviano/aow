@@ -37,6 +37,13 @@
         }[];
     }[];
 
+    export let address: {
+        id: string;
+        name: string;
+        address: string;
+        phone: string;
+    } | null = null;
+
     export let savedCart: Record<string, any> = {};
 
     // State
@@ -56,7 +63,8 @@
     // Cart State
     // format: { [cartItemId]: { product, quantity, options, notes, totalPrice } }
     // cartItemId is a unique string based on product id and selected options
-    let cart: Record<string, any> = savedCart || {};
+    let cart: Record<string, any> =
+        savedCart && !Array.isArray(savedCart) ? savedCart : {};
 
     $: filteredProducts = products.filter((p) => {
         return p.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -311,7 +319,7 @@
 </script>
 
 <svelte:head>
-    <title>Menu | {dropPoint.name}</title>
+    <title>Menu | {dropPoint?.name ?? address?.name ?? "Pesan Sekarang"}</title>
 </svelte:head>
 
 <div class="bg-gray-50 min-h-screen pb-24">
@@ -325,9 +333,16 @@
             >
                 <i class="fa-solid fa-arrow-left text-lg"></i>
             </button>
-            <h1 class="ml-2 font-bold text-lg text-gray-900 truncate">
-                {dropPoint.name}
-            </h1>
+            <div class="ml-2 flex flex-col min-w-0">
+                <h1
+                    class="font-bold text-base text-gray-900 truncate leading-tight"
+                >
+                    {dropPoint?.name ?? address?.name ?? "Menu"}
+                </h1>
+                <p class="text-[10px] text-gray-500 truncate leading-tight">
+                    {dropPoint?.address ?? address?.address ?? ""}
+                </p>
+            </div>
         </header>
 
         <!-- Search Bar -->
@@ -541,6 +556,7 @@
                             {
                                 cart,
                                 dropPoint,
+                                address,
                             },
                             {
                                 onFinish: () => {
