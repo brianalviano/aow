@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Traits\FileHelperTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasManyThrough};
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -77,15 +77,18 @@ class Product extends Model
     /**
      * Get the testimonials for this product.
      *
-     * @return HasMany
+     * @return HasManyThrough
      */
-    public function testimonials(): HasMany
+    public function testimonials(): HasManyThrough
     {
-        return $this->hasMany(Testimonial::class, 'product_id', 'id')
-            ->join('order_items', 'testimonials.order_item_id', '=', 'order_items.id')
-            ->where('order_items.product_id', $this->id)
-            ->where('testimonials.is_approved', true)
-            ->select('testimonials.*'); // Ensure we only get testimonial columns
+        return $this->hasManyThrough(
+            Testimonial::class,
+            OrderItem::class,
+            'product_id',    // Foreign key on OrderItem table...
+            'order_item_id', // Foreign key on Testimonial table...
+            'id',            // Local key on Product table...
+            'id'             // Local key on OrderItem table...
+        )->where('testimonials.is_approved', true);
     }
 
     /**
@@ -97,8 +100,11 @@ class Product extends Model
     {
         return (int) $this->orderItems()
             ->whereHas('order', function ($query) {
-                // Assuming 'completed' or similar status means a successful sale
-                $query->whereIn('order_status', ['completed', 'processing', 'shipped']);
+                $query->whereIn('order_status', [
+                    \App\Enums\OrderStatus::CONFIRMED->value,
+                    \App\Enums\OrderStatus::SHIPPED->value,
+                    \App\Enums\OrderStatus::DELIVERED->value,
+                ]);
             })
             ->sum('quantity');
     }
@@ -110,7 +116,9 @@ class Product extends Model
      */
     public function getAverageRatingAttribute(): float
     {
-        return (float) $this->testimonials()->avg('rating') ?: 0.0;
+        return (float) $this->testimonials()
+            ->selectRaw('avg(CAST(rating AS NUMERIC)) as aggregate')
+            ->value('aggregate') ?: 0.0;
     }
 
     /**
