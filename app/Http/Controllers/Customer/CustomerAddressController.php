@@ -60,9 +60,9 @@ class CustomerAddressController extends Controller
                 // Handle guest registration
                 if (!$customerId) {
                     $dto = new \App\DTOs\Customer\RegisterCustomerDTO(
-                        name: $data['name'],
+                        name: $data['register_name'],
                         username: null,
-                        phone: $data['phone'],
+                        phone: $data['register_phone'],
                         address: $data['address'],
                         email: $data['email'],
                         password: $data['password'],

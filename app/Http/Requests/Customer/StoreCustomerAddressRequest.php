@@ -35,6 +35,8 @@ class StoreCustomerAddressRequest extends FormRequest
 
         // If user is guest, they must provide registration details
         if (!auth()->guard('customer')->check()) {
+            $rules['register_name'] = ['required', 'string', 'max:255'];
+            $rules['register_phone'] = ['required', 'string', 'max:20'];
             $rules['email'] = ['required', 'string', 'email', 'max:255', 'unique:customers,email'];
             $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
         }

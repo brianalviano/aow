@@ -14,6 +14,8 @@
 
     // Initialize the form with empty strings
     const form = useForm({
+        register_name: "",
+        register_phone: "",
         name: "",
         phone: "",
         address: "",
@@ -24,6 +26,14 @@
         password: "",
         password_confirmation: "",
     });
+
+    function useAccountName() {
+        $form.name = $form.register_name;
+    }
+
+    function useAccountPhone() {
+        $form.phone = $form.register_phone;
+    }
 
     let editingId = $state<string | null>(null);
 
@@ -296,7 +306,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 px-4 w-full max-w-lg mx-auto pb-10 pt-3">
+    <main class="flex-1 px-4 w-full max-w-lg mx-auto pb-5 pt-3">
         {#if isAuthenticated && savedAddresses.length > 0}
             <div class="mt-6 space-y-4">
                 <div class="flex items-center justify-between">
@@ -377,38 +387,149 @@
 
         <form
             onsubmit={submit}
-            class="space-y-5 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-5"
+            class="space-y-5 bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
         >
-            <div class="mb-4">
-                <h2 class="font-bold text-gray-900">
-                    {editingId ? "Edit Alamat" : "Tambah Alamat Baru"}
-                </h2>
-                <p class="text-xs text-gray-500">
-                    {editingId
-                        ? "Perbarui detail alamat pengiriman Anda"
-                        : "Isi detail alamat pengiriman baru"}
-                </p>
-            </div>
-            <TextInput
-                id="name"
-                name="name"
-                label="Nama Penerima"
-                placeholder="Contoh: Budi Susanto"
-                bind:value={$form.name}
-                error={$form.errors.name}
-                required
-            />
+            <!-- Registration Section for Guests -->
+            {#if !isAuthenticated && !editingId}
+                <div class="space-y-5 pb-6 border-b border-gray-100">
+                    <div class="mb-4">
+                        <h2 class="text-lg font-bold text-gray-900">
+                            Buat Akun Baru
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Lengkapi data di bawah ini untuk mendaftarkan akun
+                            Anda.
+                        </p>
+                    </div>
 
-            <TextInput
-                id="phone"
-                name="phone"
-                type="tel"
-                label="Nomor Telepon/WhatsApp"
-                placeholder="Contoh: 081234567890"
-                bind:value={$form.phone}
-                error={$form.errors.phone}
-                required
-            />
+                    <TextInput
+                        id="register_name"
+                        name="register_name"
+                        label="Nama Lengkap"
+                        placeholder="Contoh: Budi Susanto"
+                        bind:value={$form.register_name}
+                        error={$form.errors.register_name}
+                        required
+                    />
+
+                    <TextInput
+                        id="register_phone"
+                        name="register_phone"
+                        type="tel"
+                        label="Nomor HP"
+                        placeholder="Contoh: 081234567890"
+                        bind:value={$form.register_phone}
+                        error={$form.errors.register_phone}
+                        required
+                    />
+
+                    <TextInput
+                        id="email"
+                        name="email"
+                        type="email"
+                        label="Alamat Email"
+                        placeholder="rino@example.com"
+                        bind:value={$form.email}
+                        error={$form.errors.email}
+                        required
+                    />
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <TextInput
+                            id="password"
+                            name="password"
+                            type="password"
+                            label="Kata Sandi"
+                            placeholder="••••••••"
+                            bind:value={$form.password}
+                            error={$form.errors.password}
+                            required
+                        />
+
+                        <TextInput
+                            id="password_confirmation"
+                            name="password_confirmation"
+                            type="password"
+                            label="Konfirmasi Kata Sandi"
+                            placeholder="••••••••"
+                            bind:value={$form.password_confirmation}
+                            error={$form.errors.password_confirmation}
+                            required
+                        />
+                    </div>
+                </div>
+            {/if}
+
+            <div>
+                <div class="mb-4">
+                    <h2 class="text-lg font-bold text-gray-900">
+                        {editingId ? "Edit Alamat" : "Tambah Alamat Baru"}
+                    </h2>
+                    <p class="text-xs text-gray-500">
+                        {editingId
+                            ? "Perbarui detail alamat pengiriman Anda"
+                            : "Isi detail alamat pengiriman baru"}
+                    </p>
+                </div>
+                <div class="flex items-center justify-between mb-1">
+                    <label
+                        for="name"
+                        class="block text-sm font-medium text-gray-700"
+                    >
+                        Nama Penerima <span class="text-red-500">*</span>
+                    </label>
+                    {#if !isAuthenticated && $form.register_name}
+                        <button
+                            type="button"
+                            onclick={useAccountName}
+                            class="text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded-lg"
+                        >
+                            Gunakan Nama Akun
+                        </button>
+                    {/if}
+                </div>
+                <TextInput
+                    id="name"
+                    name="name"
+                    label=""
+                    placeholder="Contoh: Budi Susanto"
+                    bind:value={$form.name}
+                    error={$form.errors.name}
+                    required
+                />
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <label
+                        for="phone"
+                        class="block text-sm font-medium text-gray-700"
+                    >
+                        Nomor Telepon/WhatsApp <span class="text-red-500"
+                            >*</span
+                        >
+                    </label>
+                    {#if !isAuthenticated && $form.register_phone}
+                        <button
+                            type="button"
+                            onclick={useAccountPhone}
+                            class="text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded-lg"
+                        >
+                            Gunakan Nomor HP
+                        </button>
+                    {/if}
+                </div>
+                <TextInput
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    label=""
+                    placeholder="Contoh: 081234567890"
+                    bind:value={$form.phone}
+                    error={$form.errors.phone}
+                    required
+                />
+            </div>
 
             <div class="relative">
                 <div class="flex items-center justify-between mb-1">
@@ -498,56 +619,6 @@
                     bind:this={mapContainer}
                 ></div>
             </div>
-
-            <!-- Registration Section for Guests -->
-            {#if !isAuthenticated}
-                <div class="space-y-5 pt-6 border-t border-gray-100">
-                    <div class="mb-4">
-                        <h2 class="text-lg font-bold text-gray-900">
-                            Buat Akun Baru
-                        </h2>
-                        <p class="text-xs text-gray-500 mt-1">
-                            Lengkapi data di bawah ini untuk menyimpan alamat
-                            ini ke akun Anda.
-                        </p>
-                    </div>
-
-                    <TextInput
-                        id="email"
-                        name="email"
-                        type="email"
-                        label="Alamat Email"
-                        placeholder="rino@example.com"
-                        bind:value={$form.email}
-                        error={$form.errors.email}
-                        required
-                    />
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <TextInput
-                            id="password"
-                            name="password"
-                            type="password"
-                            label="Kata Sandi"
-                            placeholder="••••••••"
-                            bind:value={$form.password}
-                            error={$form.errors.password}
-                            required
-                        />
-
-                        <TextInput
-                            id="password_confirmation"
-                            name="password_confirmation"
-                            type="password"
-                            label="Konfirmasi Kata Sandi"
-                            placeholder="••••••••"
-                            bind:value={$form.password_confirmation}
-                            error={$form.errors.password_confirmation}
-                            required
-                        />
-                    </div>
-                </div>
-            {/if}
 
             <!-- Submit Button -->
             <div class="pt-6">
