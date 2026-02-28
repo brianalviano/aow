@@ -212,6 +212,7 @@
         $form.note = address.note || "";
         $form.latitude = address.latitude;
         $form.longitude = address.longitude;
+        editingId = address.id;
 
         if (map && marker) {
             const newCenter = [address.longitude, address.latitude];
@@ -228,7 +229,6 @@
 
     function handleEditAddress(address: any) {
         handleSelectAddress(address);
-        editingId = address.id;
     }
 
     function resetForm() {
