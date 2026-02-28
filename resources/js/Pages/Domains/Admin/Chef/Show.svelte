@@ -382,19 +382,13 @@
                                 id="gross_amount"
                                 name="gross_amount"
                                 label="Jumlah Kotor (Rp)"
-                                type="number"
+                                currency
                                 placeholder="0"
                                 value={$transferForm.gross_amount.toString()}
-                                oninput={(e) => {
-                                    if (
-                                        e &&
-                                        typeof e === "object" &&
-                                        "target" in e
-                                    ) {
-                                        $transferForm.gross_amount = Number(
-                                            (e.target as HTMLInputElement)
-                                                .value,
-                                        );
+                                oninput={(e: any) => {
+                                    if (e.numericValue !== undefined) {
+                                        $transferForm.gross_amount =
+                                            e.numericValue ?? 0;
                                     }
                                 }}
                                 error={$transferForm.errors.gross_amount}

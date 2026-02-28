@@ -44,13 +44,13 @@ class OrderController extends Controller
 
         $order->load([
             'items.product',
+            'items.testimonial',
             'dropPoint',
             'customerAddress',
             'customer',
             'paymentMethod',
             'productDiscount',
             'shippingDiscount',
-            'testimonial'
         ]);
 
         return Inertia::render('Domains/Customer/Order/Show', [

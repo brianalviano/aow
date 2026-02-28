@@ -79,7 +79,7 @@ class OrderItem extends Model
             return false;
         }
 
-        if ($this->testimonial()->exists()) {
+        if ($this->relationLoaded('testimonial') ? $this->testimonial !== null : $this->testimonial()->exists()) {
             return false;
         }
 

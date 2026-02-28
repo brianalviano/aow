@@ -132,11 +132,11 @@
     });
 
     function submitItemTestimonial(itemId: string) {
-        testimonialForm.post(`/order-items/${itemId}/testimonial`, {
+        $testimonialForm.post(`/order-items/${itemId}/testimonial`, {
             preserveScroll: true,
             onSuccess: () => {
                 activeTestimonialItemId = null;
-                testimonialForm.reset();
+                $testimonialForm.reset();
             },
         });
     }
@@ -463,10 +463,11 @@
                                                         <button
                                                             type="button"
                                                             on:click={() =>
-                                                                (testimonialForm.rating =
+                                                                ($testimonialForm.rating =
                                                                     star)}
-                                                            class="w-7 h-7 rounded-md flex items-center justify-center border transition-all {testimonialForm.rating ===
-                                                            star
+                                                            class="w-7 h-7 rounded-md flex items-center justify-center border transition-all {parseInt(
+                                                                $testimonialForm.rating,
+                                                            ) >= parseInt(star)
                                                                 ? 'bg-yellow-50 border-yellow-400 text-yellow-600'
                                                                 : 'bg-white border-gray-200 text-gray-300'}"
                                                         >
@@ -482,11 +483,10 @@
                                                 id={`testimonial-content-${item.id}`}
                                                 name="content"
                                                 bind:value={
-                                                    testimonialForm.content
+                                                    $testimonialForm.content
                                                 }
                                                 placeholder="Bagaimana produk ini?"
                                                 rows={2}
-                                                class="text-xs!"
                                                 error={$testimonialForm.errors
                                                     .content}
                                             />
@@ -495,13 +495,12 @@
                                                 id={`testimonial-photo-${item.id}`}
                                                 name="photo"
                                                 bind:value={
-                                                    testimonialForm.photo
+                                                    $testimonialForm.photo
                                                 }
                                                 error={$testimonialForm.errors
                                                     .photo}
                                                 accept="image/*"
                                                 variant="button"
-                                                size="sm"
                                                 uploadText="Tambah Foto"
                                             />
 

@@ -29,7 +29,7 @@ class PaymentMethodSeeder extends Seeder
                 'category' => \App\Enums\PaymentMethodCategory::BANK_TRANSFER,
                 'type' => \App\Enums\PaymentMethodType::MANUAL,
                 'is_active' => true,
-                'account_number' => '7240081851',
+                'account_number' => '6750953733',
                 'account_name' => 'NUNING RAHMAWATI SE',
                 'payment_guide_id' => $manualGuideId,
                 'photo' => 'payment_methods/bca.svg',

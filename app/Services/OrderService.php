@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\Checkout\ProcessOrderData;
-use App\Enums\PaymentMethodType;
+use App\Enums\{OrderStatus, PaymentMethodType};
 use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
 use App\Models\{Customer, Order, OrderItem, OrderItemOption, PaymentMethod};
 use App\Notifications\{OrderPlacedNotification, OrderStatusChangedNotification};
@@ -40,14 +40,14 @@ class OrderService
         try {
             return DB::transaction(function () use ($order, $deliveryPhotoPath) {
                 // Ensure the order is currently shipped before marking as delivered
-                if ($order->order_status !== 'shipped') {
-                    throw new \Exception("Pesanan tidak dapat diselesaikan karena status saat ini adalah {$order->order_status}.");
+                if ($order->order_status !== OrderStatus::SHIPPED) {
+                    throw new \Exception("Pesanan tidak dapat diselesaikan karena status saat ini adalah {$order->order_status->value}.");
                 }
 
                 $photoPath = $this->handleFileInput($deliveryPhotoPath, null, 'orders/delivery');
 
                 $order->update([
-                    'order_status'   => 'delivered',
+                    'order_status'   => OrderStatus::DELIVERED,
                     'delivery_photo' => $photoPath,
                     'delivered_at'   => now(),
                 ]);
@@ -83,12 +83,12 @@ class OrderService
         try {
             return DB::transaction(function () use ($order, $reason) {
                 // Only allow cancellation if the order is still pending
-                if ($order->order_status !== 'pending') {
-                    throw new \Exception("Pesanan tidak dapat dibatalkan karena status saat ini adalah {$order->order_status}.");
+                if ($order->order_status !== OrderStatus::PENDING) {
+                    throw new \Exception("Pesanan tidak dapat dibatalkan karena status saat ini adalah {$order->order_status->value}.");
                 }
 
                 $order->update([
-                    'order_status'      => 'cancelled',
+                    'order_status'      => OrderStatus::CANCELLED,
                     'cancellation_note' => $reason,
                 ]);
 
@@ -121,12 +121,12 @@ class OrderService
     {
         try {
             return DB::transaction(function () use ($order) {
-                if ($order->order_status !== 'pending') {
-                    throw new \Exception("Pesanan tidak dapat dikonfirmasi karena status saat ini adalah {$order->order_status}.");
+                if ($order->order_status !== OrderStatus::PENDING) {
+                    throw new \Exception("Pesanan tidak dapat dikonfirmasi karena status saat ini adalah {$order->order_status->value}.");
                 }
 
                 $order->update([
-                    'order_status' => 'confirmed',
+                    'order_status' => OrderStatus::CONFIRMED,
                 ]);
 
                 $order->load('customer');
@@ -157,12 +157,12 @@ class OrderService
     {
         try {
             return DB::transaction(function () use ($order) {
-                if ($order->order_status !== 'confirmed') {
-                    throw new \Exception("Pesanan tidak dapat dikirim karena status saat ini adalah {$order->order_status}.");
+                if ($order->order_status !== OrderStatus::CONFIRMED) {
+                    throw new \Exception("Pesanan tidak dapat dikirim karena status saat ini adalah {$order->order_status->value}.");
                 }
 
                 $order->update([
-                    'order_status' => 'shipped',
+                    'order_status' => OrderStatus::SHIPPED,
                 ]);
 
                 $order->load('customer');
@@ -192,7 +192,7 @@ class OrderService
     public function getFilteredOrdersForAdmin(\App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
-            ->with(['dropPoint', 'customerAddress', 'paymentMethod', 'customer', 'testimonial']);
+            ->with(['dropPoint', 'customerAddress', 'paymentMethod', 'customer']);
 
         // Filter by Status
         if ($dto->status && $dto->status !== 'all') {
@@ -267,7 +267,7 @@ class OrderService
     public function getFilteredOrders(string $customerId, \App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
-            ->with(['dropPoint', 'customerAddress', 'paymentMethod', 'testimonial'])
+            ->with(['dropPoint', 'customerAddress', 'paymentMethod'])
             ->where('customer_id', $customerId);
 
         // Filter by Status
