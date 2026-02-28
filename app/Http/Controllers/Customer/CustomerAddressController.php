@@ -79,7 +79,7 @@ class CustomerAddressController extends Controller
 
                 $this->setCheckoutAddressInSession($address);
 
-                return redirect()->route('customer.products.general');
+                return redirect()->route('customer.order-type.index');
             });
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Failed to store address and register customer', [
@@ -110,7 +110,7 @@ class CustomerAddressController extends Controller
 
         $this->setCheckoutAddressInSession($address);
 
-        return redirect()->route('customer.products.general');
+        return redirect()->route('customer.order-type.index');
     }
 
     /**

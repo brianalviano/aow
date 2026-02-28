@@ -47,11 +47,17 @@ class ProductController extends Controller
      */
     private function renderProducts(?DropPoint $dropPoint = null, ?array $address = null): Response
     {
+        $orderType = session('checkout_order_type', 'preorder');
+
         $categories = ProductCategory::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
-            ->whereHas('products', function ($query) {
-                $query->where('is_active', true)->whereHas('chefs');
+            ->whereHas('products', function ($query) use ($orderType) {
+                $query->where('is_active', true)->whereHas('chefs', function ($q) use ($orderType) {
+                    if ($orderType === 'instant') {
+                        $q->where('order_type', \App\Enums\ChefOrderType::INSTANT->value);
+                    }
+                });
             })
             ->get();
 
@@ -61,7 +67,11 @@ class ProductController extends Controller
             }]);
         }])
             ->where('is_active', true)
-            ->whereHas('chefs')
+            ->whereHas('chefs', function ($query) use ($orderType) {
+                if ($orderType === 'instant') {
+                    $query->where('order_type', \App\Enums\ChefOrderType::INSTANT->value);
+                }
+            })
             ->orderBy('sort_order')
             ->get();
 
@@ -71,6 +81,7 @@ class ProductController extends Controller
             'categories' => ProductCategoryResource::collection($categories)->resolve(),
             'products' => ProductResource::collection($products)->resolve(),
             'savedCart' => (object) session('checkout_cart', []),
+            'orderType' => $orderType,
         ]);
     }
 }

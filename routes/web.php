@@ -50,6 +50,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/drop-points', [CustomerDropPointController::class, 'index'])->name('customer.drop-points.index');
 Route::get('/drop-points/{id}', [CustomerDropPointController::class, 'show'])->name('customer.drop-points.show');
 Route::get('/drop-points/{id}/products', [CustomerProductController::class, 'index'])->name('customer.products');
+Route::get('/order-type', [\App\Http\Controllers\Customer\OrderTypeController::class, 'index'])->name('customer.order-type.index');
+Route::post('/order-type', [\App\Http\Controllers\Customer\OrderTypeController::class, 'store'])->name('customer.order-type.store');
 Route::get('/custom-address', [CustomerAddressController::class, 'index'])->name('customer.addresses.index');
 Route::post('/custom-address', [CustomerAddressController::class, 'store'])->name('customer.addresses.store');
 Route::put('/custom-address/{address}', [CustomerAddressController::class, 'update'])->name('customer.addresses.update');
