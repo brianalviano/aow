@@ -76,7 +76,9 @@
 </script>
 
 <!-- Toast Container -->
-<div class="fixed top-4 right-4 space-y-2 w-full max-w-sm z-9999">
+<div
+    class="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-full sm:max-w-sm space-y-2 z-9999"
+>
     {#each toasts as toast (toast.id)}
         <div
             class="{getColorClasses(
