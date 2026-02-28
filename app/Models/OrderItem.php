@@ -55,4 +55,34 @@ class OrderItem extends Model
     {
         return $this->hasMany(OrderItemOption::class);
     }
+
+    /**
+     * Get the testimonial for this order item.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function testimonial(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Testimonial::class);
+    }
+
+    /**
+     * Determine if the customer can give a testimonial for this item.
+     *
+     * @return bool
+     */
+    public function canBeTestimonialed(): bool
+    {
+        $order = $this->order;
+
+        if ($order->order_status !== \App\Enums\OrderStatus::DELIVERED || !$order->delivered_at) {
+            return false;
+        }
+
+        if ($this->testimonial()->exists()) {
+            return false;
+        }
+
+        return true;
+    }
 }

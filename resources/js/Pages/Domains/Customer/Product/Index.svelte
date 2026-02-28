@@ -35,6 +35,17 @@
                 extra_price: number;
             }[];
         }[];
+        testimonials?: {
+            id: string;
+            rating: string;
+            content: string;
+            photo_url: string;
+            created_at: string;
+            customer: { name: string };
+        }[];
+        total_sales: number;
+        average_rating: number;
+        testimonials_count: number;
     }[];
 
     export let address: {
@@ -435,6 +446,26 @@
                                     >
                                         {formatRupiah(product.price)}
                                     </span>
+                                    <div class="flex items-center gap-1">
+                                        {#if product.testimonials_count > 0}
+                                            <div
+                                                class="flex items-center gap-0.5 bg-yellow-50 px-1.5 py-0.5 rounded text-[10px] font-bold text-gray-900"
+                                            >
+                                                <i
+                                                    class="fa-solid fa-star text-yellow-400"
+                                                ></i>
+                                                {product.average_rating.toFixed(
+                                                    1,
+                                                )}
+                                            </div>
+                                        {/if}
+                                        {#if product.total_sales > 0}
+                                            <span
+                                                class="text-[10px] text-gray-400 font-medium"
+                                                >Terjual {product.total_sales}</span
+                                            >
+                                        {/if}
+                                    </div>
                                 </div>
 
                                 <div class="mt-2 h-7">

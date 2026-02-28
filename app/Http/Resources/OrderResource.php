@@ -42,8 +42,7 @@ class OrderResource extends JsonResource
             'tax_amount'               => $this->tax_amount,
             'payment_expired_at'       => $this->payment_expired_at?->toIso8601String(),
             'delivered_at'             => $this->delivered_at?->toIso8601String(),
-            'can_give_testimonial'     => $this->canBeTestimonialed(),
-            'testimonial_available_at' => $this->delivered_at?->addMinutes(30)->toIso8601String(),
+            'delivered_at'             => $this->delivered_at?->toIso8601String(),
             'created_at'               => $this->created_at?->toIso8601String(),
             'updated_at'               => $this->updated_at?->toIso8601String(),
 
@@ -53,7 +52,7 @@ class OrderResource extends JsonResource
             'customer_address' => $this->whenLoaded('customerAddress', fn() => (new CustomerAddressResource($this->customerAddress))->resolve()),
             'customer'       => $this->whenLoaded('customer', fn() => (new CustomerResource($this->customer))->resolve()),
             'payment_method' => $this->whenLoaded('paymentMethod', fn() => (new PaymentMethodResource($this->paymentMethod))->resolve()),
-            'testimonial'    => $this->whenLoaded('testimonial', fn() => (new TestimonialResource($this->testimonial))->resolve()),
+            'payment_method' => $this->whenLoaded('paymentMethod', fn() => (new PaymentMethodResource($this->paymentMethod))->resolve()),
         ];
     }
 }

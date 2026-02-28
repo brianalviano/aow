@@ -15,6 +15,7 @@ class Testimonial extends Model
 
     protected $fillable = [
         'customer_id',
+        'order_item_id',
         'order_id',
         'rating',
         'content',
@@ -33,6 +34,11 @@ class Testimonial extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function orderItem(): BelongsTo
+    {
+        return $this->belongsTo(OrderItem::class);
     }
 
     public function order(): BelongsTo

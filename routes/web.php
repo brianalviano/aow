@@ -108,7 +108,8 @@ Route::middleware('auth:customer')->group(function () {
     Route::get('/orders', [\App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\Customer\OrderController::class, 'show'])->name('customer.orders.show');
     Route::post('/orders/{order}/complete', [\App\Http\Controllers\Customer\OrderController::class, 'complete'])->name('customer.orders.complete');
-    Route::post('/orders/{order}/testimonial', [\App\Http\Controllers\Customer\OrderController::class, 'testimonial'])->name('customer.orders.testimonial');
+    // Testimonials (Refactored to Order Item)
+    Route::post('/order-items/{orderItem}/testimonial', [\App\Http\Controllers\Customer\OrderController::class, 'testimonial'])->name('customer.order-items.testimonial');
 
     // Feedback
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('customer.feedback.index');
@@ -163,6 +164,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
         Route::post('/orders/{order}/ship', [OrderController::class, 'ship'])->name('orders.ship');
         Route::post('/orders/{order}/deliver', [OrderController::class, 'deliver'])->name('orders.deliver');
+
+        // Testimonial Management
+        Route::patch('/testimonials/{testimonial}/approve', [OrderController::class, 'approveTestimonial'])->name('orders.testimonial.approve');
+        Route::delete('/testimonials/{testimonial}', [OrderController::class, 'rejectTestimonial'])->name('orders.testimonial.reject');
 
         // Products
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');

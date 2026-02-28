@@ -19,6 +19,17 @@
                 extra_price: number;
             }[];
         }[];
+        testimonials?: {
+            id: string;
+            rating: string;
+            content: string;
+            photo_url: string;
+            created_at: string;
+            customer: { name: string };
+        }[];
+        total_sales: number;
+        average_rating: number;
+        testimonials_count: number;
     };
 
     export let onClose: () => void;
@@ -186,9 +197,31 @@
                 >
                     {product.name}
                 </h1>
-                <p class="font-bold text-gray-900 text-base mb-2">
-                    {formatRupiah(product.price)}
-                </p>
+                <div class="flex items-center justify-between mb-2">
+                    <p class="font-bold text-gray-900 text-base">
+                        {formatRupiah(product.price)}
+                    </p>
+                    <div class="flex items-center gap-2">
+                        {#if product.testimonials_count > 0}
+                            <div
+                                class="flex items-center gap-1 bg-yellow-50 px-2 py-0.5 rounded-md text-xs font-bold text-gray-900"
+                            >
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                {product.average_rating.toFixed(1)}
+                                <span
+                                    class="text-[10px] text-gray-400 font-normal"
+                                    >({product.testimonials_count})</span
+                                >
+                            </div>
+                        {/if}
+                        {#if product.total_sales > 0}
+                            <span
+                                class="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded-md"
+                                >Terjual {product.total_sales}</span
+                            >
+                        {/if}
+                    </div>
+                </div>
                 {#if product.description}
                     <p class="text-sm text-gray-500 leading-relaxed">
                         {product.description}
@@ -292,6 +325,107 @@
                         </div>
                     </div>
                 {/each}
+            {/if}
+
+            <!-- Testimonials Section -->
+            {#if product.testimonials && product.testimonials.length > 0}
+                <div class="bg-white p-4 mb-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-900 text-sm italic">
+                            Apa Kata Mereka?
+                        </h3>
+                        <div
+                            class="flex items-center gap-1.5 bg-yellow-50 px-2 py-1 rounded-lg"
+                        >
+                            <i class="fa-solid fa-star text-yellow-400 text-xs"
+                            ></i>
+                            <span class="text-xs font-bold text-gray-900">
+                                {(
+                                    product.testimonials.reduce(
+                                        (acc: number, t: { rating: string }) =>
+                                            acc + parseInt(t.rating),
+                                        0,
+                                    ) / product.testimonials.length
+                                ).toFixed(1)}
+                            </span>
+                            <span class="text-[10px] text-gray-400"
+                                >({product.testimonials.length})</span
+                            >
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        {#each product.testimonials as testimonial}
+                            <div
+                                class="border-b border-gray-100 last:border-0 pb-4 last:pb-0"
+                            >
+                                <div
+                                    class="flex items-start justify-between mb-2"
+                                >
+                                    <div class="flex items-center gap-2">
+                                        <div
+                                            class="w-7 h-7 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 text-[10px] font-bold uppercase"
+                                        >
+                                            {testimonial.customer.name.charAt(
+                                                0,
+                                            )}
+                                        </div>
+                                        <div>
+                                            <div
+                                                class="text-[11px] font-bold text-gray-900"
+                                            >
+                                                {testimonial.customer.name}
+                                            </div>
+                                            <div
+                                                class="flex items-center gap-0.5"
+                                            >
+                                                {#each Array(5) as _, i}
+                                                    <i
+                                                        class="fa-solid fa-star text-[8px] {i <
+                                                        parseInt(
+                                                            testimonial.rating,
+                                                        )
+                                                            ? 'text-yellow-400'
+                                                            : 'text-gray-200'}"
+                                                    ></i>
+                                                {/each}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="text-[9px] text-gray-400 font-medium"
+                                    >
+                                        {new Date(
+                                            testimonial.created_at,
+                                        ).toLocaleDateString("id-ID", {
+                                            day: "numeric",
+                                            month: "short",
+                                            year: "numeric",
+                                        })}
+                                    </div>
+                                </div>
+                                <p
+                                    class="text-xs text-gray-600 leading-relaxed mb-2 italic"
+                                >
+                                    "{testimonial.content || "Puas banget!"}"
+                                </p>
+                                {#if testimonial.photo_url}
+                                    <a
+                                        href={testimonial.photo_url}
+                                        target="_blank"
+                                        class="block w-16 h-16 rounded overflow-hidden border border-gray-100 hover:opacity-90 transition-opacity"
+                                    >
+                                        <img
+                                            src={testimonial.photo_url}
+                                            alt="Review"
+                                            class="w-full h-full object-cover"
+                                        />
+                                    </a>
+                                {/if}
+                            </div>
+                        {/each}
+                    </div>
+                </div>
             {/if}
 
             <!-- Notes Section -->

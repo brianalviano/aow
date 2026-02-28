@@ -183,4 +183,56 @@ class OrderController extends Controller
             return redirect()->back();
         }
     }
+
+    /**
+     * Approve a customer testimonial.
+     */
+    public function approveTestimonial(\App\Models\Testimonial $testimonial): RedirectResponse
+    {
+        try {
+            $testimonial->update(['is_approved' => true]);
+
+            Inertia::flash('toast', [
+                'message' => 'Testimoni berhasil disetujui.',
+                'type'    => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal menyetujui testimoni: ' . $e->getMessage(),
+                'type'    => 'error',
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Reject/Delete a customer testimonial.
+     */
+    public function rejectTestimonial(\App\Models\Testimonial $testimonial): RedirectResponse
+    {
+        try {
+            if ($testimonial->photo) {
+                $this->deleteFile($testimonial->photo);
+            }
+            $testimonial->delete();
+
+            Inertia::flash('toast', [
+                'message' => 'Testimoni berhasil dihapus.',
+                'type'    => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal menghapus testimoni: ' . $e->getMessage(),
+                'type'    => 'error',
+                'trace'   => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back();
+        }
+    }
 }

@@ -55,7 +55,7 @@ class ProductController extends Controller
             })
             ->get();
 
-        $products = Product::with(['productCategory', 'productOptions' => function ($query) {
+        $products = Product::with(['productCategory', 'testimonials.customer', 'productOptions' => function ($query) {
             $query->orderBy('sort_order')->with(['items' => function ($query) {
                 $query->orderBy('sort_order');
             }]);

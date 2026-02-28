@@ -117,33 +117,7 @@ class Order extends Model
         return $this->belongsTo(Discount::class);
     }
 
-    /**
-     * Get the testimonial associated with this order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function testimonial(): \Illuminate\Database\Eloquent\Relations\HasOne
-    {
-        return $this->hasOne(Testimonial::class);
-    }
 
-    /**
-     * Determine if the customer can give a testimonial for this order.
-     *
-     * @return bool
-     */
-    public function canBeTestimonialed(): bool
-    {
-        if ($this->order_status !== 'delivered' || !$this->delivered_at) {
-            return false;
-        }
-
-        if ($this->testimonial()->exists()) {
-            return false;
-        }
-
-        return $this->delivered_at->addMinutes(30)->isPast();
-    }
 
     /**
      * Get the payment proof URL.

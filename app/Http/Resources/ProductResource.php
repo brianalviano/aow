@@ -34,6 +34,10 @@ class ProductResource extends JsonResource
             'updated_at' => $this->updated_at,
             'product_category' => new ProductCategoryResource($this->whenLoaded('productCategory')),
             'options' => ProductOptionResource::collection($this->whenLoaded('productOptions')),
+            'testimonials' => TestimonialResource::collection($this->whenLoaded('testimonials')),
+            'total_sales' => $this->total_sales,
+            'average_rating' => $this->average_rating,
+            'testimonials_count' => $this->testimonials_count,
         ];
     }
 }

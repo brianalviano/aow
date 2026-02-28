@@ -4,6 +4,7 @@
     import id from "dayjs/locale/id";
     import TextArea from "@/Lib/Admin/Components/Ui/TextArea.svelte";
     import FileUpload from "@/Lib/Admin/Components/Ui/FileUpload.svelte";
+    import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
 
     dayjs.locale(id);
 
@@ -29,6 +30,14 @@
             quantity: number;
             price: number;
             product: { name: string; image_url: string };
+            can_give_testimonial?: boolean;
+            testimonial?: {
+                rating: string;
+                content: string;
+                photo_url: string;
+                created_at: string;
+                is_approved: boolean;
+            };
         }>;
         tax_amount: number;
         admin_fee: number;
@@ -36,14 +45,6 @@
         discount_amount: number;
         delivery_photo_url?: string;
         delivered_at?: string;
-        can_give_testimonial?: boolean;
-        testimonial_available_at?: string;
-        testimonial?: {
-            rating: string;
-            content: string;
-            photo_url: string;
-            created_at: string;
-        };
     };
 
     function formatCurrency(amount: number) {
@@ -122,7 +123,7 @@
     );
 
     let processing = false;
-    let showTestimonialForm = false;
+    let activeTestimonialItemId: string | null = null;
 
     const testimonialForm = useForm({
         rating: "5",
@@ -130,29 +131,14 @@
         photo: null as File | null,
     });
 
-    function submitTestimonial() {
-        testimonialForm.post(`/orders/${order.id}/testimonial`, {
+    function submitItemTestimonial(itemId: string) {
+        testimonialForm.post(`/order-items/${itemId}/testimonial`, {
             preserveScroll: true,
             onSuccess: () => {
-                showTestimonialForm = false;
+                activeTestimonialItemId = null;
                 testimonialForm.reset();
             },
         });
-    }
-
-    // Timer logic for "Mohon tunggu"
-    let timeLeft = "";
-    if (
-        order.order_status === "delivered" &&
-        !order.can_give_testimonial &&
-        order.testimonial_available_at
-    ) {
-        const availableAt = dayjs(order.testimonial_available_at);
-        const now = dayjs();
-        const diff = availableAt.diff(now, "minute");
-        if (diff > 0) {
-            timeLeft = `${diff} menit lagi`;
-        }
     }
 </script>
 
@@ -314,157 +300,6 @@
             </div>
         </div>
 
-        {#if order.order_status === "delivered"}
-            <div
-                class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-3"
-            >
-                <div
-                    class="font-bold text-gray-900 flex items-center gap-2 mb-1"
-                >
-                    <i class="fa-solid fa-star text-yellow-400"></i>
-                    Testimoni Pesanan
-                </div>
-
-                {#if order.testimonial}
-                    <div
-                        class="bg-gray-50 rounded-xl p-4 border border-gray-100"
-                    >
-                        <div class="flex items-center gap-1 mb-2">
-                            {#each Array(5) as _, i}
-                                <i
-                                    class="fa-solid fa-star {i <
-                                    parseInt(order.testimonial.rating)
-                                        ? 'text-yellow-400'
-                                        : 'text-gray-200'}"
-                                ></i>
-                            {/each}
-                        </div>
-                        <p
-                            class="text-sm text-gray-700 leading-relaxed italic mb-3"
-                        >
-                            "{order.testimonial.content || "Tanpa komentar"}"
-                        </p>
-                        {#if order.testimonial.photo_url}
-                            <div
-                                class="rounded-lg overflow-hidden border border-gray-100 max-w-[200px]"
-                            >
-                                <img
-                                    src={order.testimonial.photo_url}
-                                    alt="Foto Testimoni"
-                                    class="w-full h-auto object-cover"
-                                />
-                            </div>
-                        {/if}
-                        <div class="mt-2 text-[10px] text-gray-400">
-                            Dikirim pada {dayjs(
-                                order.testimonial.created_at,
-                            ).format("DD MMM YYYY, HH:mm")}
-                        </div>
-                    </div>
-                {:else if order.can_give_testimonial}
-                    {#if !showTestimonialForm}
-                        <div class="text-center py-4">
-                            <p class="text-sm text-gray-500 mb-4">
-                                Bagikan pengalaman Anda tentang pesanan ini!
-                            </p>
-                            <button
-                                type="button"
-                                on:click={() => (showTestimonialForm = true)}
-                                class="w-full py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
-                            >
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                Beri Testimoni
-                            </button>
-                        </div>
-                    {:else}
-                        <form
-                            on:submit|preventDefault={submitTestimonial}
-                            class="space-y-4 pt-2"
-                        >
-                            <div>
-                                <span
-                                    class="block text-xs font-semibold text-gray-700 mb-2"
-                                    >Rating</span
-                                >
-                                <div class="flex gap-3">
-                                    {#each ["1", "2", "3", "4", "5"] as star}
-                                        <button
-                                            type="button"
-                                            aria-label="{star} Bintang"
-                                            on:click={() =>
-                                                (testimonialForm.rating = star)}
-                                            class="w-10 h-10 rounded-lg flex items-center justify-center border transition-all {testimonialForm.rating ===
-                                            star
-                                                ? 'bg-yellow-50 border-yellow-400 text-yellow-600'
-                                                : 'bg-white border-gray-200 text-gray-400'}"
-                                        >
-                                            <i class="fa-solid fa-star"></i>
-                                        </button>
-                                    {/each}
-                                </div>
-                            </div>
-
-                            <TextArea
-                                id="testimonial-content"
-                                name="content"
-                                label="Komentar"
-                                bind:value={testimonialForm.content}
-                                placeholder="Bagaimana pesanan Anda?"
-                                error={$testimonialForm.errors.content}
-                            />
-
-                            <FileUpload
-                                id="testimonial-photo"
-                                name="photo"
-                                label="Foto (Opsional)"
-                                bind:value={testimonialForm.photo}
-                                error={$testimonialForm.errors.photo}
-                                accept="image/*"
-                                variant="button"
-                                uploadText="Klik untuk pilih foto"
-                            />
-
-                            <div class="flex gap-2 pt-2">
-                                <button
-                                    type="button"
-                                    on:click={() =>
-                                        (showTestimonialForm = false)}
-                                    class="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-all"
-                                >
-                                    Batal
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={$testimonialForm.processing}
-                                    class="flex-2 py-2.5 px-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
-                                    style="flex: 2"
-                                >
-                                    {#if $testimonialForm.processing}
-                                        <i class="fa-solid fa-spinner fa-spin"
-                                        ></i>
-                                        <span>Mengirim...</span>
-                                    {:else}
-                                        Kirim Testimoni
-                                    {/if}
-                                </button>
-                            </div>
-                        </form>
-                    {/if}
-                {:else if timeLeft}
-                    <div
-                        class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center gap-3"
-                    >
-                        <i class="fa-solid fa-clock text-blue-500 shrink-0"></i>
-                        <p class="text-xs text-blue-700 leading-relaxed">
-                            Anda dapat memberi testimoni dalam <strong
-                                >{timeLeft}</strong
-                            >. Pastikan makanan telah Anda nikmati!
-                        </p>
-                    </div>
-                {/if}
-            </div>
-        {/if}
-
         {#if order.order_status === "delivered" && order.delivery_photo_url}
             <div
                 class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm overflow-hidden"
@@ -505,38 +340,201 @@
             </div>
             <div class="space-y-4">
                 {#each order.items as item}
-                    <div class="flex gap-3">
-                        <!-- Product Image Placeholder -->
-                        <div
-                            class="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden shadow-sm shrink-0 relative"
-                        >
-                            {#if item.product?.image_url}
-                                <img
-                                    src={item.product?.image_url}
-                                    alt={item.product?.name}
-                                    class="w-full h-full object-cover"
-                                />
-                            {:else}
-                                <div
-                                    class="w-full h-full flex items-center justify-center text-gray-300"
-                                >
-                                    <i class="fa-solid fa-image text-xl"></i>
-                                </div>
-                            {/if}
-                        </div>
-                        <div class="flex-1">
-                            <h3
-                                class="font-bold text-sm text-gray-900 mb-1 leading-tight"
+                    <div
+                        class="bg-gray-50 rounded-xl p-4 border border-gray-100"
+                    >
+                        <div class="flex gap-3 mb-3">
+                            <!-- Product Image Placeholder -->
+                            <div
+                                class="w-16 h-16 bg-white rounded-xl overflow-hidden shadow-sm shrink-0 relative border border-gray-100"
                             >
-                                {item.product?.name || "Produk"}
-                            </h3>
-                            <div class="text-xs text-gray-500 mb-1">
-                                {item.quantity} x {formatCurrency(item.price)}
+                                {#if item.product?.image_url}
+                                    <img
+                                        src={item.product?.image_url}
+                                        alt={item.product?.name}
+                                        class="w-full h-full object-cover"
+                                    />
+                                {:else}
+                                    <div
+                                        class="w-full h-full flex items-center justify-center text-gray-300"
+                                    >
+                                        <i class="fa-solid fa-image text-xl"
+                                        ></i>
+                                    </div>
+                                {/if}
+                            </div>
+                            <div class="flex-1">
+                                <h3
+                                    class="font-bold text-sm text-gray-900 mb-1 leading-tight"
+                                >
+                                    {item.product?.name || "Produk"}
+                                </h3>
+                                <div class="text-xs text-gray-500 mb-1">
+                                    {item.quantity} x {formatCurrency(
+                                        item.price,
+                                    )}
+                                </div>
+                            </div>
+                            <div class="font-bold text-sm text-gray-900">
+                                {formatCurrency(item.price * item.quantity)}
                             </div>
                         </div>
-                        <div class="font-bold text-sm text-gray-900">
-                            {formatCurrency(item.price * item.quantity)}
-                        </div>
+
+                        <!-- Testimonial Section for Item -->
+                        {#if order.order_status === "delivered"}
+                            <div
+                                class="mt-3 pt-3 border-t border-gray-200/60 space-y-3"
+                            >
+                                {#if item.testimonial}
+                                    <div class="space-y-2">
+                                        <div
+                                            class="flex items-center justify-between"
+                                        >
+                                            <div
+                                                class="flex items-center gap-1"
+                                            >
+                                                {#each Array(5) as _, i}
+                                                    <i
+                                                        class="fa-solid fa-star text-[10px] {i <
+                                                        parseInt(
+                                                            item.testimonial
+                                                                .rating,
+                                                        )
+                                                            ? 'text-yellow-400'
+                                                            : 'text-gray-200'}"
+                                                    ></i>
+                                                {/each}
+                                            </div>
+                                            {#if !item.testimonial.is_approved}
+                                                <Badge
+                                                    variant="warning"
+                                                    size="xs"
+                                                    >Menunggu Moderasi</Badge
+                                                >
+                                            {/if}
+                                        </div>
+                                        <p
+                                            class="text-xs text-gray-700 leading-relaxed italic"
+                                        >
+                                            "{item.testimonial.content ||
+                                                "Tanpa komentar"}"
+                                        </p>
+                                        {#if item.testimonial.photo_url}
+                                            <div
+                                                class="rounded-lg overflow-hidden border border-gray-100 max-w-[120px]"
+                                            >
+                                                <img
+                                                    src={item.testimonial
+                                                        .photo_url}
+                                                    alt="Foto Testimoni"
+                                                    class="w-full h-auto object-cover"
+                                                />
+                                            </div>
+                                        {/if}
+                                    </div>
+                                {:else if item.can_give_testimonial}
+                                    {#if activeTestimonialItemId !== item.id}
+                                        <button
+                                            type="button"
+                                            on:click={() =>
+                                                (activeTestimonialItemId =
+                                                    item.id)}
+                                            class="w-full py-2 px-4 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs font-bold rounded-lg transition-all border border-orange-100 flex items-center justify-center gap-2"
+                                        >
+                                            <i class="fa-solid fa-pen-to-square"
+                                            ></i>
+                                            Beri Testimoni
+                                        </button>
+                                    {:else}
+                                        <form
+                                            on:submit|preventDefault={() =>
+                                                submitItemTestimonial(item.id)}
+                                            class="space-y-3 pt-1"
+                                        >
+                                            <div
+                                                class="flex items-center justify-between"
+                                            >
+                                                <span
+                                                    class="text-[10px] font-bold text-gray-500 uppercase tracking-wider"
+                                                    >Rating</span
+                                                >
+                                                <div class="flex gap-1.5">
+                                                    {#each ["1", "2", "3", "4", "5"] as star}
+                                                        <button
+                                                            type="button"
+                                                            on:click={() =>
+                                                                (testimonialForm.rating =
+                                                                    star)}
+                                                            class="w-7 h-7 rounded-md flex items-center justify-center border transition-all {testimonialForm.rating ===
+                                                            star
+                                                                ? 'bg-yellow-50 border-yellow-400 text-yellow-600'
+                                                                : 'bg-white border-gray-200 text-gray-300'}"
+                                                        >
+                                                            <i
+                                                                class="fa-solid fa-star text-xs"
+                                                            ></i>
+                                                        </button>
+                                                    {/each}
+                                                </div>
+                                            </div>
+
+                                            <TextArea
+                                                id={`testimonial-content-${item.id}`}
+                                                name="content"
+                                                bind:value={
+                                                    testimonialForm.content
+                                                }
+                                                placeholder="Bagaimana produk ini?"
+                                                rows={2}
+                                                class="text-xs!"
+                                                error={$testimonialForm.errors
+                                                    .content}
+                                            />
+
+                                            <FileUpload
+                                                id={`testimonial-photo-${item.id}`}
+                                                name="photo"
+                                                bind:value={
+                                                    testimonialForm.photo
+                                                }
+                                                error={$testimonialForm.errors
+                                                    .photo}
+                                                accept="image/*"
+                                                variant="button"
+                                                size="sm"
+                                                uploadText="Tambah Foto"
+                                            />
+
+                                            <div class="flex gap-2 pt-1">
+                                                <button
+                                                    type="button"
+                                                    on:click={() =>
+                                                        (activeTestimonialItemId =
+                                                            null)}
+                                                    class="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-all"
+                                                >
+                                                    Batal
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    disabled={$testimonialForm.processing}
+                                                    class="flex-2 py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                                                    style="flex: 2"
+                                                >
+                                                    {#if $testimonialForm.processing}
+                                                        <i
+                                                            class="fa-solid fa-spinner fa-spin"
+                                                        ></i>
+                                                    {:else}
+                                                        Kirim
+                                                    {/if}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    {/if}
+                                {/if}
+                            </div>
+                        {/if}
                     </div>
                 {/each}
             </div>

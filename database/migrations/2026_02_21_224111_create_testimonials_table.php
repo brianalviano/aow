@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create('testimonials', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('customer_id')->constrained();
-            $table->foreignUuid('order_id')->nullable()->constrained();
+            $table->foreignUuid('order_item_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignUuid('order_id')->nullable();
             $table->enum('rating', TestimonialRating::values());
             $table->text('content')->nullable();
             $table->string('photo')->nullable();

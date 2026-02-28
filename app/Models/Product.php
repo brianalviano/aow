@@ -65,6 +65,65 @@ class Product extends Model
     }
 
     /**
+     * Get the order items for this product.
+     *
+     * @return HasMany
+     */
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Get the testimonials for this product.
+     *
+     * @return HasMany
+     */
+    public function testimonials(): HasMany
+    {
+        return $this->hasMany(Testimonial::class, 'product_id', 'id')
+            ->join('order_items', 'testimonials.order_item_id', '=', 'order_items.id')
+            ->where('order_items.product_id', $this->id)
+            ->where('testimonials.is_approved', true)
+            ->select('testimonials.*'); // Ensure we only get testimonial columns
+    }
+
+    /**
+     * Get the total sales for this product.
+     *
+     * @return int
+     */
+    public function getTotalSalesAttribute(): int
+    {
+        return (int) $this->orderItems()
+            ->whereHas('order', function ($query) {
+                // Assuming 'completed' or similar status means a successful sale
+                $query->whereIn('order_status', ['completed', 'processing', 'shipped']);
+            })
+            ->sum('quantity');
+    }
+
+    /**
+     * Get the average rating for this product.
+     *
+     * @return float
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return (float) $this->testimonials()->avg('rating') ?: 0.0;
+    }
+
+    /**
+     * Get the testimonials count for this product.
+     *
+     * @return int
+     */
+    public function getTestimonialsCountAttribute(): int
+    {
+        return $this->testimonials()->count();
+    }
+
+    /**
      * Get the image URL.
      *
      * @param string|null $value

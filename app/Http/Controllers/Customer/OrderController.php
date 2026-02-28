@@ -78,41 +78,45 @@ class OrderController extends Controller
     }
 
     /**
-     * Store a testimonial for the specified order.
+     * Store a testimonial for the specified order item.
      */
-    public function testimonial(Order $order, \App\Http\Requests\Customer\TestimonialRequest $request)
+    public function testimonial(\App\Models\OrderItem $orderItem, \App\Http\Requests\Customer\TestimonialRequest $request)
     {
+        $order = $orderItem->order;
+
         // Ensure the order belongs to the authenticated customer
         if ($order->customer_id !== auth('customer')->id()) {
             abort(404);
         }
 
-        // Check if the order is eligible for a testimonial
-        if (!$order->canBeTestimonialed()) {
-            return redirect()->back()->with('error', 'Pesanan belum dapat diberi testimoni. Mohon tunggu 30 menit setelah diterima.');
+        // Check if the item is eligible for a testimonial
+        if (!$orderItem->canBeTestimonialed()) {
+            return redirect()->back()->with('error', 'Item pesanan belum dapat diberi testimoni.');
         }
 
         try {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($order, $request) {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($orderItem, $request) {
                 $photoPath = $this->handleFileInput($request->file('photo'), null, 'testimonials');
 
                 \App\Models\Testimonial::updateOrCreate(
-                    ['order_id' => $order->id],
+                    ['order_item_id' => $orderItem->id],
                     [
-                        'customer_id' => $order->customer_id,
-                        'rating'      => $request->rating,
-                        'content'     => $request->content,
-                        'photo'       => $photoPath,
+                        'customer_id'   => $orderItem->order->customer_id,
+                        'order_id'      => $orderItem->order_id,
+                        'rating'        => $request->rating,
+                        'content'       => $request->content,
+                        'photo'         => $photoPath,
+                        'is_approved'   => false, // Always requires approval
                     ]
                 );
             });
 
-            return redirect()->back()->with('success', 'Terima kasih atas testimoni Anda!');
+            return redirect()->back()->with('success', 'Terima kasih! Testimoni Anda sedang menunggu persetujuan admin.');
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Gagal menyimpan testimoni', [
-                'order_id'    => $order->id,
-                'customer_id' => $order->customer_id,
-                'error'       => $e->getMessage(),
+                'order_item_id' => $orderItem->id,
+                'customer_id'   => $order->customer_id,
+                'error'         => $e->getMessage(),
             ]);
 
             return redirect()->back()->with('error', 'Gagal menyimpan testimoni: ' . $e->getMessage());
