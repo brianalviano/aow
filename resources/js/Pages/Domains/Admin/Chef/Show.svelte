@@ -39,7 +39,7 @@
         fee_percentage: number;
         address: string | null;
         is_active: boolean;
-        order_type: "instant" | "preorder";
+        order_types: ("instant" | "preorder")[];
         total_sales: number;
         total_fee_amount: number;
         net_sales: number;
@@ -265,20 +265,22 @@
                         <div class="text-sm font-medium text-gray-500">
                             Tipe Pesanan
                         </div>
-                        <div class="mt-1">
-                            <Badge
-                                size="sm"
-                                rounded="pill"
-                                variant={chef.order_type === "instant"
-                                    ? "success"
-                                    : "warning"}
-                            >
-                                {#snippet children()}
-                                    {chef.order_type === "instant"
-                                        ? "Bisa Instant & Pre-Order"
-                                        : "Hanya Pre-Order (PO Only)"}
-                                {/snippet}
-                            </Badge>
+                        <div class="mt-1 flex flex-wrap gap-1">
+                            {#each chef.order_types as type}
+                                <Badge
+                                    size="sm"
+                                    rounded="pill"
+                                    variant={type === "instant"
+                                        ? "success"
+                                        : "warning"}
+                                >
+                                    {#snippet children()}
+                                        {type === "instant"
+                                            ? "Bisa Instant & Pre-Order"
+                                            : "Hanya Pre-Order (PO Only)"}
+                                    {/snippet}
+                                </Badge>
+                            {/each}
                         </div>
                     </div>
                     {#if chef.note}

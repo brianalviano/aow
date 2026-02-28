@@ -21,8 +21,8 @@ enum ChefOrderType: string
     public function label(): string
     {
         return match ($this) {
-            self::INSTANT  => 'Bisa Instant & Pre-Order',
-            self::PREORDER => 'Hanya Pre-Order',
+            self::INSTANT  => 'Instant',
+            self::PREORDER => 'Pre-Order',
         };
     }
 

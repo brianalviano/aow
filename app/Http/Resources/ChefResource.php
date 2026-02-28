@@ -36,7 +36,7 @@ class ChefResource extends JsonResource
             'latitude'        => $this->latitude,
             'email'           => $this->email,
             'is_active'       => $this->is_active,
-            'order_type'      => $this->order_type,
+            'order_types'      => $this->order_types,
             'products'        => ProductResource::collection($this->whenLoaded('products')),
             'transfers'       => ChefTransferResource::collection($this->whenLoaded('transfers')),
 

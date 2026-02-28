@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->boolean('is_active')->default(true);
-            $table->enum('order_type', ChefOrderType::values())->default(ChefOrderType::INSTANT->value);
+            $table->json('order_types')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

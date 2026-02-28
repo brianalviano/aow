@@ -54,9 +54,7 @@ class ProductController extends Controller
             ->orderBy('sort_order')
             ->whereHas('products', function ($query) use ($orderType) {
                 $query->where('is_active', true)->whereHas('chefs', function ($q) use ($orderType) {
-                    if ($orderType === 'instant') {
-                        $q->where('order_type', \App\Enums\ChefOrderType::INSTANT->value);
-                    }
+                    $q->whereJsonContains('order_types', $orderType);
                 });
             })
             ->get();
@@ -68,9 +66,7 @@ class ProductController extends Controller
         }])
             ->where('is_active', true)
             ->whereHas('chefs', function ($query) use ($orderType) {
-                if ($orderType === 'instant') {
-                    $query->where('order_type', \App\Enums\ChefOrderType::INSTANT->value);
-                }
+                $query->whereJsonContains('order_types', $orderType);
             })
             ->orderBy('sort_order')
             ->get();

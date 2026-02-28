@@ -29,7 +29,7 @@ class ChefData
      * @param float|null $longitude Koordinat longitude
      * @param float|null $latitude Koordinat latitude
      * @param bool $isActive Status aktif
-     * @param \App\Enums\ChefOrderType $orderType Tipe pesanan (instant/preorder)
+     * @param array<\App\Enums\ChefOrderType> $orderTypes Tipe pesanan (instant/preorder)
      * @param array<string> $productIds UUID produk yang di-assign ke chef
      */
     public function __construct(
@@ -46,7 +46,7 @@ class ChefData
         public readonly ?float $longitude,
         public readonly ?float $latitude,
         public readonly bool $isActive = true,
-        public readonly ChefOrderType $orderType = ChefOrderType::INSTANT,
+        public readonly array $orderTypes = [],
         public readonly array $productIds = [],
     ) {}
 
@@ -55,6 +55,11 @@ class ChefData
      */
     public static function fromStoreRequest(StoreChefRequest $request): self
     {
+        $orderTypes = array_map(
+            fn(string $val) => ChefOrderType::from($val),
+            (array) $request->validated('order_types', [])
+        );
+
         return new self(
             name: (string) $request->validated('name'),
             email: (string) $request->validated('email'),
@@ -71,7 +76,7 @@ class ChefData
             longitude: $request->validated('longitude') === null ? null : (float) $request->validated('longitude'),
             latitude: $request->validated('latitude') === null ? null : (float) $request->validated('latitude'),
             isActive: (bool) $request->validated('is_active', true),
-            orderType: ChefOrderType::from((string) $request->validated('order_type', ChefOrderType::INSTANT->value)),
+            orderTypes: $orderTypes,
             productIds: (array) $request->validated('product_ids', []),
         );
     }
@@ -81,6 +86,11 @@ class ChefData
      */
     public static function fromUpdateRequest(UpdateChefRequest $request): self
     {
+        $orderTypes = array_map(
+            fn(string $val) => ChefOrderType::from($val),
+            (array) $request->validated('order_types', [])
+        );
+
         return new self(
             name: (string) $request->validated('name'),
             email: (string) $request->validated('email'),
@@ -97,7 +107,7 @@ class ChefData
             longitude: $request->validated('longitude') === null ? null : (float) $request->validated('longitude'),
             latitude: $request->validated('latitude') === null ? null : (float) $request->validated('latitude'),
             isActive: (bool) $request->validated('is_active', true),
-            orderType: ChefOrderType::from((string) $request->validated('order_type', ChefOrderType::INSTANT->value)),
+            orderTypes: $orderTypes,
             productIds: (array) $request->validated('product_ids', []),
         );
     }

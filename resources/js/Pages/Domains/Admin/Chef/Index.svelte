@@ -17,7 +17,7 @@
         phone: string | null;
         fee_percentage: number;
         is_active: boolean;
-        order_type: "instant" | "preorder";
+        order_types: ("instant" | "preorder")[];
         products_count?: number;
         created_at: string;
     }
@@ -214,20 +214,23 @@
                                         </Badge>
                                     </td>
                                     <td>
-                                        <Badge
-                                            size="sm"
-                                            rounded="pill"
-                                            variant={item.order_type ===
-                                            "instant"
-                                                ? "success"
-                                                : "warning"}
-                                        >
-                                            {#snippet children()}
-                                                {item.order_type === "instant"
-                                                    ? "Instant"
-                                                    : "PO Only"}
-                                            {/snippet}
-                                        </Badge>
+                                        <div class="flex flex-wrap gap-1">
+                                            {#each item.order_types as type}
+                                                <Badge
+                                                    size="sm"
+                                                    rounded="pill"
+                                                    variant={type === "instant"
+                                                        ? "success"
+                                                        : "warning"}
+                                                >
+                                                    {#snippet children()}
+                                                        {type === "instant"
+                                                            ? "Instant"
+                                                            : "PO Only"}
+                                                    {/snippet}
+                                                </Badge>
+                                            {/each}
+                                        </div>
                                     </td>
                                     <td>
                                         {#if item.is_active}

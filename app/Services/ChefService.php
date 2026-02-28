@@ -67,7 +67,7 @@ class ChefService
                         'longitude'      => $data->longitude,
                         'latitude'       => $data->latitude,
                         'is_active'      => $data->isActive,
-                        'order_type'     => $data->orderType,
+                        'order_types'    => $data->orderTypes,
                     ]);
 
                     if (!empty($data->productIds)) {
@@ -117,7 +117,7 @@ class ChefService
                         'longitude'      => $data->longitude,
                         'latitude'       => $data->latitude,
                         'is_active'      => $data->isActive,
-                        'order_type'     => $data->orderType,
+                        'order_types'    => $data->orderTypes,
                     ];
 
                     if ($data->password !== null) {

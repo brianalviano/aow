@@ -27,7 +27,7 @@
         longitude: number | null;
         latitude: number | null;
         is_active: boolean;
-        order_type: "instant" | "preorder";
+        order_types: ("instant" | "preorder")[];
         products?: Product[];
     }
 
@@ -59,7 +59,7 @@
             longitude: chef?.longitude ?? null,
             latitude: chef?.latitude ?? null,
             is_active: chef?.is_active ?? true,
-            order_type: chef?.order_type ?? "instant",
+            order_types: chef?.order_types ?? ["instant"],
             product_ids: initialProductIds,
         })),
     );
@@ -239,95 +239,140 @@
 
                             <div class="space-y-2">
                                 <label
-                                    for="order_type"
+                                    for="order_types"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300"
                                 >
                                     Tipe Pesanan
                                 </label>
                                 <div class="grid grid-cols-2 gap-4 mt-1">
                                     <label
-                                        class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all {$form.order_type ===
-                                        'instant'
+                                        class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all {$form.order_types.includes(
+                                            'instant',
+                                        )
                                             ? 'border-primary bg-primary/5 ring-1 ring-primary'
                                             : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900'}"
                                     >
                                         <input
-                                            type="radio"
-                                            name="order_type"
+                                            type="checkbox"
+                                            name="order_types"
                                             value="instant"
-                                            bind:group={$form.order_type}
+                                            checked={$form.order_types.includes(
+                                                "instant",
+                                            )}
+                                            onchange={(e) => {
+                                                const checked = (
+                                                    e.target as HTMLInputElement
+                                                ).checked;
+                                                if (checked) {
+                                                    $form.order_types = [
+                                                        ...$form.order_types,
+                                                        "instant",
+                                                    ];
+                                                } else {
+                                                    $form.order_types =
+                                                        $form.order_types.filter(
+                                                            (t) =>
+                                                                t !== "instant",
+                                                        );
+                                                }
+                                            }}
                                             class="sr-only"
                                         />
                                         <div
-                                            class="flex items-center justify-center w-5 h-5 rounded-full border-2 {$form.order_type ===
-                                            'instant'
-                                                ? 'border-primary'
-                                                : 'border-gray-400'}"
+                                            class="flex items-center justify-center w-5 h-5 rounded border-2 {$form.order_types.includes(
+                                                'instant',
+                                            )
+                                                ? 'border-primary bg-primary'
+                                                : 'border-gray-400 font-bold'}"
                                         >
-                                            {#if $form.order_type === "instant"}
-                                                <div
-                                                    class="w-2.5 h-2.5 rounded-full bg-primary"
-                                                ></div>
+                                            {#if $form.order_types.includes("instant")}
+                                                <i
+                                                    class="fa-solid fa-check text-[10px] text-white"
+                                                ></i>
                                             {/if}
                                         </div>
                                         <div class="flex flex-col">
                                             <span
-                                                class="text-sm font-semibold {$form.order_type ===
-                                                'instant'
+                                                class="text-sm font-semibold {$form.order_types.includes(
+                                                    'instant',
+                                                )
                                                     ? 'text-primary'
                                                     : 'text-gray-900 dark:text-white'}"
                                             >
-                                                Instant & PO
+                                                Instant
                                             </span>
                                             <span class="text-xs text-gray-500">
-                                                Bisa semua order
+                                                Bisa pesanan langsung
                                             </span>
                                         </div>
                                     </label>
 
                                     <label
-                                        class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all {$form.order_type ===
-                                        'preorder'
+                                        class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all {$form.order_types.includes(
+                                            'preorder',
+                                        )
                                             ? 'border-primary bg-primary/5 ring-1 ring-primary'
                                             : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900'}"
                                     >
                                         <input
-                                            type="radio"
-                                            name="order_type"
+                                            type="checkbox"
+                                            name="order_types"
                                             value="preorder"
-                                            bind:group={$form.order_type}
+                                            checked={$form.order_types.includes(
+                                                "preorder",
+                                            )}
+                                            onchange={(e) => {
+                                                const checked = (
+                                                    e.target as HTMLInputElement
+                                                ).checked;
+                                                if (checked) {
+                                                    $form.order_types = [
+                                                        ...$form.order_types,
+                                                        "preorder",
+                                                    ];
+                                                } else {
+                                                    $form.order_types =
+                                                        $form.order_types.filter(
+                                                            (t) =>
+                                                                t !==
+                                                                "preorder",
+                                                        );
+                                                }
+                                            }}
                                             class="sr-only"
                                         />
                                         <div
-                                            class="flex items-center justify-center w-5 h-5 rounded-full border-2 {$form.order_type ===
-                                            'preorder'
-                                                ? 'border-primary'
+                                            class="flex items-center justify-center w-5 h-5 rounded border-2 {$form.order_types.includes(
+                                                'preorder',
+                                            )
+                                                ? 'border-primary bg-primary'
                                                 : 'border-gray-400'}"
                                         >
-                                            {#if $form.order_type === "preorder"}
-                                                <div
-                                                    class="w-2.5 h-2.5 rounded-full bg-primary"
-                                                ></div>
+                                            {#if $form.order_types.includes("preorder")}
+                                                <i
+                                                    class="fa-solid fa-check text-[10px] text-white"
+                                                ></i>
                                             {/if}
                                         </div>
                                         <div class="flex flex-col">
                                             <span
-                                                class="text-sm font-semibold {$form.order_type ===
-                                                'preorder'
+                                                class="text-sm font-semibold {$form.order_types.includes(
+                                                    'preorder',
+                                                )
                                                     ? 'text-primary'
                                                     : 'text-gray-900 dark:text-white'}"
                                             >
-                                                PO Only
+                                                Pre-Order
                                             </span>
                                             <span class="text-xs text-gray-500">
-                                                Hanya Pre-Order
+                                                Hanya pesanan terjadwal
                                             </span>
                                         </div>
                                     </label>
                                 </div>
-                                {#if $form.errors.order_type}
+                                {#if $form.errors.order_types}
                                     <p class="text-xs text-red-600 mt-1">
-                                        {$form.errors.order_type}
+                                        {$form.errors.order_types}
                                     </p>
                                 {/if}
                             </div>

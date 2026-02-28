@@ -43,7 +43,7 @@ class Chef extends Authenticatable
         'email',
         'password',
         'is_active',
-        'order_type',
+        'order_types',
     ];
 
     /**
@@ -69,7 +69,7 @@ class Chef extends Authenticatable
             'latitude'       => 'float',
             'longitude'      => 'float',
             'is_active'      => 'boolean',
-            'order_type'     => ChefOrderType::class,
+            'order_types'    => \Illuminate\Database\Eloquent\Casts\AsEnumArrayObject::class . ':' . ChefOrderType::class,
         ];
     }
 
