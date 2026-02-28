@@ -92,15 +92,6 @@
                 </Button>
             </div>
         </form>
-
-        <div class="mt-8 text-center">
-            <Link
-                href="/"
-                class="text-sm font-medium text-blue-600 hover:text-blue-500"
-            >
-                Kembali ke Beranda
-            </Link>
-        </div>
     </div>
 
     <footer class="mt-auto py-6 text-center">
