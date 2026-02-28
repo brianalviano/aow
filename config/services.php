@@ -41,4 +41,9 @@ return [
         'server_key' => $midtransIsProd ? env('MIDTRANS_PROD_SERVER_KEY') : env('MIDTRANS_DEV_SERVER_KEY'),
     ],
 
+    'biteship' => [
+        'is_production' => $biteshipIsProd = (env('APP_ENV') === 'production'),
+        'api_key' => $biteshipIsProd ? env('BITESHIP_PROD_KEY') : env('BITESHIP_DEV_KEY'),
+    ],
+
 ];
