@@ -40,6 +40,7 @@ class StoreChefRequest extends FormRequest
             'longitude'      => ['nullable', 'numeric', 'between:-180,180'],
             'latitude'       => ['nullable', 'numeric', 'between:-90,90'],
             'is_active'      => ['sometimes', 'boolean'],
+            'order_type'     => ['required', 'string', \Illuminate\Validation\Rule::in(\App\Enums\ChefOrderType::values())],
             'product_ids'    => ['nullable', 'array'],
             'product_ids.*'  => ['uuid', 'exists:products,id'],
         ];

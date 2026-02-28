@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTOs\Chef;
 
+use App\Enums\ChefOrderType;
 use App\Http\Requests\Admin\Chef\{StoreChefRequest, UpdateChefRequest};
 
 /**
@@ -28,6 +29,7 @@ class ChefData
      * @param float|null $longitude Koordinat longitude
      * @param float|null $latitude Koordinat latitude
      * @param bool $isActive Status aktif
+     * @param \App\Enums\ChefOrderType $orderType Tipe pesanan (instant/preorder)
      * @param array<string> $productIds UUID produk yang di-assign ke chef
      */
     public function __construct(
@@ -44,6 +46,7 @@ class ChefData
         public readonly ?float $longitude,
         public readonly ?float $latitude,
         public readonly bool $isActive = true,
+        public readonly ChefOrderType $orderType = ChefOrderType::INSTANT,
         public readonly array $productIds = [],
     ) {}
 
@@ -68,6 +71,7 @@ class ChefData
             longitude: $request->validated('longitude') === null ? null : (float) $request->validated('longitude'),
             latitude: $request->validated('latitude') === null ? null : (float) $request->validated('latitude'),
             isActive: (bool) $request->validated('is_active', true),
+            orderType: ChefOrderType::from((string) $request->validated('order_type', ChefOrderType::INSTANT->value)),
             productIds: (array) $request->validated('product_ids', []),
         );
     }
@@ -93,6 +97,7 @@ class ChefData
             longitude: $request->validated('longitude') === null ? null : (float) $request->validated('longitude'),
             latitude: $request->validated('latitude') === null ? null : (float) $request->validated('latitude'),
             isActive: (bool) $request->validated('is_active', true),
+            orderType: ChefOrderType::from((string) $request->validated('order_type', ChefOrderType::INSTANT->value)),
             productIds: (array) $request->validated('product_ids', []),
         );
     }

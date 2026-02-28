@@ -17,6 +17,7 @@
         phone: string | null;
         fee_percentage: number;
         is_active: boolean;
+        order_type: "instant" | "preorder";
         products_count?: number;
         created_at: string;
     }
@@ -159,6 +160,7 @@
                             <th>Kontak</th>
                             <th>Fee (%)</th>
                             <th>Produk</th>
+                            <th>Tipe Pesanan</th>
                             <th>Status</th>
                             <th class="w-40 text-center">Aksi</th>
                         </tr>
@@ -209,6 +211,22 @@
                                         >
                                             {#snippet children()}{item.products_count ??
                                                     0} produk{/snippet}
+                                        </Badge>
+                                    </td>
+                                    <td>
+                                        <Badge
+                                            size="sm"
+                                            rounded="pill"
+                                            variant={item.order_type ===
+                                            "instant"
+                                                ? "success"
+                                                : "warning"}
+                                        >
+                                            {#snippet children()}
+                                                {item.order_type === "instant"
+                                                    ? "Instant"
+                                                    : "PO Only"}
+                                            {/snippet}
                                         </Badge>
                                     </td>
                                     <td>

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ChefOrderType;
+
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\{BelongsToMany, HasMany};
@@ -41,6 +43,7 @@ class Chef extends Authenticatable
         'email',
         'password',
         'is_active',
+        'order_type',
     ];
 
     /**
@@ -66,6 +69,7 @@ class Chef extends Authenticatable
             'latitude'       => 'float',
             'longitude'      => 'float',
             'is_active'      => 'boolean',
+            'order_type'     => ChefOrderType::class,
         ];
     }
 

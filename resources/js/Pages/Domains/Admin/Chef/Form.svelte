@@ -27,6 +27,7 @@
         longitude: number | null;
         latitude: number | null;
         is_active: boolean;
+        order_type: "instant" | "preorder";
         products?: Product[];
     }
 
@@ -58,6 +59,7 @@
             longitude: chef?.longitude ?? null,
             latitude: chef?.latitude ?? null,
             is_active: chef?.is_active ?? true,
+            order_type: chef?.order_type ?? "instant",
             product_ids: initialProductIds,
         })),
     );
@@ -234,6 +236,101 @@
                                 Persentase fee yang akan dipotong dari penjualan
                                 chef (0–100).
                             </p>
+
+                            <div class="space-y-2">
+                                <label
+                                    for="order_type"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Tipe Pesanan
+                                </label>
+                                <div class="grid grid-cols-2 gap-4 mt-1">
+                                    <label
+                                        class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all {$form.order_type ===
+                                        'instant'
+                                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                            : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900'}"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="order_type"
+                                            value="instant"
+                                            bind:group={$form.order_type}
+                                            class="sr-only"
+                                        />
+                                        <div
+                                            class="flex items-center justify-center w-5 h-5 rounded-full border-2 {$form.order_type ===
+                                            'instant'
+                                                ? 'border-primary'
+                                                : 'border-gray-400'}"
+                                        >
+                                            {#if $form.order_type === "instant"}
+                                                <div
+                                                    class="w-2.5 h-2.5 rounded-full bg-primary"
+                                                ></div>
+                                            {/if}
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span
+                                                class="text-sm font-semibold {$form.order_type ===
+                                                'instant'
+                                                    ? 'text-primary'
+                                                    : 'text-gray-900 dark:text-white'}"
+                                            >
+                                                Instant & PO
+                                            </span>
+                                            <span class="text-xs text-gray-500">
+                                                Bisa semua order
+                                            </span>
+                                        </div>
+                                    </label>
+
+                                    <label
+                                        class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all {$form.order_type ===
+                                        'preorder'
+                                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                            : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900'}"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="order_type"
+                                            value="preorder"
+                                            bind:group={$form.order_type}
+                                            class="sr-only"
+                                        />
+                                        <div
+                                            class="flex items-center justify-center w-5 h-5 rounded-full border-2 {$form.order_type ===
+                                            'preorder'
+                                                ? 'border-primary'
+                                                : 'border-gray-400'}"
+                                        >
+                                            {#if $form.order_type === "preorder"}
+                                                <div
+                                                    class="w-2.5 h-2.5 rounded-full bg-primary"
+                                                ></div>
+                                            {/if}
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span
+                                                class="text-sm font-semibold {$form.order_type ===
+                                                'preorder'
+                                                    ? 'text-primary'
+                                                    : 'text-gray-900 dark:text-white'}"
+                                            >
+                                                PO Only
+                                            </span>
+                                            <span class="text-xs text-gray-500">
+                                                Hanya Pre-Order
+                                            </span>
+                                        </div>
+                                    </label>
+                                </div>
+                                {#if $form.errors.order_type}
+                                    <p class="text-xs text-red-600 mt-1">
+                                        {$form.errors.order_type}
+                                    </p>
+                                {/if}
+                            </div>
 
                             <TextArea
                                 id="note"

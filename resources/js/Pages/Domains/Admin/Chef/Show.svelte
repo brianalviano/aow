@@ -39,6 +39,7 @@
         fee_percentage: number;
         address: string | null;
         is_active: boolean;
+        order_type: "instant" | "preorder";
         total_sales: number;
         total_fee_amount: number;
         net_sales: number;
@@ -258,6 +259,26 @@
                             class="mt-1 text-base font-semibold text-blue-600 dark:text-blue-400"
                         >
                             {chef.fee_percentage}%
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm font-medium text-gray-500">
+                            Tipe Pesanan
+                        </div>
+                        <div class="mt-1">
+                            <Badge
+                                size="sm"
+                                rounded="pill"
+                                variant={chef.order_type === "instant"
+                                    ? "success"
+                                    : "warning"}
+                            >
+                                {#snippet children()}
+                                    {chef.order_type === "instant"
+                                        ? "Bisa Instant & Pre-Order"
+                                        : "Hanya Pre-Order (PO Only)"}
+                                {/snippet}
+                            </Badge>
                         </div>
                     </div>
                     {#if chef.note}
