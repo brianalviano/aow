@@ -66,6 +66,18 @@
         delivery_time: untrack(() => delivery_time),
     });
 
+    const canPay = $derived.by(() => {
+        const baseValid =
+            !!$form.name &&
+            !!$form.phone &&
+            !!$form.email &&
+            !!$form.payment_method_id;
+        if (isSchool) {
+            return baseValid && !!$form.school_class;
+        }
+        return baseValid;
+    });
+
     let guideModalOpen = $state(false);
     let activeGuide = $state<any>(null);
 
@@ -268,6 +280,29 @@
                 {/if}
             </div>
         </section>
+
+        {#if !canPay}
+            <div class="px-6">
+                <div
+                    class="bg-yellow-50 border border-yellow-100 p-4 rounded-2xl flex items-start gap-3"
+                >
+                    <i class="fa-solid fa-circle-info text-yellow-600 mt-0.5"
+                    ></i>
+                    <div class="space-y-1">
+                        <p class="text-sm font-bold text-yellow-800">
+                            Data Belum Lengkap
+                        </p>
+                        <p class="text-xs text-yellow-700 leading-relaxed">
+                            Silakan isi <b>Nama</b>, <b>Nomor WA</b>,
+                            <b>Email</b>,
+                            {#if isSchool}<b>Kelas Sekolah</b>,
+                            {/if}
+                            dan pilih <b>Metode Pembayaran</b> untuk melanjutkan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {/if}
     </main>
 
     <!-- Bottom Action Bar -->
@@ -288,8 +323,8 @@
             </div>
             <button
                 onclick={handleSubmit}
-                disabled={$form.processing}
-                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap text-sm disabled:opacity-50"
+                disabled={$form.processing || !canPay}
+                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm"
             >
                 {$form.processing ? "Memproses..." : "Bayar"}
             </button>

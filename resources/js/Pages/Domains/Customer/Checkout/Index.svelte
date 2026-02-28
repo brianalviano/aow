@@ -241,6 +241,8 @@
     let deliveryDateIso = $state("");
     let deliveryTime = $state("");
 
+    const canProceed = $derived(!!deliveryDateIso && !!deliveryTime);
+
     $effect(() => {
         deliveryDateIso = delivery_date || "";
     });
@@ -591,7 +593,8 @@
             </div>
             <button
                 onclick={handleLanjutPembayaran}
-                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap text-sm"
+                disabled={!canProceed}
+                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm"
             >
                 Lanjut Pembayaran
             </button>

@@ -41,6 +41,7 @@
     let containerElement = $state<HTMLDivElement>();
     let hourScrollContainer = $state<HTMLDivElement>();
     let minuteScrollContainer = $state<HTMLDivElement>();
+    let dropdownPosition = $state<"bottom" | "top">("bottom");
 
     // Selected time components
     let selectedHour = $state<number | null>(null);
@@ -370,6 +371,22 @@
         }
         return () => {};
     });
+
+    // Detect if the dropdown should open upwards or downwards
+    $effect(() => {
+        if (isOpen && containerElement) {
+            const rect = containerElement.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const spaceAbove = rect.top;
+            const dropdownHeight = 320; // Estimated height with margins
+
+            if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+                dropdownPosition = "top";
+            } else {
+                dropdownPosition = "bottom";
+            }
+        }
+    });
 </script>
 
 <div class="space-y-2" bind:this={containerElement}>
@@ -461,7 +478,9 @@
         {#if isOpen}
             <div
                 bind:this={dropdownElement}
-                class="absolute z-50 mt-1 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#212121] rounded-lg shadow-lg p-2.5 w-64"
+                class="absolute z-50 {dropdownPosition === 'top'
+                    ? 'bottom-full mb-1'
+                    : 'mt-1'} bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-[#212121] rounded-lg shadow-lg p-2.5 w-64"
             >
                 <!-- Time Picker Header -->
                 <div class="mb-2.5 text-center">
@@ -483,7 +502,7 @@
                         </div>
                         <div
                             bind:this={hourScrollContainer}
-                            class="max-h-48 overflow-y-auto border border-gray-200 dark:border-[#212121] rounded-md"
+                            class="max-h-36 overflow-y-auto border border-gray-200 dark:border-[#212121] rounded-md"
                         >
                             {#each generateHours() as hour}
                                 <button
@@ -509,7 +528,7 @@
                         </div>
                         <div
                             bind:this={minuteScrollContainer}
-                            class="max-h-48 overflow-y-auto border border-gray-200 dark:border-[#212121] rounded-md"
+                            class="max-h-36 overflow-y-auto border border-gray-200 dark:border-[#212121] rounded-md"
                         >
                             {#each generateMinutes() as minute}
                                 <button

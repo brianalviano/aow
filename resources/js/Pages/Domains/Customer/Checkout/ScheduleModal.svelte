@@ -102,7 +102,7 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-        class="bg-white w-full max-w-md max-h-svh sm:rounded-2xl rounded-t-2xl overflow-hidden flex flex-col relative"
+        class="bg-white w-full max-w-md max-h-svh sm:rounded-2xl rounded-t-2xl flex flex-col relative"
         onclick={(e) => e.stopPropagation()}
         transition:slide={{ duration: 300, axis: "y" }}
     >
