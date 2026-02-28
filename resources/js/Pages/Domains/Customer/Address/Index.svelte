@@ -4,6 +4,7 @@
     import TextArea from "@/Lib/Admin/Components/Ui/TextArea.svelte";
     import { onMount, onDestroy } from "svelte";
     import debounce from "lodash-es/debounce";
+    import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
 
     let tomtomApiKey = $derived($page.props.tomtomApiKey as string);
     let defaultCenter = $derived(
@@ -36,6 +37,8 @@
     }
 
     let editingId = $state<string | null>(null);
+    let showDeleteDialog = $state(false);
+    let addressToDelete = $state<any>(null);
 
     // Map Implementation
     let mapContainer: HTMLElement;
@@ -245,10 +248,19 @@
         }
     }
 
-    function handleDeleteAddress(id: string) {
-        if (confirm("Apakah Anda yakin ingin menghapus alamat ini?")) {
-            $form.delete(`/custom-address/${id}`, {
+    function handleDeleteAddress(address: any) {
+        addressToDelete = address;
+        showDeleteDialog = true;
+    }
+
+    function confirmDelete() {
+        if (addressToDelete) {
+            $form.delete(`/custom-address/${addressToDelete.id}`, {
                 preserveScroll: true,
+                onSuccess: () => {
+                    showDeleteDialog = false;
+                    addressToDelete = null;
+                },
             });
         }
     }
@@ -354,7 +366,7 @@
                                     <button
                                         type="button"
                                         onclick={() =>
-                                            handleDeleteAddress(address.id)}
+                                            handleDeleteAddress(address)}
                                         class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
                                         title="Hapus Alamat"
                                     >
@@ -637,6 +649,16 @@
             </div>
         </form>
     </main>
+
+    <Dialog
+        bind:isOpen={showDeleteDialog}
+        type="danger"
+        title="Konfirmasi Hapus"
+        message="Apakah Anda yakin ingin menghapus alamat ini? Tindakan ini tidak dapat dibatalkan."
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        onConfirm={confirmDelete}
+    />
 </div>
 
 <style>
