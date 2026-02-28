@@ -41,6 +41,7 @@ class CheckoutController extends Controller
         $orderType = session('checkout_order_type', 'preorder');
         $deliveryDate = session('checkout_delivery_date');
         $deliveryTime = session('checkout_delivery_time');
+        $notes = session('checkout_notes');
 
         return Inertia::render('Domains/Customer/Checkout/Index', [
             'cart' => (object) $cart,
@@ -49,6 +50,7 @@ class CheckoutController extends Controller
             'orderType' => $orderType,
             'delivery_date' => $deliveryDate,
             'delivery_time' => $deliveryTime,
+            'notes' => $notes,
             'fees' => [
                 'deliveryFee' => $fees['deliveryFee'],
                 'baseDeliveryFee' => $fees['baseDeliveryFee'],
@@ -90,6 +92,7 @@ class CheckoutController extends Controller
             'checkout_address' => $request->input('address'),
             'checkout_delivery_date' => $request->input('delivery_date'),
             'checkout_delivery_time' => $request->input('delivery_time'),
+            'checkout_notes' => $request->input('notes'),
         ]);
 
         return redirect()->to(route('customer.checkout'));
@@ -99,7 +102,7 @@ class CheckoutController extends Controller
      * Update checkout data in session without redirecting.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request)
     {
@@ -115,8 +118,10 @@ class CheckoutController extends Controller
             'checkout_address' => $request->input('address'),
             'checkout_delivery_date' => $request->input('delivery_date'),
             'checkout_delivery_time' => $request->input('delivery_time'),
+            'checkout_notes' => $request->input('notes'),
+            'checkout_order_type' => $request->input('order_type', session('checkout_order_type', 'preorder')),
         ]);
 
-        return response()->json(['success' => true]);
+        return back();
     }
 }

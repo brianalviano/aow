@@ -39,6 +39,7 @@
         orderType?: "instant" | "preorder";
         delivery_date?: string;
         delivery_time?: string;
+        notes?: string;
     }
 
     let {
@@ -50,6 +51,7 @@
         orderType = "preorder",
         delivery_date = "",
         delivery_time = "",
+        notes = "",
     }: Props = $props();
 
     // Ensure cart is an object even if passed as empty array from PHP
@@ -62,6 +64,7 @@
     let showScheduleModal = $state(false);
     let selectedItem: any = $state(null);
     let editingItemKey: string | null = $state(null);
+    let processing = $state(false);
 
     // Convert cart object to array for easier iteration
     const items = $derived(
@@ -113,7 +116,12 @@
     }
 
     function handleLanjutPembayaran() {
-        router.visit("/payment-summary");
+        processing = true;
+        router.visit("/payment-summary", {
+            onFinish: () => {
+                processing = false;
+            },
+        });
     }
 
     function handleEditClick(item: any, key: string) {
@@ -240,6 +248,7 @@
     // Delivery Date & Time Logic
     let deliveryDateIso = $state("");
     let deliveryTime = $state("");
+    let orderNotes = $state("");
 
     const canProceed = $derived(!!deliveryDateIso && !!deliveryTime);
 
@@ -249,6 +258,10 @@
 
     $effect(() => {
         deliveryTime = delivery_time || "";
+    });
+
+    $effect(() => {
+        orderNotes = notes || "";
     });
 
     const minDateIso = $derived.by(() => {
@@ -286,26 +299,30 @@
     });
 
     function updateSession() {
-        // Use fetch or router.post with preserveState/scroll to sync session quietly
-        fetch("/checkout/update-session", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN":
-                    (
-                        document.querySelector(
-                            'meta[name="csrf-token"]',
-                        ) as HTMLMetaElement
-                    )?.content || "",
-            },
-            body: JSON.stringify({
+        router.post(
+            "/checkout/update-session",
+            {
                 cart,
                 dropPoint,
                 address,
                 delivery_date: deliveryDateIso,
                 delivery_time: deliveryTime,
-            }),
-        });
+                order_type: orderType,
+                notes: orderNotes,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                only: [
+                    "cart",
+                    "dropPoint",
+                    "address",
+                    "delivery_date",
+                    "delivery_time",
+                    "fees",
+                ],
+            },
+        );
     }
 
     // Reactive Date Object for display strings
@@ -521,13 +538,14 @@
         <!-- Divider -->
         <div class="border-t border-gray-100 pt-4"></div>
 
-        <!-- Notes Section -->
         <section class="flex items-center justify-between">
             <span class="font-semibold text-gray-900 text-sm">Catatan:</span>
             <input
                 type="text"
                 placeholder="Tinggalkan catatan..."
                 class="text-right text-sm focus:outline-none flex-1 ml-4"
+                bind:value={orderNotes}
+                onblur={updateSession}
             />
         </section>
 
@@ -593,9 +611,12 @@
             </div>
             <button
                 onclick={handleLanjutPembayaran}
-                disabled={!canProceed}
-                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm"
+                disabled={!canProceed || processing}
+                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm flex items-center justify-center gap-2"
             >
+                {#if processing}
+                    <i class="fa-solid fa-circle-notch animate-spin"></i>
+                {/if}
                 Lanjut Pembayaran
             </button>
         </div>

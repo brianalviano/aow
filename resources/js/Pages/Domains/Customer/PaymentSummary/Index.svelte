@@ -86,11 +86,7 @@
     }
 
     function goBack() {
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            router.visit("/checkout");
-        }
+        router.visit("/checkout");
     }
 
     function isCashPaymentSelected() {
@@ -157,7 +153,7 @@
                     placeholder="Nama Lengkap"
                     required
                     error={$form.errors.name}
-                    class="rounded-2xl! focus:ring-[#CCFF33]!"
+                    class="rounded-2xl! focus:ring-[#FFD700]!"
                 />
 
                 <!-- Nomor Whatsapp -->
@@ -170,7 +166,7 @@
                     placeholder="Nomor Whatsapp"
                     required
                     error={$form.errors.phone}
-                    class="rounded-2xl! focus:ring-[#CCFF33]!"
+                    class="rounded-2xl! focus:ring-[#FFD700]!"
                 />
 
                 <!-- Email -->
@@ -183,7 +179,7 @@
                     placeholder="Email"
                     required
                     error={$form.errors.email}
-                    class="rounded-2xl! focus:ring-[#CCFF33]!"
+                    class="rounded-2xl! focus:ring-[#FFD700]!"
                 />
 
                 {#if isSchool}
