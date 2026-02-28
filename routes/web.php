@@ -46,7 +46,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/drop-points', [CustomerDropPointController::class, 'index'])->name('customer.drop-points.index');
 Route::get('/drop-points/{id}', [CustomerDropPointController::class, 'show'])->name('customer.drop-points.show');
 Route::get('/drop-points/{id}/products', [CustomerProductController::class, 'index'])->name('customer.products');
-Route::get('/custom-address', [CustomerAddressController::class, 'create'])->name('customer.addresses.create');
+Route::get('/custom-address', [CustomerAddressController::class, 'index'])->name('customer.addresses.index');
 Route::post('/custom-address', [CustomerAddressController::class, 'store'])->name('customer.addresses.store');
 Route::put('/custom-address/{address}', [CustomerAddressController::class, 'update'])->name('customer.addresses.update');
 Route::delete('/custom-address/{address}', [CustomerAddressController::class, 'destroy'])->name('customer.addresses.destroy');

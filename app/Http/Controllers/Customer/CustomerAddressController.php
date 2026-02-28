@@ -23,7 +23,7 @@ class CustomerAddressController extends Controller
      *
      * @return Response
      */
-    public function create(): Response
+    public function index(): Response
     {
         $savedAddresses = [];
         if (Auth::guard('customer')->check()) {
@@ -32,7 +32,7 @@ class CustomerAddressController extends Controller
                 ->get();
         }
 
-        return Inertia::render('Domains/Customer/Address/Create', [
+        return Inertia::render('Domains/Customer/Address/Index', [
             'tomtomApiKey' => config('tomtom.api_key'),
             'defaultCenter' => [
                 'lat' => config('tomtom.geofence.center_lat'),
