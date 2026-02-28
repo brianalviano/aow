@@ -32,7 +32,13 @@ class ProductResource extends JsonResource
             'sort_order' => $this->sort_order,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'chefs' => ChefResource::collection($this->whenLoaded('chefs')),
+            'chefs' => ChefResource::collection($this->whenLoaded('chefs', function () {
+                // If we are in admin, show all chefs. If in customer portal, show only the closest (first).
+                if (request()->is('admin/*') || request()->routeIs('admin.*')) {
+                    return $this->chefs;
+                }
+                return $this->chefs->take(1);
+            })),
             'product_category' => new ProductCategoryResource($this->whenLoaded('productCategory')),
             'options' => ProductOptionResource::collection($this->whenLoaded('productOptions')),
             'testimonials' => TestimonialResource::collection($this->whenLoaded('testimonials')),

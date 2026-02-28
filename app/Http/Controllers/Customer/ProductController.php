@@ -48,6 +48,8 @@ class ProductController extends Controller
     private function renderProducts(?DropPoint $dropPoint = null, ?array $address = null): Response
     {
         $orderType = session('checkout_order_type', 'preorder');
+        $lat = $dropPoint?->latitude ?? ($address['latitude'] ?? null);
+        $lng = $dropPoint?->longitude ?? ($address['longitude'] ?? null);
 
         $categories = ProductCategory::query()
             ->where('is_active', true)
@@ -59,11 +61,27 @@ class ProductController extends Controller
             })
             ->get();
 
-        $products = Product::with(['chefs', 'productCategory', 'productOptions' => function ($query) {
-            $query->orderBy('sort_order')->with(['items' => function ($query) {
-                $query->orderBy('sort_order');
-            }]);
-        }])
+        $products = Product::with([
+            'chefs' => function ($query) use ($orderType, $lat, $lng) {
+                $query->whereJsonContains('order_types', $orderType);
+
+                if ($lat !== null && $lng !== null) {
+                    // Haversine formula to calculate distance in kilometers
+                    $query->select('*')
+                        ->selectRaw(
+                            '(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance',
+                            [$lat, $lng, $lat]
+                        )
+                        ->orderBy('distance');
+                }
+            },
+            'productCategory',
+            'productOptions' => function ($query) {
+                $query->orderBy('sort_order')->with(['items' => function ($query) {
+                    $query->orderBy('sort_order');
+                }]);
+            }
+        ])
             ->where('is_active', true)
             ->whereHas('chefs', function ($query) use ($orderType) {
                 $query->whereJsonContains('order_types', $orderType);
