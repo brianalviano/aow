@@ -4,6 +4,7 @@
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import FileUpload from "@/Lib/Admin/Components/Ui/FileUpload.svelte";
+    import MediaViewer from "@/Lib/Admin/Components/Ui/MediaViewer.svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
 
     interface Product {
@@ -63,6 +64,7 @@
         payment_expired_at?: string;
         note?: string;
         cancellation_note?: string;
+        payment_proof_url?: string;
         delivery_photo_url?: string;
         delivered_at?: string;
         created_at: string;
@@ -93,6 +95,15 @@
     let deliverModalOpen = $state(false);
     let deliveryPhotoFile = $state<File | null>(null);
     let deliveryPhotoError = $state<string | undefined>(undefined);
+    let isMediaViewerOpen = $state(false);
+    let mediaViewerItems = $state<string | string[]>([]);
+    let mediaViewerInitialIndex = $state(0);
+
+    function openMediaViewer(items: string | string[], index: number = 0) {
+        mediaViewerItems = items;
+        mediaViewerInitialIndex = index;
+        isMediaViewerOpen = true;
+    }
 
     function submitDeliver() {
         if (!deliveryPhotoFile) {
@@ -796,24 +807,46 @@
                 </Card>
             {/if}
 
+            {#if order.payment_proof_url}
+                <Card title="Bukti Pembayaran">
+                    <div class="space-y-2">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Bukti pembayaran yang diunggah oleh pelanggan.
+                        </p>
+                        <button
+                            type="button"
+                            class="block w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity text-left"
+                            onclick={() =>
+                                openMediaViewer(order.payment_proof_url!)}
+                        >
+                            <img
+                                src={order.payment_proof_url}
+                                alt="Bukti pembayaran pesanan #{order.number}"
+                                class="w-full object-cover max-h-64"
+                            />
+                        </button>
+                    </div>
+                </Card>
+            {/if}
+
             {#if order.order_status === "delivered" && order.delivery_photo_url}
                 <Card title="Bukti Penerimaan">
                     <div class="space-y-2">
                         <p class="text-xs text-gray-500 dark:text-gray-400">
                             Foto bukti pesanan diterima oleh pelanggan.
                         </p>
-                        <a
-                            href={order.delivery_photo_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="block overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity"
+                        <button
+                            type="button"
+                            class="block w-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 hover:opacity-90 transition-opacity text-left"
+                            onclick={() =>
+                                openMediaViewer(order.delivery_photo_url!)}
                         >
                             <img
                                 src={order.delivery_photo_url}
                                 alt="Bukti penerimaan pesanan #{order.number}"
                                 class="w-full object-cover max-h-64"
                             />
-                        </a>
+                        </button>
                     </div>
                 </Card>
             {/if}
@@ -1047,3 +1080,9 @@
         </div>
     </div>
 {/if}
+
+<MediaViewer
+    bind:isOpen={isMediaViewerOpen}
+    items={mediaViewerItems}
+    initialIndex={mediaViewerInitialIndex}
+/>
