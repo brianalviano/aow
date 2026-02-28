@@ -378,9 +378,9 @@
                                 </div>
                             {/if}
                         </div>
-                        <div class="flex-1 relative pr-10">
+                        <div class="flex-1 relative">
                             <h3
-                                class="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 pr-2"
+                                class="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 pr-12"
                             >
                                 {item.product.name}
                             </h3>
@@ -409,13 +409,13 @@
                                 {/if}
                             </div>
 
-                            <div class="flex items-center justify-between mt-2">
+                            <div class="flex items-center justify-between mt-3">
                                 <span class="text-[#f44336] font-bold"
                                     >{formatRupiah(item.totalPrice)}</span
                                 >
-                                <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-3">
                                     <button
-                                        class="w-6 h-6 rounded-full border border-gray-400 flex items-center justify-center text-gray-600"
+                                        class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 bg-gray-50 active:bg-gray-100 transition-colors"
                                         aria-label="Kurangi"
                                         on:click={() =>
                                             updateQuantity(item._key, -1)}
@@ -427,7 +427,7 @@
                                         type="number"
                                         value={item.quantity}
                                         min="1"
-                                        class="font-bold text-sm w-12 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        class="font-bold text-sm w-10 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         aria-label="Jumlah"
                                         on:input={(e) => {
                                             const val = parseInt(
@@ -447,7 +447,7 @@
                                         }}
                                     />
                                     <button
-                                        class="w-6 h-6 rounded-full border border-gray-400 flex items-center justify-center text-gray-600"
+                                        class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 bg-gray-50 active:bg-gray-100 transition-colors"
                                         aria-label="Tambah"
                                         on:click={() =>
                                             updateQuantity(item._key, 1)}

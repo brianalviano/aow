@@ -318,7 +318,7 @@
                 >
                 <div class="flex items-center gap-4">
                     <button
-                        class="w-8 h-8 rounded-full border border-gray-800 flex items-center justify-center text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 active:scale-95 transition-transform"
+                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 active:scale-95 transition-all active:bg-gray-100"
                         on:click={() => quantity > 1 && quantity--}
                         disabled={quantity <= 1}
                         class:opacity-50={quantity <= 1}
@@ -342,7 +342,7 @@
                         }}
                     />
                     <button
-                        class="w-8 h-8 rounded-full border border-gray-800 flex items-center justify-center text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300 active:scale-95 transition-transform"
+                        class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 active:scale-95 transition-all active:bg-gray-100"
                         on:click={() => quantity++}
                         aria-label="Tambah"
                     >
