@@ -79,11 +79,6 @@ class CustomerAddressController extends Controller
 
                 $this->setCheckoutAddressInSession($address);
 
-                \Inertia\Inertia::flash('toast', [
-                    'message' => 'Alamat berhasil disimpan',
-                    'type' => 'success',
-                ]);
-
                 return redirect()->route('customer.products.general');
             });
         } catch (\Throwable $e) {
@@ -114,11 +109,6 @@ class CustomerAddressController extends Controller
         $address->update($data);
 
         $this->setCheckoutAddressInSession($address);
-
-        \Inertia\Inertia::flash('toast', [
-            'message' => 'Alamat berhasil diperbarui',
-            'type' => 'success',
-        ]);
 
         return redirect()->route('customer.products.general');
     }
