@@ -134,6 +134,49 @@
             document.body.style.overflow = "";
         };
     });
+
+    // Testimonial Pagination State
+    let paginatedTestimonials: any[] = [];
+    let nextPageUrl: string | null = `/products/${product.id}/testimonials`;
+    let isLoadingTestimonials = false;
+    let sentinel: HTMLElement;
+
+    async function fetchTestimonials() {
+        if (!nextPageUrl || isLoadingTestimonials) return;
+
+        isLoadingTestimonials = true;
+        try {
+            const response = await fetch(nextPageUrl);
+            const result = await response.json();
+
+            paginatedTestimonials = [
+                ...paginatedTestimonials,
+                ...(result.data || []),
+            ];
+            nextPageUrl = result.links?.next || null;
+        } catch (error) {
+            console.error("Gagal mengambil testimoni:", error);
+        } finally {
+            isLoadingTestimonials = false;
+        }
+    }
+
+    onMount(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    fetchTestimonials();
+                }
+            },
+            { threshold: 0.1, rootMargin: "100px" },
+        );
+
+        if (sentinel) {
+            observer.observe(sentinel);
+        }
+
+        return () => observer.disconnect();
+    });
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -328,7 +371,7 @@
             {/if}
 
             <!-- Testimonials Section -->
-            {#if product.testimonials && product.testimonials.length > 0}
+            {#if product.testimonials_count > 0}
                 <div class="bg-white p-4 mb-2">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-gray-900 text-sm italic">
@@ -340,22 +383,16 @@
                             <i class="fa-solid fa-star text-yellow-400 text-xs"
                             ></i>
                             <span class="text-xs font-bold text-gray-900">
-                                {(
-                                    product.testimonials.reduce(
-                                        (acc: number, t: { rating: string }) =>
-                                            acc + parseInt(t.rating),
-                                        0,
-                                    ) / product.testimonials.length
-                                ).toFixed(1)}
+                                {product.average_rating.toFixed(1)}
                             </span>
                             <span class="text-[10px] text-gray-400"
-                                >({product.testimonials.length})</span
+                                >({product.testimonials_count})</span
                             >
                         </div>
                     </div>
 
                     <div class="space-y-4">
-                        {#each product.testimonials as testimonial}
+                        {#each paginatedTestimonials as testimonial}
                             <div
                                 class="border-b border-gray-100 last:border-0 pb-4 last:pb-0"
                             >
@@ -366,15 +403,16 @@
                                         <div
                                             class="w-7 h-7 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 text-[10px] font-bold uppercase"
                                         >
-                                            {testimonial.customer.name.charAt(
+                                            {testimonial.customer?.name?.charAt(
                                                 0,
-                                            )}
+                                            ) || "?"}
                                         </div>
                                         <div>
                                             <div
                                                 class="text-[11px] font-bold text-gray-900"
                                             >
-                                                {testimonial.customer.name}
+                                                {testimonial.customer?.name ||
+                                                    "Anonim"}
                                             </div>
                                             <div
                                                 class="flex items-center gap-0.5"
@@ -424,6 +462,22 @@
                                 {/if}
                             </div>
                         {/each}
+
+                        <!-- Loading Indicator / Sentinel -->
+                        <div
+                            bind:this={sentinel}
+                            class="flex justify-center py-2"
+                        >
+                            {#if isLoadingTestimonials}
+                                <div
+                                    class="w-5 h-5 border-2 border-[#FFD700] border-t-transparent rounded-full animate-spin"
+                                ></div>
+                            {:else if !nextPageUrl && paginatedTestimonials.length > 0}
+                                <p class="text-[10px] text-gray-400">
+                                    Semua testimoni telah ditampilkan
+                                </p>
+                            {/if}
+                        </div>
                     </div>
                 </div>
             {/if}

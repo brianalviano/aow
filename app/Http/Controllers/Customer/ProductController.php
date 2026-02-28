@@ -59,7 +59,7 @@ class ProductController extends Controller
             })
             ->get();
 
-        $products = Product::with(['chefs', 'productCategory', 'testimonials.customer', 'productOptions' => function ($query) {
+        $products = Product::with(['chefs', 'productCategory', 'productOptions' => function ($query) {
             $query->orderBy('sort_order')->with(['items' => function ($query) {
                 $query->orderBy('sort_order');
             }]);
@@ -79,5 +79,18 @@ class ProductController extends Controller
             'savedCart' => (object) session('checkout_cart', []),
             'orderType' => $orderType,
         ]);
+    }
+
+    /**
+     * Get paginated testimonials for a product.
+     */
+    public function testimonials(Product $product): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $testimonials = $product->testimonials()
+            ->with('customer')
+            ->latest()
+            ->paginate(5);
+
+        return \App\Http\Resources\TestimonialResource::collection($testimonials);
     }
 }

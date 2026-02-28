@@ -58,6 +58,7 @@ Route::put('/custom-address/{address}', [CustomerAddressController::class, 'upda
 Route::delete('/custom-address/{address}', [CustomerAddressController::class, 'destroy'])->name('customer.addresses.destroy');
 Route::get('/products', [CustomerProductController::class, 'generalIndex'])->name('customer.products.general');
 Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
+Route::get('/products/{product}/testimonials', [CustomerProductController::class, 'testimonials'])->name('customer.products.testimonials');
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('customer.privacy-policy');
 Route::get('/terms-and-conditions', [TermsAndConditionController::class, 'index'])->name('customer.terms-and-conditions');
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');

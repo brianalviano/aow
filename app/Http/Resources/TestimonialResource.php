@@ -25,6 +25,11 @@ class TestimonialResource extends JsonResource
             'content'     => $this->content,
             'photo_url'   => $this->photo,
             'is_approved' => $this->is_approved,
+            'customer'    => $this->whenLoaded('customer', function () {
+                return [
+                    'name' => $this->customer?->name,
+                ];
+            }),
             'created_at'  => $this->created_at?->toIso8601String(),
         ];
     }
