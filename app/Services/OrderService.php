@@ -234,6 +234,12 @@ class OrderService
                     'chef_status'       => \App\Enums\ChefStatus::PENDING,
                     'chef_confirmed_at' => null,
                 ]);
+
+                // Notify New Chef
+                $item->load('chef', 'order');
+                if ($item->chef) {
+                    $item->chef->notify(new \App\Notifications\ChefOrderAssignedNotification($item->order));
+                }
             });
         } catch (\Throwable $e) {
             Log::error('Failed to reassign chef to item', [

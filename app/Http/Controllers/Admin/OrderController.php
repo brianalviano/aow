@@ -58,13 +58,13 @@ class OrderController extends Controller
     {
         $order->load([
             'items.product',
+            'items.chef',
             'items.testimonial',
             'items.options.productOption',
             'items.options.productOptionItem',
             'customer',
             'dropPoint',
             'customerAddress',
-            'paymentMethod',
             'paymentMethod',
         ]);
 
