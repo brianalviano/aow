@@ -7,7 +7,7 @@ namespace App\Services;
 use App\DTOs\Checkout\ProcessOrderData;
 use App\Enums\{OrderStatus, PaymentMethodType};
 use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
-use App\Models\{Customer, Order, OrderItem, OrderItemOption, PaymentMethod};
+use App\Models\{Customer, Order, OrderItem, OrderItemOption, PaymentMethod, Product};
 use App\Notifications\{OrderPlacedNotification, OrderStatusChangedNotification};
 use App\Traits\{FileHelperTrait, RetryableTransactionsTrait};
 use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
@@ -129,8 +129,16 @@ class OrderService
                     'order_status' => OrderStatus::CONFIRMED,
                 ]);
 
-                $order->load('customer');
+                $order->load('customer', 'items.chef');
+
+                // Notify Customer
                 $order->customer->notify(new OrderStatusChangedNotification($order, 'confirmed'));
+
+                // Notify Assigned Chefs
+                $chefs = $order->items->map(fn($item) => $item->chef)->filter()->unique('id');
+                foreach ($chefs as $chef) {
+                    $chef->notify(new \App\Notifications\ChefOrderAssignedNotification($order));
+                }
 
                 return $order->fresh();
             });
@@ -142,6 +150,97 @@ class OrderService
                 'trace'       => $e->getTraceAsString(),
             ]);
 
+            throw $e;
+        }
+    }
+
+    /**
+     * Chef approves specific items in an order.
+     *
+     * @param array $itemIds
+     * @param \App\Models\Chef $chef
+     * @return void
+     * @throws \Throwable
+     */
+    public function chefApproveItems(array $itemIds, \App\Models\Chef $chef): void
+    {
+        try {
+            DB::transaction(function () use ($itemIds, $chef) {
+                OrderItem::whereIn('id', $itemIds)
+                    ->where('chef_id', $chef->id)
+                    ->update([
+                        'chef_status'       => \App\Enums\ChefStatus::ACCEPTED,
+                        'chef_confirmed_at' => now(),
+                    ]);
+            });
+        } catch (\Throwable $e) {
+            Log::error('Chef failed to approve items', [
+                'chef_id'  => $chef->id,
+                'item_ids' => $itemIds,
+                'error'    => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Chef rejects specific items in an order, which cancels the entire order.
+     *
+     * @param array $itemIds
+     * @param \App\Models\Chef $chef
+     * @param string|null $reason
+     * @return void
+     * @throws \Throwable
+     */
+    public function chefRejectItems(array $itemIds, \App\Models\Chef $chef, ?string $reason = null): void
+    {
+        try {
+            DB::transaction(function () use ($itemIds, $chef, $reason) {
+                $items = OrderItem::whereIn('id', $itemIds)
+                    ->where('chef_id', $chef->id)
+                    ->get();
+
+                foreach ($items as $item) {
+                    $item->update([
+                        'chef_status'       => \App\Enums\ChefStatus::REJECTED,
+                        'chef_confirmed_at' => now(),
+                    ]);
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::error('Chef failed to reject items', [
+                'chef_id'  => $chef->id,
+                'item_ids' => $itemIds,
+                'error'    => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Reassign an order item to another chef.
+     *
+     * @param \App\Models\OrderItem $item
+     * @param string $chefId
+     * @return void
+     * @throws \Throwable
+     */
+    public function reassignChef(\App\Models\OrderItem $item, string $chefId): void
+    {
+        try {
+            DB::transaction(function () use ($item, $chefId) {
+                $item->update([
+                    'chef_id'           => $chefId,
+                    'chef_status'       => \App\Enums\ChefStatus::PENDING,
+                    'chef_confirmed_at' => null,
+                ]);
+            });
+        } catch (\Throwable $e) {
+            Log::error('Failed to reassign chef to item', [
+                'item_id' => $item->id,
+                'chef_id' => $chefId,
+                'error'   => $e->getMessage(),
+            ]);
             throw $e;
         }
     }
@@ -192,7 +291,7 @@ class OrderService
     public function getFilteredOrdersForAdmin(\App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
-            ->with(['dropPoint', 'customerAddress', 'paymentMethod', 'customer']);
+            ->with(['dropPoint', 'customerAddress', 'paymentMethod', 'customer', 'items']);
 
         // Filter by Status
         if ($dto->status && $dto->status !== 'all') {
@@ -421,13 +520,19 @@ class OrderService
                     ]);
 
                     foreach ($data->cart as $item) {
+                        $product = Product::find(data_get($item, 'product.id'));
+                        $chef = $product?->chefs->first();
+
                         $orderItem = OrderItem::create([
-                            'order_id'   => $order->id,
-                            'product_id' => data_get($item, 'product.id'),
-                            'quantity'   => $item['quantity'],
-                            'price'      => $item['basePrice'],
-                            'subtotal'   => $item['totalPrice'],
-                            'note'       => $item['notes'] ?? null,
+                            'order_id'          => $order->id,
+                            'product_id'        => $product->id,
+                            'quantity'          => $item['quantity'],
+                            'price'             => $item['basePrice'],
+                            'subtotal'          => $item['totalPrice'],
+                            'note'              => $item['notes'] ?? null,
+                            'chef_id'           => $chef?->id,
+                            'chef_status'       => $chef ? \App\Enums\ChefStatus::PENDING : null,
+                            'chef_confirmed_at' => null,
                         ]);
 
                         if (isset($item['selectedOptions'])) {

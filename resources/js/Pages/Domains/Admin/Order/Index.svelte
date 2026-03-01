@@ -249,6 +249,7 @@
                         <th>Customer</th>
                         <th>Total</th>
                         <th>Status Pesanan</th>
+                        <th>Status Chef</th>
                         <th>Status Bayar</th>
                         <th class="w-32 text-center">Aksi</th>
                     </tr>
@@ -262,6 +263,8 @@
                             {@const paymentBadge = getPaymentBadge(
                                 item.payment_status,
                             )}
+                            {@const chefStatus = (item as any)
+                                .chef_status_summary}
                             <tr>
                                 <td
                                     class="font-medium text-gray-900 dark:text-white"
@@ -324,6 +327,30 @@
                                         variant={statusBadge.variant}
                                     >
                                         {#snippet children()}{statusBadge.label}{/snippet}
+                                    </Badge>
+                                </td>
+                                <td>
+                                    <Badge
+                                        size="sm"
+                                        rounded="pill"
+                                        variant={chefStatus === "rejected"
+                                            ? "danger"
+                                            : chefStatus === "accepted"
+                                              ? "success"
+                                              : chefStatus === "partial"
+                                                ? "purple"
+                                                : "warning"}
+                                        dot={true}
+                                    >
+                                        {#snippet children()}
+                                            {chefStatus === "rejected"
+                                                ? "Ditolak"
+                                                : chefStatus === "accepted"
+                                                  ? "Selesai"
+                                                  : chefStatus === "partial"
+                                                    ? "Sebagian"
+                                                    : "Menunggu"}
+                                        {/snippet}
                                     </Badge>
                                 </td>
                                 <td>

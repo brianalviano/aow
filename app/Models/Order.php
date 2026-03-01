@@ -141,4 +141,32 @@ class Order extends Model
     {
         return $this->getFileUrl($value);
     }
+
+    /**
+     * Get aggregate chef status for the order.
+     * 
+     * @return string (pending|accepted|rejected|partial)
+     */
+    public function getChefStatusSummaryAttribute(): string
+    {
+        if (!$this->items->count()) {
+            return 'pending';
+        }
+
+        $statuses = $this->items->pluck('chef_status')->unique();
+
+        if ($statuses->contains(\App\Enums\ChefStatus::REJECTED)) {
+            return 'rejected';
+        }
+
+        if ($statuses->count() === 1 && $statuses->first() === \App\Enums\ChefStatus::ACCEPTED) {
+            return 'accepted';
+        }
+
+        if ($statuses->contains(\App\Enums\ChefStatus::ACCEPTED)) {
+            return 'partial';
+        }
+
+        return 'pending';
+    }
 }

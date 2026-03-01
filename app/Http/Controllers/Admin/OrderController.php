@@ -70,6 +70,7 @@ class OrderController extends Controller
 
         return Inertia::render('Domains/Admin/Order/Show', [
             'order' => (new \App\Http\Resources\OrderResource($order))->resolve(),
+            'chefs' => \App\Models\Chef::where('is_active', true)->get(['id', 'name']),
         ]);
     }
 
@@ -231,6 +232,34 @@ class OrderController extends Controller
                 'message' => 'Gagal menghapus testimoni: ' . $e->getMessage(),
                 'type'    => 'error',
                 'trace'   => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Reassign an order item to a new chef.
+     */
+    public function reassignItemChef(\App\Models\OrderItem $order_item, \App\Services\OrderService $service): \Illuminate\Http\RedirectResponse
+    {
+        $data = request()->validate([
+            'chef_id' => 'required|exists:chefs,id',
+        ]);
+
+        try {
+            $service->reassignChef($order_item, $data['chef_id']);
+
+            \Inertia\Inertia::flash('toast', [
+                'message' => 'Chef berhasil diperbarui.',
+                'type'    => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (\Throwable $e) {
+            \Inertia\Inertia::flash('toast', [
+                'message' => 'Gagal memperbarui chef: ' . $e->getMessage(),
+                'type'    => 'error',
             ]);
 
             return redirect()->back();

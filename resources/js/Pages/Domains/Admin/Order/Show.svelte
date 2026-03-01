@@ -68,10 +68,23 @@
         delivery_photo_url?: string;
         delivered_at?: string;
         created_at: string;
-        items: OrderItem[];
+        items: (OrderItem & {
+            chef?: { id: string; name: string };
+            chef_status: string;
+            chef_confirmed_at?: string;
+        })[];
     }
 
-    let order = $derived($page.props.order as Order);
+    interface Chef {
+        id: string;
+        name: string;
+    }
+
+    let { order: orderProp, chefs = [] } = $props<{
+        order: Order;
+        chefs: Chef[];
+    }>();
+    let order = $derived(orderProp);
 
     interface ConfirmDialog {
         open: boolean;
@@ -98,6 +111,10 @@
     let isMediaViewerOpen = $state(false);
     let mediaViewerItems = $state<string | string[]>([]);
     let mediaViewerInitialIndex = $state(0);
+
+    let reassignModalOpen = $state(false);
+    let selectedItemForReassign = $state<any>(null);
+    let selectedNewChefId = $state("");
 
     function openMediaViewer(items: string | string[], index: number = 0) {
         mediaViewerItems = items;
@@ -185,6 +202,29 @@
                 isProcessing = false;
             },
         });
+    }
+
+    function openReassignModal(item: any) {
+        selectedItemForReassign = item;
+        selectedNewChefId = item.chef?.id || "";
+        reassignModalOpen = true;
+    }
+
+    function submitReassign() {
+        if (!selectedNewChefId) return;
+        isProcessing = true;
+        router.post(
+            `/admin/order-items/${selectedItemForReassign.id}/reassign-chef`,
+            {
+                chef_id: selectedNewChefId,
+            },
+            {
+                onFinish: () => {
+                    isProcessing = false;
+                    reassignModalOpen = false;
+                },
+            },
+        );
     }
 
     type BadgeVariant =
@@ -365,6 +405,52 @@
         </div>
     </header>
 
+    {#if order.chef_status_summary === "rejected"}
+        <div
+            class="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20"
+        >
+            <div class="flex items-center gap-3">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                >
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-red-800 dark:text-red-300">
+                        Konfirmasi Chef Ditolak
+                    </h4>
+                    <p class="text-sm text-red-700 dark:text-red-400">
+                        Salah satu atau lebih item dalam pesanan ini ditolak
+                        oleh Chef. Silakan lakukan pemindahan (reassign) ke Chef
+                        lain agar pesanan bisa diproses.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {:else if order.chef_status_summary === "pending" || order.chef_status_summary === "partial"}
+        <div
+            class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-900/20"
+        >
+            <div class="flex items-center gap-3">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+                >
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-amber-800 dark:text-amber-300">
+                        Menunggu Konfirmasi Chef
+                    </h4>
+                    <p class="text-sm text-amber-700 dark:text-amber-400">
+                        Ada {order.items.filter(
+                            (i: any) => i.chef_status === "pending",
+                        ).length} item yang masih menunggu konfirmasi dari Chef.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {/if}
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
@@ -374,6 +460,7 @@
                         <thead>
                             <tr>
                                 <th>Produk</th>
+                                <th class="text-center">Chef</th>
                                 <th class="text-center">Jumlah</th>
                                 <th class="text-right">Harga</th>
                                 <th class="text-right">Subtotal</th>
@@ -529,6 +616,55 @@
                                             </div>
                                         {/if}
                                     </td>
+                                    <td class="text-center">
+                                        <div
+                                            class="flex flex-col items-center gap-1"
+                                        >
+                                            {#if item.chef}
+                                                <div
+                                                    class="text-sm font-medium text-gray-900 dark:text-white"
+                                                >
+                                                    {item.chef.name}
+                                                </div>
+                                                <Badge
+                                                    size="xs"
+                                                    variant={item.chef_status ===
+                                                    "accepted"
+                                                        ? "success"
+                                                        : item.chef_status ===
+                                                            "rejected"
+                                                          ? "danger"
+                                                          : "warning"}
+                                                    dot={true}
+                                                >
+                                                    {#snippet children()}
+                                                        {item.chef_status ===
+                                                        "accepted"
+                                                            ? "Diterima"
+                                                            : item.chef_status ===
+                                                                "rejected"
+                                                              ? "Ditolak"
+                                                              : "Menunggu"}
+                                                    {/snippet}
+                                                </Badge>
+                                            {:else}
+                                                <span
+                                                    class="text-xs text-gray-400 italic"
+                                                    >Belum diatur</span
+                                                >
+                                            {/if}
+
+                                            {#if order.order_status === "confirmed"}
+                                                <button
+                                                    class="text-[10px] text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium underline mt-1"
+                                                    onclick={() =>
+                                                        openReassignModal(item)}
+                                                >
+                                                    Ganti Chef
+                                                </button>
+                                            {/if}
+                                        </div>
+                                    </td>
                                     <td class="text-center">{item.quantity}</td>
                                     <td class="text-right"
                                         >{formatCurrency(item.price)}</td
@@ -553,7 +689,8 @@
                                 >
                                     {formatCurrency(
                                         order.items.reduce(
-                                            (acc, i) => acc + i.subtotal,
+                                            (acc: number, i: any) =>
+                                                acc + (i.subtotal || 0),
                                             0,
                                         ),
                                     )}
@@ -698,7 +835,8 @@
                         <span class="text-gray-900 dark:text-white"
                             >{formatCurrency(
                                 order.items.reduce(
-                                    (acc, i) => acc + i.subtotal,
+                                    (acc: number, i: any) =>
+                                        acc + (i.subtotal || 0),
                                     0,
                                 ),
                             )}</span
@@ -1075,6 +1213,71 @@
                     onclick={executeAction}
                 >
                     {#snippet children()}Ya, Lanjutkan{/snippet}
+                </Button>
+            </div>
+        </div>
+    </div>
+{/if}
+
+<!-- Reassign Chef Modal -->
+{#if reassignModalOpen}
+    <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+    >
+        <div
+            class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+        >
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                Pindahkan ke Chef Lain
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Pilih Chef baru untuk item <strong
+                    >{selectedItemForReassign?.product?.name}</strong
+                >.
+            </p>
+
+            <div class="space-y-4">
+                <div>
+                    <label
+                        for="chef-select"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >
+                        Pilih Chef
+                    </label>
+                    <select
+                        id="chef-select"
+                        bind:value={selectedNewChefId}
+                        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    >
+                        <option value="">-- Pilih Chef --</option>
+                        {#each chefs as chef}
+                            <option value={chef.id}>{chef.name}</option>
+                        {/each}
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    onclick={() => (reassignModalOpen = false)}
+                >
+                    Batal
+                </Button>
+                <Button
+                    variant="primary"
+                    size="sm"
+                    disabled={isProcessing || !selectedNewChefId}
+                    onclick={submitReassign}
+                >
+                    {#if isProcessing}
+                        <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memproses...
+                    {:else}
+                        <i class="fa-solid fa-exchange mr-1"></i> Pindahkan
+                    {/if}
                 </Button>
             </div>
         </div>

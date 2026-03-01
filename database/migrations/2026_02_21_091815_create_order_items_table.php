@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ChefStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,6 +25,9 @@ return new class extends Migration
             $table->integer('final_price')->default(0);
             $table->integer('subtotal')->default(0);
             $table->text('note')->nullable();
+            $table->foreignUuid('chef_id')->nullable()->constrained('chefs')->nullOnDelete();
+            $table->string('chef_status')->default(ChefStatus::PENDING->value);
+            $table->timestamp('chef_confirmed_at')->nullable();
             $table->timestamps();
         });
 

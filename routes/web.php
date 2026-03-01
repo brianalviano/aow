@@ -172,6 +172,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
         Route::post('/orders/{order}/ship', [OrderController::class, 'ship'])->name('orders.ship');
         Route::post('/orders/{order}/deliver', [OrderController::class, 'deliver'])->name('orders.deliver');
+        Route::post('/order-items/{order_item}/reassign-chef', [OrderController::class, 'reassignItemChef'])->name('orders.reassign-chef');
 
         // Testimonial Management
         Route::patch('/testimonials/{testimonial}/approve', [OrderController::class, 'approveTestimonial'])->name('orders.testimonial.approve');
@@ -286,6 +287,8 @@ Route::prefix('chef')->name('chef.')->group(function () {
     // Chef authenticated routes
     Route::middleware('auth:chef')->group(function () {
         Route::get('/', [ChefDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/approve', [ChefDashboardController::class, 'approve'])->name('approve');
+        Route::post('/reject', [ChefDashboardController::class, 'reject'])->name('reject');
         Route::post('/logout', [ChefLoginController::class, 'logout'])->name('logout');
     });
 

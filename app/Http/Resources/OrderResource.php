@@ -44,6 +44,7 @@ class OrderResource extends JsonResource
             'delivered_at'             => $this->delivered_at?->toIso8601String(),
             'created_at'               => $this->created_at?->toIso8601String(),
             'updated_at'               => $this->updated_at?->toIso8601String(),
+            'chef_status_summary'      => $this->chef_status_summary,
 
             // Relationships
             'items'          => $this->whenLoaded('items', fn() => OrderItemResource::collection($this->items)->resolve()),
