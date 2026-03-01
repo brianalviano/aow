@@ -87,7 +87,7 @@ class HandleInertiaRequests extends Middleware
 
     private function getSidebarMenu(?string $role): array
     {
-        if (!$role || $role === 'customer') {
+        if (!$role || in_array($role, ['customer', 'chef'])) {
             return [];
         }
 
