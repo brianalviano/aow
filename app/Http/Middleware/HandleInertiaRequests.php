@@ -121,7 +121,7 @@ class HandleInertiaRequests extends Middleware
                                         $pq->where('category', 'cash');
                                     });
                             })
-                            ->whereIn('order_status', ['pending', 'confirmed'])
+                            ->whereIn('order_status', ['pending', 'confirmed', 'shipped'])
                             ->count(),
                     ],
                 ],
