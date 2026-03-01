@@ -134,6 +134,20 @@ class PaymentController extends Controller
                 'payment_proof' => $path,
             ]);
 
+            $order->loadMissing('customer');
+
+            // Notify customer
+            if ($order->customer) {
+                $order->customer->notify(new \App\Notifications\PaymentProofUploadedCustomerNotification($order));
+            }
+
+            // Notify admins
+            $admins = \App\Models\User::whereHas('role', function ($query) {
+                $query->whereIn('name', [\App\Enums\RoleName::SuperAdmin->value, \App\Enums\RoleName::Admin->value]);
+            })->get();
+
+            \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\PaymentProofUploadedAdminNotification($order));
+
             return redirect()->route('customer.payment.show', [
                 'order' => $order->id,
                 'from' => $request->query('from')

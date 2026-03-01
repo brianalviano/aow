@@ -276,29 +276,6 @@
                 {/if}
             </div>
         </section>
-
-        {#if !canPay}
-            <div class="px-6">
-                <div
-                    class="bg-yellow-50 border border-yellow-100 p-4 rounded-2xl flex items-start gap-3"
-                >
-                    <i class="fa-solid fa-circle-info text-yellow-600 mt-0.5"
-                    ></i>
-                    <div class="space-y-1">
-                        <p class="text-sm font-bold text-yellow-800">
-                            Data Belum Lengkap
-                        </p>
-                        <p class="text-xs text-yellow-700 leading-relaxed">
-                            Silakan isi <b>Nama</b>, <b>Nomor WA</b>,
-                            <b>Email</b>,
-                            {#if isSchool}<b>Kelas Sekolah</b>,
-                            {/if}
-                            dan pilih <b>Metode Pembayaran</b> untuk melanjutkan.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        {/if}
     </main>
 
     <!-- Bottom Action Bar -->

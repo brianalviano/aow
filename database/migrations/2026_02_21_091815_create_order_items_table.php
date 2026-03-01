@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('final_price')->default(0);
             $table->integer('subtotal')->default(0);
             $table->text('note')->nullable();
-            $table->foreignUuid('chef_id')->nullable()->constrained('chefs')->nullOnDelete();
+            $table->foreignUuid('chef_id')->nullable();
             $table->string('chef_status')->default(ChefStatus::PENDING->value);
             $table->timestamp('chef_confirmed_at')->nullable();
             $table->timestamps();

@@ -11,6 +11,7 @@ use App\Models\{Customer, Order, OrderItem, OrderItemOption, PaymentMethod, Prod
 use App\Notifications\{OrderPlacedNotification, OrderStatusChangedNotification};
 use App\Traits\{FileHelperTrait, RetryableTransactionsTrait};
 use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
+use Illuminate\Support\Collection;
 use Throwable;
 
 class OrderService
@@ -182,12 +183,18 @@ class OrderService
     {
         try {
             DB::transaction(function () use ($itemIds, $chef) {
-                OrderItem::whereIn('id', $itemIds)
+                $items = OrderItem::whereIn('id', $itemIds)
                     ->where('chef_id', $chef->id)
-                    ->update([
+                    ->get();
+
+                foreach ($items as $item) {
+                    $item->update([
                         'chef_status'       => \App\Enums\ChefStatus::ACCEPTED,
                         'chef_confirmed_at' => now(),
                     ]);
+                }
+
+                $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::ACCEPTED);
             });
         } catch (\Throwable $e) {
             Log::error('Chef failed to approve items', [
@@ -222,6 +229,8 @@ class OrderService
                         'chef_confirmed_at' => now(),
                     ]);
                 }
+
+                $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::REJECTED);
             });
         } catch (\Throwable $e) {
             Log::error('Chef failed to reject items', [
@@ -267,6 +276,8 @@ class OrderService
                         $this->shipOrder($order);
                     }
                 }
+
+                $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::SHIPPED);
             });
         } catch (\Throwable $e) {
             Log::error('Chef failed to ship items', [
@@ -315,6 +326,8 @@ class OrderService
                         }
                     }
                 }
+
+                $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::DELIVERED);
             });
         } catch (\Throwable $e) {
             Log::error('Chef failed to deliver items', [
@@ -806,6 +819,33 @@ class OrderService
         }
 
         return $prefix . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Notify customer about chef status updates for their items.
+     *
+     * @param Collection $items
+     * @param \App\Enums\ChefStatus $newStatus
+     * @return void
+     */
+    private function notifyCustomerAboutChefStatus(Collection $items, \App\Enums\ChefStatus $newStatus): void
+    {
+        if ($items->isEmpty()) {
+            return;
+        }
+
+        $items->loadMissing(['order.customer', 'product']);
+
+        $groupedByOrder = $items->groupBy('order_id');
+
+        DB::afterCommit(function () use ($groupedByOrder, $newStatus) {
+            foreach ($groupedByOrder as $orderId => $orderItems) {
+                $order = $orderItems->first()->order;
+                if ($order && $order->customer) {
+                    $order->customer->notify(new \App\Notifications\ChefStatusUpdatedNotification($order, $orderItems, $newStatus));
+                }
+            }
+        });
     }
 
     /**

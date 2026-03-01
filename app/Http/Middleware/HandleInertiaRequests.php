@@ -115,12 +115,6 @@ class HandleInertiaRequests extends Middleware
                         'icon'  => 'fa-bag-shopping',
                         'link'  => route('admin.orders.index'),
                         'badge' => Order::query()
-                            ->where(function ($q) {
-                                $q->where('payment_status', '!=', 'pending')
-                                    ->orWhereHas('paymentMethod', function ($pq) {
-                                        $pq->where('category', 'cash');
-                                    });
-                            })
                             ->whereIn('order_status', ['pending', 'confirmed', 'shipped'])
                             ->count(),
                     ],
