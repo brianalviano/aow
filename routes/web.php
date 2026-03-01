@@ -24,7 +24,9 @@ use App\Http\Controllers\Admin\{
 };
 use App\Http\Controllers\Chef\{
     DashboardController as ChefDashboardController,
-    LoginController as ChefLoginController
+    LoginController as ChefLoginController,
+    OrderController as ChefOrderController,
+    IncomeController as ChefIncomeController
 };
 use App\Http\Controllers\Customer\{
     AuthController,
@@ -287,6 +289,8 @@ Route::prefix('chef')->name('chef.')->group(function () {
     // Chef authenticated routes
     Route::middleware('auth:chef')->group(function () {
         Route::get('/', [ChefDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/orders', [ChefOrderController::class, 'index'])->name('orders');
+        Route::get('/income', [ChefIncomeController::class, 'index'])->name('income');
         Route::post('/approve', [ChefDashboardController::class, 'approve'])->name('approve');
         Route::post('/reject', [ChefDashboardController::class, 'reject'])->name('reject');
         Route::post('/logout', [ChefLoginController::class, 'logout'])->name('logout');

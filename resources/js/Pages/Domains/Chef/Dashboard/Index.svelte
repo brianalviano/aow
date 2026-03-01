@@ -174,7 +174,7 @@
         </div>
     </header>
 
-    <main class="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full">
+    <main class="flex-1 p-4 max-w-7xl mx-auto w-full">
         <div
             class="bg-white border border-gray-100 rounded-2xl p-6 mb-8 shadow-sm"
         >
@@ -232,7 +232,7 @@
                                     >
                                 </div>
                             </div>
-                            <div class="text-right">
+                            <div>
                                 <span class="text-xs text-gray-400 block mb-1"
                                     >Tanggal Pengiriman</span
                                 >

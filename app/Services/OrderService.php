@@ -362,6 +362,75 @@ class OrderService
     }
 
     /**
+     * Get filtered and paginated order items for a chef.
+     *
+     * @param string $chefId
+     * @param \App\DTOs\Order\OrderFilterDTO $dto
+     * @param int $perPage
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getFilteredOrderItemsForChef(string $chefId, \App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
+    {
+        $query = OrderItem::query()
+            ->with(['order.customer', 'order.dropPoint', 'product'])
+            ->where('chef_id', $chefId);
+
+        // Filter by Status
+        if ($dto->status && $dto->status !== 'all') {
+            switch ($dto->status) {
+                case 'pending':
+                    $query->where('chef_status', \App\Enums\ChefStatus::PENDING);
+                    break;
+                case 'accepted':
+                    // Accepted items that are not yet in a delivered order
+                    $query->where('chef_status', \App\Enums\ChefStatus::ACCEPTED)
+                        ->whereHas('order', function ($q) {
+                            $q->where('order_status', '!=', \App\Enums\OrderStatus::DELIVERED)
+                                ->where('order_status', '!=', \App\Enums\OrderStatus::CANCELLED);
+                        });
+                    break;
+                case 'completed':
+                    // Items where the final order is delivered
+                    $query->whereHas('order', function ($q) {
+                        $q->where('order_status', \App\Enums\OrderStatus::DELIVERED);
+                    });
+                    break;
+                case 'rejected':
+                    $query->where('chef_status', \App\Enums\ChefStatus::REJECTED);
+                    break;
+            }
+        }
+
+        // Filter by Search (Order Number, Customer Name, or Product Name)
+        if ($dto->search) {
+            $query->where(function ($q) use ($dto) {
+                $q->whereHas('order', function ($oq) use ($dto) {
+                    $oq->where('number', 'like', "%{$dto->search}%")
+                        ->orWhereHas('customer', function ($cq) use ($dto) {
+                            $cq->where('name', 'like', "%{$dto->search}%");
+                        });
+                })->orWhereHas('product', function ($pq) use ($dto) {
+                    $pq->where('name', 'like', "%{$dto->search}%");
+                });
+            });
+        }
+
+        // Filter by Date (Created At)
+        if ($dto->dateRange === '30_days') {
+            $query->where('created_at', '>=', now()->subDays(30));
+        } elseif ($dto->dateRange === '90_days') {
+            $query->where('created_at', '>=', now()->subDays(90));
+        } elseif ($dto->dateRange === 'custom' && $dto->startDate && $dto->endDate) {
+            $query->whereBetween('created_at', [
+                $dto->startDate . ' 00:00:00',
+                $dto->endDate . ' 23:59:59'
+            ]);
+        }
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
+    }
+
+    /**
      * Get filtered and paginated orders for a customer.
      *
      * @param string $customerId
