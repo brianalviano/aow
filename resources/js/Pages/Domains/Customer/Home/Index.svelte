@@ -42,7 +42,9 @@
                 <h1 class="font-bold text-lg leading-tight">
                     {APP_NAME}
                 </h1>
-                <p class="text-xs text-gray-500">Pesan Makanan & Minuman</p>
+                <p class="text-xs text-gray-500">
+                    The Best Choice For Your Food
+                </p>
             </div>
         </div>
         <Link
