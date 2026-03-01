@@ -76,7 +76,7 @@
             onConfirm: async () => {
                 dialogState.loading = true;
                 router.post(
-                    "/chef/approve",
+                    "/chef/orders/approve",
                     {
                         item_ids: [itemId],
                     },
@@ -114,7 +114,7 @@
             onConfirm: async (formData) => {
                 dialogState.loading = true;
                 router.post(
-                    "/chef/reject",
+                    "/chef/orders/reject",
                     {
                         item_ids: [itemId],
                         reason: formData?.reason,
@@ -143,7 +143,7 @@
             onConfirm: async () => {
                 dialogState.loading = true;
                 router.post(
-                    "/chef/ship",
+                    "/chef/orders/ship",
                     {
                         item_ids: [itemId],
                     },
@@ -187,7 +187,7 @@
                     );
                 }
 
-                router.post("/chef/deliver", uploadData, {
+                router.post("/chef/orders/deliver", uploadData, {
                     onFinish: () => {
                         dialogState.isOpen = false;
                         dialogState.loading = false;

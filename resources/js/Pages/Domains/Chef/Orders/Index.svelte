@@ -217,7 +217,7 @@
             onConfirm: async () => {
                 dialogState.loading = true;
                 router.post(
-                    "/chef/ship",
+                    "/chef/orders/ship",
                     {
                         item_ids: [itemId],
                     },
@@ -262,7 +262,7 @@
                     );
                 }
 
-                router.post("/chef/deliver", uploadData, {
+                router.post("/chef/orders/deliver", uploadData, {
                     onFinish: () => {
                         dialogState.isOpen = false;
                         dialogState.loading = false;

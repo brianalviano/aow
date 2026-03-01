@@ -291,10 +291,10 @@ Route::prefix('chef')->name('chef.')->group(function () {
         Route::get('/', [ChefDashboardController::class, 'index'])->name('dashboard');
         Route::get('/orders', [ChefOrderController::class, 'index'])->name('orders');
         Route::get('/income', [ChefIncomeController::class, 'index'])->name('income');
-        Route::post('/approve', [ChefDashboardController::class, 'approve'])->name('approve');
-        Route::post('/reject', [ChefDashboardController::class, 'reject'])->name('reject');
-        Route::post('/ship', [ChefDashboardController::class, 'ship'])->name('ship');
-        Route::post('/deliver', [ChefDashboardController::class, 'deliver'])->name('deliver');
+        Route::post('/orders/approve', [ChefOrderController::class, 'approve'])->name('orders.approve');
+        Route::post('/orders/reject', [ChefOrderController::class, 'reject'])->name('orders.reject');
+        Route::post('/orders/ship', [ChefOrderController::class, 'ship'])->name('orders.ship');
+        Route::post('/orders/deliver', [ChefOrderController::class, 'deliver'])->name('orders.deliver');
         Route::post('/logout', [ChefLoginController::class, 'logout'])->name('logout');
     });
 
