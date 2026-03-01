@@ -41,10 +41,12 @@ class HandleInertiaRequests extends Middleware
     protected function sharedAuth(array $base): array
     {
         $isAdminRequest = request()->is('admin') || request()->is('admin/*');
+        $isChefRequest = request()->is('chef') || request()->is('chef/*');
 
-        // If it's an admin request, check web guard. Otherwise, only check customer guard.
         if ($isAdminRequest) {
             $guard = Auth::guard('web')->check() ? 'web' : null;
+        } elseif ($isChefRequest) {
+            $guard = Auth::guard('chef')->check() ? 'chef' : null;
         } else {
             $guard = Auth::guard('customer')->check() ? 'customer' : null;
         }
@@ -59,7 +61,7 @@ class HandleInertiaRequests extends Middleware
                 'name'  => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'role'  => $guard === 'customer' ? 'customer' : $user->role?->name,
+                'role'  => $guard === 'customer' ? 'customer' : ($guard === 'chef' ? 'chef' : $user->role?->name),
             ] : ($base['auth']['user'] ?? null),
         ];
     }
