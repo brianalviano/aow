@@ -293,6 +293,8 @@ Route::prefix('chef')->name('chef.')->group(function () {
         Route::get('/income', [ChefIncomeController::class, 'index'])->name('income');
         Route::post('/approve', [ChefDashboardController::class, 'approve'])->name('approve');
         Route::post('/reject', [ChefDashboardController::class, 'reject'])->name('reject');
+        Route::post('/ship', [ChefDashboardController::class, 'ship'])->name('ship');
+        Route::post('/deliver', [ChefDashboardController::class, 'deliver'])->name('deliver');
         Route::post('/logout', [ChefLoginController::class, 'logout'])->name('logout');
     });
 

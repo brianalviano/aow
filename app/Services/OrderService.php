@@ -218,6 +218,99 @@ class OrderService
     }
 
     /**
+     * Chef marks specific items in an order as shipped.
+     *
+     * @param array $itemIds
+     * @param \App\Models\Chef $chef
+     * @return void
+     * @throws \Throwable
+     */
+    public function chefShipItems(array $itemIds, \App\Models\Chef $chef): void
+    {
+        try {
+            DB::transaction(function () use ($itemIds, $chef) {
+                $items = OrderItem::whereIn('id', $itemIds)
+                    ->where('chef_id', $chef->id)
+                    ->get();
+
+                $orderIdsToProcess = [];
+
+                foreach ($items as $item) {
+                    $item->update([
+                        'chef_status'       => \App\Enums\ChefStatus::SHIPPED,
+                        'chef_confirmed_at' => now(),
+                    ]);
+                    $orderIdsToProcess[$item->order_id] = true;
+                }
+
+                // For each affected order, check if we need to update the main order status to shipped
+                foreach (array_keys($orderIdsToProcess) as $orderId) {
+                    $order = Order::find($orderId);
+                    // If one item is shipped, and the main order is Confirmed, move it to Shipped
+                    if ($order && $order->order_status === OrderStatus::CONFIRMED) {
+                        $this->shipOrder($order);
+                    }
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::error('Chef failed to ship items', [
+                'chef_id'  => $chef->id,
+                'item_ids' => $itemIds,
+                'error'    => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Chef marks specific items in an order as delivered.
+     *
+     * @param array $itemIds
+     * @param \App\Models\Chef $chef
+     * @param \Illuminate\Http\UploadedFile|string|null $deliveryPhotoPath 
+     * @return void
+     * @throws \Throwable
+     */
+    public function chefDeliverItems(array $itemIds, \App\Models\Chef $chef, $deliveryPhotoPath = null): void
+    {
+        try {
+            DB::transaction(function () use ($itemIds, $chef, $deliveryPhotoPath) {
+                $items = OrderItem::whereIn('id', $itemIds)
+                    ->where('chef_id', $chef->id)
+                    ->get();
+
+                $orderIdsToProcess = [];
+
+                foreach ($items as $item) {
+                    $item->update([
+                        'chef_status'       => \App\Enums\ChefStatus::DELIVERED,
+                        'chef_confirmed_at' => now(),
+                    ]);
+                    $orderIdsToProcess[$item->order_id] = true;
+                }
+
+                // If ALL items in an order are DELIVERED, mark the main order as DELIVERED
+                foreach (array_keys($orderIdsToProcess) as $orderId) {
+                    $order = Order::with('items')->find($orderId);
+                    if ($order && $order->order_status === OrderStatus::SHIPPED) {
+                        $allDelivered = $order->items->every(fn($i) => $i->chef_status === \App\Enums\ChefStatus::DELIVERED);
+                        if ($allDelivered) {
+                            $this->completeOrder($order, $deliveryPhotoPath);
+                        }
+                    }
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::error('Chef failed to deliver items', [
+                'chef_id'  => $chef->id,
+                'item_ids' => $itemIds,
+                'error'    => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * Reassign an order item to another chef.
      *
      * @param \App\Models\OrderItem $item
@@ -372,7 +465,7 @@ class OrderService
     public function getFilteredOrderItemsForChef(string $chefId, \App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = OrderItem::query()
-            ->with(['order.customer', 'order.dropPoint', 'product'])
+            ->with(['order.customer', 'order.dropPoint', 'product', 'order.items'])
             ->where('chef_id', $chefId);
 
         // Filter by Status

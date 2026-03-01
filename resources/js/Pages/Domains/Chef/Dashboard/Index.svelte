@@ -16,6 +16,7 @@
         id: string;
         number: string;
         delivery_date: string;
+        order_status: string;
         customer?: {
             name: string;
         };
@@ -28,6 +29,7 @@
         id: string;
         quantity: number;
         note?: string;
+        chef_status: string;
         product?: Product;
         order: Order;
     }
@@ -128,6 +130,73 @@
         };
     }
 
+    function shipItem(itemId: string) {
+        dialogState = {
+            isOpen: true,
+            type: "info",
+            title: "Tandai Dikirim",
+            message: "Apakah Anda yakin item ini sudah siap untuk dikirim?",
+            confirmText: "Ya, Tandai",
+            cancelText: "Batal",
+            loading: false,
+            formFields: [],
+            onConfirm: async () => {
+                dialogState.loading = true;
+                router.post(
+                    "/chef/ship",
+                    {
+                        item_ids: [itemId],
+                    },
+                    {
+                        onFinish: () => {
+                            dialogState.isOpen = false;
+                            dialogState.loading = false;
+                        },
+                    },
+                );
+            },
+        };
+    }
+
+    function deliverItem(itemId: string) {
+        dialogState = {
+            isOpen: true,
+            type: "success",
+            title: "Tandai Selesai / Diterima",
+            message: "Tandai item ini telah berhasil dikirim dan diselesaikan?",
+            confirmText: "Ya, Selesai",
+            cancelText: "Batal",
+            loading: false,
+            formFields: [
+                {
+                    id: "delivery_photo",
+                    name: "delivery_photo",
+                    type: "file",
+                    label: "Foto Bukti Pengiriman (Opsional)",
+                    required: false,
+                },
+            ],
+            onConfirm: async (formData) => {
+                dialogState.loading = true;
+                const uploadData = new FormData();
+                uploadData.append("item_ids[0]", itemId);
+                if (formData?.delivery_photo) {
+                    uploadData.append(
+                        "delivery_photo",
+                        formData.delivery_photo,
+                    );
+                }
+
+                router.post("/chef/deliver", uploadData, {
+                    onFinish: () => {
+                        dialogState.isOpen = false;
+                        dialogState.loading = false;
+                    },
+                });
+            },
+        };
+    }
+
     // Group items by order_id
     const groupedItems = $derived(
         Object.values(
@@ -144,6 +213,17 @@
             }, {}),
         ) as Group[],
     );
+
+    function isAllItemsApproved(order: Order) {
+        const orderItems = (order as any).items || [];
+        if (orderItems.length === 0) return true;
+
+        return orderItems.every(
+            (item: any) =>
+                item.chef_status !== "pending" &&
+                item.chef_status !== "rejected",
+        );
+    }
 </script>
 
 <svelte:head>
@@ -295,22 +375,46 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <Button
-                                            variant="success"
-                                            size="sm"
-                                            icon="fa-solid fa-check"
-                                            onclick={() => approveItem(item.id)}
-                                        >
-                                            Terima
-                                        </Button>
-                                        <Button
-                                            variant="outline-danger"
-                                            size="sm"
-                                            icon="fa-solid fa-xmark"
-                                            onclick={() => rejectItem(item.id)}
-                                        >
-                                            Tolak
-                                        </Button>
+                                        {#if item.chef_status === "pending"}
+                                            <Button
+                                                variant="success"
+                                                size="sm"
+                                                icon="fa-solid fa-check"
+                                                onclick={() =>
+                                                    approveItem(item.id)}
+                                            >
+                                                Terima
+                                            </Button>
+                                            <Button
+                                                variant="outline-danger"
+                                                size="sm"
+                                                icon="fa-solid fa-xmark"
+                                                onclick={() =>
+                                                    rejectItem(item.id)}
+                                            >
+                                                Tolak
+                                            </Button>
+                                        {:else if item.chef_status === "accepted" && group.order.order_status === "confirmed" && isAllItemsApproved(group.order)}
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
+                                                icon="fa-solid fa-truck"
+                                                onclick={() =>
+                                                    shipItem(item.id)}
+                                            >
+                                                Kirim
+                                            </Button>
+                                        {:else if item.chef_status === "shipped"}
+                                            <Button
+                                                variant="success"
+                                                size="sm"
+                                                icon="fa-solid fa-box-check"
+                                                onclick={() =>
+                                                    deliverItem(item.id)}
+                                            >
+                                                Selesai
+                                            </Button>
+                                        {/if}
                                     </div>
                                 </div>
                             {/each}

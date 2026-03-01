@@ -11,6 +11,8 @@ enum ChefStatus: string
 {
     case PENDING = 'pending';
     case ACCEPTED = 'accepted';
+    case SHIPPED = 'shipped';
+    case DELIVERED = 'delivered';
     case REJECTED = 'rejected';
 
     /**
@@ -21,6 +23,8 @@ enum ChefStatus: string
         return match ($this) {
             self::PENDING => 'Menunggu Konfirmasi Chef',
             self::ACCEPTED => 'Diterima Chef',
+            self::SHIPPED => 'Dikirim',
+            self::DELIVERED => 'Selesai',
             self::REJECTED => 'Ditolak Chef',
         };
     }

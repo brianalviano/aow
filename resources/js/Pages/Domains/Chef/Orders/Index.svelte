@@ -19,6 +19,7 @@
         id: string;
         number: string;
         delivery_date: string;
+        order_status: string;
         customer?: {
             name: string;
         };
@@ -189,9 +190,96 @@
         return () => observer.disconnect();
     });
 
+    import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
+
+    let dialogState = $state({
+        isOpen: false,
+        type: "info" as "info" | "warning" | "danger" | "success",
+        title: "",
+        message: "",
+        confirmText: "Ya, Saya Yakin",
+        cancelText: "Batal",
+        loading: false,
+        formFields: [] as any[],
+        onConfirm: async (data?: any) => {},
+    });
+
+    function shipItem(itemId: string) {
+        dialogState = {
+            isOpen: true,
+            type: "info",
+            title: "Tandai Dikirim",
+            message: "Apakah Anda yakin item ini sudah siap untuk dikirim?",
+            confirmText: "Ya, Tandai",
+            cancelText: "Batal",
+            loading: false,
+            formFields: [],
+            onConfirm: async () => {
+                dialogState.loading = true;
+                router.post(
+                    "/chef/ship",
+                    {
+                        item_ids: [itemId],
+                    },
+                    {
+                        onFinish: () => {
+                            dialogState.isOpen = false;
+                            dialogState.loading = false;
+                            applyFilters();
+                        },
+                    },
+                );
+            },
+        };
+    }
+
+    function deliverItem(itemId: string) {
+        dialogState = {
+            isOpen: true,
+            type: "success",
+            title: "Tandai Selesai / Diterima",
+            message: "Tandai item ini telah berhasil dikirim dan diselesaikan?",
+            confirmText: "Ya, Selesai",
+            cancelText: "Batal",
+            loading: false,
+            formFields: [
+                {
+                    id: "delivery_photo",
+                    name: "delivery_photo",
+                    type: "file",
+                    label: "Foto Bukti Pengiriman (Opsional)",
+                    required: false,
+                },
+            ],
+            onConfirm: async (formData) => {
+                dialogState.loading = true;
+                const uploadData = new FormData();
+                uploadData.append("item_ids[0]", itemId);
+                if (formData?.delivery_photo) {
+                    uploadData.append(
+                        "delivery_photo",
+                        formData.delivery_photo,
+                    );
+                }
+
+                router.post("/chef/deliver", uploadData, {
+                    onFinish: () => {
+                        dialogState.isOpen = false;
+                        dialogState.loading = false;
+                        applyFilters();
+                    },
+                });
+            },
+        };
+    }
+
     function getStatusVariant(status: string) {
         switch (status) {
             case "accepted":
+                return "info";
+            case "shipped":
+                return "primary";
+            case "delivered":
                 return "success";
             case "rejected":
                 return "danger";
@@ -203,18 +291,49 @@
     function getStatusLabel(status: string) {
         switch (status) {
             case "accepted":
-                return "Diterima";
+                return "Diproses";
+            case "shipped":
+                return "Dikirim";
+            case "delivered":
+                return "Selesai";
             case "rejected":
                 return "Ditolak";
             default:
                 return "Menunggu";
         }
     }
+
+    function isAllItemsApproved(order: Order) {
+        // Find the group to check all items for this order.
+        // Note: group.order.items from frontend data doesn't contain all order items if they are filtered out by backend.
+        // Wait, earlier we added `with('order.items')` in the backend so `order.items` should contain all items!
+        const orderItems = (order as any).items || [];
+        if (orderItems.length === 0) return true; // fallback
+
+        // Every item must NOT be pending and NOT be rejected
+        return orderItems.every(
+            (item: any) =>
+                item.chef_status !== "pending" &&
+                item.chef_status !== "rejected",
+        );
+    }
 </script>
 
 <svelte:head>
     <title>Riwayat Pesanan | {appName($page.props.settings)}</title>
 </svelte:head>
+
+<Dialog
+    bind:isOpen={dialogState.isOpen}
+    type={dialogState.type}
+    title={dialogState.title}
+    message={dialogState.message}
+    confirmText={dialogState.confirmText}
+    cancelText={dialogState.cancelText}
+    loading={dialogState.loading}
+    form_fields={dialogState.formFields}
+    onConfirm={dialogState.onConfirm}
+/>
 
 <div class="flex flex-col min-h-screen bg-gray-50 pb-20">
     <header class="bg-white sticky top-0 z-30 shadow-sm">
@@ -420,6 +539,23 @@
                                         >
                                             {getStatusLabel(item.chef_status)}
                                         </Badge>
+                                        {#if item.chef_status === "accepted" && group.order.order_status === "confirmed" && isAllItemsApproved(group.order)}
+                                            <button
+                                                class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1 rounded-full font-medium transition-colors"
+                                                onclick={() =>
+                                                    shipItem(item.id)}
+                                            >
+                                                Kirim
+                                            </button>
+                                        {:else if item.chef_status === "shipped"}
+                                            <button
+                                                class="text-xs bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1 rounded-full font-medium transition-colors"
+                                                onclick={() =>
+                                                    deliverItem(item.id)}
+                                            >
+                                                Selesai
+                                            </button>
+                                        {/if}
                                     </div>
                                 </div>
                             {/each}
