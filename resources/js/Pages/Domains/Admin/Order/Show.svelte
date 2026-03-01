@@ -630,11 +630,17 @@
                                                     size="xs"
                                                     variant={item.chef_status ===
                                                     "accepted"
-                                                        ? "success"
+                                                        ? "info"
                                                         : item.chef_status ===
-                                                            "rejected"
-                                                          ? "danger"
-                                                          : "warning"}
+                                                            "shipped"
+                                                          ? "primary"
+                                                          : item.chef_status ===
+                                                              "delivered"
+                                                            ? "success"
+                                                            : item.chef_status ===
+                                                                "rejected"
+                                                              ? "danger"
+                                                              : "warning"}
                                                     dot={true}
                                                 >
                                                     {#snippet children()}
@@ -642,9 +648,15 @@
                                                         "accepted"
                                                             ? "Diterima"
                                                             : item.chef_status ===
-                                                                "rejected"
-                                                              ? "Ditolak"
-                                                              : "Menunggu"}
+                                                                "shipped"
+                                                              ? "Dikirim"
+                                                              : item.chef_status ===
+                                                                  "delivered"
+                                                                ? "Selesai"
+                                                                : item.chef_status ===
+                                                                    "rejected"
+                                                                  ? "Ditolak"
+                                                                  : "Menunggu"}
                                                     {/snippet}
                                                 </Badge>
                                             {:else}

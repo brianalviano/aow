@@ -159,14 +159,14 @@ class Order extends Model
             return 'rejected';
         }
 
-        if ($statuses->count() === 1 && $statuses->first() === \App\Enums\ChefStatus::ACCEPTED) {
-            return 'accepted';
+        if ($statuses->contains(\App\Enums\ChefStatus::PENDING) || $statuses->contains(null)) {
+            $hasProcessed = $statuses->contains(\App\Enums\ChefStatus::ACCEPTED)
+                || $statuses->contains(\App\Enums\ChefStatus::SHIPPED)
+                || $statuses->contains(\App\Enums\ChefStatus::DELIVERED);
+
+            return $hasProcessed ? 'partial' : 'pending';
         }
 
-        if ($statuses->contains(\App\Enums\ChefStatus::ACCEPTED)) {
-            return 'partial';
-        }
-
-        return 'pending';
+        return 'accepted';
     }
 }

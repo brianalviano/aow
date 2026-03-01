@@ -46,11 +46,19 @@ class OrderService
 
                 $photoPath = $this->handleFileInput($deliveryPhotoPath, null, 'orders/delivery');
 
-                $order->update([
+                $order->load('paymentMethod');
+
+                $updateData = [
                     'order_status'   => OrderStatus::DELIVERED,
                     'delivery_photo' => $photoPath,
                     'delivered_at'   => now(),
-                ]);
+                ];
+
+                if ($order->payment_status === \App\Enums\PaymentStatus::PENDING && $order->paymentMethod?->category === 'cash') {
+                    $updateData['payment_status'] = \App\Enums\PaymentStatus::PAID;
+                }
+
+                $order->update($updateData);
 
                 $order->load('customer');
                 $order->customer->notify(new OrderStatusChangedNotification($order, 'delivered'));
@@ -125,9 +133,17 @@ class OrderService
                     throw new \Exception("Pesanan tidak dapat dikonfirmasi karena status saat ini adalah {$order->order_status->value}.");
                 }
 
-                $order->update([
+                $order->load('paymentMethod');
+
+                $updateData = [
                     'order_status' => OrderStatus::CONFIRMED,
-                ]);
+                ];
+
+                if ($order->payment_status === \App\Enums\PaymentStatus::PENDING && $order->paymentMethod?->category !== 'cash') {
+                    $updateData['payment_status'] = \App\Enums\PaymentStatus::PAID;
+                }
+
+                $order->update($updateData);
 
                 $order->load('customer', 'items.chef');
 
