@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Services\Customer;
+namespace App\Services;
 
 use App\DTOs\Customer\FeedbackDTO;
 use App\Models\Feedback;
@@ -30,12 +30,6 @@ class FeedbackService
                     'type'        => $dto->type,
                     'content'     => $dto->content,
                     'is_read'     => false,
-                ]);
-
-                Log::info('Feedback created successfully', [
-                    'feedback_id' => $feedback->id,
-                    'customer_id' => $dto->customerId,
-                    'type'        => $dto->type,
                 ]);
 
                 return $feedback;

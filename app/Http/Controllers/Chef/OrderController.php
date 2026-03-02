@@ -132,38 +132,4 @@ class OrderController extends Controller
             return redirect()->back();
         }
     }
-
-    /**
-     * Mark selected order items as delivered.
-     */
-    public function deliver(Request $request, \App\Services\OrderService $orderService): RedirectResponse
-    {
-        $request->validate([
-            'item_ids' => ['required', 'array'],
-            'item_ids.*' => ['required', 'exists:order_items,id'],
-            'delivery_photo' => ['nullable', 'image', 'max:5120'], // max 5mb
-        ]);
-
-        try {
-            $orderService->chefDeliverItems(
-                $request->input('item_ids'),
-                Auth::guard('chef')->user(),
-                $request->file('delivery_photo')
-            );
-
-            Inertia::flash('toast', [
-                'type' => 'success',
-                'message' => 'Item berhasil ditandai sebagai diterima/selesai.',
-            ]);
-
-            return redirect()->back();
-        } catch (\Throwable $e) {
-            Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => 'Gagal menandai item sebagai selesai: ' . $e->getMessage(),
-            ]);
-
-            return redirect()->back();
-        }
-    }
 }

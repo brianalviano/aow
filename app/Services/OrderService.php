@@ -7,7 +7,7 @@ namespace App\Services;
 use App\DTOs\Checkout\ProcessOrderData;
 use App\Enums\{OrderStatus, PaymentMethodType};
 use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
-use App\Models\{Customer, Order, OrderItem, OrderItemOption, PaymentMethod, Product};
+use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderShipping, PaymentMethod, Product};
 use App\Notifications\{OrderPlacedNotification, OrderStatusChangedNotification};
 use App\Traits\{FileHelperTrait, RetryableTransactionsTrait};
 use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
@@ -258,6 +258,10 @@ class OrderService
                     ->where('chef_id', $chef->id)
                     ->get();
 
+                if ($items->isEmpty()) {
+                    return;
+                }
+
                 $orderIdsToProcess = [];
 
                 foreach ($items as $item) {
@@ -266,6 +270,40 @@ class OrderService
                         'chef_confirmed_at' => now(),
                     ]);
                     $orderIdsToProcess[$item->order_id] = true;
+                }
+
+                // Auto-Book with Biteship if applicable
+                // Group items by order to process shipping per order
+                $itemsByOrder = $items->groupBy('order_id');
+                foreach ($itemsByOrder as $orderId => $orderItems) {
+                    $order = Order::find($orderId);
+                    if (!$order) {
+                        continue;
+                    }
+
+                    // Check if there is an OrderShipping record for this chef and order
+                    $shipping = \App\Models\OrderShipping::where('order_id', $orderId)
+                        ->where('chef_id', $chef->id)
+                        ->first();
+
+                    if ($shipping && empty($shipping->biteship_order_id)) {
+                        // We have a shipping record and it hasn't been booked yet
+                        $biteshipService = app(\App\Services\BiteshipService::class);
+                        $result = $biteshipService->createOrder($shipping, collect($orderItems));
+
+                        if ($result['success']) {
+                            $shipping->update([
+                                'biteship_order_id'    => $result['order_id'],
+                                'biteship_tracking_id' => $result['tracking_id'],
+                                'biteship_waybill_id'  => $result['waybill_id'],
+                                'biteship_status'      => $result['status'],
+                            ]);
+                        } else {
+                            // If it fails, we throw an exception to rollback the transaction
+                            // and notify the chef that booking failed so they can retry.
+                            throw new \Exception("Gagal memesan kurir: " . ($result['error'] ?? 'Unknown error'));
+                        }
+                    }
                 }
 
                 // For each affected order, check if we need to update the main order status to shipped
@@ -749,6 +787,27 @@ class OrderService
                         }
                     }
 
+                    // Create per-chef shipping records (Biteship)
+                    $shippingBreakdown = $fees['shippingBreakdown'] ?? [];
+                    foreach ($shippingBreakdown as $shipping) {
+                        if (!$shipping['success']) {
+                            continue;
+                        }
+                        OrderShipping::create([
+                            'order_id'              => $order->id,
+                            'chef_id'               => $shipping['chef_id'],
+                            'courier_company'       => $shipping['courier_company'] ?? 'unknown',
+                            'courier_type'          => $shipping['courier_type'] ?? 'instant',
+                            'courier_name'          => $shipping['courier_name'] ?? 'Kurir Instant',
+                            'shipping_fee'          => $shipping['fee'],
+                            'origin_address'        => $shipping['origin_address'] ?? null,
+                            'origin_latitude'       => $shipping['origin_latitude'] ?? null,
+                            'origin_longitude'      => $shipping['origin_longitude'] ?? null,
+                            'destination_latitude'  => $shipping['destination_latitude'] ?? null,
+                            'destination_longitude' => $shipping['destination_longitude'] ?? null,
+                        ]);
+                    }
+
                     // Midtrans Integration
                     $paymentMethod = PaymentMethod::findOrFail($data->paymentMethodId);
                     if ($paymentMethod->type === PaymentMethodType::GATEWAY) {
@@ -883,5 +942,70 @@ class OrderService
         }
 
         return 0;
+    }
+    /**
+     * Update status pesanan berdasarkan webhook dari Biteship.
+     * 
+     * @param string $biteshipOrderId
+     * @param string $status
+     * @param array $payload
+     * @return void
+     */
+    public function updateStatusFromBiteship(string $biteshipOrderId, string $status, array $payload = []): void
+    {
+        try {
+            DB::transaction(function () use ($biteshipOrderId, $status, $payload) {
+                $shipping = \App\Models\OrderShipping::where('biteship_order_id', $biteshipOrderId)->first();
+
+                if (!$shipping) {
+                    Log::warning('Biteship order_id tidak ditemukan di database kita', ['biteship_order_id' => $biteshipOrderId]);
+                    return;
+                }
+
+                $shipping->update([
+                    'biteship_status' => $status,
+                ]);
+
+                // Jika statusnya 'delivered', selesaikan item-item terkait chef ini di order ini
+                if ($status === 'delivered') {
+                    $order = Order::find($shipping->order_id);
+                    $chef = \App\Models\Chef::find($shipping->chef_id);
+
+                    if (!$order || !$chef) {
+                        return;
+                    }
+
+                    $items = OrderItem::where('order_id', $order->id)
+                        ->where('chef_id', $chef->id)
+                        ->get();
+
+                    foreach ($items as $item) {
+                        if ($item->chef_status !== \App\Enums\ChefStatus::DELIVERED) {
+                            $item->update([
+                                'chef_status'       => \App\Enums\ChefStatus::DELIVERED,
+                                'chef_confirmed_at' => now(),
+                            ]);
+                        }
+                    }
+
+                    // Cek apakah semua item di order ini sudah DELIVERED
+                    $order->load('items');
+                    $allDelivered = $order->items->every(fn($i) => $i->chef_status === \App\Enums\ChefStatus::DELIVERED);
+
+                    if ($allDelivered) {
+                        $this->completeOrder($order);
+                    }
+
+                    $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::DELIVERED);
+                }
+            });
+        } catch (\Throwable $e) {
+            Log::error('Gagal memproses update status dari Biteship', [
+                'biteship_order_id' => $biteshipOrderId,
+                'status' => $status,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 }

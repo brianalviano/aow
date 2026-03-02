@@ -197,7 +197,7 @@
                 Pesanan
             </h1>
             <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Kelola pesanan pelanggan
+                Kelola pesanan pelanggan dari berbagai dapur
             </p>
         </div>
     </header>
@@ -249,7 +249,7 @@
                         <th>Customer</th>
                         <th>Total</th>
                         <th>Status Pesanan</th>
-                        <th>Status Chef</th>
+                        <th>Status Dapur</th>
                         <th>Status Bayar</th>
                         <th class="w-32 text-center">Aksi</th>
                     </tr>

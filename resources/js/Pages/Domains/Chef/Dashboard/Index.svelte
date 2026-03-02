@@ -408,7 +408,7 @@
                                             <Button
                                                 variant="success"
                                                 size="sm"
-                                                icon="fa-solid fa-box-check"
+                                                icon="fa-solid fa-circle-check"
                                                 onclick={() =>
                                                     deliverItem(item.id)}
                                             >

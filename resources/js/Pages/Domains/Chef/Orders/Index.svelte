@@ -1,6 +1,7 @@
 <script lang="ts">
     import { page, Link, router } from "@inertiajs/svelte";
     import { name as appName } from "@/Lib/Admin/Utils/settings";
+    import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import dayjs from "dayjs";
     import id from "dayjs/locale/id";
@@ -229,46 +230,6 @@
                         },
                     },
                 );
-            },
-        };
-    }
-
-    function deliverItem(itemId: string) {
-        dialogState = {
-            isOpen: true,
-            type: "success",
-            title: "Tandai Selesai / Diterima",
-            message: "Tandai item ini telah berhasil dikirim dan diselesaikan?",
-            confirmText: "Ya, Selesai",
-            cancelText: "Batal",
-            loading: false,
-            formFields: [
-                {
-                    id: "delivery_photo",
-                    name: "delivery_photo",
-                    type: "file",
-                    label: "Foto Bukti Pengiriman (Opsional)",
-                    required: false,
-                },
-            ],
-            onConfirm: async (formData) => {
-                dialogState.loading = true;
-                const uploadData = new FormData();
-                uploadData.append("item_ids[0]", itemId);
-                if (formData?.delivery_photo) {
-                    uploadData.append(
-                        "delivery_photo",
-                        formData.delivery_photo,
-                    );
-                }
-
-                router.post("/chef/orders/deliver", uploadData, {
-                    onFinish: () => {
-                        dialogState.isOpen = false;
-                        dialogState.loading = false;
-                        applyFilters();
-                    },
-                });
             },
         };
     }
@@ -540,21 +501,15 @@
                                             {getStatusLabel(item.chef_status)}
                                         </Badge>
                                         {#if item.chef_status === "accepted" && group.order.order_status === "confirmed" && isAllItemsApproved(group.order)}
-                                            <button
-                                                class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1 rounded-full font-medium transition-colors"
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
+                                                icon="fa-solid fa-truck"
                                                 onclick={() =>
                                                     shipItem(item.id)}
                                             >
                                                 Kirim
-                                            </button>
-                                        {:else if item.chef_status === "shipped"}
-                                            <button
-                                                class="text-xs bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1 rounded-full font-medium transition-colors"
-                                                onclick={() =>
-                                                    deliverItem(item.id)}
-                                            >
-                                                Selesai
-                                            </button>
+                                            </Button>
                                         {/if}
                                     </div>
                                 </div>

@@ -58,6 +58,8 @@ class CheckoutController extends Controller
                 'taxAmount' => $fees['taxAmount'],
                 'taxPercentage' => $fees['taxPercentage'],
                 'taxEnabled' => $fees['taxEnabled'],
+                'shippingBreakdown' => $fees['shippingBreakdown'],
+                'useBiteship' => $fees['useBiteship'],
             ],
             'settings' => [
                 'delivery_fee_mode' => $fees['deliveryFeeMode'],

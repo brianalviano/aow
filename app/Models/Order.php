@@ -118,6 +118,16 @@ class Order extends Model
         return $this->belongsTo(Discount::class);
     }
 
+    /**
+     * Get the per-chef shipping records for this order.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function shippings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(OrderShipping::class);
+    }
+
 
 
     /**

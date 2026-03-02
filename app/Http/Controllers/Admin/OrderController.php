@@ -66,6 +66,7 @@ class OrderController extends Controller
             'dropPoint',
             'customerAddress',
             'paymentMethod',
+            'shippings.chef',
         ]);
 
         return Inertia::render('Domains/Admin/Order/Show', [

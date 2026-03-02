@@ -25,6 +25,15 @@
             taxAmount: number;
             taxPercentage: number;
             taxEnabled: boolean;
+            shippingBreakdown?: Array<{
+                chef_name: string;
+                courier_company: string;
+                courier_name: string;
+                fee: number;
+                success: boolean;
+                error?: string;
+            }>;
+            useBiteship?: boolean;
         };
         settings: {
             delivery_fee_mode: string;
@@ -83,6 +92,14 @@
         ) {
             return 0;
         }
+
+        if (fees.useBiteship && fees.shippingBreakdown) {
+            return fees.shippingBreakdown.reduce(
+                (sum, shipping) => sum + (shipping.success ? shipping.fee : 0),
+                0,
+            );
+        }
+
         return fees.baseDeliveryFee;
     });
 
@@ -561,15 +578,52 @@
                     >{formatRupiah(subtotal)}</span
                 >
             </div>
-            <div class="flex justify-between items-center">
-                <span class="text-gray-600">Biaya Pengiriman</span>
-                <span class="font-semibold text-gray-900">
-                    {#if localDeliveryFee === 0}
-                        <span class="text-[#FFD700] font-bold">Gratis</span>
-                    {:else}
-                        {formatRupiah(localDeliveryFee)}
-                    {/if}
-                </span>
+            <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Biaya Pengiriman</span>
+                    <span class="font-semibold text-gray-900">
+                        {#if localDeliveryFee === 0}
+                            <span class="text-[#FFD700] font-bold">Gratis</span>
+                        {:else}
+                            {formatRupiah(localDeliveryFee)}
+                        {/if}
+                    </span>
+                </div>
+
+                {#if fees.useBiteship && fees.shippingBreakdown && fees.shippingBreakdown.length > 0 && localDeliveryFee > 0}
+                    <div
+                        class="pl-3 mt-1 space-y-1.5 border-l-2 border-gray-100"
+                    >
+                        {#each fees.shippingBreakdown as shipping}
+                            <div
+                                class="flex justify-between items-start text-xs"
+                            >
+                                <span
+                                    class="text-gray-500 w-2/3 pr-2 leading-tight"
+                                >
+                                    <i
+                                        class="fa-solid fa-truck-fast text-[10px] mr-1.5 text-[#2196f3]"
+                                    ></i>
+                                    Dapur: {shipping.chef_name}
+                                    <span class="text-gray-400"
+                                        >({shipping.courier_name})</span
+                                    >
+                                </span>
+                                <span
+                                    class="text-gray-700 font-medium whitespace-nowrap"
+                                >
+                                    {#if shipping.success}
+                                        {formatRupiah(shipping.fee)}
+                                    {:else}
+                                        <span class="text-red-500 italic"
+                                            >Tidak tersedia</span
+                                        >
+                                    {/if}
+                                </span>
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
             </div>
             {#if settings.tax_enabled}
                 <div class="flex justify-between items-center">

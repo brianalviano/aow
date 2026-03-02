@@ -73,6 +73,14 @@
             chef_status: string;
             chef_confirmed_at?: string;
         })[];
+        shippings: Array<{
+            chef?: { name: string };
+            courier_company: string;
+            courier_name: string;
+            shipping_fee: number;
+            biteship_status?: string;
+            biteship_waybill_id?: string;
+        }>;
     }
 
     interface Chef {
@@ -276,6 +284,23 @@
                 return { variant: "secondary", label: status };
         }
     }
+
+    const itemsByChef = $derived.by(() => {
+        const groups: Record<string, { chef: any; items: any[] }> = {};
+
+        order.items.forEach((item: any) => {
+            const chefId = item.chef?.id || "unknown";
+            if (!groups[chefId]) {
+                groups[chefId] = {
+                    chef: item.chef,
+                    items: [],
+                };
+            }
+            groups[chefId].items.push(item);
+        });
+
+        return Object.values(groups);
+    });
 </script>
 
 <svelte:head>
@@ -417,12 +442,12 @@
                 </div>
                 <div>
                     <h4 class="font-bold text-red-800 dark:text-red-300">
-                        Konfirmasi Chef Ditolak
+                        Konfirmasi Dapur Ditolak
                     </h4>
                     <p class="text-sm text-red-700 dark:text-red-400">
                         Salah satu atau lebih item dalam pesanan ini ditolak
-                        oleh Chef. Silakan lakukan pemindahan (reassign) ke Chef
-                        lain agar pesanan bisa diproses.
+                        oleh Dapur. Silakan lakukan pemindahan (reassign) ke
+                        Dapur lain agar pesanan bisa diproses.
                     </p>
                 </div>
             </div>
@@ -439,12 +464,12 @@
                 </div>
                 <div>
                     <h4 class="font-bold text-amber-800 dark:text-amber-300">
-                        Menunggu Konfirmasi Chef
+                        Menunggu Konfirmasi Dapur
                     </h4>
                     <p class="text-sm text-amber-700 dark:text-amber-400">
                         Ada {order.items.filter(
                             (i: any) => i.chef_status === "pending",
-                        ).length} item yang masih menunggu konfirmasi dari Chef.
+                        ).length} item yang masih menunggu konfirmasi dari Dapur.
                     </p>
                 </div>
             </div>
@@ -460,183 +485,228 @@
                         <thead>
                             <tr>
                                 <th>Produk</th>
-                                <th class="text-center">Chef</th>
+                                <th class="text-center">Dapur</th>
                                 <th class="text-center">Jumlah</th>
                                 <th class="text-right">Harga</th>
                                 <th class="text-right">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {#each order.items as item}
-                                <tr>
-                                    <td>
-                                        <div class="flex items-center gap-3">
-                                            {#if item.product.image_url}
-                                                <img
-                                                    src={item.product.image_url}
-                                                    alt={item.product.name}
-                                                    class="w-12 h-12 object-cover rounded"
-                                                />
-                                            {/if}
-                                            <div>
-                                                <div
-                                                    class="font-medium text-gray-900 dark:text-white"
-                                                >
-                                                    {item.product.name}
-                                                </div>
-                                                {#if item.options.length > 0}
-                                                    <div
-                                                        class="text-xs text-gray-500 mt-1"
-                                                    >
-                                                        {#each item.options as opt}
-                                                            <div>
-                                                                {opt
-                                                                    .product_option
-                                                                    .name}: {opt
-                                                                    .product_option_item
-                                                                    .name}
-                                                                {#if opt.extra_price > 0}
-                                                                    (+{formatCurrency(
-                                                                        opt.extra_price,
-                                                                    )})
-                                                                {/if}
-                                                            </div>
-                                                        {/each}
-                                                    </div>
-                                                {/if}
-                                                {#if item.note}
-                                                    <div
-                                                        class="text-xs text-amber-600 mt-1 italic"
-                                                    >
-                                                        Catatan: {item.note}
-                                                    </div>
-                                                {/if}
-                                            </div>
-                                        </div>
-
-                                        {#if item.testimonial}
+                            {#each itemsByChef as group}
+                                <tr class="bg-gray-50/50 dark:bg-gray-800/20">
+                                    <td
+                                        colspan="5"
+                                        class="py-2 px-4 border-b border-gray-100 dark:border-gray-800"
+                                    >
+                                        <div
+                                            class="flex items-center justify-between"
+                                        >
                                             <div
-                                                class="mt-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700/50 max-w-md"
+                                                class="flex items-center gap-2"
                                             >
+                                                <i
+                                                    class="fa-solid fa-kitchen-set text-indigo-500 text-xs"
+                                                ></i>
+                                                <span
+                                                    class="text-sm font-bold text-gray-900 dark:text-white"
+                                                >
+                                                    Dapur: {group.chef?.name ||
+                                                        "Lainnya"}
+                                                </span>
+                                            </div>
+                                            {#if group.chef}
+                                                <Badge
+                                                    size="xs"
+                                                    variant={group.items.every(
+                                                        (i) =>
+                                                            i.chef_status ===
+                                                            "delivered",
+                                                    )
+                                                        ? "success"
+                                                        : group.items.some(
+                                                                (i) =>
+                                                                    i.chef_status ===
+                                                                    "shipped",
+                                                            )
+                                                          ? "primary"
+                                                          : group.items.some(
+                                                                  (i) =>
+                                                                      i.chef_status ===
+                                                                      "accepted",
+                                                              )
+                                                            ? "info"
+                                                            : "warning"}
+                                                    dot={true}
+                                                >
+                                                    {#snippet children()}
+                                                        {group.items.every(
+                                                            (i) =>
+                                                                i.chef_status ===
+                                                                "delivered",
+                                                        )
+                                                            ? "Selesai"
+                                                            : group.items.some(
+                                                                    (i) =>
+                                                                        i.chef_status ===
+                                                                        "shipped",
+                                                                )
+                                                              ? "Dikirim"
+                                                              : group.items.some(
+                                                                      (i) =>
+                                                                          i.chef_status ===
+                                                                          "accepted",
+                                                                  )
+                                                                ? "Diproses"
+                                                                : "Menunggu"}
+                                                    {/snippet}
+                                                </Badge>
+                                            {/if}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {#each group.items as item}
+                                    <tr>
+                                        <td class="pl-8">
+                                            <div
+                                                class="flex items-center gap-3"
+                                            >
+                                                {#if item.product.image_url}
+                                                    <img
+                                                        src={item.product
+                                                            .image_url}
+                                                        alt={item.product.name}
+                                                        class="w-10 h-10 object-cover rounded shadow-sm"
+                                                    />
+                                                {/if}
+                                                <div>
+                                                    <div
+                                                        class="font-medium text-gray-900 dark:text-white"
+                                                    >
+                                                        {item.product.name}
+                                                    </div>
+                                                    {#if item.options.length > 0}
+                                                        <div
+                                                            class="text-[10px] text-gray-500 mt-0.5"
+                                                        >
+                                                            {#each item.options as opt}
+                                                                <span>
+                                                                    {opt
+                                                                        .product_option
+                                                                        .name}: {opt
+                                                                        .product_option_item
+                                                                        .name}
+                                                                    {#if opt.extra_price > 0}
+                                                                        (+{formatCurrency(
+                                                                            opt.extra_price,
+                                                                        )})
+                                                                    {/if}
+                                                                </span>
+                                                                {#if opt !== item.options[item.options.length - 1]}<span
+                                                                        class="mx-1"
+                                                                        >|</span
+                                                                    >{/if}
+                                                            {/each}
+                                                        </div>
+                                                    {/if}
+                                                    {#if item.note}
+                                                        <div
+                                                            class="text-[10px] text-amber-600 mt-0.5 italic"
+                                                        >
+                                                            Catatan: {item.note}
+                                                        </div>
+                                                    {/if}
+                                                </div>
+                                            </div>
+
+                                            {#if item.testimonial}
+                                                <!-- Testimonial UI remain same -->
                                                 <div
-                                                    class="flex items-center justify-between mb-2"
+                                                    class="mt-2 p-2 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-100 dark:border-gray-700/50 max-w-sm ml-10"
                                                 >
                                                     <div
-                                                        class="flex items-center gap-1"
+                                                        class="flex items-center justify-between mb-1"
                                                     >
-                                                        {#each Array(5) as _, i}
-                                                            <i
-                                                                class="fa-solid fa-star text-[10px] {i <
-                                                                parseInt(
-                                                                    item
-                                                                        .testimonial!
-                                                                        .rating,
-                                                                )
-                                                                    ? 'text-yellow-400'
-                                                                    : 'text-gray-200 dark:text-gray-700'}"
-                                                            ></i>
-                                                        {/each}
-                                                        <span
-                                                            class="ml-1.5 text-[10px] text-gray-500 font-medium"
-                                                            >({item.testimonial!
-                                                                .rating}/5)</span
+                                                        <div
+                                                            class="flex items-center gap-0.5"
                                                         >
-                                                    </div>
-                                                    <Badge
-                                                        size="xs"
-                                                        variant={item
-                                                            .testimonial!
-                                                            .is_approved
-                                                            ? "success"
-                                                            : "warning"}
-                                                        dot={true}
-                                                    >
-                                                        {#snippet children()}{item
+                                                            {#each Array(5) as _, i}
+                                                                <i
+                                                                    class="fa-solid fa-star text-[8px] {i <
+                                                                    parseInt(
+                                                                        item
+                                                                            .testimonial!
+                                                                            .rating,
+                                                                    )
+                                                                        ? 'text-yellow-400'
+                                                                        : 'text-gray-200'}"
+                                                                ></i>
+                                                            {/each}
+                                                        </div>
+                                                        <Badge
+                                                            size="xs"
+                                                            variant={item
                                                                 .testimonial!
                                                                 .is_approved
-                                                                ? "Disetujui"
-                                                                : "Menunggu"}{/snippet}
-                                                    </Badge>
-                                                </div>
-                                                <p
-                                                    class="text-xs text-gray-700 dark:text-gray-300 italic mb-2"
-                                                >
-                                                    "{item.testimonial
-                                                        .content ||
-                                                        "Tanpa komentar"}"
-                                                </p>
-                                                {#if item.testimonial.photo_url}
-                                                    <a
-                                                        href={item.testimonial
-                                                            .photo_url}
-                                                        target="_blank"
-                                                        class="block w-20 h-20 rounded border border-gray-200 overflow-hidden mb-3"
+                                                                ? "success"
+                                                                : "warning"}
+                                                        >
+                                                            {#snippet children()}{item
+                                                                    .testimonial!
+                                                                    .is_approved
+                                                                    ? "Disetujui"
+                                                                    : "Menunggu"}{/snippet}
+                                                        </Badge>
+                                                    </div>
+                                                    <p
+                                                        class="text-[10px] text-gray-600 dark:text-gray-400 italic"
                                                     >
-                                                        <img
-                                                            src={item
-                                                                .testimonial
-                                                                .photo_url}
-                                                            alt="Testimoni"
-                                                            class="w-full h-full object-cover"
-                                                        />
-                                                    </a>
-                                                {/if}
-                                                <div class="flex gap-2">
-                                                    {#if !item.testimonial.is_approved}
-                                                        <Button
-                                                            variant="success"
-                                                            size="xs"
-                                                            icon="fa-solid fa-check"
-                                                            disabled={isProcessing}
+                                                        "{item.testimonial
+                                                            .content ||
+                                                            "Tanpa komentar"}"
+                                                    </p>
+                                                    <div
+                                                        class="flex gap-1 mt-2"
+                                                    >
+                                                        {#if !item.testimonial.is_approved}
+                                                            <button
+                                                                class="text-[10px] text-green-600 font-bold"
+                                                                onclick={() =>
+                                                                    approveTestimonial(
+                                                                        item
+                                                                            .testimonial!
+                                                                            .id,
+                                                                    )}
+                                                                >Setujui</button
+                                                            >
+                                                        {/if}
+                                                        <button
+                                                            class="text-[10px] text-red-600 font-bold"
                                                             onclick={() =>
-                                                                approveTestimonial(
+                                                                rejectTestimonial(
                                                                     item
                                                                         .testimonial!
                                                                         .id,
-                                                                )}
+                                                                )}>Hapus</button
                                                         >
-                                                            {#snippet children()}Setujui{/snippet}
-                                                        </Button>
-                                                    {/if}
-                                                    <Button
-                                                        variant="danger"
-                                                        size="xs"
-                                                        icon="fa-solid fa-trash"
-                                                        disabled={isProcessing}
-                                                        onclick={() =>
-                                                            rejectTestimonial(
-                                                                item
-                                                                    .testimonial!
-                                                                    .id,
-                                                            )}
-                                                    >
-                                                        {#snippet children()}Hapus{/snippet}
-                                                    </Button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        {/if}
-                                    </td>
-                                    <td class="text-center">
-                                        <div
-                                            class="flex flex-col items-center gap-1"
-                                        >
-                                            {#if item.chef}
-                                                <div
-                                                    class="text-sm font-medium text-gray-900 dark:text-white"
-                                                >
-                                                    {item.chef.name}
-                                                </div>
+                                            {/if}
+                                        </td>
+                                        <td class="text-center">
+                                            <div
+                                                class="flex flex-col items-center gap-1"
+                                            >
                                                 <Badge
                                                     size="xs"
                                                     variant={item.chef_status ===
-                                                    "accepted"
-                                                        ? "info"
+                                                    "delivered"
+                                                        ? "success"
                                                         : item.chef_status ===
                                                             "shipped"
                                                           ? "primary"
                                                           : item.chef_status ===
-                                                              "delivered"
-                                                            ? "success"
+                                                              "accepted"
+                                                            ? "info"
                                                             : item.chef_status ===
                                                                 "rejected"
                                                               ? "danger"
@@ -645,46 +715,44 @@
                                                 >
                                                     {#snippet children()}
                                                         {item.chef_status ===
-                                                        "accepted"
-                                                            ? "Diterima"
+                                                        "delivered"
+                                                            ? "Selesai"
                                                             : item.chef_status ===
                                                                 "shipped"
                                                               ? "Dikirim"
                                                               : item.chef_status ===
-                                                                  "delivered"
-                                                                ? "Selesai"
+                                                                  "accepted"
+                                                                ? "Diterima"
                                                                 : item.chef_status ===
                                                                     "rejected"
                                                                   ? "Ditolak"
                                                                   : "Menunggu"}
                                                     {/snippet}
                                                 </Badge>
-                                            {:else}
-                                                <span
-                                                    class="text-xs text-gray-400 italic"
-                                                    >Belum diatur</span
-                                                >
-                                            {/if}
-
-                                            {#if order.order_status === "confirmed"}
-                                                <button
-                                                    class="text-[10px] text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium underline mt-1"
-                                                    onclick={() =>
-                                                        openReassignModal(item)}
-                                                >
-                                                    Ganti Chef
-                                                </button>
-                                            {/if}
-                                        </div>
-                                    </td>
-                                    <td class="text-center">{item.quantity}</td>
-                                    <td class="text-right"
-                                        >{formatCurrency(item.price)}</td
-                                    >
-                                    <td class="text-right font-medium"
-                                        >{formatCurrency(item.subtotal)}</td
-                                    >
-                                </tr>
+                                                {#if order.order_status === "confirmed"}
+                                                    <button
+                                                        class="text-[10px] text-indigo-600 hover:text-indigo-800 font-medium underline"
+                                                        onclick={() =>
+                                                            openReassignModal(
+                                                                item,
+                                                            )}
+                                                    >
+                                                        Ganti Dapur
+                                                    </button>
+                                                {/if}
+                                            </div>
+                                        </td>
+                                        <td class="text-center text-sm"
+                                            >{item.quantity}</td
+                                        >
+                                        <td class="text-right text-sm"
+                                            >{formatCurrency(item.price)}</td
+                                        >
+                                        <td class="text-right text-sm font-bold"
+                                            >{formatCurrency(item.subtotal)}</td
+                                        >
+                                    </tr>
+                                {/each}
                             {/each}
                         </tbody>
                         <tfoot>
@@ -862,14 +930,104 @@
                             >-{formatCurrency(order.discount_amount)}</span
                         >
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600 dark:text-gray-400"
-                            >Ongkos Kirim</span
-                        >
-                        <span class="text-gray-900 dark:text-white"
-                            >{formatCurrency(order.delivery_fee)}</span
-                        >
-                    </div>
+                    {#if order.shippings && order.shippings.length > 0}
+                        <div class="flex flex-col gap-1.5 pt-1">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600 dark:text-gray-400"
+                                    >Ongkos Kirim</span
+                                >
+                                <span
+                                    class="text-gray-900 dark:text-white font-medium"
+                                    >{formatCurrency(order.delivery_fee)}</span
+                                >
+                            </div>
+                            <div
+                                class="pl-2 border-l-2 border-gray-100 dark:border-gray-700 space-y-1"
+                            >
+                                {#each order.shippings as shipping}
+                                    <div
+                                        class="space-y-1 pb-2 mb-2 border-b border-gray-50 dark:border-gray-800 last:border-0 last:mb-0 last:pb-0"
+                                    >
+                                        <div
+                                            class="flex justify-between items-center text-xs"
+                                        >
+                                            <span
+                                                class="text-gray-500 dark:text-gray-400 font-medium"
+                                            >
+                                                <i
+                                                    class="fa-solid fa-truck-fast text-[10px] mr-1 text-indigo-400"
+                                                ></i>
+                                                {shipping.chef?.name || "Dapur"}
+                                                <span class="opacity-75"
+                                                    >({shipping.courier_name})</span
+                                                >
+                                            </span>
+                                            <span
+                                                class="text-gray-700 dark:text-gray-300 font-bold"
+                                            >
+                                                {formatCurrency(
+                                                    shipping.shipping_fee,
+                                                )}
+                                            </span>
+                                        </div>
+
+                                        {#if shipping.biteship_waybill_id}
+                                            <div
+                                                class="flex flex-col gap-1 mt-1"
+                                            >
+                                                <div
+                                                    class="flex items-center justify-between text-[10px]"
+                                                >
+                                                    <span class="text-gray-400"
+                                                        >No. Resi:</span
+                                                    >
+                                                    <span
+                                                        class="text-indigo-600 dark:text-indigo-400 font-mono font-bold"
+                                                    >
+                                                        {shipping.biteship_waybill_id}
+                                                    </span>
+                                                </div>
+                                                <div
+                                                    class="flex items-center justify-between text-[10px]"
+                                                >
+                                                    <span class="text-gray-400"
+                                                        >Status:</span
+                                                    >
+                                                    <Badge
+                                                        size="xs"
+                                                        variant={shipping.biteship_status ===
+                                                        "delivered"
+                                                            ? "success"
+                                                            : "info"}
+                                                        dot={true}
+                                                    >
+                                                        {#snippet children()}{shipping.biteship_status ||
+                                                                "Pending"}{/snippet}
+                                                    </Badge>
+                                                </div>
+                                                <a
+                                                    href={`https://biteship.com/id/tracking/${shipping.biteship_waybill_id}`}
+                                                    target="_blank"
+                                                    class="text-[9px] text-center text-indigo-500 hover:text-indigo-700 underline mt-0.5"
+                                                >
+                                                    Lacak di Biteship
+                                                </a>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {:else}
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400"
+                                >Ongkos Kirim</span
+                            >
+                            <span class="text-gray-900 dark:text-white"
+                                >{formatCurrency(order.delivery_fee)}</span
+                            >
+                        </div>
+                    {/if}
                     {#if order.admin_fee > 0}
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600 dark:text-gray-400"
@@ -1242,10 +1400,10 @@
             class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
         >
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                Pindahkan ke Chef Lain
+                Pindahkan ke Dapur Lain
             </h3>
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Pilih Chef baru untuk item <strong
+                Pilih Dapur baru untuk item <strong
                     >{selectedItemForReassign?.product?.name}</strong
                 >.
             </p>
@@ -1256,14 +1414,14 @@
                         for="chef-select"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                     >
-                        Pilih Chef
+                        Pilih Dapur
                     </label>
                     <select
                         id="chef-select"
                         bind:value={selectedNewChefId}
                         class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     >
-                        <option value="">-- Pilih Chef --</option>
+                        <option value="">-- Pilih Dapur --</option>
                         {#each chefs as chef}
                             <option value={chef.id}>{chef.name}</option>
                         {/each}
@@ -1288,7 +1446,7 @@
                     {#if isProcessing}
                         <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memproses...
                     {:else}
-                        <i class="fa-solid fa-exchange mr-1"></i> Pindahkan
+                        <i class="fa-solid fa-exchange mr-1"></i> Pindahkan Dapur
                     {/if}
                 </Button>
             </div>

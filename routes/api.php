@@ -8,3 +8,5 @@ Route::prefix('midtrans')->group(function () {
     Route::post('/recurring-notification', [NotificationController::class, 'handle']);
     Route::post('/pay-account-notification', [NotificationController::class, 'handle']);
 });
+
+Route::post('/webhook/biteship', [App\Http\Controllers\Webhook\BiteshipController::class, 'handle']);

@@ -48,6 +48,7 @@ class OrderResource extends JsonResource
 
             // Relationships
             'items'          => $this->whenLoaded('items', fn() => OrderItemResource::collection($this->items)->resolve()),
+            'shippings'      => $this->whenLoaded('shippings', fn() => OrderShippingResource::collection($this->shippings)->resolve()),
             'drop_point'     => $this->whenLoaded('dropPoint', fn() => (new DropPointResource($this->dropPoint))->resolve()),
             'customer_address' => $this->whenLoaded('customerAddress', fn() => (new CustomerAddressResource($this->customerAddress))->resolve()),
             'customer'       => $this->whenLoaded('customer', fn() => (new CustomerResource($this->customer))->resolve()),

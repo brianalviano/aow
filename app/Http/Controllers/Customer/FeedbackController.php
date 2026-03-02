@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Customer;
 use App\DTOs\Customer\FeedbackDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\StoreFeedbackRequest;
-use App\Services\Customer\FeedbackService;
+use App\Services\FeedbackService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\{Inertia, Response};
 use Illuminate\Http\RedirectResponse;
