@@ -1,13 +1,37 @@
 <script lang="ts">
     import icon from "@img/icon.png";
 
-    import { name } from "@/Lib/Admin/Utils/settings";
+    import { name as getAppName } from "@/Lib/Admin/Utils/settings";
     import { page, Link } from "@inertiajs/svelte";
     import { onMount } from "svelte";
     import { register } from "swiper/element/bundle";
 
+    let loadingTarget = $state<string | null>(null);
+
     onMount(() => {
         register();
+
+        const handleStart = (event: any) => {
+            if (event.detail.visit.url.pathname === "/drop-points") {
+                loadingTarget = "drop-points";
+            } else if (event.detail.visit.url.pathname === "/custom-address") {
+                loadingTarget = "custom-address";
+            } else {
+                loadingTarget = "other";
+            }
+        };
+
+        const handleFinish = () => {
+            loadingTarget = null;
+        };
+
+        document.addEventListener("inertia:start", handleStart);
+        document.addEventListener("inertia:finish", handleFinish);
+
+        return () => {
+            document.removeEventListener("inertia:start", handleStart);
+            document.removeEventListener("inertia:finish", handleFinish);
+        };
     });
 
     // Props from controller
@@ -21,7 +45,7 @@
         activeOrdersCount + unreadNotificationsCount,
     );
 
-    const APP_NAME = name($page.props.settings);
+    const APP_NAME = getAppName($page.props.settings);
 
     let displayItems = $derived(sliders.data.length > 0 ? sliders.data : []);
 
@@ -140,13 +164,20 @@
             <!-- Option 1: Choose Drop Point -->
             <Link
                 href="/drop-points"
-                class="group block bg-[#FFD700] hover:bg-[#FFC700] p-6 rounded-2xl shadow-sm border border-[#FFC700] transition-all transform active:scale-[0.98]"
+                class="group block bg-[#FFD700] hover:bg-[#FFC700] p-6 rounded-2xl shadow-sm border border-[#FFC700] transition-all transform active:scale-[0.98] {loadingTarget !==
+                null
+                    ? 'opacity-75 pointer-events-none'
+                    : ''}"
             >
                 <div class="flex items-center gap-4">
                     <div
                         class="bg-white/50 w-14 h-14 rounded-xl flex items-center justify-center text-slate-800 text-2xl shadow-inner"
                     >
-                        <i class="fa-solid fa-location-dot"></i>
+                        {#if loadingTarget === "drop-points"}
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                        {:else}
+                            <i class="fa-solid fa-location-dot"></i>
+                        {/if}
                     </div>
                     <div class="flex-1">
                         <h3
@@ -167,13 +198,22 @@
             <!-- Option 2: Use Other Address -->
             <Link
                 href="/custom-address"
-                class="group block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-[#FFD700] transition-all transform active:scale-[0.98]"
+                class="group block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-[#FFD700] transition-all transform active:scale-[0.98] {loadingTarget !==
+                null
+                    ? 'opacity-75 pointer-events-none'
+                    : ''}"
             >
                 <div class="flex items-center gap-4">
                     <div
                         class="bg-gray-50 w-14 h-14 rounded-xl flex items-center justify-center text-gray-600 text-2xl group-hover:bg-[#FFD700] group-hover:text-slate-800 transition-colors"
                     >
-                        <i class="fa-solid fa-map-location-dot"></i>
+                        {#if loadingTarget === "custom-address"}
+                            <i
+                                class="fa-solid fa-spinner fa-spin text-slate-800"
+                            ></i>
+                        {:else}
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        {/if}
                     </div>
                     <div class="flex-1">
                         <h3
