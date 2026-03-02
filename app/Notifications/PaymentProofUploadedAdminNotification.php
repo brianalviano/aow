@@ -20,14 +20,21 @@ class PaymentProofUploadedAdminNotification extends Notification implements Shou
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        $channels = ['database'];
+
+        if (!empty($notifiable->email)) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     public function toMail(object $notifiable): PaymentProofUploadedAdminMail
     {
         $companyName = CompanyProfile::query()->first()?->name ?? 'AOW';
 
-        return new PaymentProofUploadedAdminMail($this->order, $companyName, $notifiable);
+        return (new PaymentProofUploadedAdminMail($this->order, $companyName, $notifiable))
+            ->to($notifiable->routeNotificationFor('mail', $this) ?: $notifiable->email);
     }
 
     public function toDatabase(object $notifiable): array

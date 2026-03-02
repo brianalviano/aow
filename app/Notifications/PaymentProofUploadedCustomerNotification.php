@@ -20,14 +20,21 @@ class PaymentProofUploadedCustomerNotification extends Notification implements S
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        $channels = ['database'];
+
+        if (!empty($notifiable->email)) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     public function toMail(object $notifiable): PaymentProofUploadedCustomerMail
     {
         $companyName = CompanyProfile::query()->first()?->name ?? 'AOW';
 
-        return new PaymentProofUploadedCustomerMail($this->order, $companyName);
+        return (new PaymentProofUploadedCustomerMail($this->order, $companyName))
+            ->to($notifiable->routeNotificationFor('mail', $this) ?: $notifiable->email);
     }
 
     public function toDatabase(object $notifiable): array
