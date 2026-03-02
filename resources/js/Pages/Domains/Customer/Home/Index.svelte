@@ -3,6 +3,12 @@
 
     import { name } from "@/Lib/Admin/Utils/settings";
     import { page, Link } from "@inertiajs/svelte";
+    import { onMount } from "svelte";
+    import { register } from "swiper/element/bundle";
+
+    onMount(() => {
+        register();
+    });
 
     // Props from controller
     let {
@@ -67,32 +73,40 @@
     <main class="py-4 flex flex-col items-center justify-center space-y-6">
         <!-- Promotional Section -->
         {#if displayItems.length > 0}
-            <section class="w-full overflow-hidden">
-                <div
-                    class="flex gap-4 overflow-x-auto px-4 pb-4 no-scrollbar snap-x snap-mandatory"
+            <section class="w-full overflow-hidden pb-4">
+                <swiper-container
+                    slides-per-view="auto"
+                    space-between="16"
+                    class="w-full px-4"
+                    loop="true"
+                    autoplay-delay="3000"
+                    autoplay-disable-on-interaction="false"
+                    centered-slides="true"
                 >
                     {#each displayItems as item}
-                        <div
-                            class="relative flex-none w-[85%] max-w-[320px] aspect-video rounded-2xl overflow-hidden shadow-lg snap-center transform transition-transform duration-300"
-                        >
-                            <img
-                                src={item.photo}
-                                alt={item.name}
-                                class="absolute inset-0 w-full h-full object-cover"
-                                loading="lazy"
-                            />
+                        <swiper-slide style="width: 85%; max-width: 320px;">
                             <div
-                                class="absolute inset-0 bg-linear-to-t from-slate-900/50 flex flex-col justify-end p-4"
+                                class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg transform transition-transform duration-300"
                             >
-                                <p
-                                    class="text-white font-bold text-lg leading-tight drop-shadow-md"
+                                <img
+                                    src={item.photo}
+                                    alt={item.name}
+                                    class="absolute inset-0 w-full h-full object-cover"
+                                    loading="lazy"
+                                />
+                                <div
+                                    class="absolute inset-0 bg-linear-to-t from-slate-900/50 flex flex-col justify-end p-4"
                                 >
-                                    {item.name}
-                                </p>
+                                    <p
+                                        class="text-white font-bold text-lg leading-tight drop-shadow-md"
+                                    >
+                                        {item.name}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        </swiper-slide>
                     {/each}
-                </div>
+                </swiper-container>
             </section>
         {/if}
 
