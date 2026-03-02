@@ -24,6 +24,21 @@
     const APP_NAME = name($page.props.settings);
 
     let displayItems = $derived(sliders.data.length > 0 ? sliders.data : []);
+
+    let swiperEl: any = $state(null);
+
+    $effect(() => {
+        if (swiperEl && displayItems.length > 0) {
+            // Memberikan sedikit delay agar Swiper Web Component tahu child node (slides) sudah dirender penuh oleh Svelte
+            setTimeout(() => {
+                if (swiperEl && !swiperEl.swiper) {
+                    swiperEl.initialize();
+                } else if (swiperEl && swiperEl.swiper) {
+                    swiperEl.swiper.update();
+                }
+            }, 50);
+        }
+    });
 </script>
 
 <svelte:head>
@@ -75,6 +90,8 @@
         {#if displayItems.length > 0}
             <section class="w-full overflow-hidden pb-4">
                 <swiper-container
+                    bind:this={swiperEl}
+                    init="false"
                     slides-per-view="auto"
                     space-between="16"
                     class="w-full px-4"
