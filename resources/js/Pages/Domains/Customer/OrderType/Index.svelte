@@ -6,9 +6,18 @@
     interface Props {
         dropPointId?: string;
         dropPointName?: string;
+        isInstantAvailable?: boolean;
+        instantStartTime?: string;
+        instantEndTime?: string;
     }
 
-    let { dropPointId, dropPointName }: Props = $props();
+    let {
+        dropPointId,
+        dropPointName,
+        isInstantAvailable = true,
+        instantStartTime = "08:00",
+        instantEndTime = "21:00",
+    }: Props = $props();
 
     const APP_NAME = name($page.props.settings);
 
@@ -71,24 +80,39 @@
         <div class="w-full max-w-sm space-y-4">
             <!-- Instant Option -->
             <button
-                onclick={() => selectOrderType("instant")}
-                class="w-full group block bg-white hover:bg-yellow-50 p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-[#FFD700] transition-all transform active:scale-[0.98] text-left"
+                onclick={() => isInstantAvailable && selectOrderType("instant")}
+                class="w-full group block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all transform text-left {isInstantAvailable
+                    ? 'hover:bg-yellow-50 hover:border-[#FFD700] active:scale-[0.98]'
+                    : 'opacity-60 cursor-not-allowed hover:bg-white hover:border-gray-100 active:scale-100 group-hover:bg-white group-hover:border-gray-100'}"
+                disabled={!isInstantAvailable}
             >
                 <div class="flex items-center gap-4">
                     <div
-                        class="bg-[#FFD700] w-14 h-14 rounded-xl flex items-center justify-center text-slate-800 text-2xl shadow-inner"
+                        class="{isInstantAvailable
+                            ? 'bg-[#FFD700] text-slate-800'
+                            : 'bg-gray-200 text-gray-400'} w-14 h-14 rounded-xl flex items-center justify-center text-2xl shadow-inner"
                     >
                         <i class="fa-solid fa-bolt"></i>
                     </div>
                     <div class="flex-1">
                         <h3
-                            class="font-bold text-slate-900 text-lg leading-tight"
+                            class="font-bold {isInstantAvailable
+                                ? 'text-slate-900'
+                                : 'text-gray-500'} text-lg leading-tight"
                         >
                             Instant Delivery
                         </h3>
                         <p class="text-gray-500 text-xs mt-1">
                             Pesanan langsung diproses dan dikirim segera.
                         </p>
+                        {#if !isInstantAvailable}
+                            <p
+                                class="text-red-500 text-xs mt-1.5 font-semibold bg-red-50 inline-block px-2 py-1 rounded"
+                            >
+                                Hanya tersedia pukul {instantStartTime} - {instantEndTime}
+                                WIB.
+                            </p>
+                        {/if}
                     </div>
                 </div>
             </button>

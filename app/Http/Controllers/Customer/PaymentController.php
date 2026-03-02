@@ -46,6 +46,21 @@ class PaymentController extends Controller
             return redirect()->to(route('home'));
         }
 
+        $orderType = session('checkout_order_type', 'preorder');
+        if ($orderType === 'instant') {
+            $instantStartTime = \App\Models\OrderSetting::where('key', 'instant_order_start_time')->value('value') ?? '08:00';
+            $instantEndTime = \App\Models\OrderSetting::where('key', 'instant_order_end_time')->value('value') ?? '21:00';
+
+            $currentTime = now()->format('H:i');
+            if ($currentTime < $instantStartTime || $currentTime > $instantEndTime) {
+                Inertia::flash('toast', [
+                    'message' => "Waktu Instant delivery telah habis. Silakan pilih tipe pesanan Pre-order.",
+                    'type' => 'error'
+                ]);
+                return redirect()->route('customer.order-type.index', ['drop_point_id' => $dropPointData['id'] ?? null]);
+            }
+        }
+
         $paymentMethods = PaymentMethod::where('is_active', true)
             ->with('paymentGuide')
             ->get()
@@ -96,6 +111,43 @@ class PaymentController extends Controller
 
         if (empty($cart) || (empty($dropPoint) && empty($address))) {
             return redirect()->to(route('home'))->withErrors(['error' => 'Sesi checkout kadaluwarsa.']);
+        }
+
+        $orderType = session('checkout_order_type', 'preorder');
+        if ($orderType === 'instant') {
+            $instantStartTime = \App\Models\OrderSetting::where('key', 'instant_order_start_time')->value('value') ?? '08:00';
+            $instantEndTime = \App\Models\OrderSetting::where('key', 'instant_order_end_time')->value('value') ?? '21:00';
+
+            $currentTime = now()->format('H:i');
+            if ($currentTime < $instantStartTime || $currentTime > $instantEndTime) {
+                Inertia::flash('toast', [
+                    'message' => "Waktu Instant delivery telah habis. Silakan pilih tipe pesanan Pre-order.",
+                    'type' => 'error'
+                ]);
+                return redirect()->route('customer.order-type.index', ['drop_point_id' => $dropPoint['id'] ?? null]);
+            }
+        } elseif ($orderType === 'preorder') {
+            $deliveryDate = session('checkout_delivery_date');
+            if ($deliveryDate) {
+                $cutoffTime = \App\Models\OrderSetting::where('key', 'order_cutoff_time')->value('value') ?? '20:00';
+                $minDaysAhead = (int) (\App\Models\OrderSetting::where('key', 'order_min_days_ahead')->value('value') ?? 1);
+
+                $now = now();
+                $cutoffDateTime = now()->setTimeFromTimeString($cutoffTime);
+
+                $minDate = now()->addDays($minDaysAhead)->startOfDay();
+                if ($now->greaterThan($cutoffDateTime)) {
+                    $minDate->addDay();
+                }
+
+                if (\Carbon\Carbon::parse($deliveryDate)->startOfDay()->lessThan($minDate)) {
+                    Inertia::flash('toast', [
+                        'message' => 'Tanggal pengiriman tidak valid (melewati batas waktu cut-off). Silakan atur ulang tanggal pengiriman Anda.',
+                        'type' => 'error'
+                    ]);
+                    return back();
+                }
+            }
         }
 
         try {

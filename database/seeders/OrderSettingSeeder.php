@@ -11,7 +11,8 @@ class OrderSettingSeeder extends Seeder
     {
         $settings = [
             // -------------------------------------------------------
-            // Konfigurasi Pre-Order
+            // -------------------------------------------------------
+            // Konfigurasi Pre-Order & Instant
             // -------------------------------------------------------
             [
                 'key'         => 'order_cutoff_time',
@@ -22,6 +23,16 @@ class OrderSettingSeeder extends Seeder
                 'key'         => 'order_min_days_ahead',
                 'value'       => '1',
                 'description' => 'Minimal H berapa sebelum delivery date (1 = H-1)',
+            ],
+            [
+                'key'         => 'instant_order_start_time',
+                'value'       => '08:00',
+                'description' => 'Waktu buka untuk pesanan tipe Instant (format HH:MM)',
+            ],
+            [
+                'key'         => 'instant_order_end_time',
+                'value'       => '21:00',
+                'description' => 'Waktu tutup untuk pesanan tipe Instant (format HH:MM)',
             ],
 
             // -------------------------------------------------------

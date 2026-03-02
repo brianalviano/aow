@@ -20,9 +20,18 @@ class OrderTypeController extends Controller
         $dropPointId = $request->query('drop_point_id');
         $dropPoint = $dropPointId ? DropPoint::find($dropPointId) : null;
 
+        $instantStartTime = \App\Models\OrderSetting::where('key', 'instant_order_start_time')->value('value') ?? '08:00';
+        $instantEndTime = \App\Models\OrderSetting::where('key', 'instant_order_end_time')->value('value') ?? '21:00';
+
+        $currentTime = now()->format('H:i');
+        $isInstantAvailable = $currentTime >= $instantStartTime && $currentTime <= $instantEndTime;
+
         return Inertia::render('Domains/Customer/OrderType/Index', [
             'dropPointId' => $dropPointId,
             'dropPointName' => $dropPoint?->name,
+            'isInstantAvailable' => $isInstantAvailable,
+            'instantStartTime' => $instantStartTime,
+            'instantEndTime' => $instantEndTime,
         ]);
     }
 
@@ -35,6 +44,19 @@ class OrderTypeController extends Controller
             'order_type' => 'required|in:instant,preorder',
             'drop_point_id' => 'nullable|exists:drop_points,id',
         ]);
+
+        if ($request->order_type === 'instant') {
+            $instantStartTime = \App\Models\OrderSetting::where('key', 'instant_order_start_time')->value('value') ?? '08:00';
+            $instantEndTime = \App\Models\OrderSetting::where('key', 'instant_order_end_time')->value('value') ?? '21:00';
+
+            $currentTime = now()->format('H:i');
+            if ($currentTime < $instantStartTime || $currentTime > $instantEndTime) {
+                return back()->with('toast', [
+                    'message' => "Instant delivery hanya tersedia pukul {$instantStartTime} - {$instantEndTime} WIB.",
+                    'type' => 'error'
+                ]);
+            }
+        }
 
         session(['checkout_order_type' => $request->order_type]);
 

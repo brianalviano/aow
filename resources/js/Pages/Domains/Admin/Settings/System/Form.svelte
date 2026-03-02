@@ -22,6 +22,8 @@
 
         order_cutoff_time: string | null;
         order_min_days_ahead: string | null;
+        instant_order_start_time: string | null;
+        instant_order_end_time: string | null;
 
         delivery_fee_mode: string | null;
         delivery_fee_flat: string | null;
@@ -69,6 +71,9 @@
             order_cutoff_time: settings?.order_cutoff_time ?? "20:00",
             order_min_days_ahead:
                 settings?.order_min_days_ahead?.toString() ?? "1",
+            instant_order_start_time:
+                settings?.instant_order_start_time ?? "08:00",
+            instant_order_end_time: settings?.instant_order_end_time ?? "21:00",
 
             delivery_fee_mode: settings?.delivery_fee_mode ?? "per_drop_point",
             delivery_fee_flat: settings?.delivery_fee_flat?.toString() ?? "0",
@@ -291,6 +296,20 @@
                                 label="Minimal Hari Pemesanan Sebelumnya"
                                 bind:value={$form.order_min_days_ahead}
                                 error={$form.errors.order_min_days_ahead}
+                            />
+                            <TimeInput
+                                id="instant_order_start_time"
+                                name="instant_order_start_time"
+                                label="Waktu Buka Pesanan Instan"
+                                bind:value={$form.instant_order_start_time}
+                                error={$form.errors.instant_order_start_time}
+                            />
+                            <TimeInput
+                                id="instant_order_end_time"
+                                name="instant_order_end_time"
+                                label="Waktu Tutup Pesanan Instan"
+                                bind:value={$form.instant_order_end_time}
+                                error={$form.errors.instant_order_end_time}
                             />
                             <div class="md:col-span-2">
                                 <TextInput

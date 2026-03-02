@@ -27,6 +27,8 @@ class UpdateSettingRequest extends FormRequest
             // Order Settings
             'order_cutoff_time' => ['nullable', 'string', 'max:5'], // 20:00
             'order_min_days_ahead' => ['nullable', 'integer', 'min:0'],
+            'instant_order_start_time' => ['nullable', 'string', 'max:5'],
+            'instant_order_end_time' => ['nullable', 'string', 'max:5'],
 
             'delivery_fee_mode' => ['nullable', 'string', 'in:per_drop_point,flat,free'],
             'delivery_fee_flat' => ['nullable', 'numeric', 'min:0'],
