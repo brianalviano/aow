@@ -182,6 +182,14 @@
                     };
                 }
 
+                if (o?.payment_proof_url || o?.payment_proof) {
+                    return {
+                        text: "Menunggu Verifikasi",
+                        classes:
+                            "bg-orange-50 text-orange-600 border border-orange-200",
+                    };
+                }
+
                 return {
                     text: "Belum Dibayar",
                     classes:
