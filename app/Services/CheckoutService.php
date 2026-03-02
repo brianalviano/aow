@@ -47,14 +47,14 @@ class CheckoutService
         ?string $addressId = null,
         ?string $paymentMethodId = null,
     ): array {
-        $settings = OrderSetting::pluck('value', 'key')->toArray();
+        $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
         $subtotal = collect($cart)->sum('totalPrice');
         $dropPoint = $dropPointId ? DropPoint::find($dropPointId) : null;
         $address = $addressId ? CustomerAddress::find($addressId) : null;
 
         // Logic for Delivery Fee
-        $deliveryFeeMode = $settings['delivery_fee_mode'] ?? 'per_drop_point';
-        $minOrderFreeDelivery = (int) ($settings['free_courier_min_order'] ?? 0);
+        $deliveryFeeMode = $settings->deliveryFeeMode;
+        $minOrderFreeDelivery = $settings->freeCourierMinOrder;
 
         // Get unique chefs from cart
         $uniqueChefIds = collect($cart)->map(function ($item) {
@@ -117,25 +117,25 @@ class CheckoutService
             } else {
                 $baseDeliveryFee = match ($deliveryFeeMode) {
                     'free' => 0,
-                    'flat' => (int) ($settings['delivery_fee_flat'] ?? 0),
-                    default => (int) ($dropPoint?->delivery_fee ?? $settings['delivery_fee_flat'] ?? 0),
+                    'flat' => $settings->deliveryFeeFlat,
+                    default => (int) ($dropPoint?->delivery_fee ?? $settings->deliveryFeeFlat),
                 };
                 $deliveryFee = $baseDeliveryFee * $chefCount;
             }
         }
 
         // Logic for Admin Fee
-        $adminFeeEnabled = ($settings['admin_fee_enabled'] ?? 'false') === 'true';
+        $adminFeeEnabled = $settings->adminFeeEnabled;
         $adminFee = 0;
         if ($adminFeeEnabled) {
-            $adminFeeType = $settings['admin_fee_type'] ?? 'fixed';
-            $adminFeeValue = (int) ($settings['admin_fee_value'] ?? 0);
+            $adminFeeType = $settings->adminFeeType;
+            $adminFeeValue = $settings->adminFeeValue;
             $adminFee = $adminFeeType === 'fixed' ? $adminFeeValue : (int) round($subtotal * $adminFeeValue / 100);
         }
 
         // Logic for Tax
-        $taxEnabled = ($settings['tax_enabled'] ?? 'false') === 'true';
-        $taxPercentage = (int) ($settings['tax_percentage'] ?? 0);
+        $taxEnabled = $settings->taxEnabled;
+        $taxPercentage = $settings->taxPercentage;
         $taxAmount = 0;
         if ($taxEnabled) {
             $taxAmount = (int) round($subtotal * $taxPercentage / 100);
@@ -163,11 +163,11 @@ class CheckoutService
             'adminFeeEnabled' => $adminFeeEnabled,
             'baseDeliveryFee' => $useBiteship ? 0 : match ($deliveryFeeMode) {
                 'free' => 0,
-                'flat' => (int) ($settings['delivery_fee_flat'] ?? 0),
-                default => (int) ($dropPoint?->delivery_fee ?? $settings['delivery_fee_flat'] ?? 0),
+                'flat' => $settings->deliveryFeeFlat,
+                default => (int) ($dropPoint?->delivery_fee ?? $settings->deliveryFeeFlat),
             },
-            'adminFeeType' => $settings['admin_fee_type'] ?? 'fixed',
-            'adminFeeValue' => (int) ($settings['admin_fee_value'] ?? 0),
+            'adminFeeType' => $settings->adminFeeType,
+            'adminFeeValue' => $settings->adminFeeValue,
             'shippingBreakdown' => $shippingBreakdown,
             'useBiteship' => $useBiteship,
         ];

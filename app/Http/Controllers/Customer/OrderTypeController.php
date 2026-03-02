@@ -20,8 +20,9 @@ class OrderTypeController extends Controller
         $dropPointId = $request->query('drop_point_id');
         $dropPoint = $dropPointId ? DropPoint::find($dropPointId) : null;
 
-        $instantStartTime = \App\Models\OrderSetting::where('key', 'instant_order_start_time')->value('value') ?? '08:00';
-        $instantEndTime = \App\Models\OrderSetting::where('key', 'instant_order_end_time')->value('value') ?? '21:00';
+        $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+        $instantStartTime = $settings->instantOrderStartTime;
+        $instantEndTime = $settings->instantOrderEndTime;
 
         $currentTime = now()->format('H:i');
         $isInstantAvailable = $currentTime >= $instantStartTime && $currentTime <= $instantEndTime;
@@ -46,8 +47,9 @@ class OrderTypeController extends Controller
         ]);
 
         if ($request->order_type === 'instant') {
-            $instantStartTime = \App\Models\OrderSetting::where('key', 'instant_order_start_time')->value('value') ?? '08:00';
-            $instantEndTime = \App\Models\OrderSetting::where('key', 'instant_order_end_time')->value('value') ?? '21:00';
+            $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+            $instantStartTime = $settings->instantOrderStartTime;
+            $instantEndTime = $settings->instantOrderEndTime;
 
             $currentTime = now()->format('H:i');
             if ($currentTime < $instantStartTime || $currentTime > $instantEndTime) {

@@ -48,8 +48,9 @@ class PaymentController extends Controller
 
         $orderType = session('checkout_order_type', 'preorder');
         if ($orderType === 'instant') {
-            $instantStartTime = \App\Models\OrderSetting::where('key', 'instant_order_start_time')->value('value') ?? '08:00';
-            $instantEndTime = \App\Models\OrderSetting::where('key', 'instant_order_end_time')->value('value') ?? '21:00';
+            $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+            $instantStartTime = $settings->instantOrderStartTime;
+            $instantEndTime = $settings->instantOrderEndTime;
 
             $currentTime = now()->format('H:i');
             if ($currentTime < $instantStartTime || $currentTime > $instantEndTime) {
@@ -115,8 +116,9 @@ class PaymentController extends Controller
 
         $orderType = session('checkout_order_type', 'preorder');
         if ($orderType === 'instant') {
-            $instantStartTime = \App\Models\OrderSetting::where('key', 'instant_order_start_time')->value('value') ?? '08:00';
-            $instantEndTime = \App\Models\OrderSetting::where('key', 'instant_order_end_time')->value('value') ?? '21:00';
+            $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+            $instantStartTime = $settings->instantOrderStartTime;
+            $instantEndTime = $settings->instantOrderEndTime;
 
             $currentTime = now()->format('H:i');
             if ($currentTime < $instantStartTime || $currentTime > $instantEndTime) {
@@ -129,8 +131,9 @@ class PaymentController extends Controller
         } elseif ($orderType === 'preorder') {
             $deliveryDate = session('checkout_delivery_date');
             if ($deliveryDate) {
-                $cutoffTime = \App\Models\OrderSetting::where('key', 'order_cutoff_time')->value('value') ?? '20:00';
-                $minDaysAhead = (int) (\App\Models\OrderSetting::where('key', 'order_min_days_ahead')->value('value') ?? 1);
+                $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+                $cutoffTime = $settings->orderCutoffTime;
+                $minDaysAhead = $settings->orderMinDaysAhead;
 
                 $now = now();
                 $cutoffDateTime = now()->setTimeFromTimeString($cutoffTime);

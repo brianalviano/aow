@@ -68,8 +68,8 @@ class CheckoutController extends Controller
                 'admin_fee_type' => $fees['adminFeeType'],
                 'admin_fee_value' => $fees['adminFeeValue'],
                 'tax_enabled' => $fees['taxEnabled'],
-                'order_cutoff_time' => \App\Models\OrderSetting::where('key', 'order_cutoff_time')->value('value') ?? '20:00',
-                'order_min_days_ahead' => (int) (\App\Models\OrderSetting::where('key', 'order_min_days_ahead')->value('value') ?? 1),
+                'order_cutoff_time' => \App\DTOs\Setting\OrderSettingsDTO::load()->orderCutoffTime,
+                'order_min_days_ahead' => \App\DTOs\Setting\OrderSettingsDTO::load()->orderMinDaysAhead,
             ],
         ]);
     }

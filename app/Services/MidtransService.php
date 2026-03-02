@@ -76,7 +76,7 @@ class MidtransService
         ];
 
         // Expiry duration from settings (default 60 minutes)
-        $expiryDuration = (int) \App\Models\OrderSetting::where('key', 'payment_expired_duration')->value('value') ?: 60;
+        $expiryDuration = \App\DTOs\Setting\OrderSettingsDTO::load()->paymentExpiredDuration;
         $params['expiry'] = [
             'unit' => 'minute',
             'duration' => $expiryDuration,

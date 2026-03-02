@@ -34,6 +34,7 @@ class SettingService
                     }
 
                     // Flush cache
+                    \App\DTOs\Setting\OrderSettingsDTO::clearCache();
                     Cache::forget('settings:shared');
                     Cache::forget('settings:geofence-center');
                 }, 5);
