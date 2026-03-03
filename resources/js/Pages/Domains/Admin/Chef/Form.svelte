@@ -228,16 +228,18 @@
                                 type="number"
                                 placeholder="0"
                                 value={$form.fee_percentage.toString()}
-                                oninput={(e) => {
-                                    if (
-                                        e &&
-                                        typeof e === "object" &&
-                                        "target" in e
-                                    ) {
-                                        $form.fee_percentage = Number(
-                                            (e.target as HTMLInputElement)
-                                                .value,
-                                        );
+                                oninput={(e: any) => {
+                                    if (e && "numericValue" in e) {
+                                        $form.fee_percentage =
+                                            e.numericValue !== null
+                                                ? e.numericValue
+                                                : 0;
+                                    } else if (e && e.target) {
+                                        $form.fee_percentage =
+                                            Number(
+                                                (e.target as HTMLInputElement)
+                                                    .value,
+                                            ) || 0;
                                     }
                                 }}
                                 error={$form.errors.fee_percentage}
@@ -267,26 +269,7 @@
                                             type="checkbox"
                                             name="order_types"
                                             value="instant"
-                                            checked={$form.order_types.includes(
-                                                "instant",
-                                            )}
-                                            onchange={(e) => {
-                                                const checked = (
-                                                    e.target as HTMLInputElement
-                                                ).checked;
-                                                if (checked) {
-                                                    $form.order_types = [
-                                                        ...$form.order_types,
-                                                        "instant",
-                                                    ];
-                                                } else {
-                                                    $form.order_types =
-                                                        $form.order_types.filter(
-                                                            (t) =>
-                                                                t !== "instant",
-                                                        );
-                                                }
-                                            }}
+                                            bind:group={$form.order_types}
                                             class="sr-only"
                                         />
                                         <div
@@ -329,27 +312,7 @@
                                             type="checkbox"
                                             name="order_types"
                                             value="preorder"
-                                            checked={$form.order_types.includes(
-                                                "preorder",
-                                            )}
-                                            onchange={(e) => {
-                                                const checked = (
-                                                    e.target as HTMLInputElement
-                                                ).checked;
-                                                if (checked) {
-                                                    $form.order_types = [
-                                                        ...$form.order_types,
-                                                        "preorder",
-                                                    ];
-                                                } else {
-                                                    $form.order_types =
-                                                        $form.order_types.filter(
-                                                            (t) =>
-                                                                t !==
-                                                                "preorder",
-                                                        );
-                                                }
-                                            }}
+                                            bind:group={$form.order_types}
                                             class="sr-only"
                                         />
                                         <div
