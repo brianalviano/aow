@@ -258,91 +258,49 @@
                                     Tipe Pesanan
                                 </label>
                                 <div class="grid grid-cols-2 gap-4 mt-1">
-                                    <label
-                                        class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all {$form.order_types.includes(
-                                            'instant',
-                                        )
-                                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                            : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900'}"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            name="order_types"
-                                            value="instant"
-                                            bind:group={$form.order_types}
-                                            class="sr-only"
-                                        />
-                                        <div
-                                            class="flex items-center justify-center w-5 h-5 rounded border-2 {$form.order_types.includes(
-                                                'instant',
-                                            )
-                                                ? 'border-primary bg-primary'
-                                                : 'border-gray-400 font-bold'}"
-                                        >
-                                            {#if $form.order_types.includes("instant")}
-                                                <i
-                                                    class="fa-solid fa-check text-[10px] text-white"
-                                                ></i>
-                                            {/if}
-                                        </div>
-                                        <div class="flex flex-col">
-                                            <span
-                                                class="text-sm font-semibold {$form.order_types.includes(
-                                                    'instant',
-                                                )
-                                                    ? 'text-primary'
-                                                    : 'text-gray-900 dark:text-white'}"
-                                            >
-                                                Instant
-                                            </span>
-                                            <span class="text-xs text-gray-500">
-                                                Bisa pesanan langsung
-                                            </span>
-                                        </div>
-                                    </label>
+                                    <Checkbox
+                                        id="type_instant"
+                                        name="order_types"
+                                        value="instant"
+                                        variant="card"
+                                        label="Instant"
+                                        sublabel="Bisa pesanan langsung"
+                                        checked={$form.order_types.includes(
+                                            "instant",
+                                        )}
+                                        onchange={() => {
+                                            const types = [
+                                                ...$form.order_types,
+                                            ];
+                                            const idx =
+                                                types.indexOf("instant");
+                                            if (idx > -1) types.splice(idx, 1);
+                                            else types.push("instant");
+                                            $form.order_types = types;
+                                        }}
+                                    />
 
-                                    <label
-                                        class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all {$form.order_types.includes(
-                                            'preorder',
-                                        )
-                                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                            : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 bg-white dark:bg-gray-900'}"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            name="order_types"
-                                            value="preorder"
-                                            bind:group={$form.order_types}
-                                            class="sr-only"
-                                        />
-                                        <div
-                                            class="flex items-center justify-center w-5 h-5 rounded border-2 {$form.order_types.includes(
-                                                'preorder',
-                                            )
-                                                ? 'border-primary bg-primary'
-                                                : 'border-gray-400'}"
-                                        >
-                                            {#if $form.order_types.includes("preorder")}
-                                                <i
-                                                    class="fa-solid fa-check text-[10px] text-white"
-                                                ></i>
-                                            {/if}
-                                        </div>
-                                        <div class="flex flex-col">
-                                            <span
-                                                class="text-sm font-semibold {$form.order_types.includes(
-                                                    'preorder',
-                                                )
-                                                    ? 'text-primary'
-                                                    : 'text-gray-900 dark:text-white'}"
-                                            >
-                                                Pre-Order
-                                            </span>
-                                            <span class="text-xs text-gray-500">
-                                                Hanya pesanan terjadwal
-                                            </span>
-                                        </div>
-                                    </label>
+                                    <Checkbox
+                                        id="type_preorder"
+                                        name="order_types"
+                                        value="preorder"
+                                        variant="card"
+                                        label="Pre-Order"
+                                        sublabel="Hanya pesanan terjadwal"
+                                        checked={$form.order_types.includes(
+                                            "preorder",
+                                        )}
+                                        onchange={() => {
+                                            const types = [
+                                                ...$form.order_types,
+                                            ];
+                                            const idx =
+                                                types.indexOf("preorder");
+                                            if (idx > -1) types.splice(idx, 1);
+                                            else types.push("preorder");
+                                            $form.order_types = types;
+                                        }}
+                                    />
                                 </div>
                                 {#if $form.errors.order_types}
                                     <p class="text-xs text-red-600 mt-1">
