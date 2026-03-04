@@ -111,7 +111,7 @@
 </script>
 
 <svelte:head>
-    <title>Titik Jemput | {name($page.props.settings)}</title>
+    <title>Drop Point | {name($page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">
@@ -120,10 +120,10 @@
     >
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                Titik Jemput (Drop Point)
+                Drop Point
             </h1>
             <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Kelola daftar lokasi titik jemput pengiriman
+                Kelola daftar lokasi drop point pengiriman
             </p>
         </div>
         <div class="flex flex-wrap gap-2 sm:justify-end">
