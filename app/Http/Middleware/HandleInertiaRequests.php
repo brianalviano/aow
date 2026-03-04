@@ -143,6 +143,12 @@ class HandleInertiaRequests extends Middleware
                 'title' => 'Operasional',
                 'items' => [
                     [
+                        'id'    => 'drop-points',
+                        'label' => 'Drop Points',
+                        'icon'  => 'fa-location-dot',
+                        'link'  => route('admin.drop-points.index'),
+                    ],
+                    [
                         'id'    => 'chefs',
                         'label' => 'Chef',
                         'icon'  => 'fa-user-chef',
@@ -153,12 +159,6 @@ class HandleInertiaRequests extends Middleware
                         'label' => 'Customer',
                         'icon'  => 'fa-users',
                         'link'  => route('admin.customers.index'),
-                    ],
-                    [
-                        'id'    => 'drop-points',
-                        'label' => 'Drop Points',
-                        'icon'  => 'fa-location-dot',
-                        'link'  => route('admin.drop-points.index'),
                     ],
                     [
                         'id'    => 'payment-methods',
