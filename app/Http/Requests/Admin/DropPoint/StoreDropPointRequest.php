@@ -35,6 +35,8 @@ class StoreDropPointRequest extends FormRequest
             'pic_phone' => ['nullable', 'string', 'max:20'],
             'is_active' => ['sometimes', 'boolean'],
             'delivery_fee' => ['required', 'integer', 'min:0'],
+            'min_po_qty' => ['nullable', 'integer', 'min:0'],
+            'min_po_amount' => ['nullable', 'integer', 'min:0'],
         ];
     }
 }

@@ -29,6 +29,8 @@ class DropPoint extends Model
         'pic_phone',
         'is_active',
         'delivery_fee',
+        'min_po_qty',
+        'min_po_amount',
     ];
 
     /**
@@ -43,6 +45,8 @@ class DropPoint extends Model
             'longitude' => 'float',
             'is_active' => 'boolean',
             'category' => \App\Enums\DropPointCategory::class,
+            'min_po_qty' => 'integer',
+            'min_po_amount' => 'integer',
         ];
     }
 

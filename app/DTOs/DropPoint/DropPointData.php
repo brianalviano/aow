@@ -26,6 +26,8 @@ class DropPointData
         public readonly ?string $picPhone,
         public readonly bool $isActive = true,
         public readonly int $deliveryFee = 0,
+        public readonly ?int $minPoQty = null,
+        public readonly ?int $minPoAmount = null,
     ) {}
 
     /**
@@ -45,6 +47,8 @@ class DropPointData
             picPhone: $request->validated('pic_phone') === null ? null : (string) $request->validated('pic_phone'),
             isActive: (bool) $request->validated('is_active', true),
             deliveryFee: (int) $request->validated('delivery_fee', 0),
+            minPoQty: $request->validated('min_po_qty') === null ? null : (int) $request->validated('min_po_qty'),
+            minPoAmount: $request->validated('min_po_amount') === null ? null : (int) $request->validated('min_po_amount'),
         );
     }
 
@@ -65,6 +69,8 @@ class DropPointData
             picPhone: $request->validated('pic_phone') === null ? null : (string) $request->validated('pic_phone'),
             isActive: (bool) $request->validated('is_active', true),
             deliveryFee: (int) $request->validated('delivery_fee', 0),
+            minPoQty: $request->validated('min_po_qty') === null ? null : (int) $request->validated('min_po_qty'),
+            minPoAmount: $request->validated('min_po_amount') === null ? null : (int) $request->validated('min_po_amount'),
         );
     }
 }

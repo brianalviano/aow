@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('pic_phone')->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('delivery_fee')->default(0);
+            $table->integer('min_po_qty')->nullable();
+            $table->integer('min_po_amount')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

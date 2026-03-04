@@ -57,6 +57,18 @@
 
     export let savedCart: Record<string, any> = {};
 
+    export let orderType = "preorder";
+
+    export let quotaProgress: {
+        has_quota: boolean;
+        min_qty: number | null;
+        min_amount: number | null;
+        current_qty: number;
+        current_amount: number;
+        is_fulfilled: boolean;
+        percentage: number;
+    } | null = null;
+
     // State
     let isCheckoutLoading = false;
     let searchQuery = "";
@@ -403,6 +415,107 @@
                 />
             </div>
         </div>
+
+        <!-- PO Quota Info Box (if applicable) -->
+        {#if orderType === "preorder" && quotaProgress && quotaProgress.has_quota}
+            <div class="px-4 pb-2">
+                <div
+                    class="bg-blue-50 rounded-xl p-3 border border-blue-100 flex flex-col gap-2"
+                >
+                    <div class="flex items-center justify-between">
+                        <h3
+                            class="font-bold text-gray-900 text-xs flex items-center gap-1.5"
+                        >
+                            <i class="fa-solid fa-users text-blue-500"></i>
+                            Kuota PO Drop Point
+                        </h3>
+                        <span
+                            class="text-[9px] font-bold px-1.5 py-0.5 rounded-full {quotaProgress.is_fulfilled
+                                ? 'text-green-600 bg-green-100'
+                                : 'text-blue-600 bg-blue-100'}"
+                        >
+                            {quotaProgress.is_fulfilled
+                                ? "TERPENUHI"
+                                : "BELUM TERPENUHI"}
+                        </span>
+                    </div>
+
+                    <div class="space-y-2">
+                        {#if quotaProgress.min_qty}
+                            <div>
+                                <div
+                                    class="flex justify-between text-[10px] mb-1"
+                                >
+                                    <span class="text-gray-600">Pesanan</span>
+                                    <span class="font-medium text-gray-900"
+                                        >{quotaProgress.current_qty} / {quotaProgress.min_qty}
+                                        porsi</span
+                                    >
+                                </div>
+                                <div
+                                    class="w-full bg-blue-100 rounded-full h-1"
+                                >
+                                    <div
+                                        class="bg-blue-500 h-1 rounded-full transition-all"
+                                        style="width: {Math.min(
+                                            100,
+                                            (quotaProgress.current_qty /
+                                                quotaProgress.min_qty) *
+                                                100,
+                                        )}%"
+                                    ></div>
+                                </div>
+                            </div>
+                        {/if}
+
+                        {#if quotaProgress.min_amount}
+                            <div>
+                                <div
+                                    class="flex justify-between text-[10px] mb-1"
+                                >
+                                    <span class="text-gray-600">Transaksi</span>
+                                    <span class="font-medium text-gray-900"
+                                        >{formatRupiah(
+                                            quotaProgress.current_amount,
+                                        )} / {formatRupiah(
+                                            quotaProgress.min_amount,
+                                        )}</span
+                                    >
+                                </div>
+                                <div
+                                    class="w-full bg-blue-100 rounded-full h-1"
+                                >
+                                    <div
+                                        class="bg-blue-500 h-1 rounded-full transition-all"
+                                        style="width: {Math.min(
+                                            100,
+                                            (quotaProgress.current_amount /
+                                                quotaProgress.min_amount) *
+                                                100,
+                                        )}%"
+                                    ></div>
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
+
+                    {#if !quotaProgress.is_fulfilled}
+                        <div
+                            class="mt-1 text-[10px] text-blue-800 bg-blue-100/50 p-2 rounded flex gap-1.5 items-start"
+                        >
+                            <i class="fa-solid fa-circle-info mt-0.5 shrink-0"
+                            ></i>
+                            <p class="leading-tight">
+                                Mohon maaf pesanan PO per kolektif drop point
+                                ini masih kurang. Ayoo, <b
+                                    >ajak teman order bareng</b
+                                > biar bisa diproses!
+                            </p>
+                        </div>
+                    {/if}
+                </div>
+            </div>
+        {/if}
 
         <!-- Categories Tab Bar -->
         <div

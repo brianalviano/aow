@@ -25,6 +25,8 @@
         category: string;
         is_active: boolean;
         delivery_fee: number;
+        min_po_qty: number | null;
+        min_po_amount: number | null;
         created_at: string;
         updated_at: string;
     }
@@ -54,6 +56,8 @@
         pic_phone: "",
         delivery_fee: 0,
         is_active: true,
+        min_po_qty: null as number | null,
+        min_po_amount: null as number | null,
     };
 
     const form = useForm(
@@ -77,6 +81,9 @@
             delivery_fee:
                 dropPoint?.delivery_fee ?? DEFAULT_FORM_STATE.delivery_fee,
             is_active: dropPoint?.is_active ?? DEFAULT_FORM_STATE.is_active,
+            min_po_qty: dropPoint?.min_po_qty ?? DEFAULT_FORM_STATE.min_po_qty,
+            min_po_amount:
+                dropPoint?.min_po_amount ?? DEFAULT_FORM_STATE.min_po_amount,
         })),
     );
 
@@ -421,6 +428,89 @@
                                     (Drop point bisa dinonaktifkan sementara)
                                 </span>
                             </div>
+                        </div>
+                    {/snippet}
+                </Card>
+
+                <Card title="Minimum Order PO (Kolektif)" collapsible={false}>
+                    {#snippet children()}
+                        <div class="space-y-4">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Atur target kuota minimum untuk pesanan PO di
+                                titik ini. Jika hingga batas waktu pesanan belum
+                                mencapai target, maka pesanan otomatis
+                                dibatalkan.
+                            </p>
+
+                            <TextInput
+                                id="min_po_qty"
+                                name="min_po_qty"
+                                label="Batas Minimal Kuantitas (Item/Pesanan)"
+                                type="number"
+                                placeholder="Contoh: 10"
+                                value={$form.min_po_qty?.toString() ?? ""}
+                                oninput={(e) => {
+                                    if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "numericValue" in e
+                                    ) {
+                                        $form.min_po_qty =
+                                            e.numericValue === null
+                                                ? null
+                                                : Number(e.numericValue);
+                                    } else if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "target" in e
+                                    ) {
+                                        const val = (
+                                            e.target as HTMLInputElement
+                                        ).value;
+                                        $form.min_po_qty = val
+                                            ? Number(val)
+                                            : null;
+                                    }
+                                }}
+                                error={$form.errors.min_po_qty}
+                            />
+
+                            <TextInput
+                                id="min_po_amount"
+                                name="min_po_amount"
+                                label="Batas Minimal Transaksi (Rp)"
+                                type="number"
+                                placeholder="Contoh: 100000"
+                                value={$form.min_po_amount?.toString() ?? ""}
+                                oninput={(e) => {
+                                    if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "numericValue" in e
+                                    ) {
+                                        $form.min_po_amount =
+                                            e.numericValue === null
+                                                ? null
+                                                : Number(e.numericValue);
+                                    } else if (
+                                        e &&
+                                        typeof e === "object" &&
+                                        "target" in e
+                                    ) {
+                                        const val = (
+                                            e.target as HTMLInputElement
+                                        ).value;
+                                        $form.min_po_amount = val
+                                            ? Number(val)
+                                            : null;
+                                    }
+                                }}
+                                error={$form.errors.min_po_amount}
+                            />
+                            <p class="text-xs text-gray-500 mt-1">
+                                Anda dapat mengisi salah satu atau keduanya.
+                                Kosongkan jika tidak ada batas minimum.
+                            </p>
                         </div>
                     {/snippet}
                 </Card>

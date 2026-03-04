@@ -56,6 +56,8 @@ class DropPointService
                         'pic_phone' => $data->picPhone,
                         'is_active' => $data->isActive,
                         'delivery_fee' => $data->deliveryFee,
+                        'min_po_qty' => $data->minPoQty,
+                        'min_po_amount' => $data->minPoAmount,
                     ]);
                 });
             } catch (\Throwable $e) {
@@ -72,6 +74,8 @@ class DropPointService
                         'pic_phone' => $data->picPhone,
                         'is_active' => $data->isActive,
                         'delivery_fee' => $data->deliveryFee,
+                        'min_po_qty' => $data->minPoQty,
+                        'min_po_amount' => $data->minPoAmount,
                     ],
                     'trace' => $e->getTraceAsString(),
                 ]);
@@ -103,6 +107,8 @@ class DropPointService
                         'pic_phone' => $data->picPhone,
                         'is_active' => $data->isActive,
                         'delivery_fee' => $data->deliveryFee,
+                        'min_po_qty' => $data->minPoQty,
+                        'min_po_amount' => $data->minPoAmount,
                     ]);
 
                     return $dropPoint->refresh();
@@ -122,6 +128,8 @@ class DropPointService
                         'pic_phone' => $data->picPhone,
                         'is_active' => $data->isActive,
                         'delivery_fee' => $data->deliveryFee,
+                        'min_po_qty' => $data->minPoQty,
+                        'min_po_amount' => $data->minPoAmount,
                     ],
                     'trace' => $e->getTraceAsString(),
                 ]);

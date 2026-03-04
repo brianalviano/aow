@@ -49,6 +49,15 @@
         delivery_date?: string;
         delivery_time?: string;
         notes?: string;
+        quotaProgress?: {
+            has_quota: boolean;
+            min_qty: number | null;
+            min_amount: number | null;
+            current_qty: number;
+            current_amount: number;
+            is_fulfilled: boolean;
+            percentage: number;
+        } | null;
     }
 
     let {
@@ -61,6 +70,7 @@
         delivery_date = "",
         delivery_time = "",
         notes = "",
+        quotaProgress = null,
     }: Props = $props();
 
     // Ensure cart is an object even if passed as empty array from PHP
@@ -416,6 +426,103 @@
                 {/if}
             </div>
         </section>
+
+        {#if orderType === "preorder" && quotaProgress && quotaProgress.has_quota}
+            <!-- PO Quota Section -->
+            <section
+                class="bg-blue-50/50 p-4 rounded-xl border border-blue-100"
+            >
+                <div class="flex items-center justify-between mb-2">
+                    <h3
+                        class="font-bold text-gray-900 text-sm flex items-center gap-1.5"
+                    >
+                        <i class="fa-solid fa-users text-blue-500"></i>
+                        Kuota PO Drop Point
+                    </h3>
+                    {#if quotaProgress.is_fulfilled}
+                        <span
+                            class="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full"
+                            >TERPENUHI</span
+                        >
+                    {:else}
+                        <span
+                            class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full"
+                            >BELUM TERPENUHI</span
+                        >
+                    {/if}
+                </div>
+
+                <div class="mt-3 space-y-3">
+                    {#if quotaProgress.min_qty}
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-600">Target Pesanan</span
+                                >
+                                <span class="font-medium text-gray-900"
+                                    >{quotaProgress.current_qty} / {quotaProgress.min_qty}
+                                    porsi</span
+                                >
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                <div
+                                    class="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
+                                    style="width: {Math.min(
+                                        100,
+                                        (quotaProgress.current_qty /
+                                            quotaProgress.min_qty) *
+                                            100,
+                                    )}%"
+                                ></div>
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if quotaProgress.min_amount}
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-600"
+                                    >Target Transaksi</span
+                                >
+                                <span class="font-medium text-gray-900"
+                                    >{formatRupiah(
+                                        quotaProgress.current_amount,
+                                    )} / {formatRupiah(
+                                        quotaProgress.min_amount,
+                                    )}</span
+                                >
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                <div
+                                    class="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
+                                    style="width: {Math.min(
+                                        100,
+                                        (quotaProgress.current_amount /
+                                            quotaProgress.min_amount) *
+                                            100,
+                                    )}%"
+                                ></div>
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+
+                {#if !quotaProgress.is_fulfilled}
+                    <div
+                        class="mt-3 text-[11px] text-blue-800 bg-blue-100/50 p-2.5 rounded-lg border border-blue-200 flex gap-2"
+                    >
+                        <i class="fa-solid fa-circle-info mt-0.5"></i>
+                        <p class="leading-relaxed">
+                            Mohon maaf pesanan Anda per kolektif drop point
+                            kurang dari minimum order sehingga <b
+                                >tidak bisa kami proses otomatis</b
+                            >
+                            pada batas waktu. Ayoo, <b>ajak teman/saudaramu</b> untuk
+                            order bareng!!
+                        </p>
+                    </div>
+                {/if}
+            </section>
+        {/if}
 
         <!-- Delivery Date Section -->
         <section class="flex items-start gap-4">

@@ -11,11 +11,16 @@ use App\Http\Resources\ProductResource;
 use App\Models\DropPoint;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Services\QuotaService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProductController extends Controller
 {
+    public function __construct(
+        private readonly QuotaService $quotaService
+    ) {}
+
     /**
      * Display the specified drop point products page.
      */
@@ -89,6 +94,12 @@ class ProductController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+        $quotaProgress = null;
+        if ($dropPoint && $orderType === 'preorder') {
+            $deliveryDate = session('checkout_delivery_date', now()->addDay()->format('Y-m-d')); // Default to tomorrow if not set
+            $quotaProgress = $this->quotaService->calculateDropPointQuotaProgress($dropPoint->id, clone $deliveryDate);
+        }
+
         return Inertia::render('Domains/Customer/Product/Index', [
             'dropPoint' => $dropPoint ? DropPointResource::make($dropPoint)->resolve() : null,
             'address' => $address,
@@ -96,6 +107,7 @@ class ProductController extends Controller
             'products' => ProductResource::collection($products)->resolve(),
             'savedCart' => (object) session('checkout_cart', []),
             'orderType' => $orderType,
+            'quotaProgress' => $quotaProgress,
         ]);
     }
 
@@ -104,13 +116,7 @@ class ProductController extends Controller
      */
     public function testimonials(Product $product): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $realTestimonials = $product->testimonials()
-            ->with('customer')
-            ->latest()
-            ->get();
-
         $merged = $product->getManipulatedTestimonials(50); // Get up to 50 merged items
-
         return \App\Http\Resources\TestimonialResource::collection($merged);
     }
 }

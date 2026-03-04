@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Services\CheckoutService;
+use App\Services\QuotaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\{Inertia, Response};
@@ -18,7 +19,8 @@ class CheckoutController extends Controller
      * @param CheckoutService $checkoutService Service for handling checkout logic.
      */
     public function __construct(
-        private readonly CheckoutService $checkoutService
+        private readonly CheckoutService $checkoutService,
+        private readonly QuotaService $quotaService
     ) {}
 
     /**
@@ -42,6 +44,11 @@ class CheckoutController extends Controller
         $deliveryDate = session('checkout_delivery_date');
         $deliveryTime = session('checkout_delivery_time');
         $notes = session('checkout_notes');
+
+        $quotaProgress = null;
+        if ($dropPointData && $orderType === 'preorder') {
+            $quotaProgress = $this->quotaService->calculateDropPointQuotaProgress($dropPointData['id'], $deliveryDate);
+        }
 
         return Inertia::render('Domains/Customer/Checkout/Index', [
             'cart' => (object) $cart,
@@ -71,6 +78,7 @@ class CheckoutController extends Controller
                 'order_cutoff_time' => \App\DTOs\Setting\OrderSettingsDTO::load()->orderCutoffTime,
                 'order_min_days_ahead' => \App\DTOs\Setting\OrderSettingsDTO::load()->orderMinDaysAhead,
             ],
+            'quotaProgress' => $quotaProgress,
         ]);
     }
 
