@@ -54,6 +54,26 @@ class PaymentMethodSeeder extends Seeder
                 'photo' => 'payment_methods/shopee-pay.svg',
                 'service_fee_rate' => 2,
             ],
+            [
+                'name' => 'GoPay',
+                'code' => 'gopay',
+                'category' => \App\Enums\PaymentMethodCategory::E_WALLET,
+                'type' => \App\Enums\PaymentMethodType::GATEWAY,
+                'is_active' => true,
+                'payment_guide_id' => $eWalletGuideId,
+                'photo' => 'payment_methods/gopay.svg',
+                'service_fee_rate' => 2,
+            ],
+            [
+                'name' => 'Dana',
+                'code' => 'dana',
+                'category' => \App\Enums\PaymentMethodCategory::E_WALLET,
+                'type' => \App\Enums\PaymentMethodType::GATEWAY,
+                'is_active' => true,
+                'payment_guide_id' => $eWalletGuideId,
+                'photo' => 'payment_methods/dana.svg',
+                'service_fee_rate' => 1.5,
+            ],
         ];
 
         foreach ($methods as $method) {
