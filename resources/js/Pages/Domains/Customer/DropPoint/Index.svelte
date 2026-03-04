@@ -151,7 +151,7 @@
     </div>
 
     <!-- Instructions Section -->
-    <div class="bg-gray-50 px-5 pt-3 pb-20">
+    <div class="bg-gray-50 px-5 py-4">
         <h2 class="text-center font-bold text-gray-900 text-base mb-4">
             Cara menggunakan AOW Order
         </h2>
