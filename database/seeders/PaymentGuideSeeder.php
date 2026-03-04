@@ -40,7 +40,7 @@ class PaymentGuideSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'E-Wallet (OVO/ShopeePay)',
+                'name' => 'E-Wallet (OVO/ShopeePay/Dana/GoPay)',
                 'content' => [
                     [
                         'title' => 'Cara Pembayaran',
@@ -58,14 +58,28 @@ class PaymentGuideSeeder extends Seeder
                 'name' => 'QRIS',
                 'content' => [
                     [
-                        'title' => 'Cara Pembayaran',
+                        'title' => 'Cara Pembayaran (Scan QR)',
                         'items' => [
                             'Pilih metode pembayaran QRIS saat checkout.',
                             'Klik tombol "Bayar" untuk menampilkan Kode QR.',
-                            'Buka aplikasi e-wallet atau perbankan Anda (Gopay, OVO, Dana, LinkAja, BCA Mobile, dll).',
-                            'Gunakan fitur "Scan" atau "Bayar" dan arahkan ke Kode QR yang muncul.',
+                            'Buka aplikasi e-wallet atau perbankan Anda (Gopay, OVO, Dana, ShopeePay, BCA Mobile, dll).',
+                            'Pilih fitur "Scan" atau "Bayar".',
+                            'Arahkan kamera ke Kode QR yang muncul pada layar.',
                             'Periksa nominal yang muncul, pastikan sesuai dengan total tagihan.',
-                            'Tunggu hingga konfirmasi pembayaran muncul di aplikasi.',
+                            'Masukkan PIN Anda dan tunggu hingga konfirmasi pembayaran berhasil.',
+                        ],
+                    ],
+                    [
+                        'title' => 'Cara Pembayaran (Simpan / Screenshot)',
+                        'items' => [
+                            'Pilih metode pembayaran QRIS saat checkout.',
+                            'Klik tombol "Bayar" untuk menampilkan Kode QR.',
+                            'Simpan (Download) atau Screenshot Kode QR yang muncul di layar HP Anda.',
+                            'Buka aplikasi e-wallet atau perbankan Anda (Gopay, OVO, Dana, ShopeePay, BCA Mobile, dll).',
+                            'Pilih fitur "Scan" atau "Bayar".',
+                            'Pilih ikon gambar/galeri untuk mengunggah gambar Kode QR yang sudah disimpan/discreenshot.',
+                            'Periksa nominal yang muncul, pastikan sesuai dengan total tagihan.',
+                            'Masukkan PIN Anda dan tunggu hingga konfirmasi pembayaran berhasil.',
                         ],
                     ],
                 ],
