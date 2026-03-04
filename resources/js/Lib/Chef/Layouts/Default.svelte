@@ -85,22 +85,22 @@
                 </Link>
 
                 <Link
-                    href="/chef/income"
+                    href="/chef/report"
                     class="flex flex-col items-center gap-1 transition-all duration-300 {$page.url ===
-                    '/chef/income'
+                    '/chef/report'
                         ? 'text-orange-500 scale-110'
                         : 'text-gray-400 hover:text-gray-600'}"
                 >
                     <div class="relative">
                         <i class="fa-solid fa-wallet text-xl"></i>
-                        {#if $page.url === "/chef/income"}
+                        {#if $page.url === "/chef/report"}
                             <span
                                 class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-orange-500 rounded-full"
                             ></span>
                         {/if}
                     </div>
                     <span class="text-[10px] font-bold uppercase tracking-wider"
-                        >Pendapatan</span
+                        >Laporan</span
                     >
                 </Link>
             </nav>

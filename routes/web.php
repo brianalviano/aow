@@ -26,7 +26,7 @@ use App\Http\Controllers\Chef\{
     DashboardController as ChefDashboardController,
     LoginController as ChefLoginController,
     OrderController as ChefOrderController,
-    IncomeController as ChefIncomeController
+    ReportController as ChefReportController
 };
 use App\Http\Controllers\Customer\{
     AuthController,
@@ -290,7 +290,7 @@ Route::prefix('chef')->name('chef.')->group(function () {
     Route::middleware('auth:chef')->group(function () {
         Route::get('/', [ChefDashboardController::class, 'index'])->name('dashboard');
         Route::get('/orders', [ChefOrderController::class, 'index'])->name('orders');
-        Route::get('/income', [ChefIncomeController::class, 'index'])->name('income');
+        Route::get('/report', [ChefReportController::class, 'index'])->name('report');
         Route::post('/orders/approve', [ChefOrderController::class, 'approve'])->name('orders.approve');
         Route::post('/orders/reject', [ChefOrderController::class, 'reject'])->name('orders.reject');
         Route::post('/orders/ship', [ChefOrderController::class, 'ship'])->name('orders.ship');
