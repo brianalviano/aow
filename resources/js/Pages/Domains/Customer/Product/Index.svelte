@@ -525,26 +525,33 @@
                                                 class="text-sm font-bold text-gray-900 w-12 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 aria-label="Jumlah"
                                                 on:input={(e) => {
-                                                    const val = parseInt(
-                                                        e.currentTarget.value,
-                                                    );
-                                                    if (!isNaN(val)) {
-                                                        updateCartItemQuantityWithValue(
-                                                            product.id,
-                                                            val,
-                                                        );
-                                                    }
+                                                    // Allow typing, but don't update cart state immediately
+                                                    // The actual update will happen on blur
                                                 }}
                                                 on:blur={(e) => {
                                                     const val = parseInt(
                                                         e.currentTarget.value,
                                                     );
-                                                    if (isNaN(val) || val < 1) {
+                                                    if (
+                                                        !isNaN(val) &&
+                                                        val >= 1
+                                                    ) {
+                                                        updateCartItemQuantityWithValue(
+                                                            product.id,
+                                                            val,
+                                                        );
+                                                    } else {
+                                                        // If invalid, revert to previous valid quantity (or 1 if none)
                                                         updateCartItemQuantityWithValue(
                                                             product.id,
                                                             1,
                                                         );
                                                     }
+                                                    // Ensure the displayed value matches the cart state after blur
+                                                    e.currentTarget.value =
+                                                        cartQuantities[
+                                                            product.id
+                                                        ]?.toString() || "1";
                                                 }}
                                             />
                                             <button

@@ -519,20 +519,21 @@
                                         class="font-bold text-sm w-10 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         aria-label="Jumlah"
                                         oninput={(e) => {
-                                            const val = parseInt(
-                                                e.currentTarget.value,
-                                            );
-                                            if (!isNaN(val)) {
-                                                setQuantity(item._key, val);
-                                            }
+                                            // Allow typing, but don't update cart state immediately
                                         }}
                                         onblur={(e) => {
                                             const val = parseInt(
                                                 e.currentTarget.value,
                                             );
-                                            if (isNaN(val) || val < 1) {
+                                            if (!isNaN(val) && val >= 1) {
+                                                setQuantity(item._key, val);
+                                            } else {
+                                                // If invalid, reset to 1
                                                 setQuantity(item._key, 1);
                                             }
+                                            // Ensure the displayed value matches the actual item quantity after blur
+                                            e.currentTarget.value =
+                                                item.quantity.toString();
                                         }}
                                     />
                                     <button

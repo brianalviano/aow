@@ -116,7 +116,7 @@
                 }
             }
         }
-        return price * qty;
+        return price * (qty || 0);
     }
 
     function handleAdd() {
@@ -124,7 +124,8 @@
             alert("Mohon pilih semua opsi yang diwajibkan.");
             return;
         }
-        onAdd(product, selectedOptions, notes, quantity);
+        const finalQuantity = !quantity || quantity < 1 ? 1 : quantity;
+        onAdd(product, selectedOptions, notes, finalQuantity);
     }
 
     // Prevent scrolling behind modal
@@ -520,12 +521,9 @@
                         min="1"
                         class="font-bold text-gray-900 w-12 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         aria-label="Jumlah"
-                        on:input={(e) => {
-                            const val = parseInt(e.currentTarget.value);
-                            if (isNaN(val) || val < 1) {
+                        on:blur={() => {
+                            if (!quantity || quantity < 1) {
                                 quantity = 1;
-                            } else {
-                                quantity = val;
                             }
                         }}
                     />
