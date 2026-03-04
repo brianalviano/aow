@@ -165,13 +165,13 @@
             color="blue"
         />
         <StatCard
-            label="Fee Perusahaan"
+            label="Fee Aplikasi"
             value={formatCurrency(chef.total_fee_amount)}
             icon="fa-solid fa-percent"
             color="purple"
         />
         <StatCard
-            label="Penjualan Bersih"
+            label="Pendapatan Bersih"
             value={formatCurrency(chef.net_sales)}
             icon="fa-solid fa-coins"
             color="green"
@@ -267,7 +267,7 @@
                     </div>
                     <div>
                         <div class="text-sm font-medium text-gray-500">
-                            Fee Perusahaan
+                            Fee Aplikasi
                         </div>
                         <div
                             class="mt-1 text-base font-semibold text-blue-600 dark:text-blue-400"
@@ -418,7 +418,7 @@
                             <TextInput
                                 id="gross_amount"
                                 name="gross_amount"
-                                label="Jumlah Kotor (Rp)"
+                                label="Penjualan (Rp)"
                                 currency
                                 placeholder="0"
                                 value={$transferForm.gross_amount.toString()}
@@ -440,7 +440,7 @@
                                     <div
                                         class="flex justify-between text-gray-600 dark:text-gray-400"
                                     >
-                                        <span>Jumlah Kotor</span>
+                                        <span>Penjualan</span>
                                         <span
                                             >{formatCurrency(
                                                 $transferForm.gross_amount,
@@ -451,7 +451,7 @@
                                         class="flex justify-between text-red-600 dark:text-red-400"
                                     >
                                         <span
-                                            >Fee Perusahaan ({chef.fee_percentage}%)</span
+                                            >Fee Aplikasi ({chef.fee_percentage}%)</span
                                         >
                                         <span
                                             >- {formatCurrency(
@@ -462,7 +462,7 @@
                                     <div
                                         class="flex justify-between font-semibold text-green-700 dark:text-green-400 border-t border-gray-200 dark:border-gray-700 pt-1"
                                     >
-                                        <span>Nett Transfer ke Chef</span>
+                                        <span>Pendapatan Bersih</span>
                                         <span
                                             >{formatCurrency(
                                                 previewNetAmount,
@@ -537,9 +537,9 @@
                     <thead>
                         <tr>
                             <th>Tanggal</th>
-                            <th>Kotor</th>
-                            <th>Fee</th>
-                            <th>Nett</th>
+                            <th>Penjualan</th>
+                            <th>Fee Aplikasi</th>
+                            <th>Pendapatan Bersih</th>
                             <th>Catatan</th>
                             <th class="w-20 text-center">Bukti</th>
                         </tr>

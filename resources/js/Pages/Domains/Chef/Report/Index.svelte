@@ -183,7 +183,7 @@
                 >
                     <i class="fa-solid fa-circle-info"></i>
                     <span
-                        >Telah dipotong fee perusahaan sebesar {formatCurrency(
+                        >Telah dipotong fee aplikasi sebesar {formatCurrency(
                             summary.fee_amount,
                         )}</span
                     >
@@ -224,7 +224,7 @@
                 <div class="flex items-center gap-2 text-gray-500 mb-1">
                     <i class="fa-solid fa-money-bill-wave text-sm"></i>
                     <h3 class="text-xs font-bold uppercase tracking-wider">
-                        Total Pendapatan Kotor
+                        Total Penjualan
                     </h3>
                 </div>
                 <p class="text-lg font-black text-gray-900">
