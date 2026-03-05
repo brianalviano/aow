@@ -20,6 +20,7 @@
         id: string;
         number: string;
         delivery_date: string;
+        delivery_time?: string;
         order_status: string;
         customer?: {
             name: string;
@@ -442,6 +443,21 @@
                                     {dayjs(group.order.delivery_date).format(
                                         "dddd, D MMMM YYYY",
                                     )}
+                                    {#if group.order.delivery_time}
+                                        <span class="text-gray-400 mx-1">•</span
+                                        >
+                                        {group.order.delivery_time.includes("T")
+                                            ? new Date(
+                                                  group.order.delivery_time,
+                                              ).toLocaleTimeString("id-ID", {
+                                                  hour: "2-digit",
+                                                  minute: "2-digit",
+                                              })
+                                            : group.order.delivery_time.substring(
+                                                  0,
+                                                  5,
+                                              )} WIB
+                                    {/if}
                                 </span>
                             </div>
                         </div>
