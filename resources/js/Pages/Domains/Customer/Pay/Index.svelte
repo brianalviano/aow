@@ -352,7 +352,7 @@
                                 atas.
                             </p>
                             <a
-                                href={midtransData.url}
+                                href={`/payment/${order.id}/qris-download`}
                                 download={`QRIS-${order.number}.png`}
                                 target="_blank"
                                 rel="noopener noreferrer"

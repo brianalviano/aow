@@ -221,4 +221,68 @@ class PaymentController extends Controller
             return back();
         }
     }
+
+    /**
+     * Download QRIS image via backend to bypass CORS and force download.
+     *
+     * @param \App\Models\Order $order
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function downloadQris(\App\Models\Order $order)
+    {
+        $details = $order->payment_details;
+
+        if (!$details || !isset($details['actions'])) {
+            Inertia::flash('toast', [
+                'message' => 'Data QRIS tidak ditemukan.',
+                'type' => 'error',
+            ]);
+            return back();
+        }
+
+        $qrisUrl = null;
+        foreach ($details['actions'] as $action) {
+            if ($action['name'] === 'generate-qr-code') {
+                $qrisUrl = $action['url'];
+                break;
+            }
+        }
+
+        if (!$qrisUrl) {
+            Inertia::flash('toast', [
+                'message' => 'URL QRIS tidak ditemukan.',
+                'type' => 'error',
+            ]);
+            return back();
+        }
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::get($qrisUrl);
+
+            if ($response->successful()) {
+                $imageContent = $response->body();
+                $contentType = $response->header('Content-Type') ?? 'image/png';
+                $filename = 'QRIS-' . $order->number . '.png';
+
+                return response()->streamDownload(function () use ($imageContent) {
+                    echo $imageContent;
+                }, $filename, [
+                    'Content-Type' => $contentType,
+                ]);
+            }
+
+            throw new \Exception('Failed to fetch image from Midtrans.');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Download QRIS failed', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            Inertia::flash('toast', [
+                'message' => 'Gagal mengunduh QRIS, silakan coba lagi.',
+                'type' => 'error',
+            ]);
+            return back();
+        }
+    }
 }

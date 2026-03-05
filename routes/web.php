@@ -71,7 +71,7 @@ Route::get('/payment-summary', [PaymentController::class, 'index'])->name('custo
 Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('customer.payment.show');
 Route::post('/payment', [PaymentController::class, 'processPayment'])->name('customer.payment.store');
 Route::post('/payment/{order}/proof', [PaymentController::class, 'uploadProof'])->name('customer.payment.proof');
-
+Route::get('/payment/{order}/qris-download', [PaymentController::class, 'downloadQris'])->name('customer.payment.qris-download');
 // Midtrans Redirects
 Route::get('/payment/finish', function () {
     return redirect()->route('customer.products')->with('success', 'Pembayaran sedang diproses atau sudah berhasil.');
