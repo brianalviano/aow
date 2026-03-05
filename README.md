@@ -1,6 +1,6 @@
-# AOW (Aowenak.com)
+# AOWenak (aowenak.com)
 
-A professional Pre-Order (PO) food ordering system designed for streamlined delivery to designated **Drop Points**. AOW simplifies the lunch ordering process for schools, campuses, and offices by providing a robust platform where quality food meets systematic distribution.
+A professional Pre-Order (PO) food ordering system designed for streamlined delivery to designated **Drop Points**. AOWenak simplifies the lunch ordering process for schools, campuses, and offices by providing a robust platform where quality food meets systematic distribution.
 
 ## 🚀 Mission & Vision
 
