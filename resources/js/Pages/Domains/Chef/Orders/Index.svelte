@@ -369,7 +369,7 @@
             <div class="flex overflow-x-auto hide-scrollbar scroll-smooth">
                 {#each tabs as tab}
                     <button
-                        class="shrink-0 px-6 py-3 text-sm font-medium transition-colors border-b-2 {activeTab ===
+                        class="shrink-0 px-3 py-3 text-sm font-medium transition-colors border-b-2 {activeTab ===
                         tab.id
                             ? 'border-orange-500 text-orange-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700'}"
