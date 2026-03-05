@@ -47,7 +47,8 @@ class CheckoutController extends Controller
 
         $quotaProgress = null;
         if ($dropPointData && $orderType === 'preorder') {
-            $quotaProgress = $this->quotaService->calculateDropPointQuotaProgress($dropPointData['id'], $deliveryDate);
+            $quotaDate = $deliveryDate ?: now()->addDay()->format('Y-m-d');
+            $quotaProgress = $this->quotaService->calculateDropPointQuotaProgress($dropPointData['id'], $quotaDate);
         }
 
         return Inertia::render('Domains/Customer/Checkout/Index', [

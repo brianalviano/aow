@@ -96,8 +96,9 @@ class ProductController extends Controller
 
         $quotaProgress = null;
         if ($dropPoint && $orderType === 'preorder') {
-            $deliveryDate = session('checkout_delivery_date', now()->addDay()->format('Y-m-d')); // Default to tomorrow if not set
-            $quotaProgress = $this->quotaService->calculateDropPointQuotaProgress($dropPoint->id, $deliveryDate);
+            $deliveryDate = session('checkout_delivery_date');
+            $quotaDate = $deliveryDate ?: now()->addDay()->format('Y-m-d'); // Default to tomorrow if null
+            $quotaProgress = $this->quotaService->calculateDropPointQuotaProgress($dropPoint->id, $quotaDate);
         }
 
         return Inertia::render('Domains/Customer/Product/Index', [
