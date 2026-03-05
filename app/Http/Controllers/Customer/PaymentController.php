@@ -262,7 +262,10 @@ class PaymentController extends Controller
             if ($response->successful()) {
                 $imageContent = $response->body();
                 $contentType = $response->header('Content-Type') ?? 'image/png';
-                $filename = 'QRIS-' . $order->number . '.png';
+
+                // Sanitize filename to ensure no slashes or backslashes are present
+                $safeOrderNumber = str_replace('/', '-', $order->number);
+                $filename = 'QRIS-' . $safeOrderNumber . '.png';
 
                 return response()->streamDownload(function () use ($imageContent) {
                     echo $imageContent;
