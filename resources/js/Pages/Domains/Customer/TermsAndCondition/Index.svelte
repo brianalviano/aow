@@ -2,6 +2,9 @@
     import { page, Link } from "@inertiajs/svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
     export let appUrl: string;
+    export let orderMinDaysAhead: number = 1;
+    export let paymentMethodsStr: string = "";
+    export let dropPointCategoriesStr: string = "";
 
     const displayUrl = appUrl.replace(/^https?:\/\//, "");
     $: appName = name($page.props.settings);
@@ -33,7 +36,7 @@
         <div class="max-w-3xl mx-auto p-6">
             <h1 class="text-3xl font-bold mb-2">Syarat & Ketentuan</h1>
             <p class="text-sm text-gray-500 mb-8">
-                Terakhir diperbarui: 23 Februari 2026
+                Terakhir diperbarui: 05 Maret 2026
             </p>
 
             <p class="mb-10 leading-relaxed">
@@ -56,12 +59,13 @@
                     menggunakan layanan kami
                 </li>
                 <li>
-                    <strong>Drop Point</strong> — lokasi pengiriman yang telah ditentukan
-                    (sekolah, kampus, atau kantor)
+                    <strong>Drop Point</strong> — lokasi pengiriman yang telah
+                    ditentukan ({dropPointCategoriesStr})
                 </li>
                 <li>
-                    <strong>Pre-Order (PO)</strong> — sistem pemesanan makanan yang
-                    dilakukan pada hari sebelum tanggal pengiriman (H-1)
+                    <strong>Pre-Order (PO)</strong> — sistem pemesanan makanan
+                    yang dilakukan minimal {orderMinDaysAhead} hari sebelum tanggal
+                    pengiriman (H-{orderMinDaysAhead})
                 </li>
             </ul>
 
@@ -90,12 +94,12 @@
             <h2 class="text-xl font-semibold mb-3">3. Sistem Pre-Order</h2>
             <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
                 <li>
-                    Pemesanan dilakukan maksimal sehari sebelum tanggal
-                    pengiriman (H-1)
+                    Pemesanan dilakukan minimal {orderMinDaysAhead} hari sebelum
+                    tanggal pengiriman (H-{orderMinDaysAhead})
                 </li>
                 <li>
-                    Terdapat batas waktu pemesanan setiap harinya yang dapat
-                    berubah sewaktu-waktu
+                    Terdapat batas waktu yang telah ditentukan untuk pemesanan
+                    setiap harinya
                 </li>
                 <li>
                     Pesanan yang masuk setelah batas waktu akan diproses untuk
@@ -116,12 +120,7 @@
             <h2 class="text-xl font-semibold mb-3">4. Pembayaran</h2>
             <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
                 <li>
-                    Pembayaran dapat dilakukan melalui transfer bank, virtual
-                    account, QRIS, OVO, dan Shopee Pay
-                </li>
-                <li>
-                    Untuk pembayaran tunai (COD), pembayaran dilakukan saat
-                    makanan diterima di drop point
+                    Pembayaran dapat dilakukan melalui {paymentMethodsStr}
                 </li>
                 <li>
                     Pesanan dianggap valid setelah pembayaran berhasil
@@ -141,8 +140,12 @@
             <h2 class="text-xl font-semibold mb-3">5. Pengiriman</h2>
             <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
                 <li>
-                    Pengiriman hanya dilakukan ke drop point yang telah
-                    terdaftar dalam sistem
+                    Pengiriman pesanan pre-order (PO) harus memenuhi kuota
+                    minimum order untuk mendapatkan gratis ongkos kirim
+                </li>
+                <li>
+                    Pengiriman pesanan instan tanpa minimum order hanya
+                    menggunakan kurir online berbayar sesuai tarif di aplikasi
                 </li>
                 <li>
                     Pengguna wajib memastikan drop point yang dipilih sesuai
@@ -154,8 +157,8 @@
                     kemacetan, dll)
                 </li>
                 <li>
-                    Pengguna wajib mengambil pesanan di drop point pada waktu
-                    yang telah ditentukan
+                    Pengguna wajib mengambil pesanan di drop point dengan segera
+                    setelah kami kirimkan notifikasi pesanan datang
                 </li>
                 <li>
                     Pesanan yang tidak diambil dalam waktu yang ditentukan
@@ -229,7 +232,10 @@
             <p class="mb-3 leading-relaxed">Pengguna dilarang:</p>
             <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
                 <li>Menggunakan layanan untuk tujuan yang melanggar hukum</li>
-                <li>Mendaftarkan akun menggunakan identitas orang lain</li>
+                <li>
+                    Mendaftarkan akun menggunakan identitas orang lain dengan
+                    maksud memanipulasi data untuk tindakan kriminal
+                </li>
                 <li>
                     Melakukan pemesanan fiktif atau pesanan yang tidak berniat
                     untuk dibayar
