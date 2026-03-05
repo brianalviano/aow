@@ -100,6 +100,30 @@
         return null;
     }
 
+    async function downloadImage(url: string, filename: string) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error("Failed to download image", error);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename;
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
     function submitProof(e: Event) {
         e.preventDefault();
         $form.post(`/payment/${order.id}/proof${from ? `?from=${from}` : ""}`, {
@@ -107,9 +131,29 @@
         });
     }
 
+    let currentTime = $state(Date.now());
+
+    $effect(() => {
+        const interval = setInterval(() => {
+            currentTime = Date.now();
+        }, 1000);
+        return () => clearInterval(interval);
+    });
+
     const midtransData = $derived(getMidtransData());
     const isPaid = $derived(
         ["paid", "settlement", "capture"].includes(order.payment_status),
+    );
+    const isExpiredStatus = $derived(
+        ["expire", "cancel"].includes(order.payment_status),
+    );
+    const isExpired = $derived(
+        isExpiredStatus ||
+            (!isPaid &&
+                midtransData?.expiry &&
+                new Date(
+                    midtransData.expiry.replace(" ", "T") + "+07:00",
+                ).getTime() <= currentTime),
     );
     const isCash = $derived(order.payment_method?.category === "cash");
     const isManualTransfer = $derived(!isCash && !midtransData);
@@ -129,11 +173,27 @@
     <section
         class="my-5 px-6 space-y-6 w-full {isPaid ||
         isCash ||
+        isExpired ||
         (isManualTransfer && hasProof)
             ? 'flex flex-col items-center justify-center min-h-[70vh]'
             : ''}"
     >
-        {#if isPaid || isCash}
+        {#if isExpired}
+            <div class="text-center space-y-3">
+                <div
+                    class="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-4xl"
+                >
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <h2 class="text-2xl font-black text-gray-900 tracking-tight">
+                    Waktu Habis
+                </h2>
+                <p class="text-gray-500 text-sm max-w-[280px] mx-auto">
+                    Batas waktu pembayaran telah kedaluwarsa. Silakan buat
+                    pesanan baru.
+                </p>
+            </div>
+        {:else if isPaid || isCash}
             <div class="text-center space-y-3">
                 <div
                     class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-4xl animate-bounce"
@@ -195,7 +255,7 @@
             </div>
         {/if}
 
-        {#if !isPaid && !isCash && !(isManualTransfer && hasProof)}
+        {#if !isPaid && !isCash && !(isManualTransfer && hasProof) && !isExpired}
             {#if midtransData}
                 <div
                     class="bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-gray-200/50 border border-gray-100 space-y-8"
@@ -315,6 +375,16 @@
                                 Buka aplikasi e-wallet kamu dan scan kode di
                                 atas.
                             </p>
+                            <button
+                                onclick={() =>
+                                    downloadImage(
+                                        midtransData.url,
+                                        `QRIS-${order.number}.png`,
+                                    )}
+                                class="w-full py-3 bg-blue-50 text-[#0060B2] font-bold rounded-2xl hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <i class="fa-solid fa-download"></i> Simpan QRIS
+                            </button>
                         </div>
                     {/if}
 
