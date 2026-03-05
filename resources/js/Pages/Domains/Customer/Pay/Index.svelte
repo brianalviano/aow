@@ -376,11 +376,15 @@
                                 atas.
                             </p>
                             <button
-                                onclick={() =>
+                                type="button"
+                                onclick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     downloadImage(
                                         midtransData.url,
                                         `QRIS-${order.number}.png`,
-                                    )}
+                                    );
+                                }}
                                 class="w-full py-3 bg-blue-50 text-[#0060B2] font-bold rounded-2xl hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
                             >
                                 <i class="fa-solid fa-download"></i> Simpan QRIS
