@@ -196,7 +196,9 @@
         transition:slide={{ duration: 300, axis: "y" }}
     >
         <!-- Close Button & Expanding Image -->
-        <div class="relative w-full aspect-video bg-gray-100 shrink-0">
+        <div
+            class="relative w-full aspect-video bg-gray-100 shrink-0 overflow-hidden"
+        >
             {#if product.image_url}
                 <img
                     src={product.image_url}

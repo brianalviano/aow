@@ -556,7 +556,9 @@
                                 ? 'border-b-4 border-b-[#FFD700]'
                                 : ''}"
                         >
-                            <div class="aspect-4/3 w-full bg-gray-100 relative">
+                            <div
+                                class="aspect-square w-full bg-gray-100 relative overflow-hidden"
+                            >
                                 {#if product.image_url}
                                     <img
                                         src={product.image_url}
