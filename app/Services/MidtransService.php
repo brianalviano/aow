@@ -56,6 +56,13 @@ class MidtransService
         // Ensure all necessary relationships are loaded for mapping
         $order->load(['customer', 'items.product', 'items.options', 'paymentMethod', 'dropPoint']);
 
+        $shippingAddress = [
+            'first_name' => $order->dropPoint->name ?? 'Pengiriman',
+            'address' => $order->dropPoint->address ?? '-',
+            'phone' => $order->dropPoint->pic_phone ?? ($order->dropPoint->phone ?? $order->customer->phone),
+            'country_code' => 'IDN',
+        ];
+
         $params = [
             'transaction_details' => [
                 'order_id' => $order->number,
@@ -65,12 +72,8 @@ class MidtransService
                 'first_name' => $order->customer->name,
                 'email' => $order->customer->email,
                 'phone' => $order->customer->phone,
-                'shipping_address' => [
-                    'first_name' => $order->dropPoint->name,
-                    'address' => $order->dropPoint->address,
-                    'phone' => $order->dropPoint->pic_phone ?? $order->dropPoint->phone,
-                    'country_code' => 'IDN',
-                ],
+                'billing_address' => $shippingAddress,
+                'shipping_address' => $shippingAddress,
             ],
             'item_details' => $this->mapItems($order),
         ];
@@ -111,10 +114,10 @@ class MidtransService
             $unitPrice = (int) ($item->subtotal / $item->quantity);
 
             $items[] = [
-                'id' => 'ITEM-' . $item->id,
+                'id' => substr((string) ($item->product_id ?? $item->id), 0, 50),
                 'price' => $unitPrice,
                 'quantity' => (int) $item->quantity,
-                'name' => data_get($item, 'product.name', 'Produk'),
+                'name' => substr((string) data_get($item, 'product.name', 'Produk'), 0, 50),
             ];
 
             // Item-level discount handling (if stored separately as negative amount)
