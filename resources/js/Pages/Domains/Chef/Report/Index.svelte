@@ -113,24 +113,6 @@
             </button>
             <button
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
-                '30_days'
-                    ? 'bg-orange-600 border-orange-600 text-white'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
-                onclick={() => handleDateRangeChange("30_days")}
-            >
-                30 Hari Terakhir
-            </button>
-            <button
-                class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
-                '90_days'
-                    ? 'bg-orange-600 border-orange-600 text-white'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
-                onclick={() => handleDateRangeChange("90_days")}
-            >
-                90 Hari Terakhir
-            </button>
-            <button
-                class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                 'custom'
                     ? 'bg-orange-600 border-orange-600 text-white'
                     : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
