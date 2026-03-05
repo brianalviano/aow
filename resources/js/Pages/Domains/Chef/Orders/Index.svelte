@@ -326,7 +326,7 @@
 
         <!-- Date Filters -->
         <div class="px-4 pb-4 flex gap-2 overflow-x-auto hide-scrollbar">
-            {#each ["all", "30_days", "90_days", "custom"] as range}
+            {#each ["all", "custom"] as range}
                 <button
                     class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                     range
@@ -334,13 +334,7 @@
                         : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
                     onclick={() => handleDateRangeChange(range)}
                 >
-                    {range === "all"
-                        ? "Semua Waktu"
-                        : range === "30_days"
-                          ? "30 Hari"
-                          : range === "90_days"
-                            ? "90 Hari"
-                            : "Pilih Tanggal"}
+                    {range === "all" ? "Semua Waktu" : "Pilih Tanggal"}
                 </button>
             {/each}
         </div>
