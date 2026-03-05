@@ -123,9 +123,9 @@
     function closeSidebarOnMobile() {
         if (typeof window !== "undefined" && window.innerWidth < 1024) {
             sidebarOpen = false;
-            profileDropdownOpen = false;
-            notifDropdownOpen = false;
         }
+        profileDropdownOpen = false;
+        notifDropdownOpen = false;
     }
 
     function toggleSidebarDesktop() {
@@ -138,6 +138,9 @@
     }
 
     function toggleSubmenu(menuId: string) {
+        profileDropdownOpen = false;
+        notifDropdownOpen = false;
+
         if (expandedMenus.has(menuId)) {
             expandedMenus.delete(menuId);
         } else {
