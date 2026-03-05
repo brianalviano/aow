@@ -168,7 +168,7 @@
             !target.closest("#notifToggle") &&
             !target.closest("#notifDropdown")
         ) {
-            // notifDropdownOpen = false;
+            notifDropdownOpen = false;
         }
     }
 
