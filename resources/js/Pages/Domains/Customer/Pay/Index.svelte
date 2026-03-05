@@ -411,6 +411,16 @@
                             >
                         </div>
                     </div>
+
+                    <div>
+                        <button
+                            onclick={() => showGuide(order.payment_method)}
+                            class="w-full py-4 text-sm font-bold text-[#0060B2] bg-blue-50 rounded-2xl flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                        >
+                            <i class="fa-solid fa-circle-question"></i>
+                            Lihat Instruksi Pembayaran
+                        </button>
+                    </div>
                 </div>
             {:else}
                 <!-- Manual Payment State -->
