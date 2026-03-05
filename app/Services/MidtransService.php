@@ -143,7 +143,17 @@ class MidtransService
             ];
         }
 
-        // 4. Tax (PPN)
+        // 4. Service Fee
+        if ($order->service_fee > 0) {
+            $items[] = [
+                'id' => 'FEE-SERVICE',
+                'price' => (int) $order->service_fee,
+                'quantity' => 1,
+                'name' => 'Biaya Layanan',
+            ];
+        }
+
+        // 5. Tax (PPN)
         if ($order->tax_amount > 0) {
             $items[] = [
                 'id' => 'TAX-PPN',
@@ -153,7 +163,7 @@ class MidtransService
             ];
         }
 
-        // 5. Global/Coupon Discount
+        // 6. Global/Coupon Discount
         if ($order->discount_amount > 0) {
             $items[] = [
                 'id' => 'DISC-GLOBAL',
