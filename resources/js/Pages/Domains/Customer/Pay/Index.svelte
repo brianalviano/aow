@@ -354,6 +354,8 @@
                             <a
                                 href={midtransData.url}
                                 download={`QRIS-${order.number}.png`}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 class="w-full py-3 bg-blue-50 text-[#0060B2] font-bold rounded-2xl hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
                             >
                                 <i class="fa-solid fa-download"></i> Simpan QRIS
