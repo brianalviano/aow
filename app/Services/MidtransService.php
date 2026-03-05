@@ -275,13 +275,23 @@ class MidtransService
             ];
         }
 
-        // GoPay / QRIS
-        if ($code === 'gopay' || $code === 'qris') {
+        // GoPay
+        if ($code === 'gopay') {
             return [
-                'payment_type' => 'gopay', // GOPAY response usually includes QRIS
+                'payment_type' => 'gopay',
                 'gopay' => [
                     'enable_callback' => true,
                     'callback_url' => url('/'),
+                ],
+            ];
+        }
+
+        // QRIS
+        if ($code === 'qris') {
+            return [
+                'payment_type' => 'qris',
+                'qris' => [
+                    'acquirer' => 'gopay',
                 ],
             ];
         }
