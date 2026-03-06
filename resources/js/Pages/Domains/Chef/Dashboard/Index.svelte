@@ -237,7 +237,7 @@
     >
         <div class="max-w-7xl mx-auto flex justify-between items-center w-full">
             <div class="flex items-center gap-2">
-                <div class="bg-orange-500 text-white p-1.5 rounded-lg">
+                <div class="bg-[#FFD700] text-white p-1.5 rounded-lg">
                     <i class="fa-solid fa-utensils"></i>
                 </div>
                 <h1 class="text-lg font-bold text-gray-900">Chef Portal</h1>
@@ -380,7 +380,7 @@
                                             </p>
                                             {#if item.note}
                                                 <p
-                                                    class="text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded mt-1 inline-block"
+                                                    class="text-xs text-[#997A00] bg-[#FFF9E6] px-2 py-0.5 rounded mt-1 inline-block"
                                                 >
                                                     <i
                                                         class="fa-solid fa-comment-dots mr-1"

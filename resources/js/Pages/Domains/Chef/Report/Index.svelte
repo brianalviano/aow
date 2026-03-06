@@ -91,7 +91,7 @@
     >
         <div class="max-w-7xl mx-auto flex justify-between items-center w-full">
             <div class="flex items-center gap-2">
-                <div class="bg-orange-500 text-white p-1.5 rounded-lg">
+                <div class="bg-[#FFD700] text-white p-1.5 rounded-lg">
                     <i class="fa-solid fa-chart-line"></i>
                 </div>
                 <h1 class="text-lg font-bold text-gray-900">Laporan</h1>
@@ -105,7 +105,7 @@
             <button
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                 'all'
-                    ? 'bg-orange-600 border-orange-600 text-white'
+                    ? 'bg-[#FFD700] border-[#FFD700] text-gray-900'
                     : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
                 onclick={() => handleDateRangeChange("all")}
             >
@@ -114,7 +114,7 @@
             <button
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                 'custom'
-                    ? 'bg-orange-600 border-orange-600 text-white'
+                    ? 'bg-[#FFD700] border-[#FFD700] text-gray-900'
                     : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
                 onclick={() => handleDateRangeChange("custom")}
             >
@@ -140,7 +140,7 @@
                 </div>
                 <button
                     onclick={handleFilter}
-                    class="w-full mt-1 py-2.5 bg-orange-600 text-white rounded-xl text-sm font-bold hover:bg-orange-700 transition-all shadow-sm active:scale-[0.98]"
+                    class="w-full mt-1 py-2.5 bg-[#FFD700] text-gray-900 rounded-xl text-sm font-bold hover:bg-[#FFC700] transition-all shadow-sm active:scale-[0.98]"
                 >
                     Terapkan Rentang Tanggal
                 </button>
@@ -150,7 +150,7 @@
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 gap-4">
             <div
-                class="bg-linear-to-br from-orange-500 to-orange-600 rounded-2xl p-4 shadow-lg text-white col-span-2"
+                class="bg-linear-to-br from-[#FFD700] to-[#FFC700] rounded-2xl p-4 shadow-lg text-gray-900 col-span-2"
             >
                 <h2
                     class="text-xs font-medium opacity-80 uppercase tracking-wider"
@@ -288,7 +288,7 @@
                                     <a
                                         href={transfer.transfer_proof}
                                         target="_blank"
-                                        class="inline-flex items-center gap-1 text-xs text-orange-600 font-semibold hover:text-orange-700 hover:underline bg-orange-50 px-3 py-1.5 rounded-lg transition-colors border border-orange-100"
+                                        class="inline-flex items-center gap-1 text-xs text-[#997A00] font-semibold hover:text-[#FFC700] hover:underline bg-[#FFF9E6] px-3 py-1.5 rounded-lg transition-colors border border-yellow-200"
                                     >
                                         <i class="fa-solid fa-file-invoice"></i>
                                         Lihat Bukti Transfer

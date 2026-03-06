@@ -300,7 +300,7 @@
 <div class="flex flex-col min-h-screen bg-gray-50 pb-20">
     <header class="bg-white sticky top-0 z-30 shadow-sm">
         <div class="px-4 py-4 flex items-center gap-3">
-            <div class="bg-orange-500 text-white p-1.5 rounded-lg">
+            <div class="bg-[#FFD700] text-white p-1.5 rounded-lg">
                 <i class="fa-solid fa-clipboard-list"></i>
             </div>
             <h1 class="text-lg font-bold text-gray-900 leading-none">
@@ -319,7 +319,7 @@
                     bind:value={search}
                     oninput={handleSearchInput}
                     placeholder="Cari nomor pesanan, produk, atau customer..."
-                    class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                    class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FFD700]/20 focus:border-[#FFD700] transition-all"
                 />
             </div>
         </div>
@@ -330,7 +330,7 @@
                 <button
                     class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                     range
-                        ? 'bg-orange-500 border-orange-500 text-white'
+                        ? 'bg-[#FFD700] border-[#FFD700] text-gray-900'
                         : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
                     onclick={() => handleDateRangeChange(range)}
                 >
@@ -357,7 +357,7 @@
                 </div>
                 <button
                     onclick={applyFilters}
-                    class="w-full mt-1 py-2 bg-orange-500 text-white rounded-xl text-sm font-bold hover:bg-orange-600 transition-all shadow-sm active:scale-[0.98]"
+                    class="w-full mt-1 py-2 bg-[#FFD700] text-gray-900 rounded-xl text-sm font-bold hover:bg-[#FFC700] transition-all shadow-sm active:scale-[0.98]"
                 >
                     Terapkan Rentang Tanggal
                 </button>
@@ -371,7 +371,7 @@
                     <button
                         class="shrink-0 px-3 py-3 text-sm font-medium transition-colors border-b-2 {activeTab ===
                         tab.id
-                            ? 'border-orange-500 text-orange-600'
+                            ? 'border-[#FFD700] text-[#997A00]'
                             : 'border-transparent text-gray-500 hover:text-gray-700'}"
                         onclick={() => handleTabClick(tab.id)}
                     >
@@ -537,7 +537,7 @@
                     : 'invisible'}"
             >
                 <div
-                    class="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"
+                    class="w-8 h-8 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin"
                 ></div>
             </div>
 
