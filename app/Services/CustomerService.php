@@ -20,10 +20,10 @@ class CustomerService
     {
         return Customer::query()
             ->when($search, function ($query, $term) {
-                $query->where('name', 'like', "%{$term}%")
-                    ->orWhere('username', 'like', "%{$term}%")
-                    ->orWhere('email', 'like', "%{$term}%")
-                    ->orWhere('phone', 'like', "%{$term}%");
+                $query->where('name', 'ilike', "%{$term}%")
+                    ->orWhere('username', 'ilike', "%{$term}%")
+                    ->orWhere('email', 'ilike', "%{$term}%")
+                    ->orWhere('phone', 'ilike', "%{$term}%");
             })
             ->latest()
             ->paginate($perPage)

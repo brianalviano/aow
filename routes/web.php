@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\{
     PasswordResetController,
     PaymentGuideController,
     PaymentMethodController,
+    PickUpPointController,
     ProductCategoryController,
     ProductController,
     ReportController,
@@ -214,6 +215,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/drop-points/{dropPoint}/edit', [DropPointController::class, 'edit'])->name('drop-points.edit');
         Route::put('/drop-points/{dropPoint}', [DropPointController::class, 'update'])->name('drop-points.update');
         Route::delete('/drop-points/{dropPoint}', [DropPointController::class, 'destroy'])->name('drop-points.destroy');
+
+        // Pick Up Points
+        Route::get('/pick-up-points', [PickUpPointController::class, 'index'])->name('pick-up-points.index');
+        Route::get('/pick-up-points/create', [PickUpPointController::class, 'create'])->name('pick-up-points.create');
+        Route::post('/pick-up-points', [PickUpPointController::class, 'store'])->name('pick-up-points.store');
+        Route::get('/pick-up-points/{pickUpPoint}/edit', [PickUpPointController::class, 'edit'])->name('pick-up-points.edit');
+        Route::put('/pick-up-points/{pickUpPoint}', [PickUpPointController::class, 'update'])->name('pick-up-points.update');
+        Route::delete('/pick-up-points/{pickUpPoint}', [PickUpPointController::class, 'destroy'])->name('pick-up-points.destroy');
+
+        // Pick Up Point Officers
+        Route::get('/pick-up-point-officers', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'index'])->name('pick-up-point-officers.index');
+        Route::get('/pick-up-point-officers/create', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'create'])->name('pick-up-point-officers.create');
+        Route::post('/pick-up-point-officers', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'store'])->name('pick-up-point-officers.store');
+        Route::get('/pick-up-point-officers/{pickUpPointOfficer}/edit', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'edit'])->name('pick-up-point-officers.edit');
+        Route::put('/pick-up-point-officers/{pickUpPointOfficer}', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'update'])->name('pick-up-point-officers.update');
+        Route::delete('/pick-up-point-officers/{pickUpPointOfficer}', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'destroy'])->name('pick-up-point-officers.destroy');
 
         // Payment Methods
         Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment-methods.index');

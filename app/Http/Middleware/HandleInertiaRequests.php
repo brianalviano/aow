@@ -149,6 +149,18 @@ class HandleInertiaRequests extends Middleware
                         'link'  => route('admin.drop-points.index'),
                     ],
                     [
+                        'id'    => 'pick-up-points',
+                        'label' => 'Pick Up Points',
+                        'icon'  => 'fa-map-pin',
+                        'link'  => route('admin.pick-up-points.index'),
+                    ],
+                    [
+                        'id'    => 'pick-up-point-officers',
+                        'label' => 'PIC Pick Up Point',
+                        'icon'  => 'fa-user-tie',
+                        'link'  => route('admin.pick-up-point-officers.index'),
+                    ],
+                    [
                         'id'    => 'chefs',
                         'label' => 'Chef',
                         'icon'  => 'fa-user-chef',

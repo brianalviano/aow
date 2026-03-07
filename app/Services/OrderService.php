@@ -496,12 +496,12 @@ class OrderService
         // Filter by Search (Order Number, Customer Name, or Product Name)
         if ($dto->search) {
             $query->where(function ($q) use ($dto) {
-                $q->where('number', 'like', "%{$dto->search}%")
+                $q->where('number', 'ilike', "%{$dto->search}%")
                     ->orWhereHas('customer', function ($cq) use ($dto) {
-                        $cq->where('name', 'like', "%{$dto->search}%");
+                        $cq->where('name', 'ilike', "%{$dto->search}%");
                     })
                     ->orWhereHas('items.product', function ($pq) use ($dto) {
-                        $pq->where('name', 'like', "%{$dto->search}%");
+                        $pq->where('name', 'ilike', "%{$dto->search}%");
                     });
             });
         }
@@ -565,12 +565,12 @@ class OrderService
         if ($dto->search) {
             $query->where(function ($q) use ($dto) {
                 $q->whereHas('order', function ($oq) use ($dto) {
-                    $oq->where('number', 'like', "%{$dto->search}%")
+                    $oq->where('number', 'ilike', "%{$dto->search}%")
                         ->orWhereHas('customer', function ($cq) use ($dto) {
-                            $cq->where('name', 'like', "%{$dto->search}%");
+                            $cq->where('name', 'ilike', "%{$dto->search}%");
                         });
                 })->orWhereHas('product', function ($pq) use ($dto) {
-                    $pq->where('name', 'like', "%{$dto->search}%");
+                    $pq->where('name', 'ilike', "%{$dto->search}%");
                 });
             });
         }
@@ -641,9 +641,9 @@ class OrderService
         // Filter by Search (Order Number or Product Name)
         if ($dto->search) {
             $query->where(function ($q) use ($dto) {
-                $q->where('number', 'like', "%{$dto->search}%")
+                $q->where('number', 'ilike', "%{$dto->search}%")
                     ->orWhereHas('items.product', function ($pq) use ($dto) {
-                        $pq->where('name', 'like', "%{$dto->search}%");
+                        $pq->where('name', 'ilike', "%{$dto->search}%");
                     });
             });
         }

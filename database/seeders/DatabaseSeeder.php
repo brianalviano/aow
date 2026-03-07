@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CompanyProfileSeeder::class,
             DropPointSeeder::class,
+            PickUpPointSeeder::class,
+            PickUpPointOfficerSeeder::class,
             ProductCategorySeeder::class,
             ProductSeeder::class,
             ChefSeeder::class,
