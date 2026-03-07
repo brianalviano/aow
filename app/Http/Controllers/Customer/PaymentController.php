@@ -6,11 +6,11 @@ namespace App\Http\Controllers\Customer;
 
 use App\DTOs\Checkout\ProcessOrderData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Customer\Checkout\ProcessPaymentRequest;
+use App\Enums\DropPointCategory;
 use App\Models\PaymentMethod;
 use App\Services\{CheckoutService, OrderService};
 use App\Traits\FileHelperTrait;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\{RedirectResponse, Request};
 use Illuminate\Support\Facades\Auth;
 use Inertia\{Inertia, Response};
 use Throwable;
@@ -104,7 +104,7 @@ class PaymentController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      * @throws Throwable
      */
-    public function processPayment(ProcessPaymentRequest $request)
+    public function processPayment(Request $request)
     {
         $cart = session('checkout_cart', []);
         $dropPoint = session('checkout_drop_point');
@@ -154,7 +154,19 @@ class PaymentController extends Controller
         }
 
         try {
-            $data = ProcessOrderData::fromRequest($request, $cart, $dropPoint, $address);
+            $dropPointSession = session('checkout_drop_point');
+            $isSchool = $dropPointSession && ($dropPointSession['category'] ?? '') === DropPointCategory::SCHOOL->value;
+
+            $validated = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'phone' => ['required', 'string', 'max:20'],
+                'email' => ['required', 'email', 'max:255'],
+                'payment_method_id' => ['required', 'exists:payment_methods,id'],
+                'delivery_date' => ['nullable', 'date'],
+                'delivery_time' => ['nullable'],
+                'school_class' => [($isSchool ? 'required' : 'nullable'), 'string', 'max:255'],
+            ]);
+            $data = ProcessOrderData::fromCheckout($validated, $cart, $dropPoint, $address);
 
             $order = $this->orderService->processOrder($data);
 

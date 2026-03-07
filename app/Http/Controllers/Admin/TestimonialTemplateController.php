@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTOs\TestimonialTemplate\TestimonialTemplateData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\TestimonialTemplate\StoreTestimonialTemplateRequest;
-use App\Http\Requests\Admin\TestimonialTemplate\UpdateTestimonialTemplateRequest;
 use App\Models\TestimonialTemplate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\{Inertia, Response};
 use Throwable;
 
 /**
@@ -55,10 +53,10 @@ class TestimonialTemplateController extends Controller
     /**
      * Store a newly created template.
      */
-    public function store(StoreTestimonialTemplateRequest $request): RedirectResponse
+    public function store(TestimonialTemplateData $data): RedirectResponse
     {
         try {
-            TestimonialTemplate::create($request->validated());
+            TestimonialTemplate::create($data->toArray());
 
             Inertia::flash('toast', [
                 'message' => 'Template Testimoni berhasil dibuat',
@@ -89,10 +87,10 @@ class TestimonialTemplateController extends Controller
     /**
      * Update the specified template.
      */
-    public function update(UpdateTestimonialTemplateRequest $request, TestimonialTemplate $testimonialTemplate): RedirectResponse
+    public function update(TestimonialTemplateData $data, TestimonialTemplate $testimonialTemplate): RedirectResponse
     {
         try {
-            $testimonialTemplate->update($request->validated());
+            $testimonialTemplate->update($data->toArray());
 
             Inertia::flash('toast', [
                 'message' => 'Template Testimoni berhasil diperbarui',

@@ -106,7 +106,7 @@ return [
      */
     'structure_caching' => [
         'enabled' => true,
-        'directories' => [app_path('Data')],
+        'directories' => [app_path('Data'), app_path('DTOs')],
         'cache' => [
             'store' => env('CACHE_STORE', env('CACHE_DRIVER', 'file')),
             'prefix' => 'laravel-data',
@@ -132,7 +132,7 @@ return [
      * global strategy here, or override it on a specific data object.
      */
     'name_mapping_strategy' => [
-        'input' => null,
+        'input' => Spatie\LaravelData\Mappers\SnakeCaseMapper::class,
         'output' => null,
     ],
 

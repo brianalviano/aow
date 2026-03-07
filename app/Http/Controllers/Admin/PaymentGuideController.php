@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTOs\PaymentGuide\PaymentGuideData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\PaymentGuide\{StorePaymentGuideRequest, UpdatePaymentGuideRequest};
 use App\Models\PaymentGuide;
 use App\Services\PaymentGuideService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\{Inertia, Response};
 use Throwable;
 
 class PaymentGuideController extends Controller
@@ -49,10 +48,10 @@ class PaymentGuideController extends Controller
     /**
      * Store a newly created payment guide.
      */
-    public function store(StorePaymentGuideRequest $request): RedirectResponse
+    public function store(PaymentGuideData $data): RedirectResponse
     {
         try {
-            $this->paymentGuideService->createPaymentGuide($request->validated());
+            $this->paymentGuideService->createPaymentGuide($data->toArray());
 
             Inertia::flash('toast', [
                 'message' => 'Panduan Pembayaran berhasil dibuat',
@@ -83,10 +82,10 @@ class PaymentGuideController extends Controller
     /**
      * Update the specified payment guide.
      */
-    public function update(UpdatePaymentGuideRequest $request, PaymentGuide $paymentGuide): RedirectResponse
+    public function update(PaymentGuideData $data, PaymentGuide $paymentGuide): RedirectResponse
     {
         try {
-            $this->paymentGuideService->updatePaymentGuide($paymentGuide, $request->validated());
+            $this->paymentGuideService->updatePaymentGuide($paymentGuide, $data->toArray());
 
             Inertia::flash('toast', [
                 'message' => 'Panduan Pembayaran berhasil diperbarui',

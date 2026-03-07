@@ -6,8 +6,8 @@ namespace App\Http\Controllers\Customer;
 
 use App\DTOs\Customer\FeedbackDTO;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Customer\StoreFeedbackRequest;
 use App\Services\FeedbackService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\{Inertia, Response};
 use Illuminate\Http\RedirectResponse;
@@ -37,16 +37,16 @@ class FeedbackController extends Controller
      * @param StoreFeedbackRequest $request
      * @return RedirectResponse
      */
-    public function store(StoreFeedbackRequest $request): RedirectResponse
+    public function store(FeedbackDTO $dto): RedirectResponse
     {
         /** @var \App\Models\Customer $user */
         $user = Auth::guard('customer')->user();
 
-        $dto = new FeedbackDTO(
-            customerId: (string) $user->id,
-            type: $request->validated('type'),
-            content: $request->validated('content')
-        );
+        // Set customerId from authenticated user since it's not sent by the form
+        $dto = FeedbackDTO::from([
+            ...$dto->toArray(),
+            'customerId' => (string) $user->id,
+        ]);
 
         $this->feedbackService->store($dto);
 

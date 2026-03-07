@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\DTOs\Setting\SettingData;
-use App\Http\Requests\Setting\UpdateSettingRequest;
 use App\Http\Resources\SettingResource;
 use App\Models\CompanyProfile;
 use App\Models\OrderSetting;
@@ -30,10 +29,12 @@ class SettingController extends Controller
         ]);
     }
 
-    public function update(UpdateSettingRequest $request, SettingService $service): RedirectResponse
+    public function update(Request $request, SettingService $service): RedirectResponse
     {
         try {
-            $service->update(SettingData::fromUpdateRequest($request));
+            $validated = $request->validate(SettingData::rules());
+            $data = SettingData::fromValidated($validated);
+            $service->update($data);
             Inertia::flash('toast', [
                 'message' => 'Pengaturan berhasil disimpan',
                 'type' => 'success',

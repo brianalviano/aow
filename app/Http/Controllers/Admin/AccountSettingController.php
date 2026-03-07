@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use App\DTOs\User\UserData;
@@ -24,10 +23,10 @@ class AccountSettingController extends Controller
         ]);
     }
 
-    public function update(UpdateUserRequest $request, UserService $service): RedirectResponse
+    public function update(UserData $data, UserService $service): RedirectResponse
     {
         try {
-            $service->update($request->user(), UserData::fromUpdateRequest($request));
+            $service->update(request()->user(), $data);
             Inertia::flash('toast', [
                 'message' => 'Pengaturan akun berhasil disimpan',
                 'type' => 'success',

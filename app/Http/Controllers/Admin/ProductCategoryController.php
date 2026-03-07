@@ -6,8 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\DTOs\ProductCategory\ProductCategoryData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ProductCategory\StoreProductCategoryRequest;
-use App\Http\Requests\Admin\ProductCategory\UpdateProductCategoryRequest;
 use App\Http\Resources\ProductCategoryResource;
 use App\Models\ProductCategory;
 use App\Services\ProductCategoryService;
@@ -55,11 +53,9 @@ class ProductCategoryController extends Controller
     /**
      * Store a newly created product category.
      */
-    public function store(StoreProductCategoryRequest $request): RedirectResponse
+    public function store(ProductCategoryData $data): RedirectResponse
     {
         try {
-            $data = ProductCategoryData::fromStoreRequest($request);
-
             $this->productCategoryService->createProductCategory($data);
 
             Inertia::flash('toast', [
@@ -91,11 +87,9 @@ class ProductCategoryController extends Controller
     /**
      * Update the specified product category.
      */
-    public function update(UpdateProductCategoryRequest $request, ProductCategory $category): RedirectResponse
+    public function update(ProductCategoryData $data, ProductCategory $category): RedirectResponse
     {
         try {
-            $data = ProductCategoryData::fromUpdateRequest($request);
-
             $this->productCategoryService->updateProductCategory($category, $data);
 
             Inertia::flash('toast', [

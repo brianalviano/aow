@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\DTOs\Chef\{ChefData, ChefTransferData};
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Chef\{StoreChefRequest, StoreChefTransferRequest, UpdateChefRequest};
 use App\Http\Resources\{ChefResource, ChefTransferResource};
 use App\Models\{Chef, Product};
 use App\Services\ChefService;
@@ -63,11 +62,9 @@ class ChefController extends Controller
     /**
      * Store a newly created chef.
      */
-    public function store(StoreChefRequest $request): RedirectResponse
+    public function store(ChefData $data): RedirectResponse
     {
         try {
-            $data = ChefData::fromStoreRequest($request);
-
             $this->chefService->createChef($data);
 
             Inertia::flash('toast', [
@@ -123,11 +120,9 @@ class ChefController extends Controller
     /**
      * Update the specified chef.
      */
-    public function update(UpdateChefRequest $request, Chef $chef): RedirectResponse
+    public function update(ChefData $data, Chef $chef): RedirectResponse
     {
         try {
-            $data = ChefData::fromUpdateRequest($request);
-
             $this->chefService->updateChef($chef, $data);
 
             Inertia::flash('toast', [
@@ -173,11 +168,9 @@ class ChefController extends Controller
     /**
      * Store a new transfer for the specified chef.
      */
-    public function storeTransfer(StoreChefTransferRequest $request, Chef $chef): RedirectResponse
+    public function storeTransfer(ChefTransferData $data, Chef $chef): RedirectResponse
     {
         try {
-            $data = ChefTransferData::fromRequest($request);
-
             $this->chefService->createTransfer($chef, $data);
 
             Inertia::flash('toast', [

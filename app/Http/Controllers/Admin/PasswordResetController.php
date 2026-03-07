@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTOs\Auth\{ForgotPasswordData, ResetPasswordData};
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\ForgotPasswordRequest;
-use App\Http\Requests\Auth\ResetPasswordRequest;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
@@ -19,9 +18,9 @@ class PasswordResetController extends Controller
         return Inertia::render('Auth/Admin/ForgotPassword');
     }
 
-    public function sendResetLink(ForgotPasswordRequest $request)
+    public function sendResetLink(ForgotPasswordData $dto)
     {
-        $email = mb_strtolower(trim((string) $request->input('email')));
+        $email = mb_strtolower(trim($dto->email));
         $exists = User::query()
             ->whereRaw('LOWER(email) = ?', [$email])
             ->exists();
@@ -32,7 +31,7 @@ class PasswordResetController extends Controller
             ]);
             return back()->withErrors(['email' => 'Email tidak terdaftar']);
         }
-        $status = Password::sendResetLink($request->only('email'));
+        $status = Password::sendResetLink(['email' => $dto->email]);
 
         if ($status === Password::RESET_LINK_SENT) {
             Inertia::flash('toast', [
@@ -57,10 +56,10 @@ class PasswordResetController extends Controller
         ]);
     }
 
-    public function reset(ResetPasswordRequest $request)
+    public function reset(ResetPasswordData $dto)
     {
         $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
+            ['email' => $dto->email, 'password' => $dto->password, 'password_confirmation' => $dto->passwordConfirmation, 'token' => $dto->token],
             function ($user, string $password) {
                 $user->password = bcrypt($password);
                 $user->setRememberToken(Str::random(60));

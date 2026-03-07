@@ -4,53 +4,55 @@ declare(strict_types=1);
 
 namespace App\DTOs\PickUpPoint;
 
-use App\Http\Requests\Admin\PickUpPoint\StorePickUpPointRequest;
-use App\Http\Requests\Admin\PickUpPoint\UpdatePickUpPointRequest;
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
- * Data Transfer Object for PickUpPoint.
+ * Data Transfer Object for PickUpPoint create/update operations.
+ *
+ * @property string $name Nama pick-up point
+ * @property string $address Alamat lengkap
+ * @property float $latitude Koordinat latitude
+ * @property float $longitude Koordinat longitude
+ * @property string|null $description Deskripsi
+ * @property bool $isActive Status aktif
+ * @property array<string> $officerIds ID officer yang di-assign
  */
-class PickUpPointData
+class PickUpPointData extends Data
 {
     public function __construct(
+        #[Rule('required', 'string', 'max:255')]
         public readonly string $name,
+
+        #[Rule('required', 'string')]
         public readonly string $address,
+
+        #[Rule('required', 'numeric', 'between:-90,90')]
         public readonly float $latitude,
+
+        #[Rule('required', 'numeric', 'between:-180,180')]
         public readonly float $longitude,
-        public readonly ?string $description,
+
+        #[Rule('nullable', 'string', 'max:1000')]
+        public readonly ?string $description = null,
+
+        #[Rule('sometimes', 'boolean')]
         public readonly bool $isActive = true,
+
+        #[Rule('nullable', 'array')]
         public readonly array $officerIds = [],
     ) {}
 
     /**
-     * Create DTO from Store Form Request.
+     * Dynamic rules for nested array item validation.
+     *
+     * @return array<string, array<int, mixed>>
      */
-    public static function fromStoreRequest(StorePickUpPointRequest $request): self
+    public static function rules(ValidationContext $context): array
     {
-        return new self(
-            name: (string) $request->validated('name'),
-            address: (string) $request->validated('address'),
-            latitude: (float) $request->validated('latitude'),
-            longitude: (float) $request->validated('longitude'),
-            description: $request->validated('description') === null ? null : (string) $request->validated('description'),
-            isActive: (bool) $request->validated('is_active', true),
-            officerIds: (array) $request->validated('officer_ids', []),
-        );
-    }
-
-    /**
-     * Create DTO from Update Form Request.
-     */
-    public static function fromUpdateRequest(UpdatePickUpPointRequest $request): self
-    {
-        return new self(
-            name: (string) $request->validated('name'),
-            address: (string) $request->validated('address'),
-            latitude: (float) $request->validated('latitude'),
-            longitude: (float) $request->validated('longitude'),
-            description: $request->validated('description') === null ? null : (string) $request->validated('description'),
-            isActive: (bool) $request->validated('is_active', true),
-            officerIds: (array) $request->validated('officer_ids', []),
-        );
+        return [
+            'officer_ids.*' => ['exists:pick_up_points_officers,id'],
+        ];
     }
 }

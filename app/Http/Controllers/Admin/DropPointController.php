@@ -7,8 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\DTOs\DropPoint\DropPointData;
 use App\Enums\DropPointCategory;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\DropPoint\StoreDropPointRequest;
-use App\Http\Requests\Admin\DropPoint\UpdateDropPointRequest;
 use App\Http\Resources\DropPointResource;
 use App\Models\DropPoint;
 use App\Services\DropPointService;
@@ -66,11 +64,9 @@ class DropPointController extends Controller
     /**
      * Store a newly created drop point.
      */
-    public function store(StoreDropPointRequest $request): RedirectResponse
+    public function store(DropPointData $data): RedirectResponse
     {
         try {
-            $data = DropPointData::fromStoreRequest($request);
-
             $this->dropPointService->createDropPoint($data);
 
             Inertia::flash('toast', [
@@ -108,11 +104,9 @@ class DropPointController extends Controller
     /**
      * Update the specified drop point.
      */
-    public function update(UpdateDropPointRequest $request, DropPoint $dropPoint): RedirectResponse
+    public function update(DropPointData $data, DropPoint $dropPoint): RedirectResponse
     {
         try {
-            $data = DropPointData::fromUpdateRequest($request);
-
             $this->dropPointService->updateDropPoint($dropPoint, $data);
 
             Inertia::flash('toast', [

@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Customer\ProfileUpdateRequest;
+use App\DTOs\Customer\UpdateProfileDTO;
 use App\Services\CustomerProfileService;
 use Illuminate\Http\RedirectResponse;
-use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\{Inertia, Response};
 
 class ProfileController extends Controller
 {
@@ -38,10 +37,9 @@ class ProfileController extends Controller
     /**
      * Update the customer's profile.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(UpdateProfileDTO $dto): RedirectResponse
     {
         $customer = auth('customer')->user();
-        $dto = $request->toDTO();
 
         $this->profileService->updateProfile($customer, $dto);
 

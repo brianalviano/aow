@@ -27,7 +27,7 @@ class OrderController extends Controller
     public function index(Request $request, \App\Services\OrderService $service): Response
     {
         $chef = Auth::guard('chef')->user();
-        $dto = \App\DTOs\Order\OrderFilterDTO::fromArray($request->all());
+        $dto = \App\DTOs\Order\OrderFilterDTO::from($request->all());
 
         $items = $service->getFilteredOrderItemsForChef(
             $chef->id,

@@ -18,7 +18,7 @@ class OrderController extends Controller
      */
     public function index(Request $request, \App\Services\OrderService $service): Response
     {
-        $dto = \App\DTOs\Order\OrderFilterDTO::fromArray($request->all());
+        $dto = \App\DTOs\Order\OrderFilterDTO::from($request->all());
 
         $orders = $service->getFilteredOrders(
             auth('customer')->id(),
@@ -82,7 +82,7 @@ class OrderController extends Controller
     /**
      * Store a testimonial for the specified order item.
      */
-    public function testimonial(\App\Models\OrderItem $orderItem, \App\Http\Requests\Customer\TestimonialRequest $request)
+    public function testimonial(\App\Models\OrderItem $orderItem, \App\DTOs\Customer\TestimonialData $data)
     {
         $order = $orderItem->order;
 
@@ -97,16 +97,16 @@ class OrderController extends Controller
         }
 
         try {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($orderItem, $request) {
-                $photoPath = $this->handleFileInput($request->file('photo'), null, 'testimonials');
+            \Illuminate\Support\Facades\DB::transaction(function () use ($orderItem, $data) {
+                $photoPath = $this->handleFileInput(request()->file('photo'), null, 'testimonials');
 
                 \App\Models\Testimonial::updateOrCreate(
                     ['order_item_id' => $orderItem->id],
                     [
                         'customer_id'   => $orderItem->order->customer_id,
                         'order_id'      => $orderItem->order_id,
-                        'rating'        => $request->rating,
-                        'content'       => $request->content,
+                        'rating'        => $data->rating,
+                        'content'       => $data->content,
                         'photo'         => $photoPath,
                         'is_approved'   => false, // Always requires approval
                     ]

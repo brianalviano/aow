@@ -4,44 +4,49 @@ declare(strict_types=1);
 
 namespace App\DTOs\Slider;
 
-use App\Http\Requests\Admin\Slider\{StoreSliderRequest, UpdateSliderRequest};
+use App\Traits\FileHelperTrait;
 use Illuminate\Http\UploadedFile;
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
- * Data Transfer Object for Slider.
+ * Data Transfer Object for Slider create/update operations.
+ *
+ * Uses FileHelperTrait for dynamic photo validation rules
+ * that support both file uploads and URL strings.
+ *
+ * @property string $name Nama slider
+ * @property string|UploadedFile|null $photo Gambar slider (file upload atau URL)
  */
-class SliderData
+class SliderData extends Data
 {
+    use FileHelperTrait;
+
     public function __construct(
+        #[Rule('required', 'string', 'max:255')]
         public readonly string $name,
+
         public readonly string|UploadedFile|null $photo = null,
     ) {}
 
     /**
-     * Create DTO from Store Form Request.
+     * Dynamic rules for photo field using FileHelperTrait.
      *
-     * @param StoreSliderRequest $request
-     * @return self
+     * Photo is required on store (no existing slider), nullable on update.
+     *
+     * @return array<string, array<int, mixed>>
      */
-    public static function fromStoreRequest(StoreSliderRequest $request): self
+    public static function rules(ValidationContext $context): array
     {
-        return new self(
-            name: (string) $request->validated('name'),
-            photo: $request->file('photo'),
-        );
-    }
+        $isUpdate = request()->route('slider') !== null;
+        $self = new self(name: '');
 
-    /**
-     * Create DTO from Update Form Request.
-     *
-     * @param UpdateSliderRequest $request
-     * @return self
-     */
-    public static function fromUpdateRequest(UpdateSliderRequest $request): self
-    {
-        return new self(
-            name: (string) $request->validated('name'),
-            photo: $request->file('photo') ?? $request->validated('photo'),
-        );
+        return [
+            'photo' => $self->getFileValidationRules(!$isUpdate, [
+                'allowed_types' => ['image/jpeg', 'image/png', 'image/webp'],
+                'max_size' => 2 * 1024 * 1024, // 2MB
+            ]),
+        ];
     }
 }

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTOs\Report\ReportFilterData;
 use App\Exports\{OrdersExport, ProductsExport};
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Report\ReportRequest;
 use App\Models\{CompanyProfile, DropPoint};
 use App\Services\ReportService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\{RedirectResponse, Response as HttpResponse};
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\{Inertia, Response};
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -34,16 +34,16 @@ class ReportController extends Controller
      * @param  ReportRequest $request
      * @return Response
      */
-    public function index(ReportRequest $request): Response
+    public function index(ReportFilterData $dto): Response
     {
         $filters = [
-            'date_from'     => $request->input('date_from'),
-            'date_to'       => $request->input('date_to'),
-            'drop_point_id' => $request->input('drop_point_id'),
+            'date_from'     => $dto->dateFrom,
+            'date_to'       => $dto->dateTo,
+            'drop_point_id' => $dto->dropPointId,
             'per_page'      => 15,
         ];
 
-        $type = $request->input('type', 'orders');
+        $type = $dto->type ?? 'orders';
 
         $reportData = $type === 'products'
             ? $this->reportService->getProductReport($filters)
@@ -68,15 +68,15 @@ class ReportController extends Controller
      * @param  ReportRequest $request
      * @return HttpResponse
      */
-    public function exportPdf(ReportRequest $request): HttpResponse
+    public function exportPdf(ReportFilterData $dto): HttpResponse
     {
         $filters = [
-            'date_from'     => $request->input('date_from'),
-            'date_to'       => $request->input('date_to'),
-            'drop_point_id' => $request->input('drop_point_id'),
+            'date_from'     => $dto->dateFrom,
+            'date_to'       => $dto->dateTo,
+            'drop_point_id' => $dto->dropPointId,
         ];
 
-        $type     = $request->input('type', 'orders');
+        $type     = $dto->type ?? 'orders';
         $settings = CompanyProfile::query()->first();
         $dropPoint = $filters['drop_point_id'] ? DropPoint::find($filters['drop_point_id']) : null;
 
@@ -125,15 +125,15 @@ class ReportController extends Controller
      * @param  ReportRequest $request
      * @return BinaryFileResponse
      */
-    public function exportExcel(ReportRequest $request): BinaryFileResponse
+    public function exportExcel(ReportFilterData $dto): BinaryFileResponse
     {
         $filters = [
-            'date_from'     => $request->input('date_from'),
-            'date_to'       => $request->input('date_to'),
-            'drop_point_id' => $request->input('drop_point_id'),
+            'date_from'     => $dto->dateFrom,
+            'date_to'       => $dto->dateTo,
+            'drop_point_id' => $dto->dropPointId,
         ];
 
-        $type = $request->input('type', 'orders');
+        $type = $dto->type ?? 'orders';
 
         if ($type === 'products') {
             $products = $this->reportService->getProductsForExport($filters);

@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\DTOs\Slider\SliderData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Slider\{StoreSliderRequest, UpdateSliderRequest};
 use App\Http\Resources\SliderResource;
 use App\Models\Slider;
 use App\Services\SliderService;
@@ -54,11 +53,9 @@ class SliderController extends Controller
     /**
      * Store a newly created slider.
      */
-    public function store(StoreSliderRequest $request): RedirectResponse
+    public function store(SliderData $data): RedirectResponse
     {
         try {
-            $data = SliderData::fromStoreRequest($request);
-
             $this->sliderService->createSlider($data);
 
             Inertia::flash('toast', [
@@ -90,11 +87,9 @@ class SliderController extends Controller
     /**
      * Update the specified slider.
      */
-    public function update(UpdateSliderRequest $request, Slider $slider): RedirectResponse
+    public function update(SliderData $data, Slider $slider): RedirectResponse
     {
         try {
-            $data = SliderData::fromUpdateRequest($request);
-
             $this->sliderService->updateSlider($slider, $data);
 
             Inertia::flash('toast', [

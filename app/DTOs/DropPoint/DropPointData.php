@@ -5,72 +5,80 @@ declare(strict_types=1);
 namespace App\DTOs\DropPoint;
 
 use App\Enums\DropPointCategory;
-use App\Http\Requests\Admin\DropPoint\StoreDropPointRequest;
-use App\Http\Requests\Admin\DropPoint\UpdateDropPointRequest;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\Rules\Enum;
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
- * Data Transfer Object for DropPoint.
+ * Data Transfer Object for DropPoint create/update operations.
+ *
+ * @property string $name Nama drop point
+ * @property DropPointCategory $category Kategori drop point
+ * @property UploadedFile|null $photo Foto drop point
+ * @property string $address Alamat lengkap
+ * @property string|null $phone Nomor telepon
+ * @property float $latitude Koordinat latitude
+ * @property float $longitude Koordinat longitude
+ * @property string|null $picName Nama PIC
+ * @property string|null $picPhone No. telepon PIC
+ * @property bool $isActive Status aktif
+ * @property int $deliveryFee Biaya delivery (IDR)
+ * @property int|null $minPoQty Minimum kuantitas PO
+ * @property int|null $minPoAmount Minimum nominal PO (IDR)
  */
-class DropPointData
+class DropPointData extends Data
 {
     public function __construct(
+        #[Rule('required', 'string', 'max:255')]
         public readonly string $name,
+
         public readonly DropPointCategory $category,
-        public readonly ?UploadedFile $photo,
-        public readonly string $address,
-        public readonly ?string $phone,
-        public readonly float $latitude,
-        public readonly float $longitude,
-        public readonly ?string $picName,
-        public readonly ?string $picPhone,
+
+        #[Rule('nullable', 'image', 'max:2048')]
+        public readonly ?UploadedFile $photo = null,
+
+        #[Rule('required', 'string')]
+        public readonly string $address = '',
+
+        #[Rule('nullable', 'string', 'max:20')]
+        public readonly ?string $phone = null,
+
+        #[Rule('required', 'numeric', 'between:-90,90')]
+        public readonly float $latitude = 0,
+
+        #[Rule('required', 'numeric', 'between:-180,180')]
+        public readonly float $longitude = 0,
+
+        #[Rule('nullable', 'string', 'max:255')]
+        public readonly ?string $picName = null,
+
+        #[Rule('nullable', 'string', 'max:20')]
+        public readonly ?string $picPhone = null,
+
+        #[Rule('sometimes', 'boolean')]
         public readonly bool $isActive = true,
+
+        #[Rule('required', 'integer', 'min:0')]
         public readonly int $deliveryFee = 0,
+
+        #[Rule('nullable', 'integer', 'min:0')]
         public readonly ?int $minPoQty = null,
+
+        #[Rule('nullable', 'integer', 'min:0')]
         public readonly ?int $minPoAmount = null,
     ) {}
 
     /**
-     * Create DTO from Store Form Request.
+     * Dynamic rules for category enum validation.
+     *
+     * @return array<string, array<int, mixed>>
      */
-    public static function fromStoreRequest(StoreDropPointRequest $request): self
+    public static function rules(ValidationContext $context): array
     {
-        return new self(
-            name: (string) $request->validated('name'),
-            category: DropPointCategory::from((string) $request->validated('category')),
-            photo: $request->file('photo'),
-            address: (string) $request->validated('address'),
-            phone: $request->validated('phone') === null ? null : (string) $request->validated('phone'),
-            latitude: (float) $request->validated('latitude'),
-            longitude: (float) $request->validated('longitude'),
-            picName: $request->validated('pic_name') === null ? null : (string) $request->validated('pic_name'),
-            picPhone: $request->validated('pic_phone') === null ? null : (string) $request->validated('pic_phone'),
-            isActive: (bool) $request->validated('is_active', true),
-            deliveryFee: (int) $request->validated('delivery_fee', 0),
-            minPoQty: $request->validated('min_po_qty') === null ? null : (int) $request->validated('min_po_qty'),
-            minPoAmount: $request->validated('min_po_amount') === null ? null : (int) $request->validated('min_po_amount'),
-        );
-    }
-
-    /**
-     * Create DTO from Update Form Request.
-     */
-    public static function fromUpdateRequest(UpdateDropPointRequest $request): self
-    {
-        return new self(
-            name: (string) $request->validated('name'),
-            category: DropPointCategory::from((string) $request->validated('category')),
-            photo: $request->file('photo'),
-            address: (string) $request->validated('address'),
-            phone: $request->validated('phone') === null ? null : (string) $request->validated('phone'),
-            latitude: (float) $request->validated('latitude'),
-            longitude: (float) $request->validated('longitude'),
-            picName: $request->validated('pic_name') === null ? null : (string) $request->validated('pic_name'),
-            picPhone: $request->validated('pic_phone') === null ? null : (string) $request->validated('pic_phone'),
-            isActive: (bool) $request->validated('is_active', true),
-            deliveryFee: (int) $request->validated('delivery_fee', 0),
-            minPoQty: $request->validated('min_po_qty') === null ? null : (int) $request->validated('min_po_qty'),
-            minPoAmount: $request->validated('min_po_amount') === null ? null : (int) $request->validated('min_po_amount'),
-        );
+        return [
+            'category' => ['required', 'string', new Enum(DropPointCategory::class)],
+        ];
     }
 }

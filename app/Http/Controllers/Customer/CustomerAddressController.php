@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Customer;
 
+use App\DTOs\CustomerAddress\CustomerAddressData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Customer\StoreCustomerAddressRequest;
 use App\Models\CustomerAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\{Inertia, Response};
 
 class CustomerAddressController extends Controller
 {
@@ -49,33 +48,33 @@ class CustomerAddressController extends Controller
      * @param StoreCustomerAddressRequest $request
      * @return RedirectResponse
      */
-    public function store(StoreCustomerAddressRequest $request): RedirectResponse
+    public function store(CustomerAddressData $data): RedirectResponse
     {
-        $data = $request->validated();
+        $validated = $data->toArray();
 
         try {
-            return \Illuminate\Support\Facades\DB::transaction(function () use ($request, $data) {
+            return \Illuminate\Support\Facades\DB::transaction(function () use ($data, $validated) {
                 $customerId = Auth::guard('customer')->id();
 
                 // Handle guest registration
                 if (!$customerId) {
                     $dto = new \App\DTOs\Customer\RegisterCustomerDTO(
-                        name: $data['register_name'],
+                        name: $validated['register_name'],
                         username: null,
-                        phone: $data['register_phone'],
-                        address: $data['address'],
-                        email: $data['email'],
-                        password: $data['password'],
+                        phone: $validated['register_phone'],
+                        address: $validated['address'],
+                        email: $validated['email'],
+                        password: $validated['password'],
                     );
 
                     $customer = $this->authService->register($dto);
                     Auth::guard('customer')->login($customer);
-                    $request->session()->regenerate();
+                    request()->session()->regenerate();
                     $customerId = $customer->id;
                 }
 
-                $data['customer_id'] = $customerId;
-                $address = CustomerAddress::create($data);
+                $validated['customer_id'] = $customerId;
+                $address = CustomerAddress::create($validated);
 
                 $this->setCheckoutAddressInSession($address);
 
@@ -84,7 +83,7 @@ class CustomerAddressController extends Controller
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Failed to store address and register customer', [
                 'error' => $e->getMessage(),
-                'payload' => $data,
+                'payload' => $validated,
                 'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
@@ -98,15 +97,14 @@ class CustomerAddressController extends Controller
      * @param CustomerAddress $address
      * @return RedirectResponse
      */
-    public function update(StoreCustomerAddressRequest $request, CustomerAddress $address): RedirectResponse
+    public function update(CustomerAddressData $data, CustomerAddress $address): RedirectResponse
     {
         // Security check
         if ($address->customer_id !== Auth::guard('customer')->id()) {
             abort(403);
         }
 
-        $data = $request->validated();
-        $address->update($data);
+        $address->update($data->toArray());
 
         $this->setCheckoutAddressInSession($address);
 

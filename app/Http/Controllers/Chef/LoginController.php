@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Chef;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Chef\LoginChefRequest;
+use App\DTOs\Chef\LoginChefDTO;
 use App\Services\ChefAuthService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\{RedirectResponse, Request};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\{Inertia, Response};
 
 /**
  * Controller for chef authentication.
@@ -43,16 +41,14 @@ class LoginController extends Controller
     /**
      * Handle an authentication attempt.
      *
-     * @param LoginChefRequest $request
+     * @param LoginChefDTO $dto
      * @return RedirectResponse
      * @throws ValidationException
      */
-    public function login(LoginChefRequest $request): RedirectResponse
+    public function login(LoginChefDTO $dto): RedirectResponse
     {
-        $dto = $request->toDTO();
-
         if ($this->authService->login($dto)) {
-            $request->session()->regenerate();
+            request()->session()->regenerate();
 
             Inertia::flash('toast', [
                 'message' => 'Berhasil login',

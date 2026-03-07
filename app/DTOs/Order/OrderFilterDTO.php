@@ -4,33 +4,24 @@ declare(strict_types=1);
 
 namespace App\DTOs\Order;
 
+use Spatie\LaravelData\Data;
+
 /**
- * Data Transfer Object for filtering customer orders.
+ * Data Transfer Object for filtering customer/chef/admin orders.
+ *
+ * @property string|null $search Search query for order number, customer name, etc.
+ * @property string|null $dateRange Date range filter (all, 30_days, 90_days, custom).
+ * @property string|null $startDate Custom start date for filtering.
+ * @property string|null $endDate Custom end date for filtering.
+ * @property string|null $status Order status filter.
  */
-readonly class OrderFilterDTO
+class OrderFilterDTO extends Data
 {
     public function __construct(
-        public ?string $search = null,
-        public ?string $dateRange = 'all', // all, 30_days, 90_days, custom
-        public ?string $startDate = null,
-        public ?string $endDate = null,
-        public ?string $status = 'all',
+        public readonly ?string $search = null,
+        public readonly ?string $dateRange = 'all',
+        public readonly ?string $startDate = null,
+        public readonly ?string $endDate = null,
+        public readonly ?string $status = 'all',
     ) {}
-
-    /**
-     * Create a DTO from request parameters.
-     *
-     * @param array $data
-     * @return self
-     */
-    public static function fromArray(array $data): self
-    {
-        return new self(
-            search: $data['search'] ?? null,
-            dateRange: $data['date_range'] ?? 'all',
-            startDate: $data['start_date'] ?? null,
-            endDate: $data['end_date'] ?? null,
-            status: $data['status'] ?? 'all',
-        );
-    }
 }

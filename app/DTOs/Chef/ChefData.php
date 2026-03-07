@@ -5,114 +5,107 @@ declare(strict_types=1);
 namespace App\DTOs\Chef;
 
 use App\Enums\ChefOrderType;
-use App\Http\Requests\Admin\Chef\{StoreChefRequest, UpdateChefRequest};
+use Illuminate\Validation\Rule as ValidationRule;
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
  * Data Transfer Object for Chef create/update operations.
  *
- * Transports validated chef data from Form Request to Service layer.
+ * Transports validated chef data from HTTP request to Service layer.
  * Product IDs are passed separately for many-to-many sync.
+ * Dynamic unique email validation via rules() override for update operations.
+ *
+ * @property string $name Nama chef
+ * @property string|null $businessName Nama usaha chef
+ * @property string $email Email chef (unique, digunakan untuk login)
+ * @property string|null $password Password chef (null saat update jika tidak diubah)
+ * @property string|null $phone Nomor telepon
+ * @property string|null $bankName Nama bank untuk transfer
+ * @property string|null $accountNumber Nomor rekening
+ * @property string|null $accountName Nama pemegang rekening
+ * @property string|null $note Catatan internal
+ * @property float $feePercentage Persentase fee perusahaan (0–100)
+ * @property string|null $address Alamat chef
+ * @property float|null $longitude Koordinat longitude
+ * @property float|null $latitude Koordinat latitude
+ * @property bool $isActive Status aktif
+ * @property array<ChefOrderType> $orderTypes Tipe pesanan (instant/preorder)
+ * @property array<string> $productIds UUID produk yang di-assign ke chef
  */
-class ChefData
+class ChefData extends Data
 {
-    /**
-     * @param string $name Nama chef
-     * @param string|null $businessName Nama usaha chef
-     * @param string $email Email chef (unique, digunakan untuk login)
-     * @param string|null $password Password chef (null saat update jika tidak diubah)
-     * @param string|null $phone Nomor telepon
-     * @param string|null $bankName Nama bank untuk transfer
-     * @param string|null $accountNumber Nomor rekening
-     * @param string|null $accountName Nama pemegang rekening
-     * @param string|null $note Catatan internal
-     * @param float $feePercentage Persentase fee perusahaan (0–100)
-     * @param string|null $address Alamat chef
-     * @param float|null $longitude Koordinat longitude
-     * @param float|null $latitude Koordinat latitude
-     * @param bool $isActive Status aktif
-     * @param array<\App\Enums\ChefOrderType> $orderTypes Tipe pesanan (instant/preorder)
-     * @param array<string> $productIds UUID produk yang di-assign ke chef
-     */
     public function __construct(
+        #[Rule('required', 'string', 'max:255')]
         public readonly string $name,
+
+        #[Rule('nullable', 'string', 'max:255')]
         public readonly ?string $businessName,
+
         public readonly string $email,
+
+        #[Rule('nullable', 'string', 'min:8')]
         public readonly ?string $password,
+
+        #[Rule('nullable', 'string', 'max:20')]
         public readonly ?string $phone,
+
+        #[Rule('nullable', 'string', 'max:255')]
         public readonly ?string $bankName,
+
+        #[Rule('nullable', 'string', 'max:50')]
         public readonly ?string $accountNumber,
+
+        #[Rule('nullable', 'string', 'max:255')]
         public readonly ?string $accountName,
+
+        #[Rule('nullable', 'string')]
         public readonly ?string $note,
+
+        #[Rule('required', 'numeric', 'between:0,100')]
         public readonly float $feePercentage,
+
+        #[Rule('nullable', 'string')]
         public readonly ?string $address,
+
+        #[Rule('nullable', 'numeric', 'between:-180,180')]
         public readonly ?float $longitude,
+
+        #[Rule('nullable', 'numeric', 'between:-90,90')]
         public readonly ?float $latitude,
+
+        #[Rule('sometimes', 'boolean')]
         public readonly bool $isActive = true,
+
+        #[Rule('required', 'array', 'min:1')]
         public readonly array $orderTypes = [],
+
+        #[Rule('nullable', 'array')]
         public readonly array $productIds = [],
     ) {}
 
     /**
-     * Create DTO from Store Form Request.
+     * Dynamic rules for email uniqueness (ignore current chef on update)
+     * and nested array item validation.
+     *
+     * @return array<string, array<int, mixed>>
      */
-    public static function fromStoreRequest(StoreChefRequest $request): self
+    public static function rules(ValidationContext $context): array
     {
-        $orderTypes = array_map(
-            fn(string $val) => ChefOrderType::from($val),
-            (array) $request->validated('order_types', [])
-        );
+        $chefId = request()->route('chef')?->id ?? request()->route('chef');
 
-        return new self(
-            name: (string) $request->validated('name'),
-            businessName: $request->validated('business_name') === null ? null : (string) $request->validated('business_name'),
-            email: (string) $request->validated('email'),
-            password: (string) $request->validated('password'),
-            phone: $request->validated('phone') === null ? null : (string) $request->validated('phone'),
-            bankName: $request->validated('bank_name') === null ? null : (string) $request->validated('bank_name'),
-            accountNumber: $request->validated('account_number') === null
-                ? null : (string) $request->validated('account_number'),
-            accountName: $request->validated('account_name') === null
-                ? null : (string) $request->validated('account_name'),
-            note: $request->validated('note') === null ? null : (string) $request->validated('note'),
-            feePercentage: (float) $request->validated('fee_percentage'),
-            address: $request->validated('address') === null ? null : (string) $request->validated('address'),
-            longitude: $request->validated('longitude') === null ? null : (float) $request->validated('longitude'),
-            latitude: $request->validated('latitude') === null ? null : (float) $request->validated('latitude'),
-            isActive: (bool) $request->validated('is_active', true),
-            orderTypes: $orderTypes,
-            productIds: (array) $request->validated('product_ids', []),
-        );
-    }
-
-    /**
-     * Create DTO from Update Form Request.
-     */
-    public static function fromUpdateRequest(UpdateChefRequest $request): self
-    {
-        $orderTypes = array_map(
-            fn(string $val) => ChefOrderType::from($val),
-            (array) $request->validated('order_types', [])
-        );
-
-        return new self(
-            name: (string) $request->validated('name'),
-            businessName: $request->validated('business_name') === null ? null : (string) $request->validated('business_name'),
-            email: (string) $request->validated('email'),
-            password: $request->validated('password') === null ? null : (string) $request->validated('password'),
-            phone: $request->validated('phone') === null ? null : (string) $request->validated('phone'),
-            bankName: $request->validated('bank_name') === null ? null : (string) $request->validated('bank_name'),
-            accountNumber: $request->validated('account_number') === null
-                ? null : (string) $request->validated('account_number'),
-            accountName: $request->validated('account_name') === null
-                ? null : (string) $request->validated('account_name'),
-            note: $request->validated('note') === null ? null : (string) $request->validated('note'),
-            feePercentage: (float) $request->validated('fee_percentage'),
-            address: $request->validated('address') === null ? null : (string) $request->validated('address'),
-            longitude: $request->validated('longitude') === null ? null : (float) $request->validated('longitude'),
-            latitude: $request->validated('latitude') === null ? null : (float) $request->validated('latitude'),
-            isActive: (bool) $request->validated('is_active', true),
-            orderTypes: $orderTypes,
-            productIds: (array) $request->validated('product_ids', []),
-        );
+        return [
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                $chefId
+                    ? ValidationRule::unique('chefs', 'email')->ignore($chefId)
+                    : 'unique:chefs,email',
+            ],
+            'order_types.*' => ['string', ValidationRule::in(ChefOrderType::values())],
+            'product_ids.*' => ['uuid', 'exists:products,id'],
+        ];
     }
 }

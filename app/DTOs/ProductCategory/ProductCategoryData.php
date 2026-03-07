@@ -4,47 +4,26 @@ declare(strict_types=1);
 
 namespace App\DTOs\ProductCategory;
 
-use App\Http\Requests\Admin\ProductCategory\StoreProductCategoryRequest;
-use App\Http\Requests\Admin\ProductCategory\UpdateProductCategoryRequest;
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
 
 /**
- * Data Transfer Object for ProductCategory.
+ * Data Transfer Object for ProductCategory create/update operations.
+ *
+ * @property string $name Nama kategori produk
+ * @property bool $isActive Status aktif
+ * @property int $sortOrder Urutan tampil
  */
-class ProductCategoryData
+class ProductCategoryData extends Data
 {
     public function __construct(
+        #[Rule('required', 'string', 'max:255')]
         public readonly string $name,
+
+        #[Rule('sometimes', 'boolean')]
         public readonly bool $isActive = true,
+
+        #[Rule('nullable', 'integer', 'min:0')]
         public readonly int $sortOrder = 0,
     ) {}
-
-    /**
-     * Create DTO from Store Form Request.
-     *
-     * @param StoreProductCategoryRequest $request
-     * @return self
-     */
-    public static function fromStoreRequest(StoreProductCategoryRequest $request): self
-    {
-        return new self(
-            name: (string) $request->validated('name'),
-            isActive: (bool) $request->validated('is_active', true),
-            sortOrder: (int) $request->validated('sort_order', 0),
-        );
-    }
-
-    /**
-     * Create DTO from Update Form Request.
-     *
-     * @param UpdateProductCategoryRequest $request
-     * @return self
-     */
-    public static function fromUpdateRequest(UpdateProductCategoryRequest $request): self
-    {
-        return new self(
-            name: (string) $request->validated('name'),
-            isActive: (bool) $request->validated('is_active', true),
-            sortOrder: (int) $request->validated('sort_order', 0),
-        );
-    }
 }

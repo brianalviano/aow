@@ -6,8 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\DTOs\PickUpPoint\PickUpPointData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\PickUpPoint\StorePickUpPointRequest;
-use App\Http\Requests\Admin\PickUpPoint\UpdatePickUpPointRequest;
 use App\Http\Resources\PickUpPointResource;
 use App\Models\PickUpPoint;
 use App\Models\PickUpPointOfficer;
@@ -67,11 +65,9 @@ class PickUpPointController extends Controller
     /**
      * Store a newly created pick up point.
      */
-    public function store(StorePickUpPointRequest $request): RedirectResponse
+    public function store(PickUpPointData $data): RedirectResponse
     {
         try {
-            $data = PickUpPointData::fromStoreRequest($request);
-
             $this->pickUpPointService->createPickUpPoint($data);
 
             Inertia::flash('toast', [
@@ -113,11 +109,9 @@ class PickUpPointController extends Controller
     /**
      * Update the specified pick up point.
      */
-    public function update(UpdatePickUpPointRequest $request, PickUpPoint $pickUpPoint): RedirectResponse
+    public function update(PickUpPointData $data, PickUpPoint $pickUpPoint): RedirectResponse
     {
         try {
-            $data = PickUpPointData::fromUpdateRequest($request);
-
             $this->pickUpPointService->updatePickUpPoint($pickUpPoint, $data);
 
             Inertia::flash('toast', [

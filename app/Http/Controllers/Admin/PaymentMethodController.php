@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\DTOs\PaymentMethod\PaymentMethodData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\PaymentMethod\{StorePaymentMethodRequest, UpdatePaymentMethodRequest};
 use App\Http\Resources\PaymentMethodResource;
 use App\Models\{PaymentGuide, PaymentMethod};
 use App\Services\PaymentMethodService;
@@ -56,11 +55,9 @@ class PaymentMethodController extends Controller
     /**
      * Store a newly created payment method.
      */
-    public function store(StorePaymentMethodRequest $request): RedirectResponse
+    public function store(PaymentMethodData $data): RedirectResponse
     {
         try {
-            $data = PaymentMethodData::fromStoreRequest($request);
-
             $this->paymentMethodService->createPaymentMethod($data);
 
             Inertia::flash('toast', [
@@ -93,11 +90,9 @@ class PaymentMethodController extends Controller
     /**
      * Update the specified payment method.
      */
-    public function update(UpdatePaymentMethodRequest $request, PaymentMethod $paymentMethod): RedirectResponse
+    public function update(PaymentMethodData $data, PaymentMethod $paymentMethod): RedirectResponse
     {
         try {
-            $data = PaymentMethodData::fromUpdateRequest($request);
-
             $this->paymentMethodService->updatePaymentMethod($paymentMethod, $data);
 
             Inertia::flash('toast', [

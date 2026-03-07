@@ -25,7 +25,7 @@ class OrderController extends Controller
      */
     public function index(Request $request, OrderService $service): Response
     {
-        $dto = \App\DTOs\Order\OrderFilterDTO::fromArray($request->all());
+        $dto = \App\DTOs\Order\OrderFilterDTO::from($request->all());
 
         $orders = $service->getFilteredOrdersForAdmin($dto, perPage: 15)->withQueryString();
 

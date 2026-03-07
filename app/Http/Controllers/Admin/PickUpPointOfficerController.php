@@ -6,8 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\DTOs\PickUpPointOfficer\PickUpPointOfficerData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\PickUpPointOfficer\StorePickUpPointOfficerRequest;
-use App\Http\Requests\Admin\PickUpPointOfficer\UpdatePickUpPointOfficerRequest;
 use App\Http\Resources\PickUpPointOfficerResource;
 use App\Models\PickUpPoint;
 use App\Models\PickUpPointOfficer;
@@ -59,10 +57,8 @@ class PickUpPointOfficerController extends Controller
     /**
      * Store a newly created pick up point officer in storage.
      */
-    public function store(StorePickUpPointOfficerRequest $request): RedirectResponse
+    public function store(PickUpPointOfficerData $data): RedirectResponse
     {
-        $data = PickUpPointOfficerData::fromStoreRequest($request);
-
         $this->pickUpPointOfficerService->createPickUpPointOfficer($data);
 
         return redirect()->route('admin.pick-up-point-officers.index')
@@ -87,10 +83,8 @@ class PickUpPointOfficerController extends Controller
     /**
      * Update the specified pick up point officer in storage.
      */
-    public function update(UpdatePickUpPointOfficerRequest $request, PickUpPointOfficer $pickUpPointOfficer): RedirectResponse
+    public function update(PickUpPointOfficerData $data, PickUpPointOfficer $pickUpPointOfficer): RedirectResponse
     {
-        $data = PickUpPointOfficerData::fromUpdateRequest($request);
-
         $this->pickUpPointOfficerService->updatePickUpPointOfficer($pickUpPointOfficer, $data);
 
         return redirect()->route('admin.pick-up-point-officers.index')

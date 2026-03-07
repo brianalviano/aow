@@ -6,44 +6,58 @@ namespace App\DTOs\Setting;
 
 use App\Models\OrderSetting;
 use Illuminate\Support\Facades\Cache;
+use Spatie\LaravelData\Data;
 
-class OrderSettingsDTO
+/**
+ * Data Transfer Object for order-related system settings.
+ *
+ * Loaded from the order_settings table and cached indefinitely.
+ * The cache is busted manually when settings are updated.
+ *
+ * @see \App\Services\SettingService::update()
+ */
+class OrderSettingsDTO extends Data
 {
     public function __construct(
-        public string $orderCutoffTime,
-        public int $orderMinDaysAhead,
-        public string $instantOrderStartTime,
-        public string $instantOrderEndTime,
+        public readonly string $orderCutoffTime,
+        public readonly int $orderMinDaysAhead,
+        public readonly string $instantOrderStartTime,
+        public readonly string $instantOrderEndTime,
 
-        public string $deliveryFeeMode,
-        public int $deliveryFeeFlat,
+        public readonly string $deliveryFeeMode,
+        public readonly int $deliveryFeeFlat,
 
-        public int $freeCourierMinOrder,
+        public readonly int $freeCourierMinOrder,
 
-        public bool $adminFeeEnabled,
-        public string $adminFeeType,
-        public int $adminFeeValue,
+        public readonly bool $adminFeeEnabled,
+        public readonly string $adminFeeType,
+        public readonly int $adminFeeValue,
 
-        public int $paymentExpiredDuration,
+        public readonly int $paymentExpiredDuration,
 
-        public bool $telegramEnabled,
-        public ?string $telegramBotToken,
-        public ?string $telegramAdminChatId,
-        public bool $telegramNotifyOrderCreated,
-        public bool $telegramNotifyOrderPaid,
-        public bool $telegramNotifyOrderCancelled,
+        public readonly bool $telegramEnabled,
+        public readonly ?string $telegramBotToken,
+        public readonly ?string $telegramAdminChatId,
+        public readonly bool $telegramNotifyOrderCreated,
+        public readonly bool $telegramNotifyOrderPaid,
+        public readonly bool $telegramNotifyOrderCancelled,
 
-        public bool $whatsappEnabled,
-        public ?string $whatsappAccessToken,
-        public ?string $whatsappPhoneId,
-        public bool $whatsappNotifyOrderCreated,
-        public bool $whatsappNotifyOrderConfirmed,
-        public bool $whatsappNotifyOrderDelivered,
+        public readonly bool $whatsappEnabled,
+        public readonly ?string $whatsappAccessToken,
+        public readonly ?string $whatsappPhoneId,
+        public readonly bool $whatsappNotifyOrderCreated,
+        public readonly bool $whatsappNotifyOrderConfirmed,
+        public readonly bool $whatsappNotifyOrderDelivered,
 
-        public bool $taxEnabled,
-        public int $taxPercentage,
+        public readonly bool $taxEnabled,
+        public readonly int $taxPercentage,
     ) {}
 
+    /**
+     * Load order settings from cache (or DB on cache miss).
+     *
+     * @return self
+     */
     public static function load(): self
     {
         return Cache::rememberForever('settings:order_settings_dto', function () {
@@ -86,6 +100,9 @@ class OrderSettingsDTO
         });
     }
 
+    /**
+     * Bust the cached settings.
+     */
     public static function clearCache(): void
     {
         Cache::forget('settings:order_settings_dto');

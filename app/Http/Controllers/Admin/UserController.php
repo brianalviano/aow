@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\DTOs\User\UserData;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\User\{StoreUserRequest, UpdateUserRequest};
 use App\Http\Resources\{RoleResource, UserResource};
 use App\Models\{Role, User};
 use App\Services\UserService;
@@ -62,11 +61,11 @@ class UserController extends Controller
     /**
      * Store a newly created user.
      */
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(UserData $data): RedirectResponse
     {
-        try {
-            $data = UserData::fromStoreRequest($request);
+        $this->authorize('admin-only');
 
+        try {
             $this->userService->createUser($data);
 
             Inertia::flash('toast', [
@@ -102,11 +101,11 @@ class UserController extends Controller
     /**
      * Update the specified user.
      */
-    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    public function update(UserData $data, User $user): RedirectResponse
     {
-        try {
-            $data = UserData::fromUpdateRequest($request);
+        $this->authorize('admin-only');
 
+        try {
             $this->userService->updateUser($user, $data);
 
             Inertia::flash('toast', [

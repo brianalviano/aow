@@ -4,60 +4,77 @@ declare(strict_types=1);
 
 namespace App\DTOs\User;
 
-use App\Http\Requests\Admin\User\StoreUserRequest;
-use App\Http\Requests\Admin\User\UpdateUserRequest;
+use Illuminate\Validation\Rules\Password;
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
- * Data Transfer Object for User information.
+ * Data Transfer Object for admin User create/update operations.
+ *
+ * Dynamic unique validation for email/username via rules() override.
+ * Authorization is handled by the Controller (not the DTO).
+ *
+ * @property string $name Nama user
+ * @property string $username Username (unique)
+ * @property string $email Email (unique)
+ * @property string $roleId ID role
+ * @property string|null $password Password (required on create, nullable on update)
+ * @property string|null $phone Nomor telepon
  */
-class UserData
+class UserData extends Data
 {
     public function __construct(
-        public string $name,
-        public string $username,
-        public string $email,
-        public string $roleId,
-        public ?string $password = null,
-        public ?string $phone = null,
+        #[Rule('required', 'string', 'max:255')]
+        public readonly string $name,
+
+        public readonly string $username,
+
+        public readonly string $email,
+
+        #[Rule('required', 'exists:roles,id')]
+        public readonly string $roleId,
+
+        public readonly ?string $password = null,
+
+        #[Rule('nullable', 'string', 'max:20')]
+        public readonly ?string $phone = null,
     ) {}
 
     /**
-     * Create UserData from store request.
+     * Dynamic rules for unique email/username (ignore current user on update)
+     * and password strength validation.
      *
-     * @param StoreUserRequest $request
-     * @return self
+     * @return array<string, array<int, mixed>>
      */
-    public static function fromStoreRequest(StoreUserRequest $request): self
+    public static function rules(ValidationContext $context): array
     {
-        $validated = $request->validated();
+        $user = request()->route('user');
+        $userId = is_object($user) ? $user->id : $user;
 
-        return new self(
-            name: (string) $validated['name'],
-            username: (string) $validated['username'],
-            email: (string) $validated['email'],
-            roleId: (string) $validated['role_id'],
-            password: (string) $validated['password'],
-            phone: $validated['phone'] ?? null,
-        );
-    }
-
-    /**
-     * Create UserData from update request.
-     *
-     * @param UpdateUserRequest $request
-     * @return self
-     */
-    public static function fromUpdateRequest(UpdateUserRequest $request): self
-    {
-        $validated = $request->validated();
-
-        return new self(
-            name: (string) $validated['name'],
-            username: (string) $validated['username'],
-            email: (string) $validated['email'],
-            roleId: (string) $validated['role_id'],
-            password: !empty($validated['password']) ? (string) $validated['password'] : null,
-            phone: $validated['phone'] ?? null,
-        );
+        return [
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                $userId
+                    ? 'unique:users,username,' . $userId
+                    : 'unique:users,username',
+            ],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                $userId
+                    ? 'unique:users,email,' . $userId
+                    : 'unique:users,email',
+            ],
+            'password' => [
+                $userId ? 'nullable' : 'required',
+                'string',
+                Password::defaults(),
+            ],
+        ];
     }
 }
