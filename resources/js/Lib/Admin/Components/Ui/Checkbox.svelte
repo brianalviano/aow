@@ -78,7 +78,11 @@
         <div id="{id}-error" class="mt-1 text-xs text-red-600">{error}</div>
     {/if}
 {:else}
-    <label class="default-label {disabled ? 'disabled' : ''}">
+    <label
+        class="default-label {checked ? 'active' : ''} {disabled
+            ? 'disabled'
+            : ''}"
+    >
         <input
             type="checkbox"
             {id}
@@ -136,7 +140,8 @@
     :global(html.dark) .default-icon {
         color: #4b5563;
     }
-    .default-label:hover .default-icon {
+    .default-label:hover .default-icon,
+    .default-label.active .default-icon {
         color: #0060b2;
     }
     .default-text {
