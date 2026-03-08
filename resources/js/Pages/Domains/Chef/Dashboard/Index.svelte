@@ -159,45 +159,6 @@
         };
     }
 
-    function deliverItem(itemId: string) {
-        dialogState = {
-            isOpen: true,
-            type: "success",
-            title: "Tandai Selesai / Diterima",
-            message: "Tandai item ini telah berhasil dikirim dan diselesaikan?",
-            confirmText: "Ya, Selesai",
-            cancelText: "Batal",
-            loading: false,
-            formFields: [
-                {
-                    id: "delivery_photo",
-                    name: "delivery_photo",
-                    type: "file",
-                    label: "Foto Bukti Pengiriman (Opsional)",
-                    required: false,
-                },
-            ],
-            onConfirm: async (formData) => {
-                dialogState.loading = true;
-                const uploadData = new FormData();
-                uploadData.append("item_ids[0]", itemId);
-                if (formData?.delivery_photo) {
-                    uploadData.append(
-                        "delivery_photo",
-                        formData.delivery_photo,
-                    );
-                }
-
-                router.post("/chef/orders/deliver", uploadData, {
-                    onFinish: () => {
-                        dialogState.isOpen = false;
-                        dialogState.loading = false;
-                    },
-                });
-            },
-        };
-    }
-
     // Group items by order_id
     const groupedItems = $derived(
         Object.values(
@@ -283,7 +244,6 @@
                         onApprove={approveItem}
                         onReject={rejectItem}
                         onShip={shipItem}
-                        onDeliver={deliverItem}
                     />
                 {/each}
             </div>

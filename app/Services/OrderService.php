@@ -7,7 +7,7 @@ namespace App\Services;
 use App\DTOs\Checkout\ProcessOrderData;
 use App\Enums\{OrderStatus, PaymentMethodType};
 use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
-use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderShipping, PaymentMethod, Product};
+use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderShipping, PaymentMethod, PickUpPoint, Product};
 use App\Notifications\{OrderPlacedNotification, OrderStatusChangedNotification};
 use App\Traits\{FileHelperTrait, RetryableTransactionsTrait};
 use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
@@ -243,7 +243,10 @@ class OrderService
     }
 
     /**
-     * Chef marks specific items in an order as shipped.
+     * Chef marks specific items in an order as shipped (to pickup point).
+     *
+     * Chef no longer auto-books Biteship. PIC handles courier booking.
+     * When a chef ships, items go to the assigned pickup point.
      *
      * @param array $itemIds
      * @param \App\Models\Chef $chef
@@ -272,44 +275,9 @@ class OrderService
                     $orderIdsToProcess[$item->order_id] = true;
                 }
 
-                // Auto-Book with Biteship if applicable
-                // Group items by order to process shipping per order
-                $itemsByOrder = $items->groupBy('order_id');
-                foreach ($itemsByOrder as $orderId => $orderItems) {
-                    $order = Order::find($orderId);
-                    if (!$order) {
-                        continue;
-                    }
-
-                    // Check if there is an OrderShipping record for this chef and order
-                    $shipping = \App\Models\OrderShipping::where('order_id', $orderId)
-                        ->where('chef_id', $chef->id)
-                        ->first();
-
-                    if ($shipping && empty($shipping->biteship_order_id)) {
-                        // We have a shipping record and it hasn't been booked yet
-                        $biteshipService = app(\App\Services\BiteshipService::class);
-                        $result = $biteshipService->createOrder($shipping, collect($orderItems));
-
-                        if ($result['success']) {
-                            $shipping->update([
-                                'biteship_order_id'    => $result['order_id'],
-                                'biteship_tracking_id' => $result['tracking_id'],
-                                'biteship_waybill_id'  => $result['waybill_id'],
-                                'biteship_status'      => $result['status'],
-                            ]);
-                        } else {
-                            // If it fails, we throw an exception to rollback the transaction
-                            // and notify the chef that booking failed so they can retry.
-                            throw new \Exception("Gagal memesan kurir: " . ($result['error'] ?? 'Unknown error'));
-                        }
-                    }
-                }
-
-                // For each affected order, check if we need to update the main order status to shipped
+                // For each affected order, update main order status to SHIPPED
                 foreach (array_keys($orderIdsToProcess) as $orderId) {
                     $order = Order::find($orderId);
-                    // If one item is shipped, and the main order is Confirmed, move it to Shipped
                     if ($order && $order->order_status === OrderStatus::CONFIRMED) {
                         $this->shipOrder($order);
                     }
@@ -532,7 +500,7 @@ class OrderService
     public function getFilteredOrderItemsForChef(string $chefId, \App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = OrderItem::query()
-            ->with(['order.customer', 'order.dropPoint', 'product', 'order.items'])
+            ->with(['order.customer', 'order.dropPoint', 'order.pickUpPoint', 'product', 'order.items'])
             ->where('chef_id', $chefId);
 
         // Filter by Status
@@ -833,6 +801,21 @@ class OrderService
 
                     session()->forget(['checkout_cart', 'checkout_drop_point', 'checkout_address']);
 
+                    // Assign nearest pickup point based on first chef's location
+                    $firstChefId = $order->items->pluck('chef_id')->filter()->first();
+                    if ($firstChefId) {
+                        $chef = \App\Models\Chef::find($firstChefId);
+                        if ($chef && $chef->latitude && $chef->longitude) {
+                            $nearestPickup = PicOrderService::findNearestPickUpPoint(
+                                $chef->latitude,
+                                $chef->longitude
+                            );
+                            if ($nearestPickup) {
+                                $order->update(['pick_up_point_id' => $nearestPickup->id]);
+                            }
+                        }
+                    }
+
                     return $order;
                 });
             } catch (Throwable $e) {
@@ -945,7 +928,10 @@ class OrderService
     }
     /**
      * Update status pesanan berdasarkan webhook dari Biteship.
-     * 
+     *
+     * In the new PIC flow, Biteship orders are created by PIC (from pickup point to customer).
+     * When status is 'delivered', we mark the order as DELIVERED.
+     *
      * @param string $biteshipOrderId
      * @param string $status
      * @param array $payload
@@ -966,37 +952,23 @@ class OrderService
                     'biteship_status' => $status,
                 ]);
 
-                // Jika statusnya 'delivered', selesaikan item-item terkait chef ini di order ini
+                // When courier has delivered, mark the order as DELIVERED
                 if ($status === 'delivered') {
                     $order = Order::find($shipping->order_id);
-                    $chef = \App\Models\Chef::find($shipping->chef_id);
 
-                    if (!$order || !$chef) {
+                    if (!$order) {
                         return;
                     }
 
-                    $items = OrderItem::where('order_id', $order->id)
-                        ->where('chef_id', $chef->id)
-                        ->get();
-
-                    foreach ($items as $item) {
-                        if ($item->chef_status !== \App\Enums\ChefStatus::DELIVERED) {
-                            $item->update([
-                                'chef_status'       => \App\Enums\ChefStatus::DELIVERED,
-                                'chef_confirmed_at' => now(),
-                            ]);
-                        }
-                    }
-
-                    // Cek apakah semua item di order ini sudah DELIVERED
-                    $order->load('items');
-                    $allDelivered = $order->items->every(fn($i) => $i->chef_status === \App\Enums\ChefStatus::DELIVERED);
-
-                    if ($allDelivered) {
+                    // PIC flow: Biteship delivers from pickup point to customer
+                    if ($order->order_status === OrderStatus::ON_DELIVERY) {
                         $this->completeOrder($order);
                     }
 
-                    $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::DELIVERED);
+                    $order->load('customer');
+                    if ($order->customer) {
+                        $order->customer->notify(new OrderStatusChangedNotification($order, 'delivered'));
+                    }
                 }
             });
         } catch (\Throwable $e) {

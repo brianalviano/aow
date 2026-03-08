@@ -42,11 +42,14 @@ class HandleInertiaRequests extends Middleware
     {
         $isAdminRequest = request()->is('admin') || request()->is('admin/*');
         $isChefRequest = request()->is('chef') || request()->is('chef/*');
+        $isPicRequest = request()->is('pic') || request()->is('pic/*');
 
         if ($isAdminRequest) {
             $guard = Auth::guard('web')->check() ? 'web' : null;
         } elseif ($isChefRequest) {
             $guard = Auth::guard('chef')->check() ? 'chef' : null;
+        } elseif ($isPicRequest) {
+            $guard = Auth::guard('pickup_officer')->check() ? 'pickup_officer' : null;
         } else {
             $guard = Auth::guard('customer')->check() ? 'customer' : null;
         }
@@ -61,7 +64,7 @@ class HandleInertiaRequests extends Middleware
                 'name'  => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'role'  => $guard === 'customer' ? 'customer' : ($guard === 'chef' ? 'chef' : $user->role?->name),
+                'role'  => $guard === 'customer' ? 'customer' : ($guard === 'chef' ? 'chef' : ($guard === 'pickup_officer' ? 'pickup_officer' : $user->role?->name)),
             ] : ($base['auth']['user'] ?? null),
         ];
     }

@@ -7,6 +7,8 @@ import CustomerLayout from "@/Lib/Customer/Layouts/Default.svelte";
 import ChefLayout from "@/Lib/Chef/Layouts/Default.svelte";
 import { setRoleConfig } from "@/Lib/Admin/Utils/roles";
 
+import PicLayout from "@/Lib/Pic/Layouts/Default.svelte";
+
 createInertiaApp({
     progress: false,
     resolve: (name: string) => {
@@ -17,6 +19,7 @@ createInertiaApp({
         const isAdmin = name.startsWith("Domains/Admin/");
         const isCustomer = name.startsWith("Domains/Customer/");
         const isChef = name.startsWith("Domains/Chef/");
+        const isPic = name.startsWith("Domains/Pic/");
         return {
             default: page.default,
             layout:
@@ -27,7 +30,9 @@ createInertiaApp({
                       ? CustomerLayout
                       : isChef
                         ? ChefLayout
-                        : undefined),
+                        : isPic
+                          ? PicLayout
+                          : undefined),
         };
     },
     setup({ el, App, props }: { el: HTMLElement; App: any; props: any }) {

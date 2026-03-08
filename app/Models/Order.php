@@ -22,6 +22,7 @@ class Order extends Model
     protected $fillable = [
         'number',
         'drop_point_id',
+        'pick_up_point_id',
         'customer_address_id',
         'customer_id',
         'delivery_date',
@@ -86,6 +87,54 @@ class Order extends Model
     public function dropPoint(): BelongsTo
     {
         return $this->belongsTo(DropPoint::class);
+    }
+
+    /**
+     * Get the pickup point assigned to this order.
+     *
+     * @return BelongsTo
+     */
+    public function pickUpPoint(): BelongsTo
+    {
+        return $this->belongsTo(PickUpPoint::class);
+    }
+
+    /**
+     * Determine if this is a pre-order (delivered to drop point).
+     */
+    public function isPreOrder(): bool
+    {
+        return $this->drop_point_id !== null;
+    }
+
+    /**
+     * Determine if this is an instant order (delivered to custom address via courier).
+     */
+    public function isInstant(): bool
+    {
+        return $this->customer_address_id !== null;
+    }
+
+    /**
+     * Determine if admin can still change the pickup point for this order.
+     *
+     * Allowed only when not all chef items have shipped yet.
+     * Once all items are shipped (or beyond), the pickup point is locked.
+     */
+    public function canChangePickUpPoint(): bool
+    {
+        if (!$this->items->count()) {
+            return true;
+        }
+
+        $allShipped = $this->items->every(
+            fn($item) => in_array($item->chef_status, [
+                \App\Enums\ChefStatus::SHIPPED,
+                \App\Enums\ChefStatus::DELIVERED,
+            ])
+        );
+
+        return !$allShipped;
     }
 
     public function customer(): BelongsTo

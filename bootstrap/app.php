@@ -33,6 +33,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 return route('chef.login');
             }
 
+            if ($request->is('pic') || $request->is('pic/*')) {
+                return route('pic.login');
+            }
+
             return route('home');
         });
 
@@ -40,6 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'api/midtrans/payment-notification',
             'api/midtrans/recurring-notification',
             'api/midtrans/pay-account-notification',
+            'api/webhook/biteship',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

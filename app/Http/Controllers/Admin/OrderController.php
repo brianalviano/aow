@@ -64,6 +64,7 @@ class OrderController extends Controller
             'items.options.productOptionItem',
             'customer',
             'dropPoint',
+            'pickUpPoint',
             'customerAddress',
             'paymentMethod',
             'shippings.chef',
@@ -72,6 +73,8 @@ class OrderController extends Controller
         return Inertia::render('Domains/Admin/Order/Show', [
             'order' => (new \App\Http\Resources\OrderResource($order))->resolve(),
             'chefs' => \App\Models\Chef::where('is_active', true)->get(['id', 'name']),
+            'pickUpPoints' => \App\Models\PickUpPoint::where('is_active', true)->get(['id', 'name', 'address']),
+            'canChangePickUpPoint' => $order->canChangePickUpPoint(),
         ]);
     }
 
@@ -261,6 +264,52 @@ class OrderController extends Controller
             \Inertia\Inertia::flash('toast', [
                 'message' => 'Gagal memperbarui chef: ' . $e->getMessage(),
                 'type'    => 'error',
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Update the pickup point for an order (admin action).
+     *
+     * Only allowed when not all chef items have been shipped yet.
+     *
+     * @param Request $request
+     * @param Order $order
+     * @return RedirectResponse
+     */
+    public function updatePickUpPoint(Request $request, Order $order): RedirectResponse
+    {
+        $request->validate([
+            'pick_up_point_id' => ['required', 'exists:pick_up_points,id'],
+        ]);
+
+        try {
+            $order->load('items');
+
+            if (!$order->canChangePickUpPoint()) {
+                Inertia::flash('toast', [
+                    'message' => 'Tidak dapat mengubah pickup point karena semua item sudah dikirim.',
+                    'type' => 'error',
+                ]);
+                return redirect()->back();
+            }
+
+            $order->update([
+                'pick_up_point_id' => $request->input('pick_up_point_id'),
+            ]);
+
+            Inertia::flash('toast', [
+                'message' => 'Pickup point berhasil diperbarui.',
+                'type' => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal memperbarui pickup point: ' . $e->getMessage(),
+                'type' => 'error',
             ]);
 
             return redirect()->back();

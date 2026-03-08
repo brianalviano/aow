@@ -118,7 +118,7 @@
                     init="false"
                     slides-per-view="auto"
                     space-between="16"
-                    class="w-full px-4"
+                    class="w-full"
                     loop="true"
                     autoplay-delay="3000"
                     autoplay-disable-on-interaction="false"

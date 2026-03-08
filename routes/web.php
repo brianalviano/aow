@@ -29,6 +29,11 @@ use App\Http\Controllers\Chef\{
     OrderController as ChefOrderController,
     ReportController as ChefReportController
 };
+use App\Http\Controllers\Pic\{
+    DashboardController as PicDashboardController,
+    LoginController as PicLoginController,
+    OrderController as PicOrderController
+};
 use App\Http\Controllers\Customer\{
     AuthController,
     HomeController,
@@ -175,6 +180,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
         Route::post('/orders/{order}/ship', [OrderController::class, 'ship'])->name('orders.ship');
         Route::post('/orders/{order}/deliver', [OrderController::class, 'deliver'])->name('orders.deliver');
+        Route::patch('/orders/{order}/pickup-point', [OrderController::class, 'updatePickUpPoint'])->name('orders.update-pickup-point');
         Route::post('/order-items/{order_item}/reassign-chef', [OrderController::class, 'reassignItemChef'])->name('orders.reassign-chef');
 
         // Testimonial Management
@@ -311,7 +317,6 @@ Route::prefix('chef')->name('chef.')->group(function () {
         Route::post('/orders/approve', [ChefOrderController::class, 'approve'])->name('orders.approve');
         Route::post('/orders/reject', [ChefOrderController::class, 'reject'])->name('orders.reject');
         Route::post('/orders/ship', [ChefOrderController::class, 'ship'])->name('orders.ship');
-        Route::post('/orders/deliver', [ChefOrderController::class, 'deliver'])->name('orders.deliver');
         Route::post('/logout', [ChefLoginController::class, 'logout'])->name('logout');
     });
 
@@ -319,5 +324,29 @@ Route::prefix('chef')->name('chef.')->group(function () {
     Route::middleware('guest:chef')->group(function () {
         Route::get('/login', [ChefLoginController::class, 'show'])->name('login');
         Route::post('/login', [ChefLoginController::class, 'login'])->name('login.store');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| PIC Routes (/pic prefix)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('pic')->name('pic.')->group(function () {
+
+    // PIC authenticated routes
+    Route::middleware('auth:pickup_officer')->group(function () {
+        Route::get('/', [PicDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/orders/{order}/approve', [PicOrderController::class, 'approve'])->name('orders.approve');
+        Route::post('/orders/{order}/send', [PicOrderController::class, 'send'])->name('orders.send');
+        Route::post('/orders/{order}/complete', [PicOrderController::class, 'complete'])->name('orders.complete');
+        Route::post('/logout', [PicLoginController::class, 'logout'])->name('logout');
+    });
+
+    // PIC guest routes
+    Route::middleware('guest:pickup_officer')->group(function () {
+        Route::get('/login', [PicLoginController::class, 'show'])->name('login');
+        Route::post('/login', [PicLoginController::class, 'login'])->name('login.store');
     });
 });

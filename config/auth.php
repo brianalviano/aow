@@ -50,6 +50,11 @@ return [
             'driver' => 'session',
             'provider' => 'chefs',
         ],
+
+        'pickup_officer' => [
+            'driver' => 'session',
+            'provider' => 'pickup_officers',
+        ],
     ],
 
     /*
@@ -83,6 +88,11 @@ return [
         'chefs' => [
             'driver' => 'eloquent',
             'model' => App\Models\Chef::class,
+        ],
+
+        'pickup_officers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\PickUpPointOfficer::class,
         ],
     ],
 

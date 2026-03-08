@@ -81,6 +81,15 @@
             biteship_status?: string;
             biteship_waybill_id?: string;
         }>;
+        pick_up_point?: {
+            id: string;
+            name: string;
+            address: string;
+            latitude?: number;
+            longitude?: number;
+        };
+        pick_up_point_id?: string;
+        chef_status_summary?: string;
     }
 
     interface Chef {
@@ -88,10 +97,23 @@
         name: string;
     }
 
-    let { order: orderProp, chefs = [] } = $props<{
+    interface PickUpPointOption {
+        id: string;
+        name: string;
+        address: string;
+    }
+
+    let {
+        order: orderProp,
+        chefs = [],
+        pickUpPoints = [],
+        canChangePickUpPoint = false,
+    }: {
         order: Order;
         chefs: Chef[];
-    }>();
+        pickUpPoints: PickUpPointOption[];
+        canChangePickUpPoint: boolean;
+    } = $props();
     let order = $derived(orderProp);
 
     interface ConfirmDialog {
@@ -123,6 +145,12 @@
     let reassignModalOpen = $state(false);
     let selectedItemForReassign = $state<any>(null);
     let selectedNewChefId = $state("");
+
+    let selectedPickUpPointId = $state("");
+    $effect(() => {
+        selectedPickUpPointId = order.pick_up_point_id ?? "";
+    });
+    let isPickupUpdating = $state(false);
 
     function openMediaViewer(items: string | string[], index: number = 0) {
         mediaViewerItems = items;
@@ -235,6 +263,20 @@
         );
     }
 
+    function submitPickUpPointChange() {
+        if (!selectedPickUpPointId) return;
+        isPickupUpdating = true;
+        router.patch(
+            `/admin/orders/${order.id}/pickup-point`,
+            { pick_up_point_id: selectedPickUpPointId },
+            {
+                onFinish: () => {
+                    isPickupUpdating = false;
+                },
+            },
+        );
+    }
+
     type BadgeVariant =
         | "dark"
         | "light"
@@ -257,7 +299,11 @@
             case "confirmed":
                 return { variant: "info", label: "Dikonfirmasi" };
             case "shipped":
-                return { variant: "primary", label: "Dikirim" };
+                return { variant: "primary", label: "Dikirim ke Pickup" };
+            case "at_pickup_point":
+                return { variant: "info", label: "Di Pickup Point" };
+            case "on_delivery":
+                return { variant: "primary", label: "Sedang Dikirim" };
             case "delivered":
                 return { variant: "success", label: "Selesai" };
             case "cancelled":
@@ -839,6 +885,92 @@
                                 Pukul {order.delivery_time || "-"}
                             </div>
                         </div>
+                    </div>
+                </Card>
+
+                <!-- Pickup Point Card -->
+                <Card title="Pickup Point">
+                    <div class="space-y-4">
+                        {#if order.pick_up_point}
+                            <div>
+                                <div
+                                    class="text-sm font-semibold text-gray-500 uppercase tracking-wider"
+                                >
+                                    Pickup Point Saat Ini
+                                </div>
+                                <div
+                                    class="mt-1 font-medium text-gray-900 dark:text-white"
+                                >
+                                    {order.pick_up_point.name}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {order.pick_up_point.address}
+                                </div>
+                                {#if order.pick_up_point.latitude && order.pick_up_point.longitude}
+                                    <a
+                                        href="https://www.google.com/maps/dir/?api=1&destination={order
+                                            .pick_up_point.latitude},{order
+                                            .pick_up_point.longitude}"
+                                        target="_blank"
+                                        rel="noopener"
+                                        class="inline-flex items-center gap-1 mt-2 text-xs text-blue-600 hover:text-blue-800"
+                                    >
+                                        <i class="fa-solid fa-map-location-dot"
+                                        ></i>
+                                        Buka Google Maps
+                                    </a>
+                                {/if}
+                            </div>
+                        {:else}
+                            <div class="text-sm text-gray-400 italic">
+                                Belum ada pickup point
+                            </div>
+                        {/if}
+
+                        {#if canChangePickUpPoint && pickUpPoints.length > 0}
+                            <div class="border-t border-gray-100 pt-3">
+                                <label
+                                    for="pickup-point-select"
+                                    class="text-sm font-semibold text-gray-500 uppercase tracking-wider block mb-2"
+                                >
+                                    Ubah Pickup Point
+                                </label>
+                                <select
+                                    id="pickup-point-select"
+                                    bind:value={selectedPickUpPointId}
+                                    class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value=""
+                                        >-- Pilih Pickup Point --</option
+                                    >
+                                    {#each pickUpPoints as pp}
+                                        <option value={pp.id}
+                                            >{pp.name} - {pp.address}</option
+                                        >
+                                    {/each}
+                                </select>
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    icon="fa-solid fa-save"
+                                    disabled={!selectedPickUpPointId ||
+                                        isPickupUpdating}
+                                    loading={isPickupUpdating}
+                                    onclick={submitPickUpPointChange}
+                                    class="mt-2"
+                                >
+                                    {#snippet children()}Simpan{/snippet}
+                                </Button>
+                            </div>
+                        {:else if !canChangePickUpPoint && order.pick_up_point}
+                            <div
+                                class="text-xs text-amber-600 bg-amber-50 p-2 rounded"
+                            >
+                                <i class="fa-solid fa-lock mr-1"></i>
+                                Pickup point tidak dapat diubah karena semua item
+                                sudah dikirim.
+                            </div>
+                        {/if}
                     </div>
                 </Card>
 

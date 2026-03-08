@@ -12,6 +12,14 @@
         image?: string;
     }
 
+    export interface PickUpPoint {
+        id: string;
+        name: string;
+        address: string;
+        latitude?: number;
+        longitude?: number;
+    }
+
     export interface Order {
         id: string;
         number: string;
@@ -24,6 +32,7 @@
         drop_point?: {
             name: string;
         };
+        pick_up_point?: PickUpPoint;
         items?: any[];
     }
 
@@ -48,14 +57,12 @@
         onApprove,
         onReject,
         onShip,
-        onDeliver,
     } = $props<{
         group: Group;
         context?: "dashboard" | "orders";
         onApprove?: (id: string) => void;
         onReject?: (id: string) => void;
         onShip?: (id: string) => void;
-        onDeliver?: (id: string) => void;
     }>();
 
     function isAllItemsApproved(order: Order) {
@@ -89,13 +96,22 @@
             case "accepted":
                 return "Diproses";
             case "shipped":
-                return "Dikirim";
+                return "Dikirim ke Pickup Point";
             case "delivered":
                 return "Selesai";
             case "rejected":
                 return "Ditolak";
             default:
                 return "Menunggu";
+        }
+    }
+
+    function openGoogleMaps(lat?: number, lng?: number) {
+        if (lat && lng) {
+            window.open(
+                `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+                "_blank",
+            );
         }
     }
 </script>
@@ -144,6 +160,41 @@
             </span>
         </div>
     </div>
+
+    {#if group.order.pick_up_point}
+        <div
+            class="bg-blue-50/50 px-4 py-3 border-b border-blue-100 flex flex-wrap items-center justify-between gap-3"
+        >
+            <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                    <i class="fa-solid fa-location-dot text-blue-500 text-sm"
+                    ></i>
+                    <span class="text-xs font-bold text-blue-600 uppercase"
+                        >Kirim ke Pickup Point</span
+                    >
+                </div>
+                <p class="text-sm font-semibold text-gray-900">
+                    {group.order.pick_up_point.name}
+                </p>
+                <p class="text-xs text-gray-500 mt-0.5">
+                    {group.order.pick_up_point.address}
+                </p>
+            </div>
+            {#if group.order.pick_up_point.latitude && group.order.pick_up_point.longitude}
+                <button
+                    onclick={() =>
+                        openGoogleMaps(
+                            group.order.pick_up_point?.latitude,
+                            group.order.pick_up_point?.longitude,
+                        )}
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    Google Maps
+                </button>
+            {/if}
+        </div>
+    {/if}
 
     <div class="divide-y divide-gray-100">
         {#each group.items as item}
@@ -228,17 +279,13 @@
                                 icon="fa-solid fa-truck"
                                 onclick={() => onShip?.(item.id)}
                             >
-                                Kirim
+                                Kirim ke Pickup Point
                             </Button>
                         {:else if item.chef_status === "shipped"}
-                            <Button
-                                variant="success"
-                                size="sm"
-                                icon="fa-solid fa-circle-check"
-                                onclick={() => onDeliver?.(item.id)}
-                            >
-                                Selesai
-                            </Button>
+                            <Badge variant="primary" size="sm">
+                                <i class="fa-solid fa-truck mr-1"></i>
+                                Dalam Pengiriman
+                            </Badge>
                         {/if}
                     {:else if context === "orders"}
                         <Badge
@@ -254,7 +301,7 @@
                                 icon="fa-solid fa-truck"
                                 onclick={() => onShip?.(item.id)}
                             >
-                                Kirim
+                                Kirim ke Pickup Point
                             </Button>
                         {/if}
                     {/if}
