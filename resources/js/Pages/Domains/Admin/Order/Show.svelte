@@ -438,40 +438,6 @@
                         {#snippet children()}Batalkan{/snippet}
                     </Button>
                 {/if}
-
-                {#if order.order_status === "confirmed"}
-                    <Button
-                        variant="primary"
-                        size="sm"
-                        icon="fa-solid fa-truck"
-                        disabled={isProcessing}
-                        onclick={() =>
-                            openConfirm(
-                                "Tandai Sebagai Dikirim",
-                                `Apakah Anda yakin pesanan #${order.number} sudah dikirim?`,
-                                () => postAction("ship"),
-                                "primary",
-                            )}
-                    >
-                        {#snippet children()}Tandai Dikirim{/snippet}
-                    </Button>
-                {/if}
-
-                {#if order.order_status === "shipped"}
-                    <Button
-                        variant="success"
-                        size="sm"
-                        icon="fa-solid fa-circle-check"
-                        disabled={isProcessing}
-                        onclick={() => {
-                            deliveryPhotoFile = null;
-                            deliveryPhotoError = undefined;
-                            deliverModalOpen = true;
-                        }}
-                    >
-                        {#snippet children()}Tandai Selesai{/snippet}
-                    </Button>
-                {/if}
             </div>
         </div>
     </header>

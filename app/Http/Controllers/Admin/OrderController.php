@@ -135,62 +135,6 @@ class OrderController extends Controller
     }
 
     /**
-     * Mark a confirmed order as shipped (admin action).
-     *
-     * @throws \Throwable
-     */
-    public function ship(Order $order, OrderService $service): RedirectResponse
-    {
-        try {
-            $service->shipOrder($order);
-
-            Inertia::flash('toast', [
-                'message' => 'Status pesanan berhasil diubah ke Dikirim.',
-                'type'    => 'success',
-            ]);
-
-            return redirect()->back();
-        } catch (Throwable $e) {
-            Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui status pengiriman: ' . $e->getMessage(),
-                'type'    => 'error',
-            ]);
-
-            return redirect()->back();
-        }
-    }
-
-    /**
-     * Mark a shipped order as delivered with photo proof (admin action).
-     *
-     * @throws \Throwable
-     */
-    public function deliver(Request $request, Order $order, OrderService $service): RedirectResponse
-    {
-        $request->validate([
-            'delivery_photo' => $this->getFileValidationRules(true),
-        ]);
-
-        try {
-            $service->completeOrder($order, $request->file('delivery_photo'));
-
-            Inertia::flash('toast', [
-                'message' => 'Pesanan berhasil diselesaikan.',
-                'type'    => 'success',
-            ]);
-
-            return redirect()->back();
-        } catch (Throwable $e) {
-            Inertia::flash('toast', [
-                'message' => 'Gagal menyelesaikan pesanan: ' . $e->getMessage(),
-                'type'    => 'error',
-            ]);
-
-            return redirect()->back();
-        }
-    }
-
-    /**
      * Approve a customer testimonial.
      */
     public function approveTestimonial(\App\Models\Testimonial $testimonial): RedirectResponse

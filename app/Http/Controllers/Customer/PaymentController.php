@@ -177,7 +177,7 @@ class PaymentController extends Controller
                 'type' => 'error',
             ]);
 
-            return back()->withInput();
+            return redirect()->route('customer.payment-summary')->withInput();
         }
     }
 
@@ -230,7 +230,10 @@ class PaymentController extends Controller
                 'type' => 'error',
             ]);
 
-            return back();
+            return redirect()->route('customer.payment.show', [
+                'order' => $order->id,
+                'from' => $request->query('from')
+            ]);
         }
     }
 
@@ -249,7 +252,7 @@ class PaymentController extends Controller
                 'message' => 'Data QRIS tidak ditemukan.',
                 'type' => 'error',
             ]);
-            return back();
+            return redirect()->route('customer.payment.show', ['order' => $order->id]);
         }
 
         $qrisUrl = null;
@@ -265,7 +268,7 @@ class PaymentController extends Controller
                 'message' => 'URL QRIS tidak ditemukan.',
                 'type' => 'error',
             ]);
-            return back();
+            return redirect()->route('customer.payment.show', ['order' => $order->id]);
         }
 
         try {
@@ -297,7 +300,7 @@ class PaymentController extends Controller
                 'message' => 'Gagal mengunduh QRIS, silakan coba lagi.',
                 'type' => 'error',
             ]);
-            return back();
+            return redirect()->route('customer.payment.show', ['order' => $order->id]);
         }
     }
 }
