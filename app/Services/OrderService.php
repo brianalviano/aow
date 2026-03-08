@@ -9,6 +9,7 @@ use App\Enums\{OrderStatus, PaymentMethodType};
 use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
 use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderShipping, PaymentMethod, PickUpPoint, Product};
 use App\Notifications\{OrderPlacedNotification, OrderStatusChangedNotification};
+use App\Jobs\{SendTelegramNotificationJob, SendWhatsAppNotificationJob};
 use App\Traits\{FileHelperTrait, RetryableTransactionsTrait};
 use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
 use Illuminate\Support\Collection;
@@ -103,6 +104,11 @@ class OrderService
 
                 $order->load('customer');
                 $order->customer->notify(new OrderStatusChangedNotification($order, 'cancelled'));
+
+                DB::afterCommit(function () use ($order, $reason) {
+                    $message = "Halo {$order->customer->name},\n\nMohon maaf, pesanan Anda dengan nomor *{$order->number}* telah dibatalkan oleh Admin.\n\nAlasan: " . ($reason ?: 'Tidak disebutkan');
+                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                });
 
                 return $order->fresh();
             });
@@ -277,6 +283,7 @@ class OrderService
 
                 // For each affected order, update main order status to SHIPPED
                 foreach (array_keys($orderIdsToProcess) as $orderId) {
+                    /** @var Order $order */
                     $order = Order::find($orderId);
                     if ($order && $order->order_status === OrderStatus::CONFIRMED) {
                         $this->shipOrder($order);
@@ -324,6 +331,7 @@ class OrderService
 
                 // If ALL items in an order are DELIVERED, mark the main order as DELIVERED
                 foreach (array_keys($orderIdsToProcess) as $orderId) {
+                    /** @var Order $order */
                     $order = Order::with('items')->find($orderId);
                     if ($order && $order->order_status === OrderStatus::SHIPPED) {
                         $allDelivered = $order->items->every(fn($i) => $i->chef_status === \App\Enums\ChefStatus::DELIVERED);
@@ -398,8 +406,17 @@ class OrderService
                     'order_status' => OrderStatus::SHIPPED,
                 ]);
 
-                $order->load('customer');
+                $order->load('customer', 'dropPoint');
                 $order->customer->notify(new OrderStatusChangedNotification($order, 'shipped'));
+
+                DB::afterCommit(function () use ($order) {
+                    $dpName = $order->dropPoint ? $order->dropPoint->name : 'Custom Address';
+                    $message = "<b>PESANAN MENUJU PICKUP POINT</b>\n\n"
+                        . "Order: <b>{$order->number}</b>\n"
+                        . "Chef telah selesai memasak dan pesanan sedang dikirim ke <b>{$dpName}</b>.\n"
+                        . "Harap PIC bersiap untuk menerima pesanan.";
+                    dispatch(new SendTelegramNotificationJob($message));
+                });
 
                 return $order->fresh();
             });
@@ -797,6 +814,14 @@ class OrderService
                     DB::afterCommit(function () use ($order) {
                         Mail::to($order->customer->email)->send(new OrderPlacedMail($order));
                         $order->customer->notify(new OrderPlacedNotification($order));
+
+                        // 1. Notify Admin via Telegram
+                        $message = "<b>PESANAN BARU MASUK!</b>\n\n"
+                            . "Order: <b>{$order->number}</b>\n"
+                            . "Customer: {$order->customer->name}\n"
+                            . "Total: Rp " . number_format($order->total_amount, 0, ',', '.') . "\n"
+                            . "Harap segera cek dashboard admin.";
+                        dispatch(new SendTelegramNotificationJob($message));
                     });
 
                     session()->forget(['checkout_cart', 'checkout_drop_point', 'checkout_address']);
@@ -954,6 +979,7 @@ class OrderService
 
                 // When courier has delivered, mark the order as DELIVERED
                 if ($status === 'delivered') {
+                    /** @var Order $order */
                     $order = Order::find($shipping->order_id);
 
                     if (!$order) {

@@ -7,13 +7,14 @@ namespace App\Mail;
 use App\Models\{CompanyProfile, Order};
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailables\{Content, Envelope};
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Mail sent to customers when an order is placed.
  */
-class OrderPlacedMail extends Mailable
+class OrderPlacedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

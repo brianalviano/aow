@@ -7,13 +7,14 @@ namespace App\Mail;
 use App\Models\{CompanyProfile, Customer};
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailables\{Content, Envelope};
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Mail sent to new customers with their login credentials.
  */
-class CustomerWelcomeMail extends Mailable
+class CustomerWelcomeMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

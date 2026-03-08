@@ -8,11 +8,12 @@ use App\Enums\ChefStatus;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailables\{Content, Envelope};
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
-class ChefStatusUpdatedMail extends Mailable
+class ChefStatusUpdatedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

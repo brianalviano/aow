@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\{ChefStatus, OrderStatus};
 use App\Models\{Order, OrderItem, OrderShipping, PickUpPoint, PickUpPointOfficer};
+use App\Jobs\SendWhatsAppNotificationJob;
 use App\Traits\RetryableTransactionsTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\{DB, Log};
@@ -210,6 +211,14 @@ class PicOrderService
                     'type' => $order->isInstant() ? 'instant' : 'preorder',
                 ]);
 
+                DB::afterCommit(function () use ($order) {
+                    $order->load('customer');
+                    $message = "Halo {$order->customer->name},\n\n"
+                        . "Pesanan Anda dengan nomor *{$order->number}* sedang dalam perjalanan menuju alamat Anda!\n\n"
+                        . "Mohon standby untuk menerima pesanan Anda ya. Terima kasih.";
+                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                });
+
                 return $order->fresh();
             });
         } catch (Throwable $e) {
@@ -247,6 +256,14 @@ class PicOrderService
                     'order_id' => $order->id,
                     'officer_id' => $officer->id,
                 ]);
+
+                DB::afterCommit(function () use ($order) {
+                    $order->load('customer');
+                    $message = "Halo {$order->customer->name},\n\n"
+                        . "Pesanan Anda dengan nomor *{$order->number}* telah BERHASIL dikirim dan diselesaikan!\n\n"
+                        . "Terima kasih telah berbelanja bersama kami. Selamat menikmati hidangan Anda!";
+                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                });
 
                 return $order->fresh();
             });

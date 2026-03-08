@@ -7,10 +7,11 @@ namespace App\Mail;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailables\{Content, Envelope};
 use Illuminate\Queue\SerializesModels;
 
-class PaymentProofUploadedCustomerMail extends Mailable
+class PaymentProofUploadedCustomerMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

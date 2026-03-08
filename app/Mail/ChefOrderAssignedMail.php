@@ -7,13 +7,14 @@ namespace App\Mail;
 use App\Models\{Chef, Order};
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailables\{Content, Envelope};
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Email dikirim ke chef ketika ada pesanan baru yang harus dikonfirmasi.
  */
-class ChefOrderAssignedMail extends Mailable
+class ChefOrderAssignedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
