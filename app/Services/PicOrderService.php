@@ -81,6 +81,23 @@ class PicOrderService
     }
 
     /**
+     * Get completed orders for this pickup point.
+     *
+     * @param string $pickUpPointId
+     * @return LengthAwarePaginator
+     */
+    public function getCompletedOrders(string $pickUpPointId): LengthAwarePaginator
+    {
+        return Order::query()
+            ->where('pick_up_point_id', $pickUpPointId)
+            ->where('order_status', OrderStatus::DELIVERED)
+            ->with(['items.product', 'customer', 'dropPoint', 'customerAddress', 'pickUpPoint', 'shippings'])
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+    }
+
+    /**
      * PIC approves that all food for this order has arrived at the pickup point.
      *
      * Updates all chef item statuses to DELIVERED and order status to AT_PICKUP_POINT.

@@ -26,6 +26,10 @@
             data: any[];
             meta?: any;
         };
+        completedOrders: {
+            data: any[];
+            meta?: any;
+        };
     }
 
     let {
@@ -34,11 +38,12 @@
         incomingOrders,
         atPickupOrders,
         onDeliveryOrders,
+        completedOrders,
     }: Props = $props();
 
-    let activeTab = $state<"incoming" | "at_pickup" | "on_delivery">(
-        "incoming",
-    );
+    let activeTab = $state<
+        "incoming" | "at_pickup" | "on_delivery" | "completed"
+    >("incoming");
 
     const currentYear = new Date().getFullYear();
 
@@ -54,6 +59,8 @@
                 return atPickupOrders?.data ?? [];
             case "on_delivery":
                 return onDeliveryOrders?.data ?? [];
+            case "completed":
+                return completedOrders?.data ?? [];
             default:
                 return [];
         }
@@ -87,6 +94,11 @@
             id: "on_delivery" as const,
             label: "Dikirim",
             icon: "fa-solid fa-motorcycle",
+        },
+        {
+            id: "completed" as const,
+            label: "Selesai",
+            icon: "fa-solid fa-check-circle",
         },
     ];
 
@@ -170,8 +182,12 @@
                         <i
                             class="fa-solid fa-boxes-stacked text-gray-400 text-xl"
                         ></i>
-                    {:else}
+                    {:else if activeTab === "on_delivery"}
                         <i class="fa-solid fa-motorcycle text-gray-400 text-xl"
+                        ></i>
+                    {:else}
+                        <i
+                            class="fa-solid fa-check-circle text-gray-400 text-xl"
                         ></i>
                     {/if}
                 </div>
@@ -180,8 +196,10 @@
                         Belum ada pesanan yang menuju
                     {:else if activeTab === "at_pickup"}
                         Belum ada pesanan di pickup point
-                    {:else}
+                    {:else if activeTab === "on_delivery"}
                         Belum ada pesanan yang sedang dikirim
+                    {:else}
+                        Belum ada pesanan yang selesai
                     {/if}
                 </h3>
                 <p class="text-xs text-gray-400">

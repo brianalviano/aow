@@ -33,6 +33,7 @@ class DashboardController extends Controller
             'incomingOrders' => $service->getIncomingOrders($pickUpPointId),
             'atPickupOrders' => $service->getAtPickupOrders($pickUpPointId),
             'onDeliveryOrders' => $service->getOnDeliveryOrders($pickUpPointId),
+            'completedOrders' => $service->getCompletedOrders($pickUpPointId),
         ]);
     }
 }

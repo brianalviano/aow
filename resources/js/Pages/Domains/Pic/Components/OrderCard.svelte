@@ -62,7 +62,7 @@
         processing = false,
     } = $props<{
         order: Order;
-        tab?: "incoming" | "at_pickup" | "on_delivery";
+        tab?: "incoming" | "at_pickup" | "on_delivery" | "completed";
         processing?: boolean;
     }>();
 
@@ -240,7 +240,7 @@
     </div>
 
     <!-- Destination Info -->
-    {#if destination && (tab === "at_pickup" || tab === "on_delivery")}
+    {#if destination && (tab === "at_pickup" || tab === "on_delivery" || tab === "completed")}
         <div class="bg-emerald-50/50 px-4 py-3 border-b border-emerald-100">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -277,7 +277,7 @@
     {/if}
 
     <!-- Tracking Info -->
-    {#if tab === "on_delivery" && trackingUrl}
+    {#if (tab === "on_delivery" || tab === "completed") && trackingUrl}
         <div class="bg-violet-50/50 px-4 py-3 border-b border-violet-100">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
