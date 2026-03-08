@@ -1,6 +1,7 @@
 <script lang="ts">
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
+    import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
     import dayjs from "dayjs";
     import id from "dayjs/locale/id";
     import { router } from "@inertiajs/svelte";
@@ -67,6 +68,15 @@
 
     let isProcessing = $state(false);
 
+    let confirmDialog = $state({
+        isOpen: false,
+        type: "info" as "info" | "warning" | "danger" | "success",
+        title: "",
+        message: "",
+        confirmText: "Ya, Lanjutkan",
+        action: null as "approve" | "send" | "complete" | null,
+    });
+
     function openGoogleMaps(lat?: number, lng?: number) {
         if (lat && lng) {
             window.open(
@@ -76,43 +86,73 @@
         }
     }
 
-    function handleApprove() {
-        if (isProcessing) return;
-        isProcessing = true;
-        router.post(
-            `/pic/orders/${order.id}/approve`,
-            {},
-            {
-                preserveScroll: true,
-                onFinish: () => (isProcessing = false),
-            },
-        );
+    function executePendingAction(): Promise<void> {
+        return new Promise((resolve) => {
+            if (!confirmDialog.action || isProcessing) {
+                resolve();
+                return;
+            }
+
+            isProcessing = true;
+
+            let endpoint = "";
+            if (confirmDialog.action === "approve") {
+                endpoint = `/pic/orders/${order.id}/approve`;
+            } else if (confirmDialog.action === "send") {
+                endpoint = `/pic/orders/${order.id}/send`;
+            } else if (confirmDialog.action === "complete") {
+                endpoint = `/pic/orders/${order.id}/complete`;
+            }
+
+            router.post(
+                endpoint,
+                {},
+                {
+                    preserveScroll: true,
+                    onFinish: () => {
+                        isProcessing = false;
+                        confirmDialog.action = null;
+                        resolve();
+                    },
+                },
+            );
+        });
     }
 
-    function handleSend() {
-        if (isProcessing) return;
-        isProcessing = true;
-        router.post(
-            `/pic/orders/${order.id}/send`,
-            {},
-            {
-                preserveScroll: true,
-                onFinish: () => (isProcessing = false),
-            },
-        );
+    function confirmApprove() {
+        confirmDialog = {
+            isOpen: true,
+            type: "success",
+            title: "Konfirmasi Pesanan Datang",
+            message: `Apakah Anda yakin pesanan ${order.number} telah sampai di titik kumpul dengan aman dan lengkap?`,
+            confirmText: "Ya, Pesanan Sampai",
+            action: "approve",
+        };
     }
 
-    function handleComplete() {
-        if (isProcessing) return;
-        isProcessing = true;
-        router.post(
-            `/pic/orders/${order.id}/complete`,
-            {},
-            {
-                preserveScroll: true,
-                onFinish: () => (isProcessing = false),
-            },
-        );
+    function confirmSend() {
+        const isPre = isPreOrder();
+        confirmDialog = {
+            isOpen: true,
+            type: "info",
+            title: isPre ? "Kirim ke Drop Point" : "Pesan Kurir",
+            message: isPre
+                ? `Apakah Anda yakin ingin mengirim pesanan ${order.number} ke drop point sekarang?`
+                : `Apakah Anda yakin ingin memesan kurir (Grab/Gojek) untuk pesanan ${order.number} sekarang?`,
+            confirmText: isPre ? "Ya, Kirim Pesanan" : "Ya, Pesan Kurir",
+            action: "send",
+        };
+    }
+
+    function confirmComplete() {
+        confirmDialog = {
+            isOpen: true,
+            type: "success",
+            title: "Selesaikan Pesanan",
+            message: `Apakah Anda yakin ingin menandai pesanan ${order.number} telah selesai dan diterima oleh pelanggan?`,
+            confirmText: "Ya, Selesaikan",
+            action: "complete",
+        };
     }
 
     function getDeliveryDestination() {
@@ -180,7 +220,7 @@
                     {/if}
                 </p>
             </div>
-            <div class="text-right">
+            <div>
                 <span class="text-xs text-gray-400 block mb-0.5"
                     >Pengiriman</span
                 >
@@ -313,8 +353,7 @@
                 size="sm"
                 icon="fa-solid fa-check-circle"
                 disabled={isProcessing}
-                loading={isProcessing}
-                onclick={handleApprove}
+                onclick={confirmApprove}
             >
                 Konfirmasi Sampai
             </Button>
@@ -325,8 +364,7 @@
                     size="sm"
                     icon="fa-solid fa-truck"
                     disabled={isProcessing}
-                    loading={isProcessing}
-                    onclick={handleSend}
+                    onclick={confirmSend}
                 >
                     Kirim ke Drop Point
                 </Button>
@@ -336,8 +374,7 @@
                     size="sm"
                     icon="fa-solid fa-motorcycle"
                     disabled={isProcessing}
-                    loading={isProcessing}
-                    onclick={handleSend}
+                    onclick={confirmSend}
                 >
                     Pesan Kurir (Grab/Gojek)
                 </Button>
@@ -349,8 +386,7 @@
                     size="sm"
                     icon="fa-solid fa-circle-check"
                     disabled={isProcessing}
-                    loading={isProcessing}
-                    onclick={handleComplete}
+                    onclick={confirmComplete}
                 >
                     Tandai Selesai
                 </Button>
@@ -363,3 +399,15 @@
         {/if}
     </div>
 </div>
+
+<!-- Dialog Konfirmasi -->
+<Dialog
+    bind:isOpen={confirmDialog.isOpen}
+    type={confirmDialog.type}
+    title={confirmDialog.title}
+    message={confirmDialog.message}
+    confirmText={confirmDialog.confirmText}
+    cancelText="Batal"
+    loading={isProcessing}
+    onConfirm={executePendingAction}
+/>

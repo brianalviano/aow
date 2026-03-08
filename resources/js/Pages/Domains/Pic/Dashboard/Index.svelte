@@ -1,8 +1,6 @@
 <script lang="ts">
     import { page, router } from "@inertiajs/svelte";
     import { name as appName } from "@/Lib/Admin/Utils/settings";
-    import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
-    import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import OrderCard from "../Components/OrderCard.svelte";
 
     interface Props {
@@ -123,12 +121,12 @@
     </div>
 
     <!-- Tabs -->
-    <div class="bg-white border-b border-gray-200 px-2 sticky top-[60px] z-10">
+    <div class="bg-white border-b border-gray-200 sticky top-[60px] z-10">
         <div class="flex gap-1">
             {#each tabs as tab}
                 <button
                     onclick={() => (activeTab = tab.id)}
-                    class="flex-1 flex items-center justify-center gap-1.5 px-2 py-3 text-sm font-medium transition-colors relative
+                    class="flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-medium transition-colors relative
                         {activeTab === tab.id
                         ? 'text-blue-600'
                         : 'text-gray-500 hover:text-gray-700'}"
@@ -137,7 +135,7 @@
                     <span>{tab.label}</span>
                     {#if getTabCount(tab.id) > 0}
                         <span
-                            class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full
+                            class="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[9px] font-bold rounded-full
                                 {activeTab === tab.id
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-200 text-gray-600'}"
