@@ -78,6 +78,11 @@ class OrderTypeController extends Controller
             return redirect()->route('customer.products', $request->drop_point_id);
         }
 
+        if (session('checkout_redirect_after_selection')) {
+            session()->forget('checkout_redirect_after_selection');
+            return redirect()->route('customer.checkout');
+        }
+
         return redirect()->route('customer.products.general');
     }
 }

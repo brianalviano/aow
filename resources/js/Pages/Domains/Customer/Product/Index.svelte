@@ -745,6 +745,7 @@
                                 cart,
                                 dropPoint,
                                 address,
+                                redirect_to_checkout: !dropPoint && !address,
                             },
                             {
                                 onFinish: () => {

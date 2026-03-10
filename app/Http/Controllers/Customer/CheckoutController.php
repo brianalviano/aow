@@ -104,7 +104,12 @@ class CheckoutController extends Controller
             'checkout_delivery_date' => $request->input('delivery_date'),
             'checkout_delivery_time' => $request->input('delivery_time'),
             'checkout_notes' => $request->input('notes'),
+            'checkout_redirect_after_selection' => $request->boolean('redirect_to_checkout'),
         ]);
+
+        if (empty($request->input('dropPoint')) && empty($request->input('address')) && $request->boolean('redirect_to_checkout')) {
+            return redirect()->route('home');
+        }
 
         return redirect()->to(route('customer.checkout'));
     }

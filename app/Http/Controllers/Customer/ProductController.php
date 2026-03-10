@@ -36,13 +36,9 @@ class ProductController extends Controller
     /**
      * Display the general products page for custom addresses.
      */
-    public function generalIndex(): Response|\Illuminate\Http\RedirectResponse
+    public function generalIndex(): Response
     {
         $address = session('checkout_address');
-
-        if (!$address) {
-            return redirect()->route('home');
-        }
 
         return $this->renderProducts(null, $address);
     }
