@@ -21,17 +21,17 @@ class ProductSeeder extends Seeder
     {
         // Define some sample products
         $products = [
-            'Food' => [
+            'Makanan Utama' => [
                 [
-                    'name' => 'Nasi Goreng',
-                    'description' => 'Nasi goreng spesial dengan telur dan ayam.',
-                    'price' => 25000,
+                    'name' => 'Salad Mentai',
+                    'description' => 'Kombinasi sayuran dan buah segar dengan dressing saus mentai gurih dan creamy.',
+                    'price' => 15000,
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 1,
                     'options' => [
                         new ProductOptionData(
-                            name: 'Level Pedas',
+                            name: 'Tingkat Pedas Saus',
                             isRequired: true,
                             isMultiple: false,
                             sortOrder: 1,
@@ -47,39 +47,310 @@ class ProductSeeder extends Seeder
                             isMultiple: true,
                             sortOrder: 2,
                             items: [
-                                new ProductOptionItemData(name: 'Telur Mata Sapi', extraPrice: 5000, sortOrder: 1),
-                                new ProductOptionItemData(name: 'Sosis', extraPrice: 4000, sortOrder: 2),
-                                new ProductOptionItemData(name: 'Keju', extraPrice: 3000, sortOrder: 3),
+                                new ProductOptionItemData(name: 'Telur Rebus', extraPrice: 3000, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Keju Parut', extraPrice: 4000, sortOrder: 2),
+                                new ProductOptionItemData(name: 'Crab Stick', extraPrice: 5000, sortOrder: 3),
                             ]
                         ),
                     ],
                 ],
                 [
-                    'name' => 'Mie Goreng',
-                    'description' => 'Mie goreng jawa yang lezat.',
-                    'price' => 20000,
+                    'name' => 'Steak Mentai',
+                    'description' => 'Potongan daging ayam panggang empuk dengan siraman saus mentai spesial yang ditorch hingga harum.',
+                    'price' => 25000,
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 2,
                     'options' => [
                         new ProductOptionData(
-                            name: 'Level Pedas',
+                            name: 'Tingkat Pematangan',
                             isRequired: true,
                             isMultiple: false,
                             sortOrder: 1,
                             items: [
-                                new ProductOptionItemData(name: 'Tidak Pedas', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Well Done', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Medium Well', extraPrice: 0, sortOrder: 2),
+                            ]
+                        ),
+                        new ProductOptionData(
+                            name: 'Tingkat Pedas Saus',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 2,
+                            items: [
+                                new ProductOptionItemData(name: 'Original', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Spicy', extraPrice: 0, sortOrder: 2),
+                            ]
+                        ),
+                    ],
+                ],
+                [
+                    'name' => 'Dimsum Mentai',
+                    'description' => 'Dimsum ayam halal berbalut saus mentai bakar yang lumer di mulut dan gurih maksimal.',
+                    'price' => 10000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 3,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Tingkat Pedas Saus',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Original', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Pedas', extraPrice: 0, sortOrder: 2),
+                            ]
+                        ),
+                    ],
+                ],
+                [
+                    'name' => 'Sushi Mentai',
+                    'description' => 'Sushi roll a la Jepang yang padat dengan isian crab stick dan extra lelehan saus mentai bakar.',
+                    'price' => 25000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 4,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Pilihan Topping Tambahan',
+                            isRequired: false,
+                            isMultiple: true,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Keju Mozzarella', extraPrice: 5000, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Kani Mambo', extraPrice: 4000, sortOrder: 2),
+                                new ProductOptionItemData(name: 'Tobiko', extraPrice: 6000, sortOrder: 3),
+                            ]
+                        ),
+                    ],
+                ],
+                [
+                    'name' => 'Lontong Kikil',
+                    'description' => 'Potongan kikil empuk dengan kuah santan bumbu kuning yang kaya rempah jinten, disajikan dengan lontong.',
+                    'price' => 30000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 5,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Level Pedas Sambal',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Pisah Sambal', extraPrice: 0, sortOrder: 1),
                                 new ProductOptionItemData(name: 'Sedang', extraPrice: 0, sortOrder: 2),
-                                new ProductOptionItemData(name: 'Pedas', extraPrice: 0, sortOrder: 3),
+                                new ProductOptionItemData(name: 'Extra Pedas', extraPrice: 0, sortOrder: 3),
+                            ]
+                        ),
+                        new ProductOptionData(
+                            name: 'Tambahan',
+                            isRequired: false,
+                            isMultiple: true,
+                            sortOrder: 2,
+                            items: [
+                                new ProductOptionItemData(name: 'Kerupuk Udang', extraPrice: 2000, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Telur Asin', extraPrice: 6000, sortOrder: 2),
+                            ]
+                        ),
+                    ],
+                ],
+                [
+                    'name' => 'Bakso',
+                    'description' => 'Bakso daging sapi asli dengan kuah kaldu sapi pekat tulang rangu segar, dilengkapi mi, bihun, dan poyah bawang goreng.',
+                    'price' => 25000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 6,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Pilihan Karbohidrat',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Mie & Bihun', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Mie Saja', extraPrice: 0, sortOrder: 2),
+                                new ProductOptionItemData(name: 'Bihun Saja', extraPrice: 0, sortOrder: 3),
+                                new ProductOptionItemData(name: 'Tanpa Mie/Bihun (Full Sayur)', extraPrice: 0, sortOrder: 4),
+                            ]
+                        ),
+                        new ProductOptionData(
+                            name: 'Tambahan Kenikmatan',
+                            isRequired: false,
+                            isMultiple: true,
+                            sortOrder: 2,
+                            items: [
+                                new ProductOptionItemData(name: 'Tahu Bakso', extraPrice: 3000, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Pangsit Goreng', extraPrice: 2000, sortOrder: 2),
+                                new ProductOptionItemData(name: 'Nasi Putih', extraPrice: 5000, sortOrder: 3),
                             ]
                         ),
                     ],
                 ],
             ],
-            'Beverage' => [
+            'Minuman' => [
                 [
-                    'name' => 'Es Teh Manis',
-                    'description' => 'Es teh manis segar.',
+                    'name' => 'Smoothies Strawberry',
+                    'description' => 'Minuman blend stroberi segar dengan susu yang manis, creamy, dan dijamin dingin menyegarkan.',
+                    'price' => 15000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 1,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Tingkat Kemanisan',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Normal Sugar', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Less Sugar', extraPrice: 0, sortOrder: 2),
+                            ]
+                        ),
+                        new ProductOptionData(
+                            name: 'Tambahan Topping',
+                            isRequired: false,
+                            isMultiple: true,
+                            sortOrder: 2,
+                            items: [
+                                new ProductOptionItemData(name: 'Jelly', extraPrice: 3000, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Nata de Coco', extraPrice: 3000, sortOrder: 2),
+                            ]
+                        ),
+                    ],
+                ],
+                [
+                    'name' => 'Es Sirsak',
+                    'description' => 'Kesegaran daging buah sirsak utuh dan tebal yang diblend dengan manisnya susu kental manis.',
+                    'price' => 15000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 2,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Tingkat Kemanisan',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Normal Sugar', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Less Sugar', extraPrice: 0, sortOrder: 2),
+                            ]
+                        ),
+                    ],
+                ],
+                [
+                    'name' => 'Es Nangka',
+                    'description' => 'Potongan buah nangka manis dengan kuah santan dan sirup andalan yang harum merona.',
+                    'price' => 15000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 3,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Es',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Normal Ice', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Less Ice', extraPrice: 0, sortOrder: 2),
+                            ]
+                        ),
+                    ],
+                ],
+                [
+                    'name' => 'Es Teller',
+                    'description' => 'Perpaduan klasik alpukat, nangka, kelapa muda dan mutiara disiram susu kental manis berlimpah.',
+                    'price' => 15000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 4,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Tingkat Kemanisan',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Normal Sugar', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Less Sugar', extraPrice: 0, sortOrder: 2),
+                            ]
+                        ),
+                        new ProductOptionData(
+                            name: 'Es',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 2,
+                            items: [
+                                new ProductOptionItemData(name: 'Normal Ice', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Less Ice', extraPrice: 0, sortOrder: 2),
+                            ]
+                        ),
+                    ],
+                ],
+            ],
+            'Cemilan' => [
+                [
+                    'name' => 'Mini Pizza Bites',
+                    'description' => 'Potongan pizza ukuran gigitan (bite-size) dengan taburan sosis, saus tomat pilihan, dan keju lumer.',
+                    'price' => 20000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 1,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Pilihan Saus Cocol',
+                            isRequired: false,
+                            isMultiple: true,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Saus Tomat Ekstra', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Saus Sambal Ekstra', extraPrice: 0, sortOrder: 2),
+                                new ProductOptionItemData(name: 'Mayonnaise', extraPrice: 0, sortOrder: 3),
+                            ]
+                        ),
+                    ],
+                ],
+                [
+                    'name' => 'Pentol Kriwil',
+                    'description' => 'Pentol daging sapi bertekstur keriting kenyal dengan saus kacang pedas manis yang bikin nagih.',
+                    'price' => 15000,
+                    'stock_limit' => null,
+                    'is_active' => true,
+                    'sort_order' => 2,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Pilihan Saus',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Saus Kacang', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Saus Sambal & Kecap', extraPrice: 0, sortOrder: 2),
+                                new ProductOptionItemData(name: 'Bumbu Tabur Gurih', extraPrice: 0, sortOrder: 3),
+                            ]
+                        ),
+                        new ProductOptionData(
+                            name: 'Level Pedas',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 2,
+                            items: [
+                                new ProductOptionItemData(name: 'Tidak Pedas', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Sedang', extraPrice: 0, sortOrder: 2),
+                                new ProductOptionItemData(name: 'Pedas Mantap', extraPrice: 0, sortOrder: 3),
+                            ]
+                        ),
+                    ],
+                ],
+            ],
+            'Makanan Penutup' => [
+                [
+                    'name' => 'Putri Salju',
+                    'description' => 'Kue kering klasik berbentuk bulan sabit dengan taburan taburan gula halus spesial yang langsung lumer di mulut.',
                     'price' => 5000,
                     'stock_limit' => null,
                     'is_active' => true,
@@ -87,45 +358,45 @@ class ProductSeeder extends Seeder
                     'options' => [],
                 ],
                 [
-                    'name' => 'Kopi Susu',
-                    'description' => 'Kopi susu gula aren.',
-                    'price' => 15000,
+                    'name' => 'Puding Fla',
+                    'description' => 'Puding susu lembut dan kenyal, disajikan sangat dingin dengan siraman fla manis legit.',
+                    'price' => 5000,
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 2,
                     'options' => [
                         new ProductOptionData(
-                            name: 'Ukuran',
+                            name: 'Pilihan Rasa Fla (Saus)',
                             isRequired: true,
                             isMultiple: false,
                             sortOrder: 1,
                             items: [
-                                new ProductOptionItemData(name: 'Regular', extraPrice: 0, sortOrder: 1),
-                                new ProductOptionItemData(name: 'Large', extraPrice: 5000, sortOrder: 2),
-                            ]
-                        ),
-                        new ProductOptionData(
-                            name: 'Pilihan Susu',
-                            isRequired: false,
-                            isMultiple: false,
-                            sortOrder: 2,
-                            items: [
-                                new ProductOptionItemData(name: 'Susu Sapi', extraPrice: 0, sortOrder: 1),
-                                new ProductOptionItemData(name: 'Susu Oat', extraPrice: 8000, sortOrder: 2),
+                                new ProductOptionItemData(name: 'Vanilla Classic', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Coklat Belgia', extraPrice: 0, sortOrder: 2),
+                                new ProductOptionItemData(name: 'Stroberi Murni', extraPrice: 0, sortOrder: 3),
                             ]
                         ),
                     ],
                 ],
-            ],
-            'Snack' => [
                 [
-                    'name' => 'Kentang Goreng',
-                    'description' => 'Kentang goreng renyah dengan saus.',
-                    'price' => 15000,
+                    'name' => 'Picnic Roll',
+                    'description' => 'Pastry renyah berlapis nan wangi butter dengan isian daging sapi cincang, dan telur rebus yang gurih padat.',
+                    'price' => 25000,
                     'stock_limit' => null,
                     'is_active' => true,
-                    'sort_order' => 1,
-                    'options' => [],
+                    'sort_order' => 3,
+                    'options' => [
+                        new ProductOptionData(
+                            name: 'Penyajian',
+                            isRequired: true,
+                            isMultiple: false,
+                            sortOrder: 1,
+                            items: [
+                                new ProductOptionItemData(name: 'Hangat (Toasted)', extraPrice: 0, sortOrder: 1),
+                                new ProductOptionItemData(name: 'Suhu Ruang', extraPrice: 0, sortOrder: 2),
+                            ]
+                        ),
+                    ],
                 ],
             ],
         ];

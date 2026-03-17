@@ -18,22 +18,22 @@ class ProductCategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Food',
+                'name' => 'Makanan Utama',
                 'is_active' => true,
                 'sort_order' => 1,
             ],
             [
-                'name' => 'Beverage',
+                'name' => 'Cemilan',
                 'is_active' => true,
                 'sort_order' => 2,
             ],
             [
-                'name' => 'Snack',
+                'name' => 'Minuman',
                 'is_active' => true,
                 'sort_order' => 3,
             ],
             [
-                'name' => 'Dessert',
+                'name' => 'Makanan Penutup',
                 'is_active' => true,
                 'sort_order' => 4,
             ],
