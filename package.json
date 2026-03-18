@@ -9,21 +9,21 @@
     },
     "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^6.2.4",
-        "@tailwindcss/vite": "^4.2.1",
+        "@tailwindcss/vite": "^4.2.2",
         "concurrently": "^9.2.1",
         "laravel-vite-plugin": "^2.1.0",
         "svelte-check": "^4.4.5",
-        "tailwindcss": "^4.2.1",
+        "tailwindcss": "^4.2.2",
         "vite": "^7.3.1",
         "@tsconfig/svelte": "^5.0.8",
         "typescript": "^5.9.3",
-        "@types/node": "^25.3.5"
+        "@types/node": "^25.5.0"
     },
     "dependencies": {
-        "@inertiajs/svelte": "^2.3.17",
+        "@inertiajs/svelte": "^2.3.18",
         "axios": "^1.13.6",
         "chart.js": "^4.5.1",
-        "dayjs": "^1.11.19",
+        "dayjs": "^1.11.20",
         "fuse.js": "^7.1.0",
         "swiper": "^12.1.2"
     }
