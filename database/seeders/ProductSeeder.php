@@ -29,6 +29,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 1,
+                    'image' => 'products/salad-mentai.jpg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Tingkat Pedas Saus',
@@ -61,6 +62,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 2,
+                    'image' => 'products/steak-mentai.jpeg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Tingkat Pematangan',
@@ -91,6 +93,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 3,
+                    'image' => 'products/dimsum-mentai.jpeg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Tingkat Pedas Saus',
@@ -111,6 +114,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 4,
+                    'image' => 'products/sushi-mentai.jpeg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Pilihan Topping Tambahan',
@@ -132,6 +136,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 5,
+                    'image' => 'products/lontong-kikil.webp',
                     'options' => [
                         new ProductOptionData(
                             name: 'Level Pedas Sambal',
@@ -163,6 +168,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 6,
+                    'image' => 'products/bakso.jpeg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Pilihan Karbohidrat',
@@ -198,6 +204,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 1,
+                    'image' => 'products/smoothies-strawberry.jpg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Tingkat Kemanisan',
@@ -228,6 +235,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 2,
+                    'image' => 'products/es-sirsak.jpg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Tingkat Kemanisan',
@@ -248,6 +256,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 3,
+                    'image' => 'products/es-nangka.webp',
                     'options' => [
                         new ProductOptionData(
                             name: 'Es',
@@ -268,6 +277,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 4,
+                    'image' => 'products/es-teller.jpg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Tingkat Kemanisan',
@@ -300,6 +310,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 1,
+                    'image' => 'products/mini-pizza-bites.jpg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Pilihan Saus Cocol',
@@ -321,6 +332,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 2,
+                    'image' => 'products/pentol-kriwil.jpg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Pilihan Saus',
@@ -355,6 +367,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 1,
+                    'image' => 'products/putri-salju.jpg',
                     'options' => [],
                 ],
                 [
@@ -364,6 +377,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 2,
+                    'image' => 'products/puding-fla.webp',
                     'options' => [
                         new ProductOptionData(
                             name: 'Pilihan Rasa Fla (Saus)',
@@ -385,6 +399,7 @@ class ProductSeeder extends Seeder
                     'stock_limit' => null,
                     'is_active' => true,
                     'sort_order' => 3,
+                    'image' => 'products/picnic-roll.jpeg',
                     'options' => [
                         new ProductOptionData(
                             name: 'Penyajian',
