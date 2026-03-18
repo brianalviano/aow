@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\DTOs\Product\ProductData;
 use App\DTOs\Product\ProductOptionData;
 use App\DTOs\Product\ProductOptionItemData;
+use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Services\ProductService;
 use Illuminate\Database\Seeder;
@@ -19,6 +20,8 @@ class ProductSeeder extends Seeder
      */
     public function run(ProductService $productService): void
     {
+        Product::truncate();
+
         // Define some sample products
         $products = [
             'Makanan Utama' => [
@@ -431,14 +434,18 @@ class ProductSeeder extends Seeder
                         name: $product['name'],
                         description: $product['description'],
                         price: $product['price'],
-                        image: null, // Note: image handled manually if needed
+                        image: null,
                         stockLimit: $product['stock_limit'],
                         isActive: $product['is_active'],
                         sortOrder: $product['sort_order'],
                         options: $product['options'] ?? [],
                     );
 
-                    $productService->createProduct($dto);
+                    $createdProduct = $productService->createProduct($dto);
+
+                    if (isset($product['image'])) {
+                        $createdProduct->update(['image' => $product['image']]);
+                    }
                 } catch (\Throwable $e) {
                     Log::error('Failed to seed product: ' . $product['name'], [
                         'error' => $e->getMessage()

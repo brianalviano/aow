@@ -160,12 +160,17 @@
         if (!categoryTabsContainer) return;
         const tab = categoryTabsContainer.querySelector(
             `[data-category-id="${categoryId}"]`,
-        );
+        ) as HTMLElement | null;
         if (tab) {
-            tab.scrollIntoView({
+            const containerWidth = categoryTabsContainer.clientWidth;
+            const tabOffsetLeft = tab.offsetLeft;
+            const tabWidth = tab.clientWidth;
+
+            const targetScrollLeft = tabOffsetLeft - containerWidth / 2 + tabWidth / 2;
+
+            categoryTabsContainer.scrollTo({
+                left: targetScrollLeft,
                 behavior: "smooth",
-                block: "nearest",
-                inline: "center",
             });
         }
     }
