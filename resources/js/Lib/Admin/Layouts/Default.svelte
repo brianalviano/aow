@@ -4,8 +4,6 @@
     import Sidebar from "@/Lib/Admin/Components/Layout/Sidebar.svelte";
     import { toastStore } from "@/Lib/Admin/Stores/toast";
     import Toast from "@/Lib/Admin/Components/Ui/Toast.svelte";
-    import { fly } from "svelte/transition";
-    import { usePageTransition } from "@/Lib/Utils/transition.svelte";
 
     interface Props {
         children: Snippet;
@@ -38,8 +36,6 @@
             }
         }
     });
-
-    const transition = usePageTransition();
 </script>
 
 {#if isAuthenticated}
@@ -53,27 +49,15 @@
             ? 'pr-7 py-7 lg:ml-[3%]'
             : 'p-7 lg:ml-[15%]'}"
     >
-        {#key $page.url}
-            <div
-                class="col-start-1 row-start-1 w-full"
-                in:fly={{ x: 50 * transition.direction, duration: 300, delay: 300 }}
-                out:fly={{ x: -50 * transition.direction, duration: 300 }}
-            >
-                {@render children()}
-            </div>
-        {/key}
+        <div class="col-start-1 row-start-1 w-full">
+            {@render children()}
+        </div>
     </main>
 {:else}
     <main class="grid grid-cols-1 grid-rows-1 overflow-x-hidden">
-        {#key $page.url}
-            <div
-                class="col-start-1 row-start-1 w-full"
-                in:fly={{ x: 50 * transition.direction, duration: 300, delay: 300 }}
-                out:fly={{ x: -50 * transition.direction, duration: 300 }}
-            >
-                {@render children()}
-            </div>
-        {/key}
+        <div class="col-start-1 row-start-1 w-full">
+            {@render children()}
+        </div>
     </main>
 {/if}
 
