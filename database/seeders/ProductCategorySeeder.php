@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\DTOs\ProductCategory\ProductCategoryData;
+use App\Models\ProductCategory;
 use App\Services\ProductCategoryService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
@@ -16,6 +17,8 @@ class ProductCategorySeeder extends Seeder
      */
     public function run(ProductCategoryService $productCategoryService): void
     {
+        ProductCategory::truncate();
+
         $categories = [
             [
                 'name' => 'Makanan Utama',
