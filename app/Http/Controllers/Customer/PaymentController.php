@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Customer;
 
 use App\DTOs\Checkout\ProcessOrderData;
+use App\Enums\PaymentMethodType;
 use App\Http\Controllers\Controller;
 use App\Enums\DropPointCategory;
 use App\Models\PaymentMethod;
@@ -63,6 +64,7 @@ class PaymentController extends Controller
         }
 
         $paymentMethods = PaymentMethod::where('is_active', true)
+            ->where('type', PaymentMethodType::MANUAL)
             ->with('paymentGuide')
             ->get()
             ->groupBy(fn($method) => $method->category?->label() ?? 'Lainnya');
