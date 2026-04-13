@@ -205,35 +205,33 @@
             <!-- Option 2: Use Other Address -->
             <Link
                 href="/custom-address"
-                class="group block bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-700 hover:border-[#FFD700] transition-all transform active:scale-[0.98] {loadingTarget !==
+                class="group block bg-[#FFD700] hover:bg-[#FFC700] p-6 rounded-2xl shadow-sm border border-[#FFC700] transition-all transform active:scale-[0.98] {loadingTarget !==
                 null
                     ? 'opacity-75 pointer-events-none'
                     : ''}"
             >
                 <div class="flex items-center gap-4">
                     <div
-                        class="bg-slate-700 w-14 h-14 rounded-xl flex items-center justify-center text-slate-300 text-2xl group-hover:bg-[#FFD700] group-hover:text-slate-900 transition-colors"
+                        class="bg-black/20 w-14 h-14 rounded-xl flex items-center justify-center text-slate-900 text-2xl shadow-inner"
                     >
                         {#if loadingTarget === "custom-address"}
-                            <i
-                                class="fa-solid fa-spinner fa-spin text-slate-900"
-                            ></i>
+                            <i class="fa-solid fa-spinner fa-spin"></i>
                         {:else}
                             <i class="fa-solid fa-map-location-dot"></i>
                         {/if}
                     </div>
                     <div class="flex-1">
                         <h3
-                            class="font-bold text-slate-100 text-lg leading-tight group-hover:text-white transition-colors"
+                            class="font-bold text-slate-900 text-lg leading-tight"
                         >
                             Gunakan Alamat Lain
                         </h3>
-                        <p class="text-slate-400 text-xs mt-1">
+                        <p class="text-slate-800 text-xs mt-1">
                             Pesan dari lokasi Anda saat ini
                         </p>
                     </div>
                     <i
-                        class="fa-solid fa-chevron-right text-slate-500 group-hover:text-slate-900 group-hover:translate-x-1 transition-all"
+                        class="fa-solid fa-chevron-right text-slate-700 group-hover:translate-x-1 transition-transform"
                     ></i>
                 </div>
             </Link>
