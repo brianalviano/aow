@@ -175,7 +175,7 @@ class PaymentController extends Controller
     private function getAvailablePaymentMethods()
     {
         return PaymentMethod::where('is_active', true)
-            ->with(['paymentGuide', 'category'])
+            ->with(['paymentGuide'])
             ->get()
             ->groupBy(fn($method) => $method->category?->label() ?? 'Lainnya');
     }
