@@ -64,7 +64,7 @@
 
     const typeOptions = [
         { value: "manual", label: "Manual / Transfer" },
-        { value: "gateway", label: "Otomatis (Gateway)" },
+        // { value: "gateway", label: "Otomatis (Gateway)" }, // Hidden because only manual payments are allowed currently
     ];
 
     const paymentGuideOptions = $derived([
