@@ -80,6 +80,30 @@
         </div>
 
         <div class="w-full max-w-sm space-y-6">
+            <!-- Pre-order Option -->
+            <button
+                onclick={() => selectOrderType("preorder")}
+                class="w-full group block bg-[#FFD700] hover:bg-[#FFC700] p-8 rounded-[2.5rem] shadow-xl border border-[#FFC700] transition-all transform active:scale-[0.98] text-left"
+            >
+                <div class="flex items-center gap-6">
+                    <div
+                        class="bg-slate-950 w-16 h-16 rounded-2xl flex items-center justify-center text-[#FFD700] text-2xl shadow-lg shadow-black/20"
+                    >
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3
+                            class="font-black text-slate-900 text-xl leading-tight"
+                        >
+                            Pre-Order
+                        </h3>
+                        <p class="text-slate-800/80 text-sm mt-1 font-bold">
+                            Pesan sekarang untuk jadwal pengiriman nanti.
+                        </p>
+                    </div>
+                </div>
+            </button>
+
             <!-- Instant Option -->
             <button
                 onclick={() => isInstantAvailable && selectOrderType("instant")}
@@ -114,30 +138,6 @@
                                 Coming Soon / Belum Tersedia
                             </p>
                         {/if}
-                    </div>
-                </div>
-            </button>
-
-            <!-- Pre-order Option -->
-            <button
-                onclick={() => selectOrderType("preorder")}
-                class="w-full group block bg-[#FFD700] hover:bg-[#FFC700] p-8 rounded-[2.5rem] shadow-xl border border-[#FFC700] transition-all transform active:scale-[0.98] text-left"
-            >
-                <div class="flex items-center gap-6">
-                    <div
-                        class="bg-slate-950 w-16 h-16 rounded-2xl flex items-center justify-center text-[#FFD700] text-2xl shadow-lg shadow-black/20"
-                    >
-                        <i class="fa-solid fa-calendar-check"></i>
-                    </div>
-                    <div class="flex-1">
-                        <h3
-                            class="font-black text-slate-900 text-xl leading-tight"
-                        >
-                            Pre-Order
-                        </h3>
-                        <p class="text-slate-800/80 text-sm mt-1 font-bold">
-                            Pesan sekarang untuk jadwal pengiriman nanti.
-                        </p>
                     </div>
                 </div>
             </button>
