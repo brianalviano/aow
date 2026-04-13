@@ -2,6 +2,7 @@
     import { router, page } from "@inertiajs/svelte";
     import ProductDetailModal from "../Product/Modal.svelte";
     import ScheduleModal from "./ScheduleModal.svelte";
+    import { toastStore } from "@/Lib/Admin/Stores/toast";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
 
     interface Props {
@@ -143,6 +144,16 @@
     }
 
     function handleLanjutPembayaran() {
+        if (!canProceed) {
+            toastStore.warning(
+                "Jadwal Belum Dipilih",
+                "Mohon pilih jadwal pengiriman terlebih dahulu ya, Kak!",
+            );
+            return;
+        }
+
+        if (processing) return;
+
         processing = true;
         router.visit("/payment-summary", {
             onFinish: () => {
@@ -775,8 +786,11 @@
             </div>
             <button
                 onclick={handleLanjutPembayaran}
-                disabled={!canProceed || processing}
-                class="bg-slate-950 text-[#FFD700] font-black py-3 px-6 rounded-xl shadow-lg shadow-black/20 hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm flex items-center justify-center gap-2"
+                disabled={processing}
+                class="bg-slate-950 text-[#FFD700] font-black py-3 px-6 rounded-xl shadow-lg shadow-black/20 hover:bg-slate-900 transition-all whitespace-nowrap text-sm flex items-center justify-center gap-2 {!canProceed ||
+                processing
+                    ? 'opacity-50 cursor-not-allowed'
+                    : ''}"
             >
                 {#if processing}
                     <i class="fa-solid fa-circle-notch animate-spin"></i>
