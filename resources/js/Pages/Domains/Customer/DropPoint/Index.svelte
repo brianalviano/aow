@@ -151,17 +151,23 @@
     </div>
 
     <!-- Instructions Section -->
-    <div class="bg-[#FFD700] px-5 py-4 border-t border-black/5">
-        <h2 class="text-center font-black text-slate-900 text-base mb-4">
+    <div class="px-5 py-8 border-t border-white/5 pb-28">
+        <h2
+            class="text-center font-black text-[#FFD700] text-sm mb-6 tracking-widest uppercase opacity-90"
+        >
             Cara menggunakan AOW Order
         </h2>
 
-        <img
-            src={howToOrderImage}
-            alt="How to Order"
-            class="w-full object-contain"
-            loading="lazy"
-        />
+        <div
+            class="bg-[#FFD700] rounded-3xl p-5 border border-white/5 shadow-2xl"
+        >
+            <img
+                src={howToOrderImage}
+                alt="How to Order"
+                class="w-full object-contain rounded-2xl"
+                loading="lazy"
+            />
+        </div>
     </div>
 
     <!-- Bottom Sticky Bar -->
