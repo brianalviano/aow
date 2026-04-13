@@ -134,15 +134,15 @@
     </div>
 
     <!-- Drop Point Detail Content -->
-    <div class="bg-slate-950 p-5">
-        <h1 class="text-lg font-bold text-slate-100 mb-2 leading-tight">
+    <div class="bg-[#FFD700] p-5">
+        <h1 class="text-lg font-black text-slate-900 mb-2 leading-tight">
             {dropPoint.name}
         </h1>
-        <p class="text-xs text-slate-300 leading-relaxed mb-3">
+        <p class="text-xs text-slate-800 font-medium leading-relaxed mb-3">
             {dropPoint.address || "Alamat tidak tersedia"}
         </p>
 
-        <div class="flex items-center text-red-500 text-xs font-medium gap-2">
+        <div class="flex items-center text-red-600 text-xs font-bold gap-2">
             <i class="fa-solid fa-location-dot"></i>
             <span>
                 {distance !== null ? formatDistance(distance) : "-"}
@@ -151,8 +151,8 @@
     </div>
 
     <!-- Instructions Section -->
-    <div class="bg-slate-950 px-5 py-4">
-        <h2 class="text-center font-bold text-slate-100 text-base mb-4">
+    <div class="bg-[#FFD700] px-5 py-4 border-t border-black/5">
+        <h2 class="text-center font-black text-slate-900 text-base mb-4">
             Cara menggunakan AOW Order
         </h2>
 
@@ -166,12 +166,12 @@
 
     <!-- Bottom Sticky Bar -->
     <div
-        class="fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 p-4 flex items-center justify-between z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]"
+        class="fixed bottom-0 left-0 right-0 bg-[#FFD700] border-t border-black/5 p-4 flex items-center justify-between z-20 shadow-[0_-4px_10px_rgba(0,0,0,0.1)]"
     >
-        <div class="font-bold text-slate-100 text-sm">Drop Point Benar ?</div>
+        <div class="font-bold text-slate-900 text-sm">Drop Point Benar ?</div>
         <Link
             href={`/order-type?drop_point_id=${dropPoint.id}`}
-            class="bg-[#FFD700] hover:bg-[#FFC700] text-slate-800 font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-transform active:scale-95 text-xs"
+            class="bg-slate-950 hover:bg-slate-900 text-[#FFD700] font-black py-3 px-6 rounded-xl flex items-center gap-2 transition-all active:scale-95 text-xs shadow-lg shadow-black/20"
             aria-label="Lanjut ke Tipe Pesanan"
         >
             Ya, Lanjut <i class="fa-solid fa-arrow-right text-xs"></i>

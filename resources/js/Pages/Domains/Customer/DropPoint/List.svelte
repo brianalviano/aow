@@ -110,34 +110,34 @@
 <div>
     <!-- Header -->
     <header
-        class="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950 sticky top-0 z-10"
+        class="flex items-center justify-between p-4 bg-[#FFD700] sticky top-0 z-10 shadow-sm"
     >
         <div class="flex items-center gap-3">
             <button
                 on:click={goBack}
-                class="w-8 h-8 flex items-center justify-center text-slate-300"
+                class="w-8 h-8 flex items-center justify-center text-slate-800"
                 aria-label="Kembali"
             >
                 <i class="fa-solid fa-arrow-left text-lg"></i>
             </button>
             <div>
-                <h1 class="font-bold text-lg leading-tight text-slate-100">
+                <h1 class="font-bold text-lg leading-tight text-slate-900">
                     Pilih Drop Point
                 </h1>
-                <p class="text-xs text-slate-400">
+                <p class="text-xs text-slate-800/70 font-medium">
                     {totalDropPoints} lokasi tersedia
                 </p>
             </div>
         </div>
         <Link
             href="/menu"
-            class="relative text-slate-300 p-2 focus:outline-none"
+            class="relative text-slate-800 p-2 focus:outline-none"
             aria-label="Menu"
         >
             <i class="fa-solid fa-bars text-xl"></i>
             {#if totalBadgeCount > 0}
                 <span
-                    class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-slate-900"
+                    class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white ring-2 ring-[#FFD700]"
                 >
                     {totalBadgeCount > 99 ? "99+" : totalBadgeCount}
                 </span>
@@ -175,22 +175,22 @@
                 {#each filteredDropPoints as dp (dp.id)}
                     <Link
                         href={`/drop-points/${dp.id}`}
-                        class="block border border-slate-700 rounded-xl p-4 shadow-sm bg-slate-800 hover:border-[#FFD700] transition-colors group cursor-pointer"
+                        class="block rounded-2xl p-4 shadow-sm bg-[#FFD700] hover:bg-[#FFC700] transition-colors group cursor-pointer border border-[#FFC700]"
                     >
                         <div class="flex items-center justify-between">
                             <div class="flex-1 pr-4">
                                 <h3
-                                    class="font-medium text-slate-100 mb-1 leading-tight"
+                                    class="font-bold text-slate-900 mb-1 leading-tight"
                                 >
                                     {dp.name}
                                 </h3>
                                 <p
-                                    class="text-xs text-slate-400 mb-3 leading-relaxed line-clamp-2"
+                                    class="text-xs text-slate-800/80 mb-3 leading-relaxed line-clamp-2"
                                 >
                                     {dp.address || "Alamat tidak tersedia"}
                                 </p>
                                 <div
-                                    class="flex items-center text-red-400 text-xs font-medium bg-red-900/20 w-fit px-2 py-1 rounded-md gap-1"
+                                    class="flex items-center text-red-600 text-xs font-bold bg-white/40 w-fit px-2 py-1 rounded-lg gap-1 shadow-inner"
                                 >
                                     <i class="fa-solid fa-location-dot"></i>
                                     {#if dp.distance !== null}
@@ -201,7 +201,7 @@
                                 </div>
                             </div>
                             <div
-                                class="text-slate-500 group-hover:text-slate-300 transition-colors"
+                                class="text-slate-700 group-hover:text-slate-900 transition-colors"
                             >
                                 <i class="fa-solid fa-chevron-right text-lg"
                                 ></i>

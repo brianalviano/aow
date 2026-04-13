@@ -126,16 +126,16 @@
 <div>
     <!-- Header -->
     <header
-        class="flex items-center p-4 bg-slate-950 sticky top-0 z-30 shadow-sm border-b border-slate-800"
+        class="flex items-center p-4 bg-[#FFD700] sticky top-0 z-30 shadow-sm"
     >
         <button
             onclick={goBack}
-            class="w-10 h-10 flex items-center justify-center text-slate-300 hover:bg-slate-800 rounded-full transition-colors"
+            class="w-10 h-10 flex items-center justify-center text-slate-800 hover:bg-black/5 rounded-full transition-colors"
             aria-label="Kembali"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </button>
-        <h1 class="flex-1 text-center font-bold text-xl text-slate-100 mr-10">
+        <h1 class="flex-1 text-center font-black text-xl text-slate-900 mr-10">
             Ringkasan Pembayaran
         </h1>
     </header>
@@ -219,7 +219,7 @@
                     </div>
                     {#each methods as method}
                         <div
-                            class="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-800 transition-colors border-b border-slate-800 bg-slate-950 cursor-pointer"
+                            class="w-full px-6 py-5 flex items-center justify-between hover:bg-[#FFC700] transition-colors bg-[#FFD700] cursor-pointer border-b border-black/5"
                             onclick={() =>
                                 ($form.payment_method_id = method.id)}
                             role="button"
@@ -233,22 +233,22 @@
                                     <img
                                         src={method.photo}
                                         alt={method.name}
-                                        class="w-10 h-10 object-contain rounded-lg shadow-sm bg-slate-800 p-1"
+                                        class="w-10 h-10 object-contain rounded-lg shadow-sm bg-white/40 p-1"
                                     />
                                 {:else}
                                     <div
-                                        class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-slate-500"
+                                        class="w-10 h-10 bg-white/40 rounded-lg flex items-center justify-center text-slate-900"
                                     >
                                         <i class="fa-solid fa-wallet"></i>
                                     </div>
                                 {/if}
                                 <div class="text-left">
-                                    <p class="font-semibold text-slate-100">
+                                    <p class="font-bold text-slate-900">
                                         {method.name}
                                     </p>
                                     {#if method.description}
                                         <p
-                                            class="text-xs text-slate-400 mt-0.5"
+                                            class="text-xs text-slate-800 font-medium mt-0.5"
                                         >
                                             {method.description}
                                         </p>
@@ -257,15 +257,11 @@
                             </div>
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
-                                    class:border-[#FFD700]={$form.payment_method_id ===
-                                        method.id}
-                                    class:border-slate-600={$form.payment_method_id !==
-                                        method.id}
+                                    class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all {$form.payment_method_id === method.id ? 'border-slate-950' : 'border-slate-500/30'}"
                                 >
                                     {#if $form.payment_method_id === method.id}
                                         <div
-                                            class="w-3 h-3 rounded-full bg-[#FFD700] shadow-sm animate-in zoom-in duration-200"
+                                            class="w-3 h-3 rounded-full bg-slate-950 shadow-sm animate-in zoom-in duration-200"
                                         ></div>
                                     {/if}
                                 </div>
@@ -284,26 +280,26 @@
 
     <!-- Bottom Action Bar -->
     <div
-        class="fixed bottom-0 left-0 right-0 p-4 border-t border-slate-800 bg-slate-950 shadow-[0_-5px_15px_rgba(0,0,0,0.3)] rounded-t-3xl z-40"
+        class="fixed bottom-0 left-0 right-0 p-4 bg-[#FFD700] shadow-[0_-5px_15px_rgba(0,0,0,0.1)] rounded-t-3xl z-40"
     >
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div>
-                <p class="text-slate-400 text-xs">Total Pembayaran</p>
+                <p class="text-slate-800 text-xs font-medium">Total Pembayaran</p>
                 {#if serviceFee > 0}
-                    <p class="text-xs text-slate-400 italic">
+                    <p class="text-[10px] text-slate-800/70 italic font-bold">
                         (Inc. Biaya Layanan {formatRupiah(serviceFee)})
                     </p>
                 {/if}
-                <p class="text-slate-100 font-bold text-base">
+                <p class="text-slate-900 font-black text-base">
                     {formatRupiah(finalTotal)}
                 </p>
             </div>
             <button
                 onclick={handleSubmit}
                 disabled={$form.processing || !canPay}
-                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm"
+                class="bg-slate-950 text-[#FFD700] font-black py-3 px-6 rounded-xl shadow-lg shadow-black/20 hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm"
             >
-                {$form.processing ? "Memproses..." : "Bayar"}
+                {$form.processing ? "Memproses..." : "Bayar Sekarang"}
             </button>
         </div>
     </div>

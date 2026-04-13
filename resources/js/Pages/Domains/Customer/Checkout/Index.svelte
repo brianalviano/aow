@@ -381,15 +381,15 @@
 
 <div>
     <!-- Header -->
-    <header class="flex items-center p-4 bg-slate-950 sticky top-0 z-30">
+    <header class="flex items-center p-4 bg-[#FFD700] sticky top-0 z-30 shadow-sm">
         <button
             onclick={goBack}
-            class="w-10 h-10 flex items-center justify-center text-slate-100"
+            class="w-10 h-10 flex items-center justify-center text-slate-800"
             aria-label="Kembali"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </button>
-        <h1 class="flex-1 text-center font-bold text-xl text-slate-100 mr-10">
+        <h1 class="flex-1 text-center font-black text-xl text-slate-900 mr-10">
             Ringkasan Pesanan
         </h1>
     </header>
@@ -764,19 +764,19 @@
 
     <!-- Bottom Action Bar -->
     <div
-        class="fixed bottom-0 left-0 right-0 p-4 border-t border-slate-800 bg-slate-950 shadow-[0_-5px_15px_rgba(0,0,0,0.3)] rounded-t-3xl"
+        class="fixed bottom-0 left-0 right-0 p-4 bg-[#FFD700] shadow-[0_-5px_15px_rgba(0,0,0,0.1)] rounded-t-3xl z-40"
     >
         <div class="flex items-center justify-between gap-4">
             <div>
-                <p class="text-slate-400 text-xs">Total Pembayaran</p>
-                <p class="text-slate-100 font-bold text-base">
+                <p class="text-slate-800 text-xs font-medium">Total Pembayaran</p>
+                <p class="text-slate-900 font-black text-base">
                     {formatRupiah(totalAmount)}
                 </p>
             </div>
             <button
                 onclick={handleLanjutPembayaran}
                 disabled={!canProceed || processing}
-                class="bg-[#FFD700] text-gray-900 font-bold py-3 px-6 rounded-xl shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm flex items-center justify-center gap-2"
+                class="bg-slate-950 text-[#FFD700] font-black py-3 px-6 rounded-xl shadow-lg shadow-black/20 hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm flex items-center justify-center gap-2"
             >
                 {#if processing}
                     <i class="fa-solid fa-circle-notch animate-spin"></i>
