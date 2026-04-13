@@ -20,19 +20,19 @@ class OrderTypeController extends Controller
         $dropPointId = $request->query('drop_point_id');
         $dropPoint = $dropPointId ? DropPoint::find($dropPointId) : null;
 
-        $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
-        $instantStartTime = $settings->instantOrderStartTime;
-        $instantEndTime = $settings->instantOrderEndTime;
+        // $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+        // $instantStartTime = $settings->instantOrderStartTime;
+        // $instantEndTime = $settings->instantOrderEndTime;
 
-        $currentTime = now()->format('H:i');
-        $isInstantAvailable = $currentTime >= $instantStartTime && $currentTime <= $instantEndTime;
+        // $currentTime = now()->format('H:i');
+        $isInstantAvailable = false;
 
         return Inertia::render('Domains/Customer/OrderType/Index', [
             'dropPointId' => $dropPointId,
             'dropPointName' => $dropPoint?->name,
             'isInstantAvailable' => $isInstantAvailable,
-            'instantStartTime' => $instantStartTime,
-            'instantEndTime' => $instantEndTime,
+            'instantStartTime' => '08:00',
+            'instantEndTime' => '21:00',
         ]);
     }
 
@@ -47,17 +47,10 @@ class OrderTypeController extends Controller
         ]);
 
         if ($request->order_type === 'instant') {
-            $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
-            $instantStartTime = $settings->instantOrderStartTime;
-            $instantEndTime = $settings->instantOrderEndTime;
-
-            $currentTime = now()->format('H:i');
-            if ($currentTime < $instantStartTime || $currentTime > $instantEndTime) {
-                return back()->with('toast', [
-                    'message' => "Instant delivery hanya tersedia pukul {$instantStartTime} - {$instantEndTime} WIB.",
-                    'type' => 'error'
-                ]);
-            }
+            return back()->with('toast', [
+                'message' => 'Maaf, layanan Instant Delivery belum tersedia saat ini.',
+                'type' => 'error'
+            ]);
         }
 
         session(['checkout_order_type' => $request->order_type]);

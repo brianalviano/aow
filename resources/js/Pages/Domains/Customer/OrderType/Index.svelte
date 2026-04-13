@@ -111,8 +111,7 @@
                             <p
                                 class="text-red-600 text-[10px] mt-3 font-black uppercase tracking-widest bg-white/40 inline-block px-3 py-1 rounded-full border border-red-500/20"
                             >
-                                Tersedia pukul {instantStartTime} - {instantEndTime}
-                                WIB
+                                Coming Soon / Belum Tersedia
                             </p>
                         {/if}
                     </div>
