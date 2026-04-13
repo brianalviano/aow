@@ -122,7 +122,7 @@ class HandleInertiaRequests extends Middleware
                     ],
                     [
                         'id'    => 'orders-payments',
-                        'label' => 'Approval Pembayaran',
+                        'label' => 'Approval Bayar',
                         'icon'  => 'fa-money-check',
                         'link'  => route('admin.orders.payments'),
                         'badge' => Order::query()
@@ -132,7 +132,7 @@ class HandleInertiaRequests extends Middleware
                     ],
                     [
                         'id'    => 'orders-processing',
-                        'label' => 'Pesanan Diproses',
+                        'label' => 'Proses Pesanan',
                         'icon'  => 'fa-kitchen-set',
                         'link'  => route('admin.orders.processing'),
                         'badge' => Order::query()
