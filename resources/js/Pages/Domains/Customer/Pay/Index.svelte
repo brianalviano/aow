@@ -483,9 +483,19 @@
                             <span class="text-slate-400 text-sm"
                                 >Total Tagihan</span
                             >
-                            <span class="font-black text-[#FFD700] text-2xl"
-                                >{formatRupiah(order.total_amount)}</span
-                            >
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-[#FFD700] text-2xl"
+                                    >{formatRupiah(order.total_amount)}</span
+                                >
+                                <button
+                                    onclick={() => copyToClipboard(order.total_amount.toString())}
+                                    class="text-slate-500 hover:text-[#FFD700] transition-colors"
+                                    title="Salin Jumlah"
+                                    aria-label="Salin total tagihan"
+                                >
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-slate-400">ID Pesanan</span>
@@ -537,9 +547,19 @@
                         >
                             Jumlah yang harus ditransfer
                         </p>
-                        <p class="text-4xl font-black text-slate-100">
-                            {formatRupiah(order.total_amount)}
-                        </p>
+                        <div class="flex items-center justify-center gap-4">
+                            <p class="text-4xl font-black text-slate-100">
+                                {formatRupiah(order.total_amount)}
+                            </p>
+                            <button
+                                onclick={() => copyToClipboard(order.total_amount.toString())}
+                                class="w-10 h-10 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 rounded-xl transition-all flex items-center justify-center border border-blue-500/20"
+                                title="Salin Jumlah"
+                                aria-label="Salin jumlah transfer"
+                            >
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
                     </div>
 
                     {#if order.payment_method?.account_number}
