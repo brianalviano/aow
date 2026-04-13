@@ -33,20 +33,20 @@
 </svelte:head>
 
 <div
-    class="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto relative shadow-xl overflow-x-hidden"
+    class="min-h-screen bg-slate-950 flex flex-col max-w-md mx-auto relative shadow-xl overflow-x-hidden"
 >
     <!-- Header -->
     <header
-        class="flex items-center justify-between p-4 bg-white sticky top-0 z-10 border-b border-gray-100"
+        class="flex items-center justify-between p-4 bg-slate-950 sticky top-0 z-10 border-b border-slate-800"
     >
         <Link
             href="/menu"
-            class="text-gray-800 focus:outline-none p-1"
+            class="text-slate-300 focus:outline-none p-1"
             aria-label="Kembali"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </Link>
-        <h1 class="font-bold text-lg leading-tight text-gray-900">
+        <h1 class="font-bold text-lg leading-tight text-slate-100">
             Kritik dan Saran
         </h1>
         <div class="w-8"></div>
@@ -54,13 +54,13 @@
 
     <!-- Main Content -->
     <main
-        class="flex-1 w-full flex flex-col p-6 bg-white mt-2 border-t border-gray-100"
+        class="flex-1 w-full flex flex-col p-6 bg-slate-950 mt-2 border-t border-slate-800"
     >
         <div class="mb-6">
-            <h2 class="text-xl font-bold text-gray-900">
+            <h2 class="text-xl font-bold text-slate-100">
                 Bantu kami menjadi lebih baik!
             </h2>
-            <p class="text-sm text-gray-600 mt-2">
+            <p class="text-sm text-slate-300 mt-2">
                 Suara Anda sangat berarti bagi kami. Silakan sampaikan kritik,
                 saran, atau masukan Anda di sini.
             </p>
@@ -106,12 +106,12 @@
             </div>
         </form>
 
-        <div class="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100">
+        <div class="mt-8 p-4 bg-blue-900/20 rounded-xl border border-blue-800">
             <div class="flex gap-3">
-                <div class="text-blue-600">
+                <div class="text-blue-400">
                     <i class="fa-solid fa-circle-info"></i>
                 </div>
-                <p class="text-xs text-blue-800 leading-relaxed">
+                <p class="text-xs text-blue-300 leading-relaxed">
                     Setiap masukan yang Anda berikan akan kami tinjau secara
                     berkala untuk meningkatkan kualitas layanan dan produk kami.
                 </p>

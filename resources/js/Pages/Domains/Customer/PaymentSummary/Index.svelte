@@ -125,15 +125,17 @@
 
 <div>
     <!-- Header -->
-    <header class="flex items-center p-4 bg-white sticky top-0 z-30 shadow-sm">
+    <header
+        class="flex items-center p-4 bg-slate-950 sticky top-0 z-30 shadow-sm border-b border-slate-800"
+    >
         <button
             onclick={goBack}
-            class="w-10 h-10 flex items-center justify-center text-gray-900 hover:bg-gray-50 rounded-full transition-colors"
+            class="w-10 h-10 flex items-center justify-center text-slate-300 hover:bg-slate-800 rounded-full transition-colors"
             aria-label="Kembali"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </button>
-        <h1 class="flex-1 text-center font-bold text-xl text-gray-900 mr-10">
+        <h1 class="flex-1 text-center font-bold text-xl text-slate-100 mr-10">
             Ringkasan Pembayaran
         </h1>
     </header>
@@ -141,7 +143,7 @@
     <main class="space-y-8 mt-6 mb-30">
         <!-- Order Information Section -->
         <section class="px-6 space-y-4">
-            <h2 class="font-bold text-lg text-gray-900">Informasi Pesanan</h2>
+            <h2 class="font-bold text-lg text-slate-100">Informasi Pesanan</h2>
 
             <div class="space-y-5">
                 <!-- Nama Lengkap -->
@@ -200,24 +202,24 @@
 
         <!-- Payment Methods Section -->
         <section class="space-y-4">
-            <h2 class="font-bold text-lg text-gray-900 px-6">
+            <h2 class="font-bold text-lg text-slate-100 px-6">
                 Metode Pembayaran
             </h2>
 
-            <div class="border-t border-gray-100">
+            <div class="border-t border-slate-800">
                 {#each Object.entries(paymentMethods) as [category, methods]}
                     <div
-                        class="bg-gray-50/50 px-6 py-2 border-b border-gray-100"
+                        class="bg-slate-800/50 px-6 py-2 border-b border-slate-800"
                     >
                         <span
-                            class="text-xs font-bold text-gray-500 uppercase tracking-wider"
+                            class="text-xs font-bold text-slate-500 uppercase tracking-wider"
                         >
                             {category}
                         </span>
                     </div>
                     {#each methods as method}
                         <div
-                            class="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-50 bg-white cursor-pointer"
+                            class="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-800 transition-colors border-b border-slate-800 bg-slate-950 cursor-pointer"
                             onclick={() =>
                                 ($form.payment_method_id = method.id)}
                             role="button"
@@ -231,21 +233,23 @@
                                     <img
                                         src={method.photo}
                                         alt={method.name}
-                                        class="w-10 h-10 object-contain rounded-lg shadow-sm bg-white p-1"
+                                        class="w-10 h-10 object-contain rounded-lg shadow-sm bg-slate-800 p-1"
                                     />
                                 {:else}
                                     <div
-                                        class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400"
+                                        class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-slate-500"
                                     >
                                         <i class="fa-solid fa-wallet"></i>
                                     </div>
                                 {/if}
                                 <div class="text-left">
-                                    <p class="font-semibold text-gray-900">
+                                    <p class="font-semibold text-slate-100">
                                         {method.name}
                                     </p>
                                     {#if method.description}
-                                        <p class="text-xs text-gray-500 mt-0.5">
+                                        <p
+                                            class="text-xs text-slate-400 mt-0.5"
+                                        >
                                             {method.description}
                                         </p>
                                     {/if}
@@ -256,7 +260,7 @@
                                     class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
                                     class:border-[#FFD700]={$form.payment_method_id ===
                                         method.id}
-                                    class:border-gray-300={$form.payment_method_id !==
+                                    class:border-slate-600={$form.payment_method_id !==
                                         method.id}
                                 >
                                     {#if $form.payment_method_id === method.id}
@@ -280,17 +284,17 @@
 
     <!-- Bottom Action Bar -->
     <div
-        class="fixed bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.05)] rounded-t-3xl z-40"
+        class="fixed bottom-0 left-0 right-0 p-4 border-t border-slate-800 bg-slate-950 shadow-[0_-5px_15px_rgba(0,0,0,0.3)] rounded-t-3xl z-40"
     >
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div>
-                <p class="text-gray-500 text-xs">Total Pembayaran</p>
+                <p class="text-slate-400 text-xs">Total Pembayaran</p>
                 {#if serviceFee > 0}
-                    <p class="text-xs text-gray-500 italic">
+                    <p class="text-xs text-slate-400 italic">
                         (Inc. Biaya Layanan {formatRupiah(serviceFee)})
                     </p>
                 {/if}
-                <p class="text-gray-900 font-bold text-base">
+                <p class="text-slate-100 font-bold text-base">
                     {formatRupiah(finalTotal)}
                 </p>
             </div>

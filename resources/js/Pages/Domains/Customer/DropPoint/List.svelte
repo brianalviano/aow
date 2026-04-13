@@ -110,34 +110,34 @@
 <div>
     <!-- Header -->
     <header
-        class="flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 z-10"
+        class="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950 sticky top-0 z-10"
     >
         <div class="flex items-center gap-3">
             <button
                 on:click={goBack}
-                class="w-8 h-8 flex items-center justify-center text-gray-800"
+                class="w-8 h-8 flex items-center justify-center text-slate-300"
                 aria-label="Kembali"
             >
                 <i class="fa-solid fa-arrow-left text-lg"></i>
             </button>
             <div>
-                <h1 class="font-bold text-lg leading-tight">
+                <h1 class="font-bold text-lg leading-tight text-slate-100">
                     Pilih Drop Point
                 </h1>
-                <p class="text-xs text-gray-500">
+                <p class="text-xs text-slate-400">
                     {totalDropPoints} lokasi tersedia
                 </p>
             </div>
         </div>
         <Link
             href="/menu"
-            class="relative text-gray-800 p-2 focus:outline-none"
+            class="relative text-slate-300 p-2 focus:outline-none"
             aria-label="Menu"
         >
             <i class="fa-solid fa-bars text-xl"></i>
             {#if totalBadgeCount > 0}
                 <span
-                    class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white"
+                    class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-slate-900"
                 >
                     {totalBadgeCount > 99 ? "99+" : totalBadgeCount}
                 </span>
@@ -154,12 +154,12 @@
                 <div
                     class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
                 >
-                    <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                    <i class="fa-solid fa-magnifying-glass text-slate-500"></i>
                 </div>
                 <input
                     type="text"
                     bind:value={searchQuery}
-                    class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-shadow shadow-sm"
+                    class="block w-full pl-10 pr-3 py-3 border border-slate-700 rounded-xl leading-5 bg-slate-800 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#FFD700] focus:border-[#FFD700] sm:text-sm transition-shadow shadow-sm"
                     placeholder="Cari Drop Point"
                 />
             </div>
@@ -167,7 +167,7 @@
             <!-- Drop Point List -->
             <div class="space-y-3">
                 {#if filteredDropPoints.length === 0}
-                    <div class="text-center py-8 text-gray-500 text-sm">
+                    <div class="text-center py-8 text-slate-400 text-sm">
                         Tidak ada drop point yang ditemukan.
                     </div>
                 {/if}
@@ -175,22 +175,22 @@
                 {#each filteredDropPoints as dp (dp.id)}
                     <Link
                         href={`/drop-points/${dp.id}`}
-                        class="block border border-gray-200 rounded-xl p-4 shadow-sm bg-white hover:border-blue-300 transition-colors group cursor-pointer"
+                        class="block border border-slate-700 rounded-xl p-4 shadow-sm bg-slate-800 hover:border-[#FFD700] transition-colors group cursor-pointer"
                     >
                         <div class="flex items-center justify-between">
                             <div class="flex-1 pr-4">
                                 <h3
-                                    class="font-medium text-gray-900 mb-1 leading-tight"
+                                    class="font-medium text-slate-100 mb-1 leading-tight"
                                 >
                                     {dp.name}
                                 </h3>
                                 <p
-                                    class="text-xs text-gray-500 mb-3 leading-relaxed line-clamp-2"
+                                    class="text-xs text-slate-400 mb-3 leading-relaxed line-clamp-2"
                                 >
                                     {dp.address || "Alamat tidak tersedia"}
                                 </p>
                                 <div
-                                    class="flex items-center text-red-500 text-xs font-medium bg-red-50 w-fit px-2 py-1 rounded-md gap-1"
+                                    class="flex items-center text-red-400 text-xs font-medium bg-red-900/20 w-fit px-2 py-1 rounded-md gap-1"
                                 >
                                     <i class="fa-solid fa-location-dot"></i>
                                     {#if dp.distance !== null}
@@ -201,7 +201,7 @@
                                 </div>
                             </div>
                             <div
-                                class="text-gray-400 group-hover:text-gray-600 transition-colors"
+                                class="text-slate-500 group-hover:text-slate-300 transition-colors"
                             >
                                 <i class="fa-solid fa-chevron-right text-lg"
                                 ></i>

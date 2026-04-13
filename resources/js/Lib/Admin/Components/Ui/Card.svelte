@@ -51,7 +51,7 @@
 >
     {#if title || subtitle}
         <div
-            class="flex items-center justify-between gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-[#1a1a1a] rounded-t-xl {headerClass ||
+            class="flex items-center justify-between gap-3 px-5 py-4 bg-gray-50 dark:bg-slate-950 border-b border-gray-200 dark:border-[#1a1a1a] rounded-t-xl {headerClass ||
                 ''}"
         >
             <div>

@@ -117,7 +117,7 @@
         >
             <button
                 on:click={goBack}
-                class="w-10 h-10 rounded-full bg-white text-gray-800 flex items-center justify-center shadow-md focus:outline-none focus:ring-2 focus:ring-gray-300 transition-transform hover:scale-105 active:scale-95"
+                class="w-10 h-10 rounded-full bg-slate-950/80 text-slate-100 flex items-center justify-center shadow-md focus:outline-none focus:ring-2 focus:ring-slate-600 transition-transform hover:scale-105 active:scale-95"
                 aria-label="Kembali"
             >
                 <i class="fa-solid fa-arrow-left text-lg"></i>
@@ -125,7 +125,7 @@
 
             <button
                 on:click={shareDropPoint}
-                class="w-10 h-10 rounded-full bg-white text-gray-800 flex items-center justify-center shadow-md focus:outline-none focus:ring-2 focus:ring-gray-300 transition-transform hover:scale-105 active:scale-95"
+                class="w-10 h-10 rounded-full bg-slate-950/80 text-slate-100 flex items-center justify-center shadow-md focus:outline-none focus:ring-2 focus:ring-slate-600 transition-transform hover:scale-105 active:scale-95"
                 aria-label="Bagikan"
             >
                 <i class="fa-solid fa-share-nodes text-lg"></i>
@@ -134,11 +134,11 @@
     </div>
 
     <!-- Drop Point Detail Content -->
-    <div class="bg-white p-5">
-        <h1 class="text-lg font-bold text-gray-900 mb-2 leading-tight">
+    <div class="bg-slate-950 p-5">
+        <h1 class="text-lg font-bold text-slate-100 mb-2 leading-tight">
             {dropPoint.name}
         </h1>
-        <p class="text-xs text-gray-700 leading-relaxed mb-3">
+        <p class="text-xs text-slate-300 leading-relaxed mb-3">
             {dropPoint.address || "Alamat tidak tersedia"}
         </p>
 
@@ -151,8 +151,8 @@
     </div>
 
     <!-- Instructions Section -->
-    <div class="bg-gray-50 px-5 py-4">
-        <h2 class="text-center font-bold text-gray-900 text-base mb-4">
+    <div class="bg-slate-950 px-5 py-4">
+        <h2 class="text-center font-bold text-slate-100 text-base mb-4">
             Cara menggunakan AOW Order
         </h2>
 
@@ -166,9 +166,9 @@
 
     <!-- Bottom Sticky Bar -->
     <div
-        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex items-center justify-between z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]"
+        class="fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 p-4 flex items-center justify-between z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]"
     >
-        <div class="font-bold text-gray-900 text-sm">Drop Point Benar ?</div>
+        <div class="font-bold text-slate-100 text-sm">Drop Point Benar ?</div>
         <Link
             href={`/order-type?drop_point_id=${dropPoint.id}`}
             class="bg-[#FFD700] hover:bg-[#FFC700] text-slate-800 font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-transform active:scale-95 text-xs"

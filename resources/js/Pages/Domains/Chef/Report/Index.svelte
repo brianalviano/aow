@@ -85,28 +85,34 @@
     <title>Laporan | {appName($page.props.settings)}</title>
 </svelte:head>
 
-<div class="flex flex-col min-h-screen bg-gray-50 pb-24">
+<div class="flex flex-col min-h-screen bg-slate-950 text-slate-100">
     <header
-        class="bg-white border-b border-gray-100 p-4 sticky top-0 z-10 shadow-sm"
+        class="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-10 shadow-xl backdrop-blur-md"
     >
         <div class="max-w-7xl mx-auto flex justify-between items-center w-full">
             <div class="flex items-center gap-2">
-                <div class="bg-[#FFD700] text-white p-1.5 rounded-lg">
-                    <i class="fa-solid fa-chart-line"></i>
+                <div
+                    class="bg-[#FFD700] text-slate-900 p-1.5 rounded-lg shadow-lg shadow-[#FFD700]/20"
+                >
+                    <i class="fa-solid fa-wallet"></i>
                 </div>
-                <h1 class="text-lg font-bold text-gray-900">Laporan</h1>
+                <h1
+                    class="text-lg font-black text-slate-100 uppercase tracking-wider"
+                >
+                    Laporan Keuangan
+                </h1>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 p-4 max-w-7xl mx-auto w-full space-y-6">
+    <main class="flex-1 p-4 max-w-7xl mx-auto w-full space-y-8 pb-24">
         <!-- Date Filters -->
         <div class="px-1 flex gap-2 overflow-x-auto hide-scrollbar">
             <button
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                 'all'
-                    ? 'bg-[#FFD700] border-[#FFD700] text-gray-900'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                    ? 'bg-[#FFD700] border-[#FFD700] text-slate-900'
+                    : 'bg-slate-950 border-slate-700 text-slate-400 hover:border-slate-600'}"
                 onclick={() => handleDateRangeChange("all")}
             >
                 Semua Waktu
@@ -114,8 +120,8 @@
             <button
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                 'custom'
-                    ? 'bg-[#FFD700] border-[#FFD700] text-gray-900'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                    ? 'bg-[#FFD700] border-[#FFD700] text-slate-900'
+                    : 'bg-slate-950 border-slate-700 text-slate-400 hover:border-slate-600'}"
                 onclick={() => handleDateRangeChange("custom")}
             >
                 Pilih Tanggal
@@ -124,7 +130,7 @@
 
         {#if dateRange === "custom"}
             <div
-                class="flex flex-col gap-2 animate-in fade-in slide-in-from-top-1 bg-white p-4 rounded-xl border border-gray-100 shadow-sm"
+                class="flex flex-col gap-2 animate-in fade-in slide-in-from-top-1 bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm"
             >
                 <div class="grid grid-cols-2 gap-3">
                     <DateInput
@@ -140,7 +146,7 @@
                 </div>
                 <button
                     onclick={handleFilter}
-                    class="w-full mt-1 py-2.5 bg-[#FFD700] text-gray-900 rounded-xl text-sm font-bold hover:bg-[#FFC700] transition-all shadow-sm active:scale-[0.98]"
+                    class="w-full mt-1 py-2.5 bg-[#FFD700] text-slate-900 rounded-xl text-sm font-bold hover:bg-[#FFC700] transition-all shadow-sm active:scale-[0.98]"
                 >
                     Terapkan Rentang Tanggal
                 </button>
@@ -150,7 +156,7 @@
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 gap-4">
             <div
-                class="bg-linear-to-br from-[#FFD700] to-[#FFC700] rounded-2xl p-4 shadow-lg text-gray-900 col-span-2"
+                class="bg-linear-to-br from-[#FFD700] to-[#FFC700] rounded-2xl p-4 shadow-lg text-slate-900 col-span-2"
             >
                 <h2
                     class="text-xs font-medium opacity-80 uppercase tracking-wider"
@@ -173,68 +179,68 @@
             </div>
 
             <div
-                class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex flex-col justify-center"
+                class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-sm flex flex-col justify-center"
             >
-                <div class="flex items-center gap-2 text-red-500 mb-1">
+                <div class="flex items-center gap-2 text-red-400 mb-1">
                     <i class="fa-solid fa-wallet text-sm"></i>
                     <h3 class="text-xs font-bold uppercase tracking-wider">
                         Belum Diambil
                     </h3>
                 </div>
-                <p class="text-lg font-black text-gray-900">
+                <p class="text-lg font-black text-slate-100">
                     {formatCurrency(summary.unwithdrawn)}
                 </p>
             </div>
 
             <div
-                class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm flex flex-col justify-center"
+                class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-sm flex flex-col justify-center"
             >
-                <div class="flex items-center gap-2 text-green-500 mb-1">
+                <div class="flex items-center gap-2 text-green-400 mb-1">
                     <i class="fa-solid fa-circle-check text-sm"></i>
                     <h3 class="text-xs font-bold uppercase tracking-wider">
                         Sudah Diambil
                     </h3>
                 </div>
-                <p class="text-lg font-black text-gray-900">
+                <p class="text-lg font-black text-slate-100">
                     {formatCurrency(summary.withdrawn)}
                 </p>
             </div>
 
             <div
-                class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm col-span-2 flex flex-col justify-center"
+                class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-sm col-span-2 flex flex-col justify-center"
             >
-                <div class="flex items-center gap-2 text-gray-500 mb-1">
+                <div class="flex items-center gap-2 text-slate-400 mb-1">
                     <i class="fa-solid fa-money-bill-wave text-sm"></i>
                     <h3 class="text-xs font-bold uppercase tracking-wider">
                         Total Penjualan
                     </h3>
                 </div>
-                <p class="text-lg font-black text-gray-900">
+                <p class="text-lg font-black text-slate-100">
                     {formatCurrency(summary.total_income)}
                 </p>
             </div>
         </div>
 
         <!-- Transfer History -->
-        <h3 class="text-lg font-bold text-gray-900 mb-2 mt-4 px-1">
+        <h3 class="text-lg font-bold text-slate-100 mb-2 mt-4 px-1">
             Riwayat Transfer
         </h3>
 
         {#if transfers.length === 0}
             <div
-                class="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-sm"
+                class="bg-slate-950 rounded-2xl border border-slate-800 p-12 text-center shadow-sm"
             >
                 <div
-                    class="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                    class="bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
                 >
                     <i
-                        class="fa-solid fa-money-bill-transfer text-2xl text-gray-300"
+                        class="fa-solid fa-money-bill-transfer text-2xl text-slate-600"
                     ></i>
                 </div>
-                <h3 class="font-bold text-gray-900 mb-1">
+                <h3 class="font-bold text-slate-100 mb-1">
                     Belum ada riwayat transfer
                 </h3>
-                <p class="text-xs text-gray-500">
+                <p class="text-xs text-slate-500">
                     Data transfer dana dari Admin akan muncul di sini.
                 </p>
             </div>
@@ -242,20 +248,22 @@
             <div class="space-y-4">
                 {#each transfers as transfer (transfer.id)}
                     <div
-                        class="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm"
+                        class="bg-slate-950 rounded-2xl border border-slate-800 p-4 shadow-sm"
                     >
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shrink-0"
+                                    class="w-10 h-10 rounded-xl bg-green-900/20 text-green-400 flex items-center justify-center shrink-0"
                                 >
                                     <i class="fa-solid fa-arrow-down-long"></i>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-gray-900 text-sm">
+                                    <h4
+                                        class="font-bold text-slate-100 text-sm"
+                                    >
                                         {formatCurrency(transfer.amount)}
                                     </h4>
-                                    <p class="text-[10px] text-gray-500">
+                                    <p class="text-[10px] text-slate-500">
                                         {new Date(
                                             transfer.transferred_at,
                                         ).toLocaleDateString("id-ID", {

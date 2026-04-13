@@ -17,25 +17,25 @@
 <div>
     <!-- Header -->
     <header
-        class="flex items-center justify-between p-4 bg-white sticky top-0 z-10 border-b border-gray-100"
+        class="flex items-center justify-between p-4 bg-slate-950 sticky top-0 z-10 border-b border-slate-800"
     >
         <Link
             href="/menu"
-            class="text-gray-800 focus:outline-none p-1"
+            class="text-slate-300 focus:outline-none p-1"
             aria-label="Kembali"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </Link>
-        <h1 class="font-bold text-lg leading-tight text-gray-900">
+        <h1 class="font-bold text-lg leading-tight text-slate-100">
             Syarat & Ketentuan
         </h1>
     </header>
 
     <!-- Main Content -->
-    <main class="w-full bg-white text-gray-800 font-sans">
+    <main class="w-full bg-slate-950 text-slate-200 font-sans">
         <div class="max-w-3xl mx-auto p-6">
             <h1 class="text-3xl font-bold mb-2">Syarat & Ketentuan</h1>
-            <p class="text-sm text-gray-500 mb-8">
+            <p class="text-sm text-slate-500 mb-8">
                 Terakhir diperbarui: 05 Maret 2026
             </p>
 
@@ -49,7 +49,7 @@
 
             <!-- 1 -->
             <h2 class="text-xl font-semibold mb-3">1. Definisi</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-2 text-slate-300">
                 <li>
                     <strong>{appName} / Kami</strong> — penyedia layanan
                     pemesanan makanan melalui website {displayUrl}
@@ -71,7 +71,7 @@
 
             <!-- 2 -->
             <h2 class="text-xl font-semibold mb-3">2. Pendaftaran Akun</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-2 text-slate-300">
                 <li>
                     Pengguna wajib mendaftar menggunakan data yang benar,
                     lengkap, dan akurat
@@ -92,7 +92,7 @@
 
             <!-- 3 -->
             <h2 class="text-xl font-semibold mb-3">3. Sistem Pre-Order</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-2 text-slate-300">
                 <li>
                     Pemesanan dilakukan minimal {orderMinDaysAhead} hari sebelum
                     tanggal pengiriman (H-{orderMinDaysAhead})
@@ -118,7 +118,7 @@
 
             <!-- 4 -->
             <h2 class="text-xl font-semibold mb-3">4. Pembayaran</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-2 text-slate-300">
                 <li>
                     Pembayaran dapat dilakukan melalui {paymentMethodsStr}
                 </li>
@@ -138,7 +138,7 @@
 
             <!-- 5 -->
             <h2 class="text-xl font-semibold mb-3">5. Pengiriman</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-2 text-slate-300">
                 <li>
                     Pengiriman pesanan pre-order (PO) harus memenuhi kuota
                     minimum order untuk mendapatkan gratis ongkos kirim
@@ -170,7 +170,7 @@
             <h2 class="text-xl font-semibold mb-3">
                 6. Pembatalan & Pengembalian Dana
             </h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-2 text-slate-300">
                 <li>
                     Pembatalan pesanan hanya dapat dilakukan sebelum pesanan
                     dikonfirmasi oleh admin
@@ -188,7 +188,7 @@
 
             <!-- 7 -->
             <h2 class="text-xl font-semibold mb-3">7. Produk & Kualitas</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-2 text-slate-300">
                 <li>
                     Kami berkomitmen untuk menyajikan makanan dengan kualitas
                     terbaik dan higienis
@@ -209,7 +209,7 @@
 
             <!-- 8 -->
             <h2 class="text-xl font-semibold mb-3">8. Diskon & Promosi</h2>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-2 text-slate-300">
                 <li>
                     Diskon dan kode voucher hanya berlaku sesuai syarat dan
                     periode yang telah ditentukan
@@ -230,7 +230,7 @@
             <!-- 9 -->
             <h2 class="text-xl font-semibold mb-3">9. Larangan Penggunaan</h2>
             <p class="mb-3 leading-relaxed">Pengguna dilarang:</p>
-            <ul class="list-disc pl-6 mb-10 space-y-2 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-2 text-slate-300">
                 <li>Menggunakan layanan untuk tujuan yang melanggar hukum</li>
                 <li>
                     Mendaftarkan akun menggunakan identitas orang lain dengan
@@ -272,7 +272,7 @@
                 Jika Anda memiliki pertanyaan mengenai Syarat & Ketentuan ini,
                 silakan hubungi kami melalui:
             </p>
-            <ul class="list-disc pl-6 mb-10 space-y-1 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-1 text-slate-300">
                 <li>
                     WhatsApp: <strong
                         >{$page.props.settings?.whatsapp || "-"}</strong
@@ -288,8 +288,8 @@
                 </li>
             </ul>
 
-            <hr class="border-gray-200 mt-10" />
-            <p class="text-sm text-gray-400 mt-6 text-center">
+            <hr class="border-slate-700 mt-10" />
+            <p class="text-sm text-slate-500 mt-6 text-center">
                 © {new Date().getFullYear()}
                 {name($page.props.settings)}. Seluruh hak dilindungi.
             </p>

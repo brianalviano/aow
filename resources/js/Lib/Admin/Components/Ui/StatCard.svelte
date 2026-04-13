@@ -162,7 +162,7 @@
 </script>
 
 <div
-    class="group relative w-full bg-white dark:bg-slate-900 rounded-2xl px-5 py-4 flex items-center justify-between
+    class="group relative w-full bg-white dark:bg-slate-950 rounded-2xl px-5 py-4 flex items-center justify-between
             shadow-xl {colors.hoverShadow} hover:-translate-y-2
             transition-all duration-500 ease-out overflow-hidden border border-slate-100 dark:border-slate-800 {className ||
         ''}"

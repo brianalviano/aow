@@ -102,19 +102,19 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-        class="bg-white w-full max-w-md max-h-svh sm:rounded-2xl rounded-t-2xl flex flex-col relative"
+        class="bg-slate-950 w-full max-w-md max-h-svh sm:rounded-2xl rounded-t-2xl flex flex-col relative"
         onclick={(e) => e.stopPropagation()}
         transition:slide={{ duration: 300, axis: "y" }}
     >
         <!-- Header -->
         <div
-            class="p-4 border-b border-gray-100 flex items-center justify-between"
+            class="p-4 border-b border-slate-800 flex items-center justify-between"
         >
-            <h2 class="text-lg font-bold text-gray-900">
+            <h2 class="text-lg font-bold text-slate-100">
                 Ubah Jadwal Pengiriman
             </h2>
             <button
-                class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-800"
+                class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-300"
                 onclick={onClose}
                 aria-label="Tutup"
             >
@@ -150,12 +150,12 @@
                 {/if}
             </div>
 
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                <p class="text-blue-800 text-sm flex items-center gap-2">
+            <div class="bg-blue-900/20 p-4 rounded-xl border border-blue-800">
+                <p class="text-blue-300 text-sm flex items-center gap-2">
                     <i class="fa-solid fa-info-circle"></i>
                     <span>Pesanan akan dikirim pada:</span>
                 </p>
-                <p class="text-blue-900 font-bold mt-1">
+                <p class="text-blue-200 font-bold mt-1">
                     {#if dateIso && time}
                         {dateStr} pukul {time} WIB
                     {:else}
@@ -166,7 +166,7 @@
         </div>
 
         <!-- Action Bar -->
-        <div class="p-4 border-t border-gray-100 bg-white">
+        <div class="p-4 border-t border-slate-800 bg-slate-950">
             <button
                 class="w-full bg-[#FFD700] hover:bg-[#FFC700] text-[#111] font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
                 onclick={handleSave}

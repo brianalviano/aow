@@ -80,14 +80,15 @@
         if (orderStatus === "cancelled" || paymentStatus === "failed") {
             return {
                 text: "Dibatalkan",
-                classes: "bg-red-50 text-red-600 border border-red-200",
+                classes: "bg-red-900/20 text-red-400 border border-red-800",
                 icon: "fa-solid fa-circle-xmark",
             };
         }
         if (orderStatus === "delivered") {
             return {
                 text: "Selesai",
-                classes: "bg-green-50 text-green-600 border border-green-200",
+                classes:
+                    "bg-green-900/20 text-green-400 border border-green-800",
                 icon: "fa-solid fa-circle-check",
             };
         }
@@ -96,7 +97,7 @@
             return {
                 text: isCash ? "Dikirim (COD)" : "Dikirim",
                 classes:
-                    "bg-purple-50 text-purple-600 border border-purple-200",
+                    "bg-purple-900/20 text-purple-400 border border-purple-800",
                 icon: "fa-solid fa-truck-fast",
             };
         }
@@ -107,7 +108,7 @@
                     return {
                         text: "Diproses (COD)",
                         classes:
-                            "bg-blue-50 text-blue-600 border border-blue-200",
+                            "bg-blue-900/20 text-blue-400 border border-blue-800",
                         icon: "fa-solid fa-spinner fa-spin",
                     };
                 }
@@ -116,7 +117,7 @@
                     return {
                         text: "Menunggu Verifikasi",
                         classes:
-                            "bg-orange-50 text-orange-600 border border-orange-200",
+                            "bg-orange-900/20 text-orange-400 border border-orange-800",
                         icon: "fa-solid fa-clock-rotate-left",
                     };
                 }
@@ -124,21 +125,21 @@
                 return {
                     text: "Belum Dibayar",
                     classes:
-                        "bg-yellow-50 text-yellow-600 border border-yellow-200",
+                        "bg-yellow-900/20 text-yellow-400 border border-yellow-800",
                     icon: "fa-solid fa-clock",
                 };
             }
 
             return {
                 text: "Diproses",
-                classes: "bg-blue-50 text-blue-600 border border-blue-200",
+                classes: "bg-blue-900/20 text-blue-400 border border-blue-800",
                 icon: "fa-solid fa-spinner fa-spin",
             };
         }
 
         return {
             text: "Status Tidak Diketahui",
-            classes: "bg-gray-50 text-gray-600 border border-gray-200",
+            classes: "bg-slate-800 text-slate-300 border border-slate-700",
             icon: "fa-solid fa-circle-question",
         };
     }
@@ -209,25 +210,25 @@
             case "pending":
                 return {
                     text: "Menunggu",
-                    classes: "bg-gray-100 text-gray-600",
+                    classes: "bg-slate-800 text-slate-300",
                 };
             case "approved":
                 return {
                     text: "Disiapkan",
-                    classes: "bg-blue-100 text-blue-600",
+                    classes: "bg-blue-900/30 text-blue-400",
                 };
             case "shipped":
                 return {
                     text: "Dikirim",
-                    classes: "bg-purple-100 text-purple-600",
+                    classes: "bg-purple-900/30 text-purple-400",
                 };
             case "delivered":
                 return {
                     text: "Selesai",
-                    classes: "bg-green-100 text-green-600",
+                    classes: "bg-green-900/30 text-green-400",
                 };
             default:
-                return { text: status, classes: "bg-gray-100 text-gray-600" };
+                return { text: status, classes: "bg-slate-800 text-slate-300" };
         }
     }
 </script>
@@ -239,16 +240,16 @@
 <div>
     <!-- Header -->
     <header
-        class="bg-white px-4 py-4 flex items-center justify-between sticky top-0 z-20 shadow-sm border-b border-gray-100"
+        class="bg-slate-950 px-4 py-4 flex items-center justify-between sticky top-0 z-20 shadow-sm border-b border-slate-800"
     >
         <div class="flex items-center gap-3">
             <Link
                 href="/orders"
-                class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors"
+                class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
             >
                 <i class="fa-solid fa-arrow-left"></i>
             </Link>
-            <h1 class="text-lg font-bold text-gray-900 leading-none">
+            <h1 class="text-lg font-bold text-slate-100 leading-none">
                 Detail Pesanan
             </h1>
         </div>
@@ -256,11 +257,13 @@
 
     <div class="p-4 space-y-4">
         <!-- Status & Timeline Info -->
-        <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+        <div
+            class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm"
+        >
             <div
-                class="flex items-center justify-between mb-3 pb-3 border-b border-gray-50"
+                class="flex items-center justify-between mb-3 pb-3 border-b border-slate-800"
             >
-                <span class="text-sm text-gray-500">Status Pesanan</span>
+                <span class="text-sm text-slate-400">Status Pesanan</span>
                 <div
                     class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold {badge.classes}"
                 >
@@ -271,16 +274,17 @@
 
             <div class="space-y-2">
                 <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-500">Tanggal Transaksi</span>
-                    <span class="font-medium text-gray-900"
+                    <span class="text-slate-400">Tanggal Transaksi</span>
+                    <span class="font-medium text-slate-100"
                         >{dayjs(order.created_at).format(
                             "DD MMM YYYY, HH:mm",
                         )}</span
                     >
                 </div>
                 <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-500">Nomor Pesanan</span>
-                    <span class="font-medium text-blue-600">{order.number}</span
+                    <span class="text-slate-400">Nomor Pesanan</span>
+                    <span class="font-medium text-[#FFD700]"
+                        >{order.number}</span
                     >
                 </div>
             </div>
@@ -288,15 +292,15 @@
 
         {#if order.order_status === "cancelled" && order.cancellation_note}
             <div
-                class="bg-red-50 border border-red-200 rounded-xl p-4 flex gap-3"
+                class="bg-red-900/20 border border-red-800 rounded-xl p-4 flex gap-3"
             >
-                <i class="fa-solid fa-circle-info text-red-500 mt-0.5 shrink-0"
+                <i class="fa-solid fa-circle-info text-red-400 mt-0.5 shrink-0"
                 ></i>
                 <div>
-                    <div class="text-sm font-semibold text-red-700 mb-1">
+                    <div class="text-sm font-semibold text-red-400 mb-1">
                         Alasan Pembatalan
                     </div>
-                    <p class="text-sm text-red-600 leading-relaxed">
+                    <p class="text-sm text-red-300 leading-relaxed">
                         {order.cancellation_note}
                     </p>
                 </div>
@@ -306,7 +310,7 @@
         {#if order.payment_status === "pending" && order.payment_method?.category !== "cash" && !order.payment_proof_url}
             <Link
                 href={`/payment/${order.id}?from=detail`}
-                class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 {processing
+                class="w-full py-3 px-4 bg-[#FFD700] hover:bg-[#FFC700] text-slate-900 text-center font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 {processing
                     ? 'opacity-80 pointer-events-none'
                     : ''}"
                 onclick={() => (processing = true)}
@@ -343,19 +347,19 @@
 
         <!-- Drop Point / Shipping Info -->
         <div
-            class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm space-y-3"
+            class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm space-y-3"
         >
-            <div class="font-bold text-gray-900 flex items-center gap-2">
+            <div class="font-bold text-slate-100 flex items-center gap-2">
                 <i class="fa-solid fa-location-dot text-red-500"></i>
                 Detail Pengiriman
             </div>
-            <div class="pt-2 border-t border-gray-50">
-                <div class="text-sm font-medium text-gray-900 mb-1">
+            <div class="pt-2 border-t border-slate-800">
+                <div class="text-sm font-medium text-slate-100 mb-1">
                     {order.drop_point?.name ||
                         order.customer_address?.name ||
                         "Alamat Kustom"}
                 </div>
-                <p class="text-xs text-gray-500 leading-relaxed mb-1">
+                <p class="text-xs text-slate-400 leading-relaxed mb-1">
                     {order.drop_point?.address ||
                         order.customer_address?.address ||
                         ""}
@@ -370,18 +374,18 @@
                     <div class="mb-3"></div>
                 {/if}
                 <div class="flex gap-4">
-                    <div class="flex-1 bg-gray-50 rounded-lg p-2.5">
-                        <div class="text-xs text-gray-500 mb-0.5">
+                    <div class="flex-1 bg-slate-800 rounded-lg p-2.5">
+                        <div class="text-xs text-slate-400 mb-0.5">
                             Estimasi Tiba
                         </div>
-                        <div class="text-sm font-medium text-gray-900">
+                        <div class="text-sm font-medium text-slate-100">
                             {order.delivery_date
                                 ? dayjs(order.delivery_date).format(
                                       "DD MMM YYYY",
                                   )
                                 : "-"}
                             {#if order.delivery_time}
-                                <span class="text-gray-400 mx-1">•</span>
+                                <span class="text-slate-500 mx-1">•</span>
                                 <span>{order.delivery_time} WIB</span>
                             {/if}
                         </div>
@@ -392,19 +396,19 @@
 
         {#if order.payment_proof_url}
             <div
-                class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm overflow-hidden"
+                class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm overflow-hidden"
             >
                 <div
-                    class="font-bold text-gray-900 flex items-center gap-2 mb-3"
+                    class="font-bold text-slate-100 flex items-center gap-2 mb-3"
                 >
-                    <i class="fa-solid fa-receipt text-blue-500"></i>
+                    <i class="fa-solid fa-receipt text-[#FFD700]"></i>
                     Bukti Pembayaran
                 </div>
-                <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+                <p class="text-xs text-slate-400 mb-3 leading-relaxed">
                     Bukti bayar yang telah Anda unggah. Tim kami akan segera
                     memverifikasinya.
                 </p>
-                <div class="rounded-lg overflow-hidden border border-gray-50">
+                <div class="rounded-lg overflow-hidden border border-slate-800">
                     <button
                         type="button"
                         class="block w-full text-left"
@@ -423,18 +427,18 @@
 
         {#if order.order_status === "delivered" && order.delivery_photo_url}
             <div
-                class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm overflow-hidden"
+                class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm overflow-hidden"
             >
                 <div
-                    class="font-bold text-gray-900 flex items-center gap-2 mb-3"
+                    class="font-bold text-slate-100 flex items-center gap-2 mb-3"
                 >
                     <i class="fa-solid fa-camera text-green-500"></i>
                     Bukti Penerimaan
                 </div>
-                <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+                <p class="text-xs text-slate-400 mb-3 leading-relaxed">
                     Foto bukti pesanan yang telah diterima.
                 </p>
-                <div class="rounded-lg overflow-hidden border border-gray-50">
+                <div class="rounded-lg overflow-hidden border border-slate-800">
                     <button
                         type="button"
                         class="block w-full text-left"
@@ -452,11 +456,13 @@
         {/if}
 
         <!-- Order Items -->
-        <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+        <div
+            class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm"
+        >
             <div
-                class="font-bold text-gray-900 flex items-center gap-2 mb-3 pb-3 border-b border-gray-50"
+                class="font-bold text-slate-100 flex items-center gap-2 mb-3 pb-3 border-b border-slate-800"
             >
-                <i class="fa-solid fa-box text-blue-500"></i>
+                <i class="fa-solid fa-box text-[#FFD700]"></i>
                 Daftar Produk
             </div>
             <div class="space-y-4">
@@ -466,10 +472,10 @@
                             <div class="flex items-center justify-between px-1">
                                 <div class="flex items-center gap-2">
                                     <div
-                                        class="w-2 h-2 rounded-full bg-blue-500"
+                                        class="w-2 h-2 rounded-full bg-[#FFD700]"
                                     ></div>
                                     <span
-                                        class="text-sm font-bold text-gray-900"
+                                        class="text-sm font-bold text-slate-100"
                                     >
                                         Dapur: {group.chef?.name || "Lainnya"}
                                     </span>
@@ -491,11 +497,11 @@
 
                             {#if group.shipping?.biteship_waybill_id}
                                 <div
-                                    class="bg-blue-50/50 rounded-xl p-3 border border-blue-100 flex items-center justify-between"
+                                    class="bg-blue-900/20 rounded-xl p-3 border border-blue-800 flex items-center justify-between"
                                 >
                                     <div class="flex items-center gap-3">
                                         <div
-                                            class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-blue-600 shadow-sm"
+                                            class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-[#FFD700] shadow-sm"
                                         >
                                             <i
                                                 class="fa-solid fa-truck-fast text-xs"
@@ -503,13 +509,13 @@
                                         </div>
                                         <div>
                                             <div
-                                                class="text-[10px] text-gray-500 font-medium"
+                                                class="text-[10px] text-slate-400 font-medium"
                                             >
                                                 No. Resi ({group.shipping
                                                     .courier_name})
                                             </div>
                                             <div
-                                                class="text-xs font-bold text-gray-900 leading-tight"
+                                                class="text-xs font-bold text-slate-100 leading-tight"
                                             >
                                                 {group.shipping
                                                     .biteship_waybill_id}
@@ -519,7 +525,7 @@
                                     <a
                                         href={`https://biteship.com/id/tracking/${group.shipping.biteship_waybill_id}`}
                                         target="_blank"
-                                        class="text-[10px] font-bold text-blue-600 hover:text-blue-700 underline decoration-blue-200/50 underline-offset-4"
+                                        class="text-[10px] font-bold text-[#FFD700] hover:text-yellow-300 underline decoration-yellow-400/50 underline-offset-4"
                                     >
                                         Lacak Pesanan
                                     </a>
@@ -529,12 +535,12 @@
                             <div class="space-y-3">
                                 {#each group.items as item}
                                     <div
-                                        class="bg-gray-50 rounded-xl p-4 border border-gray-100 shadow-sm"
+                                        class="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-sm"
                                     >
                                         <div class="flex gap-3 mb-3">
                                             <!-- Product Image -->
                                             <div
-                                                class="w-16 h-16 bg-white rounded-xl overflow-hidden shadow-sm shrink-0 relative border border-gray-100"
+                                                class="w-16 h-16 bg-slate-700 rounded-xl overflow-hidden shadow-sm shrink-0 relative border border-slate-600"
                                             >
                                                 {#if item.product?.image_url}
                                                     <button
@@ -556,7 +562,7 @@
                                                     </button>
                                                 {:else}
                                                     <div
-                                                        class="w-full h-full flex items-center justify-center text-gray-300"
+                                                        class="w-full h-full flex items-center justify-center text-slate-500"
                                                     >
                                                         <i
                                                             class="fa-solid fa-image text-xl"
@@ -566,13 +572,13 @@
                                             </div>
                                             <div class="flex-1">
                                                 <h3
-                                                    class="font-bold text-sm text-gray-900 mb-1 leading-tight"
+                                                    class="font-bold text-sm text-slate-100 mb-1 leading-tight"
                                                 >
                                                     {item.product?.name ||
                                                         "Produk"}
                                                 </h3>
                                                 <div
-                                                    class="text-xs text-gray-500 mb-1"
+                                                    class="text-xs text-slate-400 mb-1"
                                                 >
                                                     {item.quantity} x {formatCurrency(
                                                         item.price,
@@ -580,7 +586,7 @@
                                                 </div>
                                             </div>
                                             <div
-                                                class="font-bold text-sm text-gray-900"
+                                                class="font-bold text-sm text-slate-100"
                                             >
                                                 {formatCurrency(
                                                     item.price * item.quantity,
@@ -591,7 +597,7 @@
                                         {#if order.order_status === "delivered"}
                                             <!-- Testimonial content (existing) -->
                                             <div
-                                                class="mt-3 pt-3 border-t border-gray-200/60 space-y-3"
+                                                class="mt-3 pt-3 border-t border-slate-700 space-y-3"
                                             >
                                                 {#if item.testimonial}
                                                     <div class="space-y-2">
@@ -610,7 +616,7 @@
                                                                                 .rating,
                                                                         )
                                                                             ? 'text-yellow-400'
-                                                                            : 'text-gray-200'}"
+                                                                            : 'text-slate-600'}"
                                                                     ></i>
                                                                 {/each}
                                                             </div>
@@ -624,7 +630,7 @@
                                                             {/if}
                                                         </div>
                                                         <p
-                                                            class="text-xs text-gray-700 leading-relaxed italic"
+                                                            class="text-xs text-slate-300 leading-relaxed italic"
                                                         >
                                                             "{item.testimonial
                                                                 .content ||
@@ -633,7 +639,7 @@
                                                         {#if item.testimonial.photo_url}
                                                             <button
                                                                 type="button"
-                                                                class="rounded-lg overflow-hidden border border-gray-100 max-w-[120px] block text-left"
+                                                                class="rounded-lg overflow-hidden border border-slate-700 max-w-[120px] block text-left"
                                                                 onclick={() =>
                                                                     openMediaViewer(
                                                                         item
@@ -658,7 +664,7 @@
                                                             onclick={() =>
                                                                 (activeTestimonialItemId =
                                                                     item.id)}
-                                                            class="w-full py-2 px-4 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs font-bold rounded-lg transition-all border border-orange-100 flex items-center justify-center gap-2"
+                                                            class="w-full py-2 px-4 bg-orange-900/20 text-orange-400 hover:bg-orange-900/30 text-xs font-bold rounded-lg transition-all border border-orange-800 flex items-center justify-center gap-2"
                                                         >
                                                             <i
                                                                 class="fa-solid fa-pen-to-square"
@@ -679,7 +685,7 @@
                                                                 class="flex items-center justify-between"
                                                             >
                                                                 <span
-                                                                    class="text-[10px] font-bold text-gray-500 uppercase tracking-wider"
+                                                                    class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"
                                                                     >Rating</span
                                                                 >
                                                                 <div
@@ -697,8 +703,8 @@
                                                                             parseInt(
                                                                                 star,
                                                                             )
-                                                                                ? 'bg-yellow-50 border-yellow-400 text-yellow-600'
-                                                                                : 'bg-white border-gray-200 text-gray-300'}"
+                                                                                ? 'bg-yellow-900/20 border-yellow-400 text-yellow-400'
+                                                                                : 'bg-slate-700 border-slate-600 text-slate-500'}"
                                                                             aria-label="Pilih rating {star} bintang"
                                                                         >
                                                                             <i
@@ -743,13 +749,13 @@
                                                                     onclick={() =>
                                                                         (activeTestimonialItemId =
                                                                             null)}
-                                                                    class="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition-all"
+                                                                    class="flex-1 py-2 px-3 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-bold rounded-lg transition-all"
                                                                     >Batal</button
                                                                 >
                                                                 <button
                                                                     type="submit"
                                                                     disabled={$testimonialForm.processing}
-                                                                    class="flex-2 py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                                                                    class="flex-2 py-2 px-4 bg-[#FFD700] hover:bg-[#FFC700] text-slate-900 text-xs font-bold rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
                                                                     style="flex: 2"
                                                                 >
                                                                     {#if $testimonialForm.processing}
@@ -779,26 +785,29 @@
         </div>
 
         <!-- Payment Details -->
-        <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+        <div
+            class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm"
+        >
             <div
-                class="font-bold text-gray-900 mb-3 pb-3 border-b border-gray-50"
+                class="font-bold text-slate-100 mb-3 pb-3 border-b border-slate-800"
             >
                 Rincian Pembayaran
             </div>
 
             <div class="space-y-2.5 mb-3">
                 <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-500"
+                    <span class="text-slate-400"
                         >Total Harga ({order.items.length} Barang)</span
                     >
-                    <span class="text-gray-900">{formatCurrency(subtotal)}</span
+                    <span class="text-slate-100"
+                        >{formatCurrency(subtotal)}</span
                     >
                 </div>
 
                 {#if order.discount_amount > 0}
                     <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-500">Diskon</span>
-                        <span class="text-green-600"
+                        <span class="text-slate-400">Diskon</span>
+                        <span class="text-green-400"
                             >-{formatCurrency(order.discount_amount)}</span
                         >
                     </div>
@@ -807,28 +816,28 @@
                 {#if order.shippings && order.shippings.length > 0}
                     <div class="flex flex-col gap-1.5">
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500">Ongkos Kirim</span>
-                            <span class="text-gray-900 font-medium"
+                            <span class="text-slate-400">Ongkos Kirim</span>
+                            <span class="text-slate-100 font-medium"
                                 >{formatCurrency(
                                     order.final_delivery_fee,
                                 )}</span
                             >
                         </div>
-                        <div class="pl-2 border-l-2 border-gray-100 space-y-1">
+                        <div class="pl-2 border-l-2 border-slate-700 space-y-1">
                             {#each order.shippings as shipping}
                                 <div
                                     class="flex justify-between items-center text-xs"
                                 >
-                                    <span class="text-gray-500">
+                                    <span class="text-slate-400">
                                         <i
-                                            class="fa-solid fa-truck-fast text-[10px] mr-1 text-[#2196f3]"
+                                            class="fa-solid fa-truck-fast text-[10px] mr-1 text-[#FFD700]"
                                         ></i>
                                         {shipping.chef?.name || "Chef"}
-                                        <span class="text-gray-400"
+                                        <span class="text-slate-500"
                                             >({shipping.courier_name})</span
                                         >
                                     </span>
-                                    <span class="text-gray-700">
+                                    <span class="text-slate-300">
                                         {formatCurrency(shipping.shipping_fee)}
                                     </span>
                                 </div>
@@ -837,8 +846,8 @@
                     </div>
                 {:else if order.final_delivery_fee > 0}
                     <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-500">Ongkos Kirim</span>
-                        <span class="text-gray-900"
+                        <span class="text-slate-400">Ongkos Kirim</span>
+                        <span class="text-slate-100"
                             >{formatCurrency(order.final_delivery_fee)}</span
                         >
                     </div>
@@ -846,8 +855,8 @@
 
                 {#if order.admin_fee > 0}
                     <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-500">Biaya Administrasi</span>
-                        <span class="text-gray-900"
+                        <span class="text-slate-400">Biaya Administrasi</span>
+                        <span class="text-slate-100"
                             >{formatCurrency(order.admin_fee)}</span
                         >
                     </div>
@@ -855,8 +864,8 @@
 
                 {#if order.tax_amount > 0}
                     <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-500">Pajak</span>
-                        <span class="text-gray-900"
+                        <span class="text-slate-400">Pajak</span>
+                        <span class="text-slate-100"
                             >{formatCurrency(order.tax_amount)}</span
                         >
                     </div>
@@ -864,22 +873,23 @@
             </div>
 
             <div
-                class="flex justify-between items-center border-t border-gray-50 pt-3"
+                class="flex justify-between items-center border-t border-slate-800 pt-3"
             >
-                <span class="font-bold text-gray-900">Total Belanja</span>
-                <span class="font-bold text-orange-600 text-lg"
+                <span class="font-bold text-slate-100">Total Belanja</span>
+                <span class="font-bold text-orange-400 text-lg"
                     >{formatCurrency(order.total_amount)}</span
                 >
             </div>
 
             <div
-                class="mt-4 bg-gray-50 p-3 rounded-lg flex items-center justify-between"
+                class="mt-4 bg-slate-800 p-3 rounded-lg flex items-center justify-between"
             >
                 <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-wallet text-gray-500"></i>
-                    <span class="text-sm text-gray-600">Metode Pembayaran</span>
+                    <i class="fa-solid fa-wallet text-slate-500"></i>
+                    <span class="text-sm text-slate-400">Metode Pembayaran</span
+                    >
                 </div>
-                <div class="font-medium text-sm text-gray-900">
+                <div class="font-medium text-sm text-slate-100">
                     {order.payment_method?.name || "-"}
                 </div>
             </div>

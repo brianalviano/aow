@@ -38,20 +38,20 @@
 </svelte:head>
 
 <div
-    class="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto relative shadow-xl overflow-x-hidden"
+    class="min-h-screen bg-slate-950 flex flex-col max-w-md mx-auto relative shadow-xl overflow-x-hidden"
 >
     <!-- Header -->
     <header
-        class="flex items-center justify-between p-4 bg-white sticky top-0 z-10 border-b border-gray-100"
+        class="flex items-center justify-between p-4 bg-slate-950 sticky top-0 z-10 border-b border-slate-800"
     >
         <Link
             href="/menu"
-            class="text-gray-800 focus:outline-none p-1"
+            class="text-slate-300 focus:outline-none p-1"
             aria-label="Kembali"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </Link>
-        <h1 class="font-bold text-lg leading-tight text-gray-900">
+        <h1 class="font-bold text-lg leading-tight text-slate-100">
             Ubah Profil
         </h1>
         <div class="w-8"></div>
@@ -59,7 +59,7 @@
 
     <!-- Main Content -->
     <main
-        class="flex-1 w-full flex flex-col p-4 bg-white mt-2 border-t border-gray-100"
+        class="flex-1 w-full flex flex-col p-4 bg-slate-950 mt-2 border-t border-slate-800"
     >
         <form class="space-y-6 flex-1 flex flex-col" onsubmit={handleSubmit}>
             <div class="space-y-4">
@@ -97,8 +97,8 @@
                 />
             </div>
 
-            <div class="pt-4 border-t border-gray-100 space-y-4">
-                <h3 class="font-semibold text-gray-800 text-sm">
+            <div class="pt-4 border-t border-slate-800 space-y-4">
+                <h3 class="font-semibold text-slate-300 text-sm">
                     Ubah Kata Sandi (Opsional)
                 </h3>
                 <TextInput

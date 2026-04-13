@@ -117,45 +117,51 @@
 </script>
 
 <div
-    class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+    class="bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden mb-6 hover:border-[#FFD700]/30 transition-all duration-300"
 >
     <div
-        class="bg-gray-50/50 p-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4"
+        class="bg-slate-950/50 p-6 border-b border-slate-800 flex flex-wrap justify-between items-center gap-4"
     >
         <div>
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-center gap-3 mb-2">
                 <span
-                    class="text-xs font-bold text-gray-400 uppercase tracking-wider"
+                    class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]"
                     >Nomor Pesanan</span
                 >
-                <Badge variant="info" size="sm" outlined
+                <Badge
+                    variant="primary"
+                    size="sm"
+                    class="bg-[#FFD700] text-slate-900 font-black border-none"
                     >{group.order.number}</Badge
                 >
             </div>
-            <div class="text-sm font-medium text-gray-900">
+            <div class="text-base font-black text-slate-100">
                 {group.order.customer?.name}
-                <span class="text-gray-400 mx-1">•</span>
-                <span class="text-gray-500 font-normal"
+                <span class="text-slate-600 mx-2">•</span>
+                <span class="text-slate-400 font-medium"
                     >{group.order.drop_point?.name || "Alamat Kustom"}</span
                 >
             </div>
         </div>
-        <div>
-            <span class="text-xs text-gray-400 block mb-1"
+        <div class="text-right">
+            <span
+                class="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] block mb-1"
                 >Tanggal Pengiriman</span
             >
-            <span class="text-sm font-semibold text-gray-900">
+            <span class="text-sm font-bold text-slate-200">
                 {dayjs(group.order.delivery_date).format("dddd, D MMMM YYYY")}
                 {#if group.order.delivery_time}
-                    <span class="text-gray-400 mx-1">•</span>
-                    {group.order.delivery_time.includes("T")
-                        ? new Date(
-                              group.order.delivery_time,
-                          ).toLocaleTimeString("id-ID", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                          })
-                        : group.order.delivery_time.substring(0, 5)} WIB
+                    <span class="text-slate-600 mx-2">•</span>
+                    <span class="text-[#FFD700] font-black">
+                        {group.order.delivery_time.includes("T")
+                            ? new Date(
+                                  group.order.delivery_time,
+                              ).toLocaleTimeString("id-ID", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                              })
+                            : group.order.delivery_time.substring(0, 5)} WIB
+                    </span>
                 {/if}
             </span>
         </div>
@@ -163,20 +169,21 @@
 
     {#if group.order.pick_up_point}
         <div
-            class="bg-blue-50/50 px-4 py-3 border-b border-blue-100 flex flex-wrap items-center justify-between gap-3"
+            class="bg-blue-900/10 px-6 py-4 border-b border-blue-900/20 flex flex-wrap items-center justify-between gap-4"
         >
             <div>
-                <div class="flex items-center gap-2 mb-0.5">
-                    <i class="fa-solid fa-location-dot text-blue-500 text-sm"
+                <div class="flex items-center gap-2 mb-1">
+                    <i class="fa-solid fa-location-dot text-blue-400 text-sm"
                     ></i>
-                    <span class="text-xs font-bold text-blue-600 uppercase"
+                    <span
+                        class="text-[10px] font-black text-blue-400 uppercase tracking-widest"
                         >Kirim ke Pickup Point</span
                     >
                 </div>
-                <p class="text-sm font-semibold text-gray-900">
+                <p class="text-base font-black text-slate-100">
                     {group.order.pick_up_point.name}
                 </p>
-                <p class="text-xs text-gray-500 mt-0.5">
+                <p class="text-xs text-slate-500 mt-1">
                     {group.order.pick_up_point.address}
                 </p>
             </div>
@@ -187,7 +194,7 @@
                             group.order.pick_up_point?.latitude,
                             group.order.pick_up_point?.longitude,
                         )}
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-xs font-black rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
                 >
                     <i class="fa-solid fa-map-location-dot"></i>
                     Google Maps
@@ -196,58 +203,63 @@
         </div>
     {/if}
 
-    <div class="divide-y divide-gray-100">
+    <div class="divide-y divide-slate-800">
         {#each group.items as item}
-            <div class="p-4 flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
+            <div
+                class="p-6 flex flex-wrap items-center justify-between gap-6 hover:bg-slate-800/20 transition-colors"
+            >
+                <div class="flex items-center gap-6">
                     {#if item.product?.image}
                         <img
                             src={item.product.image}
                             alt={item.product.name}
                             class="{context === 'dashboard'
-                                ? 'w-16 h-16 rounded-xl'
-                                : 'w-12 h-12 rounded-lg'} object-cover border border-gray-100"
+                                ? 'w-20 h-20 rounded-2xl'
+                                : 'w-14 h-14 rounded-xl'} object-cover border border-slate-800 shadow-xl"
                         />
                     {:else}
                         <div
                             class="{context === 'dashboard'
-                                ? 'w-16 h-16 rounded-xl'
-                                : 'w-12 h-12 rounded-lg'} bg-gray-100 flex items-center justify-center border border-gray-100"
+                                ? 'w-20 h-20 rounded-2xl'
+                                : 'w-14 h-14 rounded-xl'} bg-slate-800 flex items-center justify-center border border-slate-700"
                         >
-                            <i class="fa-solid fa-bowl-food text-gray-300"></i>
+                            <i
+                                class="fa-solid fa-bowl-food text-slate-600 text-2xl"
+                            ></i>
                         </div>
                     {/if}
                     <div>
                         {#if context === "orders" && item.created_at}
-                            <div class="flex items-center gap-2">
-                                <h4 class="font-bold text-gray-900">
+                            <div class="flex items-center gap-3">
+                                <h4 class="font-black text-slate-100 text-lg">
                                     {item.product?.name}
                                 </h4>
-                                <span class="text-xs text-gray-400"
+                                <span
+                                    class="text-[10px] font-black text-slate-500 uppercase tracking-widest"
                                     >• {dayjs(item.created_at).format(
                                         "DD/MM/YY",
                                     )}</span
                                 >
                             </div>
                         {:else}
-                            <h4 class="font-bold text-gray-900">
+                            <h4 class="font-black text-slate-100 text-lg">
                                 {item.product?.name}
                             </h4>
                         {/if}
                         <p
                             class="{context === 'dashboard'
                                 ? 'text-sm'
-                                : 'text-xs'} text-gray-500"
+                                : 'text-xs'} text-slate-400 mt-1"
                         >
-                            Jumlah: <span class="font-semibold text-gray-900"
+                            Jumlah: <span class="font-black text-[#FFD700]"
                                 >{item.quantity}x</span
                             >
                         </p>
                         {#if context === "dashboard" && item.note}
                             <p
-                                class="text-xs text-[#997A00] bg-[#FFF9E6] px-2 py-0.5 rounded mt-1 inline-block"
+                                class="text-[10px] font-black tracking-wider uppercase text-[#FFD700] bg-[#FFD700]/10 px-3 py-1 rounded-full mt-3 inline-flex items-center gap-2 border border-[#FFD700]/20"
                             >
-                                <i class="fa-solid fa-comment-dots mr-1"></i>
+                                <i class="fa-solid fa-comment-dots"></i>
                                 {item.note}
                             </p>
                         {/if}

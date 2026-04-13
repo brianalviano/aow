@@ -14,25 +14,25 @@
 <div>
     <!-- Header -->
     <header
-        class="flex items-center justify-between p-4 bg-white sticky top-0 z-10 border-b border-gray-100"
+        class="flex items-center justify-between p-4 bg-slate-950 sticky top-0 z-10 border-b border-slate-800"
     >
         <Link
             href="/menu"
-            class="text-gray-800 focus:outline-none p-1"
+            class="text-slate-300 focus:outline-none p-1"
             aria-label="Kembali"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </Link>
-        <h1 class="font-bold text-lg leading-tight text-gray-900">
+        <h1 class="font-bold text-lg leading-tight text-slate-100">
             Kebijakan Privasi
         </h1>
     </header>
 
     <!-- Main Content -->
-    <main class="w-full bg-white text-gray-800 font-sans">
+    <main class="w-full bg-slate-950 text-slate-200 font-sans">
         <div class="max-w-3xl mx-auto p-6">
             <h1 class="text-3xl font-bold mb-2">Kebijakan Privasi</h1>
-            <p class="text-sm text-gray-500 mb-8">
+            <p class="text-sm text-slate-500 mb-8">
                 Terakhir diperbarui: 23 Februari 2026
             </p>
 
@@ -57,7 +57,7 @@
                 Kami mengumpulkan informasi berikut saat Anda mendaftar dan
                 menggunakan layanan kami:
             </p>
-            <ul class="list-disc pl-6 mb-4 space-y-1 text-gray-700">
+            <ul class="list-disc pl-6 mb-4 space-y-1 text-slate-300">
                 <li>Nama lengkap</li>
                 <li>Nomor telepon</li>
                 <li>Alamat email</li>
@@ -85,7 +85,7 @@
             <p class="mb-3 leading-relaxed">
                 Informasi yang kami kumpulkan digunakan untuk:
             </p>
-            <ul class="list-disc pl-6 mb-10 space-y-1 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-1 text-slate-300">
                 <li>Memproses dan mengkonfirmasi pesanan Anda</li>
                 <li>Mengirimkan notifikasi status pesanan melalui WhatsApp</li>
                 <li>Mengantarkan pesanan ke drop point yang Anda pilih</li>
@@ -103,7 +103,7 @@
                 pihak manapun. Informasi Anda hanya dibagikan kepada pihak
                 ketiga berikut dalam batas yang diperlukan:
             </p>
-            <ul class="list-disc pl-6 mb-10 space-y-1 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-1 text-slate-300">
                 <li>
                     <strong>{appName} / Kami</strong> — penyedia layanan
                     pemesanan makanan melalui website {displayUrl}
@@ -146,7 +146,7 @@
             <!-- 6 -->
             <h2 class="text-xl font-semibold mb-3">6. Hak Anda</h2>
             <p class="mb-3 leading-relaxed">Anda memiliki hak untuk:</p>
-            <ul class="list-disc pl-6 mb-10 space-y-1 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-1 text-slate-300">
                 <li>
                     Mengakses dan memperbarui informasi pribadi Anda melalui
                     halaman profil
@@ -183,7 +183,7 @@
                 Jika Anda memiliki pertanyaan mengenai Kebijakan Privasi ini,
                 silakan hubungi kami melalui:
             </p>
-            <ul class="list-disc pl-6 mb-10 space-y-1 text-gray-700">
+            <ul class="list-disc pl-6 mb-10 space-y-1 text-slate-300">
                 <li>
                     WhatsApp: <strong
                         >{$page.props.settings?.whatsapp || "-"}</strong
@@ -199,8 +199,8 @@
                 </li>
             </ul>
 
-            <hr class="border-gray-200 mt-10" />
-            <p class="text-sm text-gray-400 mt-6 text-center">
+            <hr class="border-slate-700 mt-10" />
+            <p class="text-sm text-slate-500 mt-6 text-center">
                 © {new Date().getFullYear()}
                 {name($page.props.settings)}. Seluruh hak dilindungi.
             </p>

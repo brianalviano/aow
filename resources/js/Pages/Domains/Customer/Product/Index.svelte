@@ -46,6 +46,12 @@
         total_sales: number;
         average_rating: number;
         testimonials_count: number;
+        chefs: {
+            id: string;
+            name: string;
+            business_name: string;
+            address: string;
+        }[];
     }[];
 
     export let address: {
@@ -166,7 +172,8 @@
             const tabOffsetLeft = tab.offsetLeft;
             const tabWidth = tab.clientWidth;
 
-            const targetScrollLeft = tabOffsetLeft - containerWidth / 2 + tabWidth / 2;
+            const targetScrollLeft =
+                tabOffsetLeft - containerWidth / 2 + tabWidth / 2;
 
             categoryTabsContainer.scrollTo({
                 left: targetScrollLeft,
@@ -380,24 +387,24 @@
     <title>Menu | {dropPoint?.name ?? address?.name ?? "Pesan Sekarang"}</title>
 </svelte:head>
 
-<div class="bg-gray-50 min-h-screen pb-24">
+<div class="bg-slate-950 min-h-screen pb-24">
     <!-- Header -->
-    <div class="sticky top-0 z-30 bg-white">
+    <div class="sticky top-0 z-30 bg-slate-950">
         <header class="flex items-center p-4">
             <button
                 on:click={goBack}
-                class="w-8 h-8 flex items-center justify-center text-gray-800"
+                class="w-8 h-8 flex items-center justify-center text-slate-100"
                 aria-label="Kembali"
             >
                 <i class="fa-solid fa-arrow-left text-lg"></i>
             </button>
             <div class="ml-2 flex flex-col min-w-0">
                 <h1
-                    class="font-bold text-base text-gray-900 truncate leading-tight"
+                    class="font-bold text-base text-slate-100 truncate leading-tight"
                 >
                     {dropPoint?.name ?? address?.name ?? "Menu"}
                 </h1>
-                <p class="text-[10px] text-gray-500 truncate leading-tight">
+                <p class="text-[10px] text-slate-400 truncate leading-tight">
                     {dropPoint?.address ?? address?.address ?? ""}
                 </p>
             </div>
@@ -406,13 +413,13 @@
         <!-- Search Bar -->
         <div class="px-4 pb-3">
             <div
-                class="relative flex items-center w-full h-10 rounded-xl focus-within:shadow-lg bg-gray-50 overflow-hidden border border-gray-200"
+                class="relative flex items-center w-full h-10 rounded-xl focus-within:shadow-lg bg-slate-800 overflow-hidden border border-slate-700"
             >
-                <div class="grid place-items-center h-full w-12 text-gray-400">
+                <div class="grid place-items-center h-full w-12 text-slate-400">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
                 <input
-                    class="peer h-full w-full outline-none text-sm text-gray-700 bg-gray-50 pr-2 placeholder-gray-400 focus:ring-0 border-none"
+                    class="peer h-full w-full outline-none text-sm text-slate-200 bg-slate-800 pr-2 placeholder-slate-500 focus:ring-0 border-none"
                     type="text"
                     id="search"
                     placeholder="Cari Sesuatu..."
@@ -425,19 +432,19 @@
         {#if orderType === "preorder" && quotaProgress && quotaProgress.has_quota}
             <div class="px-4 pb-2">
                 <div
-                    class="bg-blue-50 rounded-xl p-3 border border-blue-100 flex flex-col gap-2"
+                    class="bg-blue-900/20 rounded-xl p-3 border border-blue-800 flex flex-col gap-2"
                 >
                     <div class="flex items-center justify-between">
                         <h3
-                            class="font-bold text-gray-900 text-xs flex items-center gap-1.5"
+                            class="font-bold text-slate-100 text-xs flex items-center gap-1.5"
                         >
-                            <i class="fa-solid fa-users text-blue-500"></i>
+                            <i class="fa-solid fa-users text-[#FFD700]"></i>
                             Kuota PO Drop Point
                         </h3>
                         <span
                             class="text-[9px] font-bold px-1.5 py-0.5 rounded-full {quotaProgress.is_fulfilled
-                                ? 'text-green-600 bg-green-100'
-                                : 'text-blue-600 bg-blue-100'}"
+                                ? 'text-green-400 bg-green-900/30'
+                                : 'text-[#FFD700] bg-yellow-900/20'}"
                         >
                             {quotaProgress.is_fulfilled
                                 ? "TERPENUHI"
@@ -451,17 +458,17 @@
                                 <div
                                     class="flex justify-between text-[10px] mb-1"
                                 >
-                                    <span class="text-gray-600">Pesanan</span>
-                                    <span class="font-medium text-gray-900"
+                                    <span class="text-slate-300">Pesanan</span>
+                                    <span class="font-medium text-slate-100"
                                         >{quotaProgress.current_qty} / {quotaProgress.min_qty}
                                         porsi</span
                                     >
                                 </div>
                                 <div
-                                    class="w-full bg-blue-100 rounded-full h-1"
+                                    class="w-full bg-slate-700 rounded-full h-1"
                                 >
                                     <div
-                                        class="bg-blue-500 h-1 rounded-full transition-all"
+                                        class="bg-[#FFD700] h-1 rounded-full transition-all"
                                         style="width: {Math.min(
                                             100,
                                             (quotaProgress.current_qty /
@@ -478,8 +485,9 @@
                                 <div
                                     class="flex justify-between text-[10px] mb-1"
                                 >
-                                    <span class="text-gray-600">Transaksi</span>
-                                    <span class="font-medium text-gray-900"
+                                    <span class="text-slate-300">Transaksi</span
+                                    >
+                                    <span class="font-medium text-slate-100"
                                         >{formatRupiah(
                                             quotaProgress.current_amount,
                                         )} / {formatRupiah(
@@ -488,10 +496,10 @@
                                     >
                                 </div>
                                 <div
-                                    class="w-full bg-blue-100 rounded-full h-1"
+                                    class="w-full bg-slate-700 rounded-full h-1"
                                 >
                                     <div
-                                        class="bg-blue-500 h-1 rounded-full transition-all"
+                                        class="bg-[#FFD700] h-1 rounded-full transition-all"
                                         style="width: {Math.min(
                                             100,
                                             (quotaProgress.current_amount /
@@ -506,7 +514,7 @@
 
                     {#if !quotaProgress.is_fulfilled}
                         <div
-                            class="mt-1 text-[10px] text-blue-800 bg-blue-100/50 p-2 rounded flex gap-1.5 items-start"
+                            class="mt-1 text-[10px] text-blue-300 bg-blue-900/30 p-2 rounded flex gap-1.5 items-start"
                         >
                             <i class="fa-solid fa-circle-info mt-0.5 shrink-0"
                             ></i>
@@ -525,15 +533,15 @@
         <!-- Categories Tab Bar -->
         <div
             bind:this={categoryTabsContainer}
-            class="flex overflow-x-auto hide-scrollbar border-b border-gray-200 px-2 pb-0 bg-white"
+            class="flex overflow-x-auto hide-scrollbar border-b border-slate-700 px-2 pb-0 bg-slate-950"
         >
             {#each categories as category}
                 <button
                     data-category-id={category.id}
                     class="whitespace-nowrap px-4 py-3 text-sm font-semibold border-b-2 transition-colors {selectedCategory ===
                     category.id
-                        ? 'border-[#FFD700] text-gray-900'
-                        : 'border-transparent text-gray-500'}"
+                        ? 'border-[#FFD700] text-[#FFD700]'
+                        : 'border-transparent text-slate-400'}"
                     on:click={() => scrollToCategory(category.id)}
                 >
                     {category.name.toUpperCase()}
@@ -547,7 +555,7 @@
         {#each productsByCategory as category}
             <div id={`category-${category.id}`}>
                 <h2
-                    class="text-xs font-bold text-gray-900 mb-3 ml-1 tracking-wider"
+                    class="text-xs font-bold text-slate-100 mb-3 ml-1 tracking-wider"
                 >
                     {category.name.toUpperCase()}
                 </h2>
@@ -555,14 +563,14 @@
                 <div class="grid grid-cols-2 gap-3">
                     {#each category.products as product}
                         <div
-                            class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col transition-all {(cartQuantities[
+                            class="bg-slate-800 rounded-xl shadow-sm border border-slate-700 overflow-hidden flex flex-col transition-all {(cartQuantities[
                                 product.id
                             ] || 0) > 0
                                 ? 'border-b-4 border-b-[#FFD700]'
                                 : ''}"
                         >
                             <div
-                                class="aspect-square w-full bg-gray-100 relative overflow-hidden"
+                                class="aspect-square w-full bg-slate-700 relative overflow-hidden"
                             >
                                 {#if product.image_url}
                                     <img
@@ -573,7 +581,7 @@
                                     />
                                 {:else}
                                     <div
-                                        class="w-full h-full flex items-center justify-center text-gray-400"
+                                        class="w-full h-full flex items-center justify-center text-slate-500"
                                     >
                                         <i class="fa-solid fa-image text-3xl"
                                         ></i>
@@ -583,23 +591,52 @@
 
                             <div class="p-3 flex flex-col grow">
                                 <h3
-                                    class="font-semibold text-gray-900 text-xs leading-tight line-clamp-2 min-h-8"
+                                    class="font-semibold text-slate-100 text-xs leading-tight line-clamp-2 min-h-8"
                                 >
                                     {product.name}
                                 </h3>
+
+                                {#if product.chefs && product.chefs.length > 0}
+                                    <div class="mt-1.5 space-y-1">
+                                        <div
+                                            class="flex items-center gap-1.5 text-[10px] font-bold text-amber-500"
+                                        >
+                                            <i
+                                                class="fa-solid fa-kitchen-set shrink-0"
+                                            ></i>
+                                            <span class="truncate"
+                                                >{product.chefs?.[0]
+                                                    ?.business_name ||
+                                                    product.chefs?.[0]
+                                                        ?.name}</span
+                                            >
+                                        </div>
+                                        <div
+                                            class="flex items-start gap-1.5 text-[9px] text-slate-400 leading-tight"
+                                        >
+                                            <i
+                                                class="fa-solid fa-location-dot mt-0.5 shrink-0"
+                                            ></i>
+                                            <span class="line-clamp-1"
+                                                >{product.chefs?.[0]
+                                                    ?.address}</span
+                                            >
+                                        </div>
+                                    </div>
+                                {/if}
 
                                 <div
                                     class="mt-auto pt-2 flex items-center justify-between"
                                 >
                                     <span
-                                        class="font-bold text-gray-900 text-xs"
+                                        class="font-bold text-slate-100 text-xs"
                                     >
                                         {formatRupiah(product.price)}
                                     </span>
                                     <div class="flex items-center gap-1">
                                         {#if product.testimonials_count > 0}
                                             <div
-                                                class="flex items-center gap-0.5 bg-yellow-50 px-1.5 py-0.5 rounded text-[10px] font-bold text-gray-900"
+                                                class="flex items-center gap-0.5 bg-yellow-900/20 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-100"
                                             >
                                                 <i
                                                     class="fa-solid fa-star text-yellow-400"
@@ -611,7 +648,7 @@
                                         {/if}
                                         {#if product.total_sales > 0}
                                             <span
-                                                class="text-[10px] text-gray-400 font-medium"
+                                                class="text-[10px] text-slate-400 font-medium"
                                                 >Terjual {product.total_sales}</span
                                             >
                                         {/if}
@@ -624,7 +661,7 @@
                                             class="flex items-center justify-between w-full h-full px-1"
                                         >
                                             <button
-                                                class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-900 text-gray-900 focus:outline-none transition-colors active:bg-gray-100"
+                                                class="w-8 h-8 flex items-center justify-center rounded-full border border-slate-500 text-slate-100 focus:outline-none transition-colors active:bg-slate-700"
                                                 aria-label="Kurangi"
                                                 on:click={() =>
                                                     updateCartItemQuantity(
@@ -642,7 +679,7 @@
                                                     product.id
                                                 ]}
                                                 min="1"
-                                                class="text-sm font-bold text-gray-900 w-12 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                class="text-sm font-bold text-slate-100 w-12 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 aria-label="Jumlah"
                                                 on:input={(e) => {
                                                     // Allow typing, but don't update cart state immediately
@@ -675,7 +712,7 @@
                                                 }}
                                             />
                                             <button
-                                                class="w-8 h-8 flex items-center justify-center rounded-full border border-gray-900 text-gray-900 focus:outline-none transition-colors active:bg-gray-100"
+                                                class="w-8 h-8 flex items-center justify-center rounded-full border border-slate-500 text-slate-100 focus:outline-none transition-colors active:bg-slate-700"
                                                 aria-label="Tambah"
                                                 on:click={() =>
                                                     updateCartItemQuantity(
@@ -706,7 +743,7 @@
         {/each}
 
         {#if productsByCategory.length === 0}
-            <div class="py-12 text-center text-gray-500 text-sm">
+            <div class="py-12 text-center text-slate-400 text-sm">
                 Produk tidak ditemukan.
             </div>
         {/if}
@@ -789,19 +826,19 @@
         on:click={() => (showChefWarningModal = false)}
     >
         <div
-            class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+            class="bg-slate-950 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
             on:click|stopPropagation
         >
             <div class="p-6 text-center">
                 <div
-                    class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-600"
+                    class="w-16 h-16 bg-yellow-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-400"
                 >
                     <i class="fa-solid fa-kitchen-set text-2xl"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">
+                <h3 class="text-lg font-bold text-slate-100 mb-2">
                     Dapur Berbeda-beda
                 </h3>
-                <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+                <p class="text-sm text-slate-300 mb-6 leading-relaxed">
                     Produk yang kamu pilih berasal dari <strong
                         >{chefCount} dapur</strong
                     > yang berbeda. Hal ini akan menyebabkan biaya ongkir menjadi
@@ -810,7 +847,7 @@
 
                 <div class="flex flex-col gap-3">
                     <button
-                        class="w-full py-3 bg-[#FFD700] text-gray-900 font-bold rounded-xl active:scale-[0.98] transition-all"
+                        class="w-full py-3 bg-[#FFD700] text-slate-900 font-bold rounded-xl active:scale-[0.98] transition-all"
                         on:click={() => {
                             showChefWarningModal = false;
                             isCheckoutLoading = true;
@@ -832,7 +869,7 @@
                         Lanjutkan Checkout
                     </button>
                     <button
-                        class="w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-xl active:scale-[0.98] transition-all"
+                        class="w-full py-3 bg-slate-800 text-slate-300 font-bold rounded-xl active:scale-[0.98] transition-all"
                         on:click={() => (showChefWarningModal = false)}
                     >
                         Kembali

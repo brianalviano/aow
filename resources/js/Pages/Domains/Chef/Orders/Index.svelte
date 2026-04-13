@@ -251,13 +251,15 @@
     onConfirm={dialogState.onConfirm}
 />
 
-<div class="flex flex-col min-h-screen bg-gray-50 pb-20">
-    <header class="bg-white sticky top-0 z-30 shadow-sm">
+<div class="flex flex-col min-h-screen bg-slate-950 text-slate-100">
+    <header
+        class="bg-slate-950 border-b border-slate-800 sticky top-0 z-30 shadow-xl backdrop-blur-md"
+    >
         <div class="px-4 py-4 flex items-center gap-3">
             <div class="bg-[#FFD700] text-white p-1.5 rounded-lg">
                 <i class="fa-solid fa-clipboard-list"></i>
             </div>
-            <h1 class="text-lg font-bold text-gray-900 leading-none">
+            <h1 class="text-lg font-bold text-white leading-none">
                 Riwayat Pesanan
             </h1>
         </div>
@@ -266,14 +268,14 @@
         <div class="px-4 pb-4">
             <div class="relative">
                 <i
-                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"
                 ></i>
                 <input
                     type="text"
                     bind:value={search}
                     oninput={handleSearchInput}
                     placeholder="Cari nomor pesanan, produk, atau customer..."
-                    class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#FFD700]/20 focus:border-[#FFD700] transition-all"
+                    class="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FFD700]/20 focus:border-[#FFD700] transition-all"
                 />
             </div>
         </div>
@@ -284,8 +286,8 @@
                 <button
                     class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                     range
-                        ? 'bg-[#FFD700] border-[#FFD700] text-gray-900'
-                        : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                        ? 'bg-[#FFD700] border-[#FFD700] text-slate-900'
+                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}"
                     onclick={() => handleDateRangeChange(range)}
                 >
                     {range === "all" ? "Semua Waktu" : "Pilih Tanggal"}
@@ -311,7 +313,7 @@
                 </div>
                 <button
                     onclick={applyFilters}
-                    class="w-full mt-1 py-2 bg-[#FFD700] text-gray-900 rounded-xl text-sm font-bold hover:bg-[#FFC700] transition-all shadow-sm active:scale-[0.98]"
+                    class="w-full mt-1 py-2 bg-[#FFD700] text-slate-900 rounded-xl text-sm font-bold hover:bg-[#FFC700] transition-all shadow-sm active:scale-[0.98]"
                 >
                     Terapkan Rentang Tanggal
                 </button>
@@ -319,17 +321,25 @@
         {/if}
 
         <!-- Tabs -->
-        <div class="bg-white border-b border-gray-100">
+        <div class="bg-slate-950 border-b border-slate-800">
             <div class="flex overflow-x-auto hide-scrollbar scroll-smooth">
-                {#each tabs as tab}
+                {#each ["all", "pending", "accepted", "completed", "rejected"] as status}
                     <button
-                        class="shrink-0 px-3 py-3 text-sm font-medium transition-colors border-b-2 {activeTab ===
-                        tab.id
-                            ? 'border-[#FFD700] text-[#997A00]'
-                            : 'border-transparent text-gray-500 hover:text-gray-700'}"
-                        onclick={() => handleTabClick(tab.id)}
+                        class="shrink-0 px-4 py-3 text-sm font-medium transition-colors border-b-2 {activeTab ===
+                        status
+                            ? 'border-[#FFD700] text-[#FFD700]'
+                            : 'border-transparent text-slate-500 hover:text-slate-300'}"
+                        onclick={() => handleTabClick(status)}
                     >
-                        {tab.label}
+                        {status === "all"
+                            ? "Semua"
+                            : status === "pending"
+                              ? "Menunggu"
+                              : status === "accepted"
+                                ? "Diproses"
+                                : status === "completed"
+                                  ? "Selesai"
+                                  : "Ditolak"}
                     </button>
                 {/each}
             </div>
@@ -339,17 +349,17 @@
     <main class="flex-1 p-4 max-w-7xl mx-auto w-full">
         {#if groupedItems.length === 0}
             <div
-                class="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-sm"
+                class="bg-slate-950 rounded-2xl border border-slate-800 p-12 text-center shadow-sm"
             >
                 <div
-                    class="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                    class="bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
                 >
-                    <i class="fa-solid fa-box-open text-2xl text-gray-300"></i>
+                    <i class="fa-solid fa-box-open text-2xl text-slate-600"></i>
                 </div>
-                <h3 class="font-bold text-gray-900 mb-1">
+                <h3 class="font-bold text-slate-100 mb-1">
                     Pesanan tidak ditemukan
                 </h3>
-                <p class="text-gray-500">
+                <p class="text-slate-400">
                     Tidak ada pesanan yang sesuai dengan filter Anda.
                 </p>
             </div>

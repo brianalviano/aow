@@ -295,24 +295,24 @@
     />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 flex flex-col">
+<div class="min-h-screen bg-slate-950 flex flex-col">
     <!-- Header -->
     <header
-        class="bg-white border-b border-gray-100 p-4 sticky top-0 z-30 flex items-center justify-between"
+        class="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-30 flex items-center justify-between"
     >
         <div class="flex items-center gap-3">
             <Link
                 href="/"
-                class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors"
+                class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
                 aria-label="Kembali ke Beranda"
             >
                 <i class="fa-solid fa-arrow-left"></i>
             </Link>
             <div>
-                <h1 class="font-bold text-gray-900 text-lg leading-tight">
+                <h1 class="font-bold text-slate-100 text-lg leading-tight">
                     Alamat Pengiriman
                 </h1>
-                <p class="text-xs text-gray-500">Isi detail alamat Anda</p>
+                <p class="text-xs text-slate-400">Isi detail alamat Anda</p>
             </div>
         </div>
     </header>
@@ -322,12 +322,12 @@
         {#if isAuthenticated && savedAddresses.length > 0}
             <div class="space-y-4 mb-3">
                 <div class="flex items-center justify-between">
-                    <h2 class="font-bold text-gray-900">Alamat Tersimpan</h2>
+                    <h2 class="font-bold text-slate-100">Alamat Tersimpan</h2>
                     {#if editingId}
                         <button
                             type="button"
                             onclick={resetForm}
-                            class="text-xs font-bold text-blue-600 hover:text-blue-700"
+                            class="text-xs font-bold text-[#FFD700] hover:text-yellow-300"
                         >
                             <i class="fa-solid fa-plus mr-1"></i> Tambah Baru
                         </button>
@@ -337,17 +337,19 @@
                 <div class="grid grid-cols-1 gap-3">
                     {#each savedAddresses as address}
                         <div
-                            class="bg-white p-4 rounded-2xl border {editingId ===
+                            class="bg-slate-950 p-4 rounded-2xl border {editingId ===
                             address.id
                                 ? 'border-[#FFD700] ring-1 ring-[#FFD700]'
-                                : 'border-gray-100'} shadow-sm relative group"
+                                : 'border-slate-800'} shadow-sm relative group"
                         >
                             <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <h3 class="font-bold text-gray-900 text-sm">
+                                    <h3
+                                        class="font-bold text-slate-100 text-sm"
+                                    >
                                         {address.name}
                                     </h3>
-                                    <p class="text-xs text-gray-500">
+                                    <p class="text-xs text-slate-400">
                                         {address.phone}
                                     </p>
                                 </div>
@@ -356,7 +358,7 @@
                                         type="button"
                                         onclick={() =>
                                             handleEditAddress(address)}
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 hover:bg-blue-900/30 hover:text-blue-400 transition-colors"
                                         title="Edit Alamat"
                                     >
                                         <i
@@ -367,7 +369,7 @@
                                         type="button"
                                         onclick={() =>
                                             handleDeleteAddress(address)}
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 text-slate-400 hover:bg-red-900/30 hover:text-red-400 transition-colors"
                                         title="Hapus Alamat"
                                     >
                                         <i class="fa-solid fa-trash-can text-xs"
@@ -375,7 +377,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-600 line-clamp-2 mb-3">
+                            <p class="text-xs text-slate-300 line-clamp-2 mb-3">
                                 {address.address}
                             </p>
                             <button
@@ -383,8 +385,8 @@
                                 onclick={() => handleSelectAddress(address)}
                                 class="w-full py-2 px-4 rounded-xl text-xs font-bold transition-all {editingId ===
                                 address.id
-                                    ? 'bg-gray-100 text-gray-400 cursor-default'
-                                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}"
+                                    ? 'bg-slate-700 text-slate-500 cursor-default'
+                                    : 'bg-yellow-900/20 text-[#FFD700] hover:bg-yellow-900/30'}"
                                 disabled={editingId === address.id}
                             >
                                 {editingId === address.id
@@ -399,16 +401,16 @@
 
         <form
             onsubmit={submit}
-            class="space-y-5 bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
+            class="space-y-5 bg-slate-950 p-6 rounded-2xl shadow-sm border border-slate-800"
         >
             <!-- Registration Section for Guests -->
             {#if !isAuthenticated && !editingId}
-                <div class="space-y-5 pb-6 border-b border-gray-100">
+                <div class="space-y-5 pb-6 border-b border-slate-800">
                     <div class="mb-4">
-                        <h2 class="text-lg font-bold text-gray-900">
+                        <h2 class="text-lg font-bold text-slate-100">
                             Buat Akun Baru
                         </h2>
-                        <p class="text-xs text-gray-500 mt-1">
+                        <p class="text-xs text-slate-400 mt-1">
                             Lengkapi data di bawah ini untuk mendaftarkan akun
                             Anda.
                         </p>
@@ -474,10 +476,10 @@
 
             <div>
                 <div class="mb-4">
-                    <h2 class="text-lg font-bold text-gray-900">
+                    <h2 class="text-lg font-bold text-slate-100">
                         {editingId ? "Edit Alamat" : "Tambah Alamat Baru"}
                     </h2>
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-slate-400">
                         {editingId
                             ? "Perbarui detail alamat pengiriman Anda"
                             : "Isi detail alamat pengiriman baru"}
@@ -486,7 +488,7 @@
                 <div class="flex items-center justify-between mb-1">
                     <label
                         for="name"
-                        class="block text-sm font-medium text-gray-700"
+                        class="block text-sm font-medium text-slate-300"
                     >
                         Nama Penerima <span class="text-red-500">*</span>
                     </label>
@@ -494,7 +496,7 @@
                         <button
                             type="button"
                             onclick={useAccountName}
-                            class="text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded-lg"
+                            class="text-xs font-bold text-[#FFD700] hover:text-yellow-300 bg-yellow-900/20 px-2 py-1 rounded-lg"
                         >
                             Gunakan Nama Akun
                         </button>
@@ -515,7 +517,7 @@
                 <div class="flex items-center justify-between mb-1">
                     <label
                         for="phone"
-                        class="block text-sm font-medium text-gray-700"
+                        class="block text-sm font-medium text-slate-300"
                     >
                         Nomor Telepon/WhatsApp <span class="text-red-500"
                             >*</span
@@ -525,7 +527,7 @@
                         <button
                             type="button"
                             onclick={useAccountPhone}
-                            class="text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded-lg"
+                            class="text-xs font-bold text-[#FFD700] hover:text-yellow-300 bg-yellow-900/20 px-2 py-1 rounded-lg"
                         >
                             Gunakan Nomor HP
                         </button>
@@ -547,7 +549,7 @@
                 <div class="flex items-center justify-between mb-1">
                     <label
                         for="address"
-                        class="block text-sm font-medium text-gray-700"
+                        class="block text-sm font-medium text-slate-300"
                     >
                         Alamat Lengkap <span class="text-red-500">*</span>
                     </label>
@@ -555,7 +557,7 @@
                         type="button"
                         onclick={getCurrentLocation}
                         disabled={isLocating}
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#0060B2] bg-blue-50 hover:bg-blue-100 transition-colors disabled:opacity-50"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#FFD700] bg-yellow-900/20 hover:bg-yellow-900/30 transition-colors disabled:opacity-50"
                     >
                         {#if isLocating}
                             <i class="fa-solid fa-spinner fa-spin"></i> Mencari...
@@ -578,24 +580,24 @@
                 />
                 {#if searchLocationResults.length > 0}
                     <ul
-                        class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto"
+                        class="absolute z-20 w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-lg max-h-60 overflow-auto"
                     >
                         {#each searchLocationResults as result}
                             <li>
                                 <button
                                     type="button"
-                                    class="w-full text-left px-4 py-3 hover:bg-gray-50 focus:outline-none border-b border-gray-50 last:border-0 transition-colors"
+                                    class="w-full text-left px-4 py-3 hover:bg-slate-700 focus:outline-none border-b border-slate-700 last:border-0 transition-colors"
                                     onclick={() => selectLocation(result)}
                                 >
                                     <div
-                                        class="text-sm font-bold text-gray-900"
+                                        class="text-sm font-bold text-slate-100"
                                     >
                                         {result.poi
                                             ? result.poi.name
                                             : result.address.streetName ||
                                               result.address.freeformAddress}
                                     </div>
-                                    <div class="text-xs text-gray-500 mt-0.5">
+                                    <div class="text-xs text-slate-400 mt-0.5">
                                         {result.address.freeformAddress}
                                     </div>
                                 </button>
@@ -616,18 +618,18 @@
             />
 
             <!-- Map Section -->
-            <div class="space-y-3 pt-4 border-t border-gray-100">
-                <span class="block text-sm font-semibold text-gray-700">
+            <div class="space-y-3 pt-4 border-t border-slate-800">
+                <span class="block text-sm font-semibold text-slate-300">
                     Titik Lokasi Pengiriman <span class="text-red-500">*</span>
                 </span>
-                <p class="text-xs text-gray-500">
+                <p class="text-xs text-slate-400">
                     Geser pin atau klik peta untuk menentukan titik pengiriman
                     yang akurat. Ketik alamat di atas untuk mencari koordinat
                     otomatis.
                 </p>
 
                 <div
-                    class="w-full h-64 rounded-2xl overflow-hidden border border-gray-200 bg-gray-100"
+                    class="w-full h-64 rounded-2xl overflow-hidden border border-slate-700 bg-slate-800"
                     bind:this={mapContainer}
                 ></div>
             </div>

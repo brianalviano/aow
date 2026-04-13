@@ -194,45 +194,64 @@
 </script>
 
 <div
-    class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+    class="bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden hover:border-[#FFD700]/30 transition-all duration-300"
 >
     <!-- Header -->
-    <div class="bg-gray-50/50 p-4 border-b border-gray-100">
-        <div class="flex flex-wrap justify-between items-center gap-3">
+    <div class="bg-slate-950/50 p-6 border-b border-slate-800">
+        <div class="flex flex-wrap justify-between items-center gap-4">
             <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <Badge variant="info" size="sm" outlined
+                <div class="flex items-center gap-3 mb-2">
+                    <Badge
+                        variant="primary"
+                        size="sm"
+                        class="bg-[#FFD700] text-slate-900 font-black border-none"
                         >{order.number}</Badge
                     >
                     {#if isPreOrder()}
-                        <Badge variant="warning" size="sm">Pre-Order</Badge>
+                        <Badge
+                            variant="warning"
+                            size="sm"
+                            class="bg-amber-900/20 text-amber-400 border border-amber-500/20 font-black uppercase tracking-widest text-[10px]"
+                            >Pre-Order</Badge
+                        >
                     {:else}
-                        <Badge variant="primary" size="sm">Instant</Badge>
+                        <Badge
+                            variant="primary"
+                            size="sm"
+                            class="bg-blue-900/20 text-blue-400 border border-blue-500/20 font-black uppercase tracking-widest text-[10px]"
+                            >Instant</Badge
+                        >
                     {/if}
                 </div>
-                <p class="text-sm font-medium text-gray-900">
+                <p class="text-base font-black text-slate-100">
                     {order.customer?.name}
                     {#if order.customer?.phone}
-                        <span class="text-gray-400 mx-1">•</span>
-                        <span class="text-gray-500 font-normal"
+                        <span class="text-slate-600 mx-2">•</span>
+                        <span class="text-slate-400 font-medium"
                             >{order.customer.phone}</span
                         >
                     {/if}
                 </p>
             </div>
-            <div>
-                <span class="text-xs text-gray-400 block mb-0.5"
+            <div class="text-right">
+                <span
+                    class="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] block mb-1"
                     >Pengiriman</span
                 >
-                <span class="text-sm font-semibold text-gray-900">
+                <span class="text-sm font-bold text-slate-200">
                     {dayjs(order.delivery_date).format("D MMM YYYY")}
                     {#if order.delivery_time}
-                        {order.delivery_time.includes("T")
-                            ? new Date(order.delivery_time).toLocaleTimeString(
-                                  "id-ID",
-                                  { hour: "2-digit", minute: "2-digit" },
-                              )
-                            : order.delivery_time.substring(0, 5)}
+                        <span class="text-slate-600 mx-1">•</span>
+                        <span class="text-[#FFD700] font-black">
+                            {order.delivery_time.includes("T")
+                                ? new Date(
+                                      order.delivery_time,
+                                  ).toLocaleTimeString("id-ID", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                  })
+                                : order.delivery_time.substring(0, 5)} WIB
+                        </span>
                     {/if}
                 </span>
             </div>
@@ -241,23 +260,23 @@
 
     <!-- Destination Info -->
     {#if destination && (tab === "at_pickup" || tab === "on_delivery" || tab === "completed")}
-        <div class="bg-emerald-50/50 px-4 py-3 border-b border-emerald-100">
-            <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="bg-emerald-900/10 px-6 py-4 border-b border-emerald-900/20">
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <div class="flex items-center gap-2 mb-0.5">
+                    <div class="flex items-center gap-2 mb-1">
                         <i
-                            class="fa-solid fa-location-dot text-emerald-500 text-sm"
+                            class="fa-solid fa-location-dot text-emerald-400 text-sm"
                         ></i>
                         <span
-                            class="text-xs font-bold text-emerald-600 uppercase"
+                            class="text-[10px] font-black text-emerald-400 uppercase tracking-widest"
                             >Tujuan Pengiriman</span
                         >
                     </div>
-                    <p class="text-sm font-semibold text-gray-900">
+                    <p class="text-base font-black text-slate-100">
                         {destination.label}
                     </p>
                     {#if destination.address}
-                        <p class="text-xs text-gray-500 mt-0.5">
+                        <p class="text-xs text-slate-500 mt-1">
                             {destination.address}
                         </p>
                     {/if}
@@ -266,7 +285,7 @@
                     <button
                         onclick={() =>
                             openGoogleMaps(destination.lat, destination.lng)}
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 transition-colors"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-xs font-black rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
                     >
                         <i class="fa-solid fa-map-location-dot"></i>
                         Google Maps
@@ -278,24 +297,32 @@
 
     <!-- Tracking Info -->
     {#if (tab === "on_delivery" || tab === "completed") && trackingUrl}
-        <div class="bg-violet-50/50 px-4 py-3 border-b border-violet-100">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-truck-fast text-violet-500"></i>
-                    <span class="text-sm font-medium text-violet-700">
-                        {order.shippings?.[0]?.courier_company ?? "Kurir"}
-                    </span>
-                    {#if order.shippings?.[0]?.biteship_status}
-                        <Badge variant="info" size="sm"
-                            >{order.shippings[0].biteship_status}</Badge
-                        >
-                    {/if}
+        <div class="bg-violet-900/10 px-6 py-4 border-b border-violet-900/20">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 bg-violet-900/20 text-violet-400 rounded-xl flex items-center justify-center"
+                    >
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div>
+                        <span class="text-sm font-black text-slate-100 block">
+                            {order.shippings?.[0]?.courier_company ?? "Kurir"}
+                        </span>
+                        {#if order.shippings?.[0]?.biteship_status}
+                            <span
+                                class="text-[10px] font-black text-violet-400 uppercase tracking-widest"
+                            >
+                                {order.shippings[0].biteship_status}
+                            </span>
+                        {/if}
+                    </div>
                 </div>
                 <a
                     href={trackingUrl}
                     target="_blank"
                     rel="noopener"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-600 text-white text-xs font-medium rounded-lg hover:bg-violet-700 transition-colors"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white text-xs font-black rounded-xl hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/20"
                 >
                     <i class="fa-solid fa-external-link-alt"></i>
                     Lacak Pengiriman
@@ -305,37 +332,40 @@
     {/if}
 
     <!-- Items -->
-    <div class="divide-y divide-gray-100">
+    <div class="divide-y divide-slate-800">
         {#each order.items ?? [] as item}
-            <div class="p-4 flex items-center gap-4">
+            <div
+                class="p-6 flex items-center gap-6 hover:bg-slate-800/20 transition-colors"
+            >
                 {#if item.product?.image}
                     <img
                         src={item.product.image}
                         alt={item.product.name}
-                        class="w-12 h-12 rounded-lg object-cover border border-gray-100"
+                        class="w-16 h-16 rounded-2xl object-cover border border-slate-800 shadow-xl"
                     />
                 {:else}
                     <div
-                        class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-100"
+                        class="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center border border-slate-700"
                     >
-                        <i class="fa-solid fa-bowl-food text-gray-300"></i>
+                        <i class="fa-solid fa-bowl-food text-slate-600 text-xl"
+                        ></i>
                     </div>
                 {/if}
                 <div class="flex-1 min-w-0">
-                    <h4 class="font-semibold text-gray-900 text-sm truncate">
+                    <h4 class="font-black text-slate-100 text-base truncate">
                         {item.product?.name}
                     </h4>
-                    <p class="text-xs text-gray-500">
-                        Jumlah: <span class="font-semibold"
+                    <p class="text-xs text-slate-500 mt-1">
+                        Jumlah: <span class="font-black text-[#FFD700]"
                             >{item.quantity}x</span
                         >
                     </p>
                     {#if item.note}
                         <p
-                            class="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded mt-1 inline-block"
+                            class="text-[10px] font-black tracking-wider uppercase text-[#FFD700] bg-[#FFD700]/10 px-3 py-1 rounded-full mt-3 inline-flex items-center gap-2 border border-[#FFD700]/20"
                         >
-                            <i class="fa-solid fa-comment-dots mr-1"
-                            ></i>{item.note}
+                            <i class="fa-solid fa-comment-dots"></i>
+                            {item.note}
                         </p>
                     {/if}
                 </div>
@@ -345,15 +375,16 @@
 
     <!-- Actions -->
     <div
-        class="p-4 border-t border-gray-100 bg-gray-50/30 flex flex-wrap gap-2 justify-end"
+        class="p-6 border-t border-slate-800 bg-slate-950/50 flex flex-wrap gap-3 justify-end"
     >
         {#if tab === "incoming"}
             <Button
                 variant="success"
-                size="sm"
+                size="lg"
                 icon="fa-solid fa-check-circle"
                 disabled={isProcessing}
                 onclick={confirmApprove}
+                class="rounded-2xl font-black bg-emerald-600 hover:bg-emerald-700 text-white"
             >
                 Konfirmasi Sampai
             </Button>
@@ -361,20 +392,22 @@
             {#if isPreOrder()}
                 <Button
                     variant="primary"
-                    size="sm"
+                    size="lg"
                     icon="fa-solid fa-truck"
                     disabled={isProcessing}
                     onclick={confirmSend}
+                    class="rounded-2xl font-black bg-blue-600 hover:bg-blue-700 text-white"
                 >
                     Kirim ke Drop Point
                 </Button>
             {:else}
                 <Button
                     variant="primary"
-                    size="sm"
+                    size="lg"
                     icon="fa-solid fa-motorcycle"
                     disabled={isProcessing}
                     onclick={confirmSend}
+                    class="rounded-2xl font-black bg-blue-600 hover:bg-blue-700 text-white"
                 >
                     Pesan Kurir (Grab/Gojek)
                 </Button>
@@ -383,16 +416,21 @@
             {#if isPreOrder()}
                 <Button
                     variant="success"
-                    size="sm"
+                    size="lg"
                     icon="fa-solid fa-circle-check"
                     disabled={isProcessing}
                     onclick={confirmComplete}
+                    class="rounded-2xl font-black bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
                     Tandai Selesai
                 </Button>
             {:else}
-                <Badge variant="info" size="sm">
-                    <i class="fa-solid fa-clock mr-1"></i>
+                <Badge
+                    variant="info"
+                    size="lg"
+                    class="rounded-full bg-blue-900/20 text-blue-400 border border-blue-500/20 font-black px-6 py-2"
+                >
+                    <i class="fa-solid fa-clock mr-2"></i>
                     Menunggu Konfirmasi Kurir
                 </Badge>
             {/if}

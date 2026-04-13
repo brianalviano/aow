@@ -32,16 +32,23 @@
     <title>Chef Login | {appName($page.props.settings)}</title>
 </svelte:head>
 
-<div class="flex flex-col min-h-screen p-4">
-    <div class="mb-8 pt-10 text-center">
-        <h2 class="text-3xl font-extrabold text-gray-900">Chef Portal</h2>
-        <p class="mt-2 text-sm text-gray-600">
+<div class="flex flex-col min-h-screen p-6 bg-slate-950 text-slate-100">
+    <div class="mb-10 pt-12 text-center">
+        <div
+            class="inline-flex items-center justify-center w-20 h-20 bg-slate-950 rounded-4xl mb-6 shadow-2xl border border-slate-800"
+        >
+            <i class="fa-solid fa-utensils text-[#FFD700] text-3xl"></i>
+        </div>
+        <h2 class="text-4xl font-black text-slate-100 tracking-tight">
+            Chef Portal
+        </h2>
+        <p class="mt-3 text-slate-400 font-medium">
             Silahkan masuk ke akun Chef Anda
         </p>
     </div>
 
-    <div class="flex-1">
-        <form class="space-y-6" onsubmit={handleSubmit}>
+    <div class="flex-1 max-w-sm mx-auto w-full">
+        <form class="space-y-8" onsubmit={handleSubmit}>
             <TextInput
                 id="login"
                 name="login"
@@ -78,15 +85,16 @@
                 />
             </div>
 
-            <div>
+            <div class="pt-2">
                 <Button
                     type="submit"
                     variant="primary"
-                    size="normal"
+                    size="lg"
                     fullWidth={true}
                     disabled={$form.processing}
                     loading={$form.processing}
                     icon="fa-solid fa-right-to-bracket"
+                    class="bg-[#FFD700] text-slate-900 hover:bg-[#FFC700] font-black shadow-lg shadow-[#FFD700]/10"
                 >
                     Masuk
                 </Button>
@@ -94,8 +102,8 @@
         </form>
     </div>
 
-    <footer class="mt-auto py-6 text-center">
-        <p class="text-xs text-gray-400">
+    <footer class="mt-auto py-8 text-center border-t border-slate-900">
+        <p class="text-xs text-slate-500 font-bold tracking-widest uppercase">
             &copy; {currentYear}
             {appName($page.props.settings)}
         </p>

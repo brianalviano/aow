@@ -69,38 +69,42 @@
     <title>{APP_NAME}</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
     <!-- Header -->
     <header
-        class="flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 z-10"
+        class="flex items-center justify-between p-4 bg-[#FFD700] sticky top-0 z-10 shadow-sm"
     >
         <div class="flex items-center gap-3">
-            <div>
+            <div
+                class="bg-white/40 p-1.5 rounded-xl flex items-center justify-center shadow-inner"
+            >
                 <img
                     src={icon}
                     alt="Logo Utama"
                     loading="lazy"
-                    class="object-contain rounded-lg size-8"
+                    class="object-contain size-7"
                 />
             </div>
             <div>
-                <h1 class="font-bold text-lg leading-tight">
+                <h1 class="font-bold text-lg leading-tight text-slate-900">
                     {APP_NAME}
                 </h1>
-                <p class="text-xs text-gray-500">
+                <p
+                    class="text-[10px] text-slate-800/70 font-medium uppercase tracking-tight"
+                >
                     The Best Choice For Your Food
                 </p>
             </div>
         </div>
         <Link
             href="/menu"
-            class="relative text-gray-800 p-2 focus:outline-none"
+            class="relative text-slate-900 p-2 focus:outline-none hover:bg-black/5 rounded-full transition-colors"
             aria-label="Menu"
         >
             <i class="fa-solid fa-bars text-xl"></i>
             {#if totalBadgeCount > 0}
                 <span
-                    class="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white"
+                    class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white ring-2 ring-[#FFD700]"
                 >
                     {totalBadgeCount > 99 ? "99+" : totalBadgeCount}
                 </span>
@@ -109,10 +113,13 @@
     </header>
 
     <!-- Main Content -->
-    <main class="py-4 flex flex-col items-center justify-center space-y-6">
+    <main class="pb-4 flex flex-col items-center justify-center space-y-6">
         <!-- Promotional Section -->
         {#if displayItems.length > 0}
-            <section class="w-full overflow-hidden pb-4">
+            <section class="w-full overflow-hidden py-8 shadow-inner relative">
+                <div
+                    class="absolute inset-0 bg-linear-to-b from-black/40 to-transparent pointer-events-none"
+                ></div>
                 <swiper-container
                     bind:this={swiperEl}
                     init="false"
@@ -152,10 +159,10 @@
         {/if}
 
         <div class="px-4 text-center space-y-2 mb-4">
-            <h2 class="text-2xl font-black text-gray-900 leading-tight">
+            <h2 class="text-2xl font-black text-slate-100 leading-tight">
                 Mau Pesan Ke Mana?
             </h2>
-            <p class="text-gray-500 text-sm">
+            <p class="text-slate-400 text-sm">
                 Silakan pilih opsi pengiriman Anda
             </p>
         </div>
@@ -171,7 +178,7 @@
             >
                 <div class="flex items-center gap-4">
                     <div
-                        class="bg-white/50 w-14 h-14 rounded-xl flex items-center justify-center text-slate-800 text-2xl shadow-inner"
+                        class="bg-black/20 w-14 h-14 rounded-xl flex items-center justify-center text-slate-900 text-2xl shadow-inner"
                     >
                         {#if loadingTarget === "drop-points"}
                             <i class="fa-solid fa-spinner fa-spin"></i>
@@ -185,12 +192,12 @@
                         >
                             Pilih Drop Point
                         </h3>
-                        <p class="text-slate-700 text-xs mt-1">
+                        <p class="text-slate-800 text-xs mt-1">
                             Tersedia di lokasi terdekat Anda
                         </p>
                     </div>
                     <i
-                        class="fa-solid fa-chevron-right text-slate-500 group-hover:translate-x-1 transition-transform"
+                        class="fa-solid fa-chevron-right text-slate-700 group-hover:translate-x-1 transition-transform"
                     ></i>
                 </div>
             </Link>
@@ -198,18 +205,18 @@
             <!-- Option 2: Use Other Address -->
             <Link
                 href="/custom-address"
-                class="group block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-[#FFD700] transition-all transform active:scale-[0.98] {loadingTarget !==
+                class="group block bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-700 hover:border-[#FFD700] transition-all transform active:scale-[0.98] {loadingTarget !==
                 null
                     ? 'opacity-75 pointer-events-none'
                     : ''}"
             >
                 <div class="flex items-center gap-4">
                     <div
-                        class="bg-gray-50 w-14 h-14 rounded-xl flex items-center justify-center text-gray-600 text-2xl group-hover:bg-[#FFD700] group-hover:text-slate-800 transition-colors"
+                        class="bg-slate-700 w-14 h-14 rounded-xl flex items-center justify-center text-slate-300 text-2xl group-hover:bg-[#FFD700] group-hover:text-slate-900 transition-colors"
                     >
                         {#if loadingTarget === "custom-address"}
                             <i
-                                class="fa-solid fa-spinner fa-spin text-slate-800"
+                                class="fa-solid fa-spinner fa-spin text-slate-900"
                             ></i>
                         {:else}
                             <i class="fa-solid fa-map-location-dot"></i>
@@ -217,16 +224,16 @@
                     </div>
                     <div class="flex-1">
                         <h3
-                            class="font-bold text-gray-800 text-lg leading-tight group-hover:text-slate-900 transition-colors"
+                            class="font-bold text-slate-100 text-lg leading-tight group-hover:text-white transition-colors"
                         >
                             Gunakan Alamat Lain
                         </h3>
-                        <p class="text-gray-500 text-xs mt-1">
+                        <p class="text-slate-400 text-xs mt-1">
                             Pesan dari lokasi Anda saat ini
                         </p>
                     </div>
                     <i
-                        class="fa-solid fa-chevron-right text-gray-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all"
+                        class="fa-solid fa-chevron-right text-slate-500 group-hover:text-slate-900 group-hover:translate-x-1 transition-all"
                     ></i>
                 </div>
             </Link>

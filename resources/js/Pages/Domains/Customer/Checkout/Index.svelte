@@ -381,15 +381,15 @@
 
 <div>
     <!-- Header -->
-    <header class="flex items-center p-4 bg-white sticky top-0 z-30">
+    <header class="flex items-center p-4 bg-slate-950 sticky top-0 z-30">
         <button
             onclick={goBack}
-            class="w-10 h-10 flex items-center justify-center text-gray-900"
+            class="w-10 h-10 flex items-center justify-center text-slate-100"
             aria-label="Kembali"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </button>
-        <h1 class="flex-1 text-center font-bold text-xl text-gray-900 mr-10">
+        <h1 class="flex-1 text-center font-bold text-xl text-slate-100 mr-10">
             Ringkasan Pesanan
         </h1>
     </header>
@@ -402,23 +402,23 @@
             </div>
             <div>
                 {#if dropPoint}
-                    <h3 class="font-bold text-gray-900 text-base">
+                    <h3 class="font-bold text-slate-100 text-base">
                         {dropPoint.name}
                     </h3>
-                    <p class="text-gray-500 text-xs leading-relaxed">
+                    <p class="text-slate-400 text-xs leading-relaxed">
                         {dropPoint.address}
                     </p>
                 {:else if address}
-                    <h3 class="font-bold text-gray-900 text-base">
+                    <h3 class="font-bold text-slate-100 text-base">
                         {address.name}
-                        <span class="text-xs font-normal text-gray-500"
+                        <span class="text-xs font-normal text-slate-400"
                             >({address.phone})</span
                         >
                     </h3>
-                    <p class="text-gray-500 text-xs leading-relaxed">
+                    <p class="text-slate-400 text-xs leading-relaxed">
                         {address.address}
                         {#if address.note}
-                            <br /><span class="italic text-gray-400"
+                            <br /><span class="italic text-slate-500"
                                 >Catatan: {address.note}</span
                             >
                         {/if}
@@ -430,23 +430,23 @@
         {#if orderType === "preorder" && quotaProgress && quotaProgress.has_quota}
             <!-- PO Quota Section -->
             <section
-                class="bg-blue-50/50 p-4 rounded-xl border border-blue-100"
+                class="bg-blue-900/20 p-4 rounded-xl border border-blue-800"
             >
                 <div class="flex items-center justify-between mb-2">
                     <h3
-                        class="font-bold text-gray-900 text-sm flex items-center gap-1.5"
+                        class="font-bold text-slate-100 text-sm flex items-center gap-1.5"
                     >
-                        <i class="fa-solid fa-users text-blue-500"></i>
+                        <i class="fa-solid fa-users text-[#FFD700]"></i>
                         Kuota PO Drop Point
                     </h3>
                     {#if quotaProgress.is_fulfilled}
                         <span
-                            class="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full"
+                            class="text-[10px] font-bold text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full"
                             >TERPENUHI</span
                         >
                     {:else}
                         <span
-                            class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full"
+                            class="text-[10px] font-bold text-[#FFD700] bg-yellow-900/20 px-2 py-0.5 rounded-full"
                             >BELUM TERPENUHI</span
                         >
                     {/if}
@@ -456,16 +456,17 @@
                     {#if quotaProgress.min_qty}
                         <div>
                             <div class="flex justify-between text-xs mb-1">
-                                <span class="text-gray-600">Target Pesanan</span
+                                <span class="text-slate-300"
+                                    >Target Pesanan</span
                                 >
-                                <span class="font-medium text-gray-900"
+                                <span class="font-medium text-slate-100"
                                     >{quotaProgress.current_qty} / {quotaProgress.min_qty}
                                     porsi</span
                                 >
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-1.5">
+                            <div class="w-full bg-slate-700 rounded-full h-1.5">
                                 <div
-                                    class="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
+                                    class="bg-[#FFD700] h-1.5 rounded-full transition-all duration-500"
                                     style="width: {Math.min(
                                         100,
                                         (quotaProgress.current_qty /
@@ -480,10 +481,10 @@
                     {#if quotaProgress.min_amount}
                         <div>
                             <div class="flex justify-between text-xs mb-1">
-                                <span class="text-gray-600"
+                                <span class="text-slate-300"
                                     >Target Transaksi</span
                                 >
-                                <span class="font-medium text-gray-900"
+                                <span class="font-medium text-slate-100"
                                     >{formatRupiah(
                                         quotaProgress.current_amount,
                                     )} / {formatRupiah(
@@ -491,9 +492,9 @@
                                     )}</span
                                 >
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-1.5">
+                            <div class="w-full bg-slate-700 rounded-full h-1.5">
                                 <div
-                                    class="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
+                                    class="bg-[#FFD700] h-1.5 rounded-full transition-all duration-500"
                                     style="width: {Math.min(
                                         100,
                                         (quotaProgress.current_amount /
@@ -508,7 +509,7 @@
 
                 {#if !quotaProgress.is_fulfilled}
                     <div
-                        class="mt-3 text-[11px] text-blue-800 bg-blue-100/50 p-2.5 rounded-lg border border-blue-200 flex gap-2"
+                        class="mt-3 text-[11px] text-blue-300 bg-blue-900/30 p-2.5 rounded-lg border border-blue-800 flex gap-2"
                     >
                         <i class="fa-solid fa-circle-info mt-0.5"></i>
                         <p class="leading-relaxed">
@@ -531,17 +532,17 @@
             </div>
             <div class="flex-1">
                 <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-gray-900 text-base">
+                    <h3 class="font-bold text-slate-100 text-base">
                         Tanggal Pengiriman
                     </h3>
                     <button
-                        class="text-[#2196f3] text-xs font-semibold"
+                        class="text-[#FFD700] text-xs font-semibold"
                         onclick={() => (showScheduleModal = true)}
                     >
                         {deliveryDateIso ? "Ubah" : "Pilih"}
                     </button>
                 </div>
-                <p class="text-gray-500 text-xs leading-relaxed">
+                <p class="text-slate-400 text-xs leading-relaxed">
                     {#if deliveryDateIso && deliveryTime}
                         {deliveryDateStr}
                         {deliveryTime} WIB
@@ -554,12 +555,12 @@
 
         <!-- Products Section -->
         <section>
-            <h2 class="font-bold text-gray-900 text-lg mb-4">Menu Terkait</h2>
+            <h2 class="font-bold text-slate-100 text-lg mb-4">Menu Terkait</h2>
             <div class="space-y-6">
                 {#each items as item}
                     <div class="flex gap-4">
                         <div
-                            class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-gray-100"
+                            class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-slate-800"
                         >
                             {#if item.product.image_url}
                                 <img
@@ -569,7 +570,7 @@
                                 />
                             {:else}
                                 <div
-                                    class="w-full h-full flex items-center justify-center text-gray-300"
+                                    class="w-full h-full flex items-center justify-center text-slate-600"
                                 >
                                     <i class="fa-solid fa-image text-2xl"></i>
                                 </div>
@@ -577,12 +578,12 @@
                         </div>
                         <div class="flex-1 relative">
                             <h3
-                                class="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 pr-12"
+                                class="font-semibold text-slate-100 text-sm leading-snug line-clamp-2 pr-12"
                             >
                                 {item.product.name}
                             </h3>
                             <button
-                                class="absolute top-0 right-0 text-[#2196f3] text-xs font-semibold"
+                                class="absolute top-0 right-0 text-[#FFD700] text-xs font-semibold"
                                 onclick={() => handleEditClick(item, item._key)}
                                 >Ubah</button
                             >
@@ -590,7 +591,7 @@
                             <div class="mt-1 space-y-0.5">
                                 {#each getSelectedOptionsLabels(item) as label}
                                     <p
-                                        class="text-gray-500 text-[10px] leading-tight flex items-start gap-1"
+                                        class="text-slate-400 text-[10px] leading-tight flex items-start gap-1"
                                     >
                                         <span class="text-[#FFD700]">•</span>
                                         {label}
@@ -598,7 +599,7 @@
                                 {/each}
                                 {#if item.notes}
                                     <p
-                                        class="text-gray-400 text-[10px] italic leading-tight mt-1"
+                                        class="text-slate-500 text-[10px] italic leading-tight mt-1"
                                     >
                                         Catatan: {item.notes}
                                     </p>
@@ -611,7 +612,7 @@
                                 >
                                 <div class="flex items-center gap-3">
                                     <button
-                                        class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 bg-gray-50 active:bg-gray-100 transition-colors"
+                                        class="w-7 h-7 rounded-full border border-slate-600 flex items-center justify-center text-slate-300 bg-slate-800 active:bg-slate-700 transition-colors"
                                         aria-label="Kurangi"
                                         onclick={() =>
                                             updateQuantity(item._key, -1)}
@@ -623,7 +624,7 @@
                                         type="number"
                                         value={item.quantity}
                                         min="1"
-                                        class="font-bold text-sm w-10 text-center bg-transparent border-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        class="font-bold text-sm w-10 text-center bg-transparent border-none focus:ring-0 p-0 text-slate-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         aria-label="Jumlah"
                                         oninput={(e) => {
                                             // Allow typing, but don't update cart state immediately
@@ -644,7 +645,7 @@
                                         }}
                                     />
                                     <button
-                                        class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 bg-gray-50 active:bg-gray-100 transition-colors"
+                                        class="w-7 h-7 rounded-full border border-slate-600 flex items-center justify-center text-slate-300 bg-slate-800 active:bg-slate-700 transition-colors"
                                         aria-label="Tambah"
                                         onclick={() =>
                                             updateQuantity(item._key, 1)}
@@ -661,10 +662,10 @@
         </section>
 
         <!-- Divider -->
-        <div class="border-t border-gray-100 pt-4"></div>
+        <div class="border-t border-slate-800 pt-4"></div>
 
         <section class="flex items-center justify-between">
-            <span class="font-semibold text-gray-900 text-sm">Catatan:</span>
+            <span class="font-semibold text-slate-100 text-sm">Catatan:</span>
             <input
                 type="text"
                 placeholder="Tinggalkan catatan..."
@@ -675,21 +676,22 @@
         </section>
 
         <!-- Divider -->
-        <div class="border-t border-gray-100"></div>
+        <div class="border-t border-slate-800"></div>
 
         <!-- Cost Breakdown Section -->
         <section class="space-y-4 pt-2">
             <div class="flex justify-between items-center">
-                <span class="text-gray-600">Subtotal ({items.length} menu)</span
+                <span class="text-slate-300"
+                    >Subtotal ({items.length} menu)</span
                 >
-                <span class="font-semibold text-gray-900"
+                <span class="font-semibold text-slate-100"
                     >{formatRupiah(subtotal)}</span
                 >
             </div>
             <div class="flex flex-col gap-2">
                 <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Biaya Pengiriman</span>
-                    <span class="font-semibold text-gray-900">
+                    <span class="text-slate-300">Biaya Pengiriman</span>
+                    <span class="font-semibold text-slate-100">
                         {#if localDeliveryFee === 0}
                             <span class="text-[#FFD700] font-bold">Gratis</span>
                         {:else}
@@ -700,25 +702,25 @@
 
                 {#if fees.useBiteship && fees.shippingBreakdown && fees.shippingBreakdown.length > 0 && localDeliveryFee > 0}
                     <div
-                        class="pl-3 mt-1 space-y-1.5 border-l-2 border-gray-100"
+                        class="pl-3 mt-1 space-y-1.5 border-l-2 border-slate-700"
                     >
                         {#each fees.shippingBreakdown as shipping}
                             <div
                                 class="flex justify-between items-start text-xs"
                             >
                                 <span
-                                    class="text-gray-500 w-2/3 pr-2 leading-tight"
+                                    class="text-slate-400 w-2/3 pr-2 leading-tight"
                                 >
                                     <i
-                                        class="fa-solid fa-truck-fast text-[10px] mr-1.5 text-[#2196f3]"
+                                        class="fa-solid fa-truck-fast text-[10px] mr-1.5 text-[#FFD700]"
                                     ></i>
                                     Dapur: {shipping.chef_name}
-                                    <span class="text-gray-400"
+                                    <span class="text-slate-500"
                                         >({shipping.courier_name})</span
                                     >
                                 </span>
                                 <span
-                                    class="text-gray-700 font-medium whitespace-nowrap"
+                                    class="text-slate-300 font-medium whitespace-nowrap"
                                 >
                                     {#if shipping.success}
                                         {formatRupiah(shipping.fee)}
@@ -735,24 +737,24 @@
             </div>
             {#if settings.tax_enabled}
                 <div class="flex justify-between items-center">
-                    <span class="text-gray-600"
+                    <span class="text-slate-300"
                         >PPN ({fees.taxPercentage}%)</span
                     >
-                    <span class="font-semibold text-gray-900"
+                    <span class="font-semibold text-slate-100"
                         >{formatRupiah(localTaxAmount)}</span
                     >
                 </div>
             {/if}
             {#if settings.admin_fee_enabled && localAdminFee > 0}
                 <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Biaya Admin</span>
-                    <span class="font-semibold text-gray-900"
+                    <span class="text-slate-300">Biaya Admin</span>
+                    <span class="font-semibold text-slate-100"
                         >{formatRupiah(localAdminFee)}</span
                     >
                 </div>
             {/if}
             <div class="flex justify-between items-center pt-2">
-                <span class="font-bold text-gray-900 text-lg">Total</span>
+                <span class="font-bold text-slate-100 text-lg">Total</span>
                 <span class="font-bold text-[#f44336] text-lg"
                     >{formatRupiah(totalAmount)}</span
                 >
@@ -762,12 +764,12 @@
 
     <!-- Bottom Action Bar -->
     <div
-        class="fixed bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.05)] rounded-t-3xl"
+        class="fixed bottom-0 left-0 right-0 p-4 border-t border-slate-800 bg-slate-950 shadow-[0_-5px_15px_rgba(0,0,0,0.3)] rounded-t-3xl"
     >
         <div class="flex items-center justify-between gap-4">
             <div>
-                <p class="text-gray-500 text-xs">Total Pembayaran</p>
-                <p class="text-gray-900 font-bold text-base">
+                <p class="text-slate-400 text-xs">Total Pembayaran</p>
+                <p class="text-slate-100 font-bold text-base">
                     {formatRupiah(totalAmount)}
                 </p>
             </div>

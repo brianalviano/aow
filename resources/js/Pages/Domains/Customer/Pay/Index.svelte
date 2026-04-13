@@ -145,87 +145,96 @@
     <title>Status Pesanan | {getSettingName($page.props.settings)}</title>
 </svelte:head>
 
-<div>
+<div class="min-h-screen bg-slate-950 text-slate-100">
     <section
-        class="my-5 px-6 space-y-6 w-full {isPaid ||
+        class="py-8 px-6 space-y-8 w-full {isPaid ||
         isCash ||
         isExpired ||
         (isManualTransfer && hasProof)
-            ? 'flex flex-col items-center justify-center min-h-[70vh]'
+            ? 'flex flex-col items-center justify-center min-h-[80vh]'
             : ''}"
     >
         {#if isExpired}
-            <div class="text-center space-y-3">
+            <div class="text-center space-y-4">
                 <div
-                    class="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-4xl"
+                    class="w-24 h-24 bg-red-900/20 text-red-500 rounded-full flex items-center justify-center mx-auto text-5xl border border-red-500/20"
                 >
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
-                <h2 class="text-2xl font-black text-gray-900 tracking-tight">
+                <h2 class="text-3xl font-black text-slate-100 tracking-tight">
                     Waktu Habis
                 </h2>
-                <p class="text-gray-500 text-sm max-w-[280px] mx-auto">
+                <p class="text-slate-400 text-sm max-w-[280px] mx-auto">
                     Batas waktu pembayaran telah kedaluwarsa. Silakan buat
                     pesanan baru.
                 </p>
             </div>
         {:else if isPaid || isCash}
-            <div class="text-center space-y-3">
+            <div class="text-center space-y-4">
                 <div
-                    class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-4xl animate-bounce"
+                    class="w-24 h-24 bg-green-900/20 text-green-500 rounded-full flex items-center justify-center mx-auto text-5xl animate-bounce border border-green-500/20"
                 >
                     <i class="fa-solid fa-check"></i>
                 </div>
-                <h2 class="text-2xl font-black text-gray-900 tracking-tight">
+                <h2 class="text-3xl font-black text-slate-100 tracking-tight">
                     Pesanan Berhasil!
                 </h2>
-                <p class="text-gray-500 text-sm max-w-[280px] mx-auto">
-                    Pesanan anda akan dikirim tanggal <strong
-                        >{formatDateStr(order.delivery_date)}</strong
-                    >
-                    dan jam
-                    <strong>{formatTimeStr(order.delivery_time)}</strong>.
+                <div
+                    class="text-slate-400 text-sm max-w-[280px] mx-auto space-y-4"
+                >
+                    <p>
+                        Pesanan anda akan dikirim tanggal <strong
+                            class="text-slate-100"
+                            >{formatDateStr(order.delivery_date)}</strong
+                        >
+                        dan jam
+                        <strong class="text-slate-100"
+                            >{formatTimeStr(order.delivery_time)}</strong
+                        >.
+                    </p>
                     {#if isCash}
-                        <span
-                            class="block mt-4 mb-1 text-xs font-bold text-gray-400 uppercase tracking-widest"
-                            >Total yang harus disiapkan</span
-                        >
-                        <span
-                            class="block text-3xl font-black text-gray-900 mb-2"
-                            >{formatRupiah(order.total_amount)}</span
-                        >
-                        <span class="text-red-500 font-bold block"
-                            >Harap siapkan uang pas ya kak!</span
-                        >
+                        <div class="pt-4 border-t border-slate-800">
+                            <span
+                                class="block mb-1 text-xs font-bold text-slate-500 uppercase tracking-widest"
+                                >Total yang harus disiapkan</span
+                            >
+                            <span
+                                class="block text-4xl font-black text-[#FFD700] mb-2"
+                                >{formatRupiah(order.total_amount)}</span
+                            >
+                            <span class="text-red-400 font-bold block"
+                                >Harap siapkan uang pas ya kak!</span
+                            >
+                        </div>
                     {/if}
-                </p>
+                </div>
             </div>
         {:else if isManualTransfer && hasProof}
-            <div class="text-center space-y-3">
+            <div class="text-center space-y-4">
                 <div
-                    class="w-20 h-20 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto text-4xl animate-pulse"
+                    class="w-24 h-24 bg-yellow-900/20 text-[#FFD700] rounded-full flex items-center justify-center mx-auto text-5xl animate-pulse border border-[#FFD700]/20"
                 >
                     <i class="fa-solid fa-clock"></i>
                 </div>
-                <h2 class="text-2xl font-black text-gray-900 tracking-tight">
+                <h2 class="text-3xl font-black text-slate-100 tracking-tight">
                     Menunggu Verifikasi
                 </h2>
-                <p class="text-gray-500 text-sm max-w-[280px] mx-auto">
+                <p class="text-slate-400 text-sm max-w-[280px] mx-auto">
                     Pesanan Anda sedang diproses. Silakan tunggu konfirmasi dari
                     admin.
                 </p>
             </div>
         {:else}
-            <div class="text-center space-y-3 pt-4">
+            <div class="text-center space-y-4 pt-4">
                 <div
-                    class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto text-4xl"
+                    class="w-24 h-24 bg-blue-900/20 text-blue-400 rounded-full flex items-center justify-center mx-auto text-5xl border border-blue-500/20"
                 >
                     <i class="fa-solid fa-wallet"></i>
                 </div>
-                <h2 class="text-2xl font-black text-gray-900 tracking-tight">
+                <h2 class="text-3xl font-black text-slate-100 tracking-tight">
                     Selesaikan Pembayaran
                 </h2>
-                <p class="text-gray-500 text-sm max-w-[280px] mx-auto">
+                <p class="text-slate-400 text-sm max-w-[280px] mx-auto">
                     Silakan selesaikan pembayaran sesuai instruksi di bawah ini.
                 </p>
             </div>
@@ -234,25 +243,25 @@
         {#if !isPaid && !isCash && !(isManualTransfer && hasProof) && !isExpired}
             {#if midtransData}
                 <div
-                    class="bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-gray-200/50 border border-gray-100 space-y-8"
+                    class="bg-slate-950 rounded-[2.5rem] p-8 shadow-2xl border border-slate-800 space-y-8"
                 >
                     <!-- VA / Bill Section -->
                     {#if midtransData.type === "va"}
                         <div class="space-y-4 text-center">
                             <p
-                                class="text-xs font-bold text-gray-400 uppercase tracking-widest"
+                                class="text-xs font-bold text-slate-500 uppercase tracking-widest"
                             >
                                 Nomor Virtual Account
                             </p>
                             <div class="flex items-center justify-center gap-3">
                                 <span
-                                    class="text-3xl font-black text-gray-900 tracking-tighter"
+                                    class="text-4xl font-black text-slate-100 tracking-tighter"
                                     >{midtransData.number}</span
                                 >
                                 <button
                                     onclick={() =>
                                         copyToClipboard(midtransData.number)}
-                                    class="w-10 h-10 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-2xl transition-all flex items-center justify-center"
+                                    class="w-12 h-12 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-[#FFD700] rounded-2xl transition-all flex items-center justify-center border border-slate-700"
                                     title="Salin"
                                     aria-label="Salin nomor VA"
                                 >
@@ -260,19 +269,19 @@
                                 </button>
                             </div>
                             <div
-                                class="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full"
+                                class="inline-flex items-center gap-2 px-5 py-2 bg-slate-800 rounded-full border border-slate-700"
                             >
                                 <span
-                                    class="text-xs font-bold text-gray-500 uppercase"
+                                    class="text-xs font-black text-[#FFD700] uppercase tracking-wider"
                                     >{midtransData.bank}</span
                                 >
                             </div>
                         </div>
                     {:else if midtransData.type === "bill"}
-                        <div class="space-y-6">
-                            <div class="text-center space-y-2">
+                        <div class="space-y-8">
+                            <div class="text-center space-y-3">
                                 <p
-                                    class="text-xs font-bold text-gray-400 uppercase tracking-widest"
+                                    class="text-xs font-bold text-slate-500 uppercase tracking-widest"
                                 >
                                     Biller Code
                                 </p>
@@ -280,7 +289,7 @@
                                     class="flex items-center justify-center gap-3"
                                 >
                                     <span
-                                        class="text-2xl font-black text-gray-900"
+                                        class="text-3xl font-black text-slate-100"
                                         >{midtransData.biller_code}</span
                                     >
                                     <button
@@ -288,16 +297,16 @@
                                             copyToClipboard(
                                                 midtransData.biller_code,
                                             )}
-                                        class="text-gray-400 hover:text-gray-900"
+                                        class="text-slate-400 hover:text-[#FFD700] transition-colors"
                                         aria-label="Salin biller code"
-                                        ><i class="fa-solid fa-copy"
+                                        ><i class="fa-solid fa-copy text-xl"
                                         ></i></button
                                     >
                                 </div>
                             </div>
-                            <div class="text-center space-y-2">
+                            <div class="text-center space-y-3">
                                 <p
-                                    class="text-xs font-bold text-gray-400 uppercase tracking-widest"
+                                    class="text-xs font-bold text-slate-500 uppercase tracking-widest"
                                 >
                                     Bill Key
                                 </p>
@@ -305,7 +314,7 @@
                                     class="flex items-center justify-center gap-3"
                                 >
                                     <span
-                                        class="text-2xl font-black text-gray-900"
+                                        class="text-3xl font-black text-slate-100"
                                         >{midtransData.bill_key}</span
                                     >
                                     <button
@@ -313,33 +322,33 @@
                                             copyToClipboard(
                                                 midtransData.bill_key,
                                             )}
-                                        class="text-gray-400 hover:text-gray-900"
+                                        class="text-slate-400 hover:text-[#FFD700] transition-colors"
                                         aria-label="Salin bill key"
-                                        ><i class="fa-solid fa-copy"
+                                        ><i class="fa-solid fa-copy text-xl"
                                         ></i></button
                                     >
                                 </div>
                             </div>
                             <div class="text-center">
                                 <div
-                                    class="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full"
+                                    class="inline-flex items-center gap-2 px-5 py-2 bg-slate-800 rounded-full border border-slate-700"
                                 >
                                     <span
-                                        class="text-xs font-bold text-gray-500 uppercase"
+                                        class="text-xs font-black text-[#FFD700] uppercase tracking-wider"
                                         >MANDIRI BILL</span
                                     >
                                 </div>
                             </div>
                         </div>
                     {:else if midtransData.type === "qris"}
-                        <div class="space-y-6 text-center">
+                        <div class="space-y-8 text-center">
                             <p
-                                class="text-xs font-bold text-gray-400 uppercase tracking-widest"
+                                class="text-xs font-bold text-slate-500 uppercase tracking-widest"
                             >
                                 Scan QRIS
                             </p>
                             <div
-                                class="bg-white p-4 rounded-3xl inline-block shadow-lg border border-gray-100"
+                                class="bg-white p-6 rounded-4xl inline-block shadow-2xl border-4 border-[#FFD700]"
                             >
                                 <img
                                     src={midtransData.url}
@@ -347,7 +356,9 @@
                                     class="w-64 h-64 object-contain mx-auto"
                                 />
                             </div>
-                            <p class="text-xs text-gray-500">
+                            <p
+                                class="text-xs text-slate-400 max-w-[200px] mx-auto"
+                            >
                                 Buka aplikasi e-wallet kamu dan scan kode di
                                 atas.
                             </p>
@@ -356,32 +367,34 @@
                                 download={`QRIS-${order.number}.png`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="w-full py-3 bg-blue-50 text-[#0060B2] font-bold rounded-2xl hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
+                                class="w-full py-4 bg-slate-800 text-slate-100 font-bold rounded-2xl border border-slate-700 hover:bg-slate-700 hover:border-[#FFD700] transition-all flex items-center justify-center gap-2"
                             >
                                 <i class="fa-solid fa-download"></i> Simpan QRIS
                             </a>
                         </div>
                     {/if}
 
-                    <hr class="border-gray-100" />
+                    <hr class="border-slate-800" />
 
                     <!-- Detail Section -->
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500">Total Tagihan</span>
-                            <span class="font-black text-gray-900 text-lg"
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400 text-sm"
+                                >Total Tagihan</span
+                            >
+                            <span class="font-black text-[#FFD700] text-2xl"
                                 >{formatRupiah(order.total_amount)}</span
                             >
                         </div>
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500">ID Pesanan</span>
-                            <span class="font-bold text-gray-900"
+                            <span class="text-slate-400">ID Pesanan</span>
+                            <span class="font-bold text-slate-100"
                                 >{order.number}</span
                             >
                         </div>
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-500">Batas Waktu</span>
-                            <span class="font-bold text-red-500"
+                            <span class="text-slate-400">Batas Waktu</span>
+                            <span class="font-black text-red-500"
                                 >{midtransData.expiry || "1x24 Jam"}</span
                             >
                         </div>
@@ -390,9 +403,11 @@
                     <div>
                         <button
                             onclick={() => showGuide(order.payment_method)}
-                            class="w-full py-4 text-sm font-bold text-[#0060B2] bg-blue-50 rounded-2xl flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                            class="w-full py-4 text-sm font-bold text-slate-100 bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-700 hover:border-[#FFD700] transition-all"
                         >
-                            <i class="fa-solid fa-circle-question"></i>
+                            <i
+                                class="fa-solid fa-circle-question text-[#FFD700]"
+                            ></i>
                             Lihat Instruksi Pembayaran
                         </button>
                     </div>
@@ -400,43 +415,43 @@
             {:else}
                 <!-- Manual Payment State -->
                 <div
-                    class="bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-gray-200/50 border border-gray-100 space-y-4"
+                    class="bg-slate-950 rounded-[2.5rem] p-8 shadow-2xl border border-slate-800 space-y-8"
                 >
-                    <div class="text-center space-y-2">
+                    <div class="text-center space-y-3">
                         <p
-                            class="text-xs font-bold text-gray-400 uppercase tracking-widest"
+                            class="text-xs font-bold text-slate-500 uppercase tracking-widest"
                         >
                             Metode Pembayaran
                         </p>
-                        <p class="text-lg font-black text-gray-900">
+                        <p class="text-2xl font-black text-slate-100">
                             {order.payment_method?.name}
                         </p>
                     </div>
 
                     <div
-                        class="bg-blue-50 rounded-3xl p-6 text-center space-y-2 border border-blue-100"
+                        class="bg-blue-900/20 rounded-3xl p-6 text-center space-y-3 border border-blue-500/20"
                     >
                         <p
                             class="text-xs font-bold text-blue-400 uppercase tracking-widest"
                         >
                             Jumlah yang harus ditransfer
                         </p>
-                        <p class="text-3xl font-black text-blue-900">
+                        <p class="text-4xl font-black text-slate-100">
                             {formatRupiah(order.total_amount)}
                         </p>
                     </div>
 
                     {#if order.payment_method?.account_number}
                         <div
-                            class="bg-gray-50 rounded-3xl p-6 text-center space-y-3"
+                            class="bg-slate-800 rounded-3xl p-6 text-center space-y-4 border border-slate-700"
                         >
                             <p
-                                class="text-xs font-bold text-gray-400 uppercase"
+                                class="text-xs font-bold text-slate-500 uppercase tracking-widest"
                             >
                                 Nomor Rekening
                             </p>
                             <div class="flex items-center justify-center gap-3">
-                                <span class="text-2xl font-black text-gray-900"
+                                <span class="text-3xl font-black text-slate-100"
                                     >{order.payment_method.account_number}</span
                                 >
                                 <button
@@ -444,13 +459,13 @@
                                         copyToClipboard(
                                             order.payment_method.account_number,
                                         )}
-                                    class="text-gray-400 hover:text-gray-900"
+                                    class="text-slate-400 hover:text-[#FFD700] transition-colors"
                                     aria-label="Salin nomor rekening"
                                 >
-                                    <i class="fa-solid fa-copy"></i>
+                                    <i class="fa-solid fa-copy text-xl"></i>
                                 </button>
                             </div>
-                            <p class="text-sm font-bold text-gray-600">
+                            <p class="text-sm font-bold text-slate-300">
                                 a/n {order.payment_method.account_name}
                             </p>
                         </div>
@@ -459,34 +474,40 @@
                     <div>
                         <button
                             onclick={() => showGuide(order.payment_method)}
-                            class="w-full py-4 text-sm font-bold text-[#0060B2] bg-blue-50 rounded-2xl flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
+                            class="w-full py-4 text-sm font-bold text-slate-100 bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center gap-2 hover:bg-slate-700 hover:border-[#FFD700] transition-all"
                         >
-                            <i class="fa-solid fa-circle-question"></i>
+                            <i
+                                class="fa-solid fa-circle-question text-[#FFD700]"
+                            ></i>
                             Lihat Instruksi Pembayaran
                         </button>
                     </div>
 
-                    <div class="space-y-3 pt-6 border-t border-gray-100">
+                    <div class="space-y-4 pt-8 border-t border-slate-800">
                         <p
-                            class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center"
+                            class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center"
                         >
                             Upload Bukti Pembayaran
                         </p>
-                        <form onsubmit={submitProof} class="space-y-4">
-                            <FileUpload
-                                id="payment-proof"
-                                name="proof"
-                                accept="image/*"
-                                required={true}
-                                variant="box"
-                                uploadText="Pilih atau seret gambar ke sini"
-                                uploadSubtext="Format: JPG, PNG. Maks: 10MB"
-                                bind:value={$form.proof}
-                            />
+                        <form onsubmit={submitProof} class="space-y-6">
+                            <div
+                                class="bg-slate-950 rounded-2xl p-4 border border-slate-800"
+                            >
+                                <FileUpload
+                                    id="payment-proof"
+                                    name="proof"
+                                    accept="image/*"
+                                    required={true}
+                                    variant="box"
+                                    uploadText="Pilih atau seret gambar ke sini"
+                                    uploadSubtext="Format: JPG, PNG. Maks: 10MB"
+                                    bind:value={$form.proof}
+                                />
+                            </div>
                             <button
                                 type="submit"
                                 disabled={$form.processing || !$form.proof}
-                                class="w-full py-4 bg-[#FFD700] text-gray-900 font-black rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                class="w-full py-5 bg-[#FFD700] text-slate-900 font-black text-lg rounded-2xl shadow-xl shadow-[#FFD700]/20 hover:shadow-2xl hover:shadow-[#FFD700]/30 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
                                 {#if $form.processing}
                                     <i class="fa-solid fa-spinner fa-spin mr-2"
@@ -502,11 +523,11 @@
         {/if}
 
         <div
-            class="pt-2 w-70 flex items-center justify-center text-center mx-auto"
+            class="pt-6 w-full flex items-center justify-center text-center mx-auto"
         >
             <button
                 onclick={() => router.visit(backUrl)}
-                class="w-full py-3 bg-white text-gray-900 border-2 border-gray-100 font-bold rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-gray-200 transition-all text-base"
+                class="w-full py-4 bg-slate-800 text-slate-100 border border-slate-700 font-bold rounded-2xl shadow-lg hover:bg-slate-700 hover:border-[#FFD700] hover:-translate-y-1 transition-all text-base"
             >
                 {backText}
             </button>
@@ -520,26 +541,27 @@
         message=""
         showCancel={false}
         confirmText="Dimengerti"
+        type="info"
     >
         {#snippet children()}
             <div
-                class="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar"
+                class="space-y-8 max-h-[60vh] overflow-y-auto pr-4 custom-scrollbar"
             >
                 {#if activeGuide?.content}
                     {#each activeGuide.content as section}
-                        <div class="space-y-3">
+                        <div class="space-y-4">
                             <h4
-                                class="font-bold text-gray-900 border-l-4 border-[#FFD700] pl-3"
+                                class="font-black text-slate-100 border-l-4 border-[#FFD700] pl-4 text-lg"
                             >
                                 {section.title}
                             </h4>
-                            <ul class="space-y-2">
+                            <ul class="space-y-3">
                                 {#each section.items as item, index}
                                     <li
-                                        class="flex gap-3 text-sm text-gray-600"
+                                        class="flex gap-4 text-sm text-slate-400 leading-relaxed"
                                     >
                                         <span
-                                            class="shrink-0 w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center text-[10px] font-bold text-gray-500"
+                                            class="shrink-0 w-6 h-6 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-[10px] font-black text-[#FFD700]"
                                         >
                                             {index + 1}
                                         </span>
@@ -550,9 +572,14 @@
                         </div>
                     {/each}
                 {:else}
-                    <p class="text-sm text-gray-500 italic">
-                        Belum ada instruksi untuk metode ini.
-                    </p>
+                    <div class="py-10 text-center">
+                        <i
+                            class="fa-solid fa-info-circle text-4xl text-slate-700 mb-4 block"
+                        ></i>
+                        <p class="text-sm text-slate-500 italic">
+                            Belum ada instruksi untuk metode ini.
+                        </p>
+                    </div>
                 {/if}
             </div>
         {/snippet}

@@ -154,13 +154,14 @@
         if (orderStatus === "cancelled" || paymentStatus === "failed") {
             return {
                 text: "Dibatalkan",
-                classes: "bg-red-50 text-red-600 border border-red-200",
+                classes: "bg-red-900/20 text-red-400 border border-red-800",
             };
         }
         if (orderStatus === "delivered") {
             return {
                 text: "Selesai",
-                classes: "bg-green-50 text-green-600 border border-green-200",
+                classes:
+                    "bg-green-900/20 text-green-400 border border-green-800",
             };
         }
 
@@ -168,7 +169,7 @@
             return {
                 text: isCash ? "Dikirim (COD)" : "Dikirim",
                 classes:
-                    "bg-purple-50 text-purple-600 border border-purple-200",
+                    "bg-purple-900/20 text-purple-400 border border-purple-800",
             };
         }
 
@@ -178,7 +179,7 @@
                     return {
                         text: "Diproses (COD)",
                         classes:
-                            "bg-blue-50 text-blue-600 border border-blue-200",
+                            "bg-blue-900/20 text-blue-400 border border-blue-800",
                     };
                 }
 
@@ -186,26 +187,26 @@
                     return {
                         text: "Menunggu Verifikasi",
                         classes:
-                            "bg-orange-50 text-orange-600 border border-orange-200",
+                            "bg-orange-900/20 text-orange-400 border border-orange-800",
                     };
                 }
 
                 return {
                     text: "Belum Dibayar",
                     classes:
-                        "bg-yellow-50 text-yellow-600 border border-yellow-200",
+                        "bg-yellow-900/20 text-yellow-400 border border-yellow-800",
                 };
             }
 
             return {
                 text: "Diproses",
-                classes: "bg-blue-50 text-blue-600 border border-blue-200",
+                classes: "bg-blue-900/20 text-blue-400 border border-blue-800",
             };
         }
 
         return {
             text: "Status Tidak Diketahui",
-            classes: "bg-gray-50 text-gray-600 border border-gray-200",
+            classes: "bg-slate-800 text-slate-300 border border-slate-700",
         };
     }
 </script>
@@ -214,17 +215,17 @@
     <title>Riwayat Pesanan</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 pb-20">
+<div class="min-h-screen bg-slate-950 pb-20">
     <!-- Header -->
-    <header class="bg-white sticky top-0 z-30 shadow-sm">
+    <header class="bg-slate-950 sticky top-0 z-30 shadow-sm">
         <div class="px-4 py-4 flex items-center gap-3">
             <Link
                 href="/menu"
-                class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors"
+                class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
             >
                 <i class="fa-solid fa-arrow-left"></i>
             </Link>
-            <h1 class="text-lg font-bold text-gray-900 leading-none">
+            <h1 class="text-lg font-bold text-slate-100 leading-none">
                 Riwayat Pesanan
             </h1>
         </div>
@@ -233,14 +234,14 @@
         <div class="px-4 pb-4">
             <div class="relative">
                 <i
-                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+                    class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"
                 ></i>
                 <input
                     type="text"
                     bind:value={search}
                     on:input={handleSearchInput}
                     placeholder="Cari nomor pesanan atau produk..."
-                    class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    class="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FFD700]/20 focus:border-[#FFD700] transition-all"
                 />
             </div>
         </div>
@@ -250,8 +251,8 @@
             <button
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                 'all'
-                    ? 'bg-blue-600 border-blue-600 text-white'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                    ? 'bg-[#FFD700] border-[#FFD700] text-slate-900'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'}"
                 on:click={() => handleDateRangeChange("all")}
             >
                 Semua Waktu
@@ -259,8 +260,8 @@
             <button
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                 '30_days'
-                    ? 'bg-blue-600 border-blue-600 text-white'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                    ? 'bg-[#FFD700] border-[#FFD700] text-slate-900'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'}"
                 on:click={() => handleDateRangeChange("30_days")}
             >
                 30 Hari Terakhir
@@ -268,8 +269,8 @@
             <button
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                 '90_days'
-                    ? 'bg-blue-600 border-blue-600 text-white'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                    ? 'bg-[#FFD700] border-[#FFD700] text-slate-900'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'}"
                 on:click={() => handleDateRangeChange("90_days")}
             >
                 90 Hari Terakhir
@@ -277,8 +278,8 @@
             <button
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-colors {dateRange ===
                 'custom'
-                    ? 'bg-blue-600 border-blue-600 text-white'
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'}"
+                    ? 'bg-[#FFD700] border-[#FFD700] text-slate-900'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500'}"
                 on:click={() => handleDateRangeChange("custom")}
             >
                 Pilih Tanggal
@@ -301,7 +302,7 @@
                 />
                 <button
                     on:click={applyFilters}
-                    class="w-full mt-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-sm active:scale-[0.98]"
+                    class="w-full mt-1 py-2.5 bg-[#FFD700] text-slate-900 rounded-xl text-sm font-bold hover:bg-[#FFC700] transition-all shadow-sm active:scale-[0.98]"
                 >
                     Terapkan Rentang Tanggal
                 </button>
@@ -309,14 +310,16 @@
         {/if}
 
         <!-- Tabs -->
-        <div class="bg-white border-b border-gray-100 sticky top-[60px] z-10">
+        <div
+            class="bg-slate-950 border-b border-slate-800 sticky top-[60px] z-10"
+        >
             <div class="flex overflow-x-auto hide-scrollbar scroll-smooth">
                 {#each tabs as tab}
                     <button
                         class="shrink-0 px-4 py-3 text-sm font-medium transition-colors border-b-2 {activeTab ===
                         tab.id
-                            ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700'}"
+                            ? 'border-[#FFD700] text-[#FFD700]'
+                            : 'border-transparent text-slate-400 hover:text-slate-200'}"
                         on:click={() => handleTabClick(tab.id)}
                     >
                         {tab.label}
@@ -333,14 +336,14 @@
                 class="flex flex-col items-center justify-center py-12 text-center"
             >
                 <div
-                    class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400 text-2xl"
+                    class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-500 text-2xl"
                 >
                     <i class="fa-solid fa-box-open"></i>
                 </div>
-                <h3 class="text-gray-900 font-medium mb-1">
+                <h3 class="text-slate-100 font-medium mb-1">
                     Tidak Ada Pesanan
                 </h3>
-                <p class="text-gray-500 text-sm">
+                <p class="text-slate-400 text-sm">
                     Belum ada pesanan dengan kriteria ini.
                 </p>
             </div>
@@ -353,25 +356,25 @@
                 )}
                 <Link
                     href={`/orders/${order.id}`}
-                    class="block bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+                    class="block bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
                     on:click={() => (navigatingId = order.id)}
                 >
                     {#if navigatingId === order.id}
                         <div
-                            class="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center transition-all"
+                            class="absolute inset-0 bg-slate-950/60 backdrop-blur-[1px] z-10 flex items-center justify-center transition-all"
                         >
                             <div
-                                class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"
+                                class="w-8 h-8 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin"
                             ></div>
                         </div>
                     {/if}
                     <div
-                        class="flex items-center justify-between mb-3 border-b border-gray-50 pb-3"
+                        class="flex items-center justify-between mb-3 border-b border-slate-800 pb-3"
                     >
                         <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-shop text-gray-400 text-sm"
+                            <i class="fa-solid fa-shop text-slate-500 text-sm"
                             ></i>
-                            <span class="text-sm font-medium text-gray-900"
+                            <span class="text-sm font-medium text-slate-100"
                                 >{order.drop_point?.name ||
                                     order.customer_address?.name ||
                                     "Alamat Kustom"}</span
@@ -386,29 +389,31 @@
 
                     <div class="flex items-start justify-between">
                         <div>
-                            <div class="text-xs text-gray-500 mb-1">
+                            <div class="text-xs text-slate-400 mb-1">
                                 {dayjs(order.created_at).format(
                                     "DD MMM YYYY, HH:mm",
                                 )}
                             </div>
-                            <div class="text-sm font-medium text-gray-900 mb-1">
+                            <div
+                                class="text-sm font-medium text-slate-100 mb-1"
+                            >
                                 {order.number}
                             </div>
                         </div>
                     </div>
 
                     <div
-                        class="flex items-center justify-between mt-3 pt-3 border-t border-gray-50"
+                        class="flex items-center justify-between mt-3 pt-3 border-t border-slate-800"
                     >
-                        <div class="text-xs text-gray-500">Total Belanja</div>
-                        <div class="text-sm font-bold text-gray-900">
+                        <div class="text-xs text-slate-400">Total Belanja</div>
+                        <div class="text-sm font-bold text-slate-100">
                             {formatCurrency(order.total_amount)}
                         </div>
                     </div>
 
                     {#if order.order_status === "cancelled" && order.cancellation_note}
                         <div
-                            class="mt-2 flex items-start gap-1.5 text-xs text-red-500"
+                            class="mt-2 flex items-start gap-1.5 text-xs text-red-400"
                         >
                             <i class="fa-solid fa-circle-info mt-0.5 shrink-0"
                             ></i>
@@ -428,11 +433,11 @@
                     : 'invisible'}"
             >
                 <div
-                    class="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"
+                    class="w-6 h-6 border-2 border-[#FFD700] border-t-transparent rounded-full animate-spin"
                 ></div>
             </div>
             {#if !orders.next_page_url && orders.data.length > 0}
-                <p class="text-center text-xs text-gray-400 py-4">
+                <p class="text-center text-xs text-slate-500 py-4">
                     Semua pesanan telah ditampilkan
                 </p>
             {/if}

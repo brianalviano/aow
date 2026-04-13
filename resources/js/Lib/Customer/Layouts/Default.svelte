@@ -34,10 +34,12 @@
 </script>
 
 <div
-    class="min-h-screen bg-gray-50 flex justify-center font-sans text-gray-800"
+    class="min-h-screen bg-slate-950 flex justify-center font-sans text-slate-100"
 >
     <!-- Mobile Container -->
-    <div class="w-full max-w-md bg-white min-h-screen shadow-md relative grid grid-cols-1 grid-rows-1 overflow-x-hidden">
+    <div
+        class="w-full max-w-md bg-slate-950 min-h-screen shadow-md relative grid grid-cols-1 grid-rows-1 overflow-x-hidden"
+    >
         <div class="col-start-1 row-start-1 w-full">
             {@render children()}
         </div>

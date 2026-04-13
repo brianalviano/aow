@@ -109,22 +109,28 @@
     <title>Dashboard | Pickup Point | {appName($page.props.settings)}</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-slate-950 text-slate-100">
     <!-- Top Bar -->
-    <div class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-20">
+    <div class="bg-slate-950 border-b border-slate-800 sticky top-0 z-20">
         <div class="px-4 py-3 flex items-center justify-between">
-            <div>
-                <h1
-                    class="text-lg font-bold text-gray-900 flex items-center gap-2"
+            <div class="flex items-center gap-2">
+                <div
+                    class="bg-[#FFD700] text-slate-900 p-1.5 rounded-lg shadow-lg shadow-[#FFD700]/20"
                 >
-                    <i class="fa-solid fa-warehouse text-blue-600"></i>
-                    {pickUpPoint?.name ?? "Pickup Point"}
-                </h1>
-                <p class="text-xs text-gray-500">{officer.name}</p>
+                    <i class="fa-solid fa-warehouse"></i>
+                </div>
+                <div>
+                    <h1
+                        class="text-sm font-black text-slate-100 uppercase tracking-wider"
+                    >
+                        {pickUpPoint?.name ?? "Pickup Point"}
+                    </h1>
+                    <p class="text-[10px] text-slate-500">{officer.name}</p>
+                </div>
             </div>
             <button
                 onclick={handleLogout}
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-red-600 transition-colors"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-red-400 transition-colors"
             >
                 <i class="fa-solid fa-right-from-bracket"></i>
                 Keluar
@@ -133,31 +139,31 @@
     </div>
 
     <!-- Tabs -->
-    <div class="bg-white border-b border-gray-200 sticky top-[60px] z-10">
+    <div class="bg-slate-950 border-b border-slate-800 sticky top-[60px] z-10">
         <div class="flex gap-1">
             {#each tabs as tab}
                 <button
                     onclick={() => (activeTab = tab.id)}
-                    class="flex-1 flex items-center justify-center gap-1.5 py-3 text-sm font-medium transition-colors relative
+                    class="flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] font-bold uppercase tracking-wider transition-colors relative
                         {activeTab === tab.id
-                        ? 'text-blue-600'
-                        : 'text-gray-500 hover:text-gray-700'}"
+                        ? 'text-[#FFD700]'
+                        : 'text-slate-500 hover:text-slate-300'}"
                 >
-                    <i class="{tab.icon} text-xs"></i>
+                    <i class={tab.icon}></i>
                     <span>{tab.label}</span>
                     {#if getTabCount(tab.id) > 0}
                         <span
                             class="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[9px] font-bold rounded-full
                                 {activeTab === tab.id
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-200 text-gray-600'}"
+                                ? 'bg-[#FFD700] text-slate-900'
+                                : 'bg-slate-800 text-slate-400'}"
                         >
                             {getTabCount(tab.id)}
                         </span>
                     {/if}
                     {#if activeTab === tab.id}
                         <div
-                            class="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-600 rounded-t-full"
+                            class="absolute bottom-0 left-2 right-2 h-0.5 bg-[#FFD700] rounded-t-full"
                         ></div>
                     {/if}
                 </button>
@@ -169,29 +175,29 @@
     <div class="p-4 space-y-4 pb-24">
         {#if orders.length === 0}
             <div
-                class="bg-white rounded-2xl border border-gray-100 p-8 text-center"
+                class="bg-slate-950 rounded-2xl border border-slate-800 p-8 text-center"
             >
                 <div
-                    class="inline-flex items-center justify-center w-14 h-14 bg-gray-100 rounded-2xl mb-3"
+                    class="inline-flex items-center justify-center w-14 h-14 bg-slate-800 rounded-2xl mb-3 border border-slate-700"
                 >
                     {#if activeTab === "incoming"}
                         <i
-                            class="fa-solid fa-truck-arrow-right text-gray-400 text-xl"
+                            class="fa-solid fa-truck-arrow-right text-slate-600 text-xl"
                         ></i>
                     {:else if activeTab === "at_pickup"}
                         <i
-                            class="fa-solid fa-boxes-stacked text-gray-400 text-xl"
+                            class="fa-solid fa-boxes-stacked text-slate-600 text-xl"
                         ></i>
                     {:else if activeTab === "on_delivery"}
-                        <i class="fa-solid fa-motorcycle text-gray-400 text-xl"
+                        <i class="fa-solid fa-motorcycle text-slate-600 text-xl"
                         ></i>
                     {:else}
                         <i
-                            class="fa-solid fa-check-circle text-gray-400 text-xl"
+                            class="fa-solid fa-check-circle text-slate-600 text-xl"
                         ></i>
                     {/if}
                 </div>
-                <h3 class="text-sm font-semibold text-gray-600 mb-1">
+                <h3 class="text-sm font-semibold text-slate-300 mb-1">
                     {#if activeTab === "incoming"}
                         Belum ada pesanan yang menuju
                     {:else if activeTab === "at_pickup"}

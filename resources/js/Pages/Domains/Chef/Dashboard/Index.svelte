@@ -181,16 +181,22 @@
     <title>Dashboard Chef | {appName($page.props.settings)}</title>
 </svelte:head>
 
-<div class="flex flex-col min-h-screen bg-gray-50">
+<div class="flex flex-col min-h-screen bg-slate-950 text-slate-100">
     <header
-        class="bg-white border-b border-gray-100 p-4 sticky top-0 z-10 shadow-sm"
+        class="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-10 shadow-xl backdrop-blur-md"
     >
         <div class="max-w-7xl mx-auto flex justify-between items-center w-full">
             <div class="flex items-center gap-2">
-                <div class="bg-[#FFD700] text-white p-1.5 rounded-lg">
+                <div
+                    class="bg-[#FFD700] text-slate-900 p-1.5 rounded-lg shadow-lg shadow-[#FFD700]/20"
+                >
                     <i class="fa-solid fa-utensils"></i>
                 </div>
-                <h1 class="text-lg font-bold text-gray-900">Chef Portal</h1>
+                <h1
+                    class="text-lg font-black text-slate-100 uppercase tracking-wider"
+                >
+                    Chef Portal
+                </h1>
             </div>
             <form onsubmit={handleLogout}>
                 <Button
@@ -205,32 +211,40 @@
         </div>
     </header>
 
-    <main class="flex-1 p-4 max-w-7xl mx-auto w-full">
+    <main class="flex-1 p-4 max-w-7xl mx-auto w-full space-y-8">
         <div
-            class="bg-white border border-gray-100 rounded-2xl p-6 mb-8 shadow-sm"
+            class="bg-slate-950 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden"
         >
-            <h2 class="text-2xl font-bold text-gray-900">
+            <div class="absolute top-0 right-0 p-8 opacity-5">
+                <i class="fa-solid fa-utensils text-8xl"></i>
+            </div>
+            <h2
+                class="text-3xl font-black text-slate-100 tracking-tight relative z-10"
+            >
                 Halo, {$page.props.auth?.user?.name || "Chef"}!
             </h2>
-            <p class="text-gray-500 mt-1">
-                Anda memiliki {items.length} item pesanan yang menunggu konfirmasi.
+            <p class="text-slate-400 mt-2 font-medium relative z-10">
+                Anda memiliki <span class="text-[#FFD700] font-black"
+                    >{items.length}</span
+                > item pesanan yang menunggu konfirmasi.
             </p>
         </div>
 
         {#if groupedItems.length === 0}
             <div
-                class="bg-white rounded-2xl border border-gray-100 p-12 text-center shadow-sm"
+                class="bg-slate-950 rounded-3xl border border-slate-800 p-16 text-center shadow-2xl"
             >
                 <div
-                    class="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                    class="bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-700 shadow-inner"
                 >
-                    <i class="fa-solid fa-clipboard-list text-2xl text-gray-300"
+                    <i
+                        class="fa-solid fa-clipboard-list text-3xl text-slate-600"
                     ></i>
                 </div>
-                <h3 class="font-bold text-gray-900 mb-1">
+                <h3 class="font-black text-slate-100 text-xl mb-2">
                     Tidak ada pesanan baru
                 </h3>
-                <p class="text-gray-500">
+                <p class="text-slate-400 max-w-sm mx-auto">
                     Semua pesanan Anda telah diproses atau belum ada pesanan
                     baru dari Admin.
                 </p>

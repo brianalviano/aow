@@ -63,20 +63,20 @@
     <title>Notifikasi | {name(settings)}</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 pb-20">
+<div class="min-h-screen bg-slate-950 pb-20">
     <!-- Header -->
     <header
-        class="flex items-center justify-between p-4 bg-white sticky top-0 z-20 border-b border-gray-100 shadow-sm"
+        class="flex items-center justify-between p-4 bg-slate-950 sticky top-0 z-20 border-b border-slate-800 shadow-sm"
     >
         <Link
             href="/menu"
-            class="text-gray-800 focus:outline-none p-1"
+            class="text-slate-300 focus:outline-none p-1"
             aria-label="Kembali ke Menu"
         >
             <i class="fa-solid fa-arrow-left text-xl"></i>
         </Link>
         <h1
-            class="font-bold text-lg leading-tight text-gray-900 absolute left-1/2 -translate-x-1/2"
+            class="font-bold text-lg leading-tight text-slate-100 absolute left-1/2 -translate-x-1/2"
         >
             Notifikasi
         </h1>
@@ -91,7 +91,7 @@
             <div class="flex justify-end p-4 pb-2">
                 <button
                     type="button"
-                    class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                    class="text-sm font-semibold text-[#FFD700] hover:text-yellow-300 transition-colors"
                     on:click={() => markAsRead()}
                 >
                     Tandai Semua Dibaca
@@ -106,14 +106,14 @@
                     class="flex flex-col items-center justify-center pt-20 pb-10 text-center"
                 >
                     <div
-                        class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center text-gray-300 mb-4"
+                        class="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center text-slate-600 mb-4"
                     >
                         <i class="fa-solid fa-bell-slash text-4xl"></i>
                     </div>
-                    <h2 class="text-lg font-bold text-gray-900 mb-1">
+                    <h2 class="text-lg font-bold text-slate-100 mb-1">
                         Belum ada notifikasi
                     </h2>
-                    <p class="text-sm text-gray-500 max-w-[250px] mx-auto">
+                    <p class="text-sm text-slate-400 max-w-[250px] mx-auto">
                         Semua informasi penting dan pembaruan akan muncul di
                         sini.
                     </p>
@@ -123,10 +123,10 @@
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-no-static-element-interactions -->
                     <div
-                        class="w-full text-left bg-white p-4 rounded-xl border transition-all cursor-pointer {notification.read_at ===
+                        class="w-full text-left bg-slate-950 p-4 rounded-xl border transition-all cursor-pointer {notification.read_at ===
                         null
-                            ? 'border-blue-200 bg-blue-50/40'
-                            : 'border-gray-200 hover:border-gray-300'}"
+                            ? 'border-blue-700 bg-blue-900/20'
+                            : 'border-slate-700 hover:border-slate-600'}"
                         on:click={() => {
                             if (!notification.read_at) {
                                 markAsRead(notification.id);
@@ -139,8 +139,8 @@
                                 <div
                                     class="w-10 h-10 rounded-full flex items-center justify-center {notification.read_at ===
                                     null
-                                        ? 'bg-blue-100 text-blue-600'
-                                        : 'bg-gray-100 text-gray-500'}"
+                                        ? 'bg-blue-900/30 text-blue-400'
+                                        : 'bg-slate-800 text-slate-500'}"
                                 >
                                     <!-- Use icon from data or default fallback -->
                                     <i
@@ -158,14 +158,14 @@
                                     <h3
                                         class="font-bold text-[15px] {notification.read_at ===
                                         null
-                                            ? 'text-gray-900'
-                                            : 'text-gray-700'}"
+                                            ? 'text-slate-100'
+                                            : 'text-slate-300'}"
                                     >
                                         {notification.data?.title ||
                                             "Notifikasi Baru"}
                                     </h3>
                                     <span
-                                        class="text-[11px] text-gray-500 whitespace-nowrap pt-0.5"
+                                        class="text-[11px] text-slate-500 whitespace-nowrap pt-0.5"
                                     >
                                         {formatTime(notification.created_at)}
                                     </span>
@@ -173,8 +173,8 @@
                                 <p
                                     class="text-[13px] {notification.read_at ===
                                     null
-                                        ? 'text-gray-700'
-                                        : 'text-gray-500'} leading-snug"
+                                        ? 'text-slate-300'
+                                        : 'text-slate-400'} leading-snug"
                                 >
                                     {notification.data?.message || "-"}
                                 </p>
@@ -191,7 +191,7 @@
                                                 <a
                                                     href={notification.data
                                                         .action_url}
-                                                    class="inline-block text-xs font-semibold border border-gray-200 hover:bg-gray-50 text-gray-800 px-3 py-1.5 rounded-lg transition-colors"
+                                                    class="inline-block text-xs font-semibold border border-slate-700 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
                                                 >
                                                     {notification.data
                                                         .action_text}
@@ -201,7 +201,7 @@
                                                 <Link
                                                     href={notification.data
                                                         .action_url}
-                                                    class="inline-block text-xs font-semibold border border-gray-200 hover:bg-gray-50 text-gray-800 px-3 py-1.5 rounded-lg transition-colors"
+                                                    class="inline-block text-xs font-semibold border border-slate-700 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg transition-colors"
                                                 >
                                                     {notification.data
                                                         .action_text}
@@ -216,7 +216,7 @@
                             {#if notification.read_at === null}
                                 <div class="shrink-0 flex items-center mt-2.5">
                                     <div
-                                        class="w-2.5 h-2.5 bg-blue-500 rounded-full"
+                                        class="w-2.5 h-2.5 bg-[#FFD700] rounded-full"
                                     ></div>
                                 </div>
                             {/if}
