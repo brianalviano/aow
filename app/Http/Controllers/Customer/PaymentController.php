@@ -9,10 +9,10 @@ use App\Enums\PaymentMethodType;
 use App\Http\Controllers\Controller;
 use App\Enums\DropPointCategory;
 use App\Models\PaymentMethod;
-use App\Services\{CheckoutService, OrderService};
+use App\Services\{CheckoutService, OrderService, MidtransService};
 use App\Traits\FileHelperTrait;
 use Illuminate\Http\{RedirectResponse, Request};
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\{Auth, DB, Log};
 use Inertia\{Inertia, Response};
 use Throwable;
 
@@ -28,7 +28,8 @@ class PaymentController extends Controller
      */
     public function __construct(
         private readonly CheckoutService $checkoutService,
-        private readonly OrderService $orderService
+        private readonly OrderService $orderService,
+        private readonly MidtransService $midtransService
     ) {}
 
     /**
@@ -63,11 +64,7 @@ class PaymentController extends Controller
             }
         }
 
-        $paymentMethods = PaymentMethod::where('is_active', true)
-            ->where('type', PaymentMethodType::MANUAL)
-            ->with('paymentGuide')
-            ->get()
-            ->groupBy(fn($method) => $method->category?->label() ?? 'Lainnya');
+        $paymentMethods = $this->getAvailablePaymentMethods();
 
         $user = Auth::guard('customer')->user();
 
@@ -96,13 +93,97 @@ class PaymentController extends Controller
         return Inertia::render('Domains/Customer/Pay/Index', [
             'order' => $order->load('paymentMethod.paymentGuide'),
             'from' => $request->query('from'),
+            'paymentMethods' => $this->getAvailablePaymentMethods(),
         ]);
+    }
+
+    /**
+     * Update payment method for an unpaid order.
+     */
+    public function updateMethod(Request $request, \App\Models\Order $order): RedirectResponse
+    {
+        if ($order->payment_status !== \App\Enums\PaymentStatus::PENDING) {
+            Inertia::flash('toast', [
+                'message' => 'Status pembayaran sudah tidak dalam status tertunda.',
+                'type' => 'error'
+            ]);
+            return back();
+        }
+
+        if ($order->order_status !== \App\Enums\OrderStatus::PENDING) {
+            Inertia::flash('toast', [
+                'message' => 'Pesanan sudah dalam proses dan tidak dapat diubah.',
+                'type' => 'error'
+            ]);
+            return back();
+        }
+
+        $validated = $request->validate([
+            'payment_method_id' => ['required', 'exists:payment_methods,id'],
+        ]);
+
+        $newPaymentMethod = PaymentMethod::findOrFail($validated['payment_method_id']);
+
+        try {
+            DB::transaction(function () use ($order, $newPaymentMethod) {
+                // Re-calculate service fee and total amount
+                $subtotal = $order->total_amount - $order->delivery_fee - $order->admin_fee - $order->service_fee - $order->tax_amount;
+                
+                $newServiceFee = (int) round($subtotal * (float) $newPaymentMethod->service_fee_rate / 100) + (int) $newPaymentMethod->service_fee_fixed;
+                $newTotalAmount = $subtotal + $order->delivery_fee + $order->admin_fee + $newServiceFee + $order->tax_amount;
+
+                $order->update([
+                    'payment_method_id' => $newPaymentMethod->id,
+                    'service_fee' => $newServiceFee,
+                    'total_amount' => $newTotalAmount,
+                    'payment_details' => null, // Reset Midtrans details if switching methods
+                    'payment_proof' => null,   // Reset proof if switching
+                ]);
+
+                if ($newPaymentMethod->type === \App\Enums\PaymentMethodType::GATEWAY) {
+                    $midtransResponse = $this->midtransService->charge($order, $newPaymentMethod);
+                    $order->update([
+                        'payment_details' => (array) $midtransResponse,
+                    ]);
+                }
+            });
+
+            Inertia::flash('toast', [
+                'message' => 'Metode pembayaran berhasil diubah.',
+                'type' => 'success',
+            ]);
+
+            return redirect()->route('customer.payment.show', ['order' => $order->id]);
+        } catch (Throwable $e) {
+            Log::error('Update payment method failed', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            Inertia::flash('toast', [
+                'message' => 'Gagal mengubah metode pembayaran: ' . $e->getMessage(),
+                'type' => 'error',
+            ]);
+
+            return back();
+        }
+    }
+
+    /**
+     * Get all active payment methods grouped by category.
+     */
+    private function getAvailablePaymentMethods()
+    {
+        return PaymentMethod::where('is_active', true)
+            ->with(['paymentGuide', 'category'])
+            ->get()
+            ->groupBy(fn($method) => $method->category?->label() ?? 'Lainnya');
     }
 
     /**
      * Process the payment and create order.
      *
-     * @param ProcessPaymentRequest $request Handled validation.
+     * @param \Illuminate\Http\Request $request Handled validation.
      * @return \Illuminate\Http\RedirectResponse
      * @throws Throwable
      */

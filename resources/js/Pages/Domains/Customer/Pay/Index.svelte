@@ -7,9 +7,11 @@
     interface Props {
         order: any;
         from?: string;
+        paymentMethods?: Record<string, any[]>;
     }
 
-    let { order, from }: Props = $props();
+    let { order, from, paymentMethods = {} }: Props = $props();
+    let isChangingMethod = $state(false);
 
     let guideModalOpen = $state(false);
     let activeGuide = $state<any>(null);
@@ -46,6 +48,21 @@
     function copyToClipboard(text: string) {
         navigator.clipboard.writeText(text);
         alert("Berhasil disalin!");
+    }
+
+    function updateMethod(methodId: number) {
+        router.post(
+            `/payment/${order.id}/update-method`,
+            {
+                payment_method_id: methodId,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    isChangingMethod = false;
+                },
+            },
+        );
     }
 
     function getMidtransData() {
@@ -237,10 +254,94 @@
                 <p class="text-slate-400 text-sm max-w-[280px] mx-auto">
                     Silakan selesaikan pembayaran sesuai instruksi di bawah ini.
                 </p>
+                {#if !isPaid && !isCash && !(isManualTransfer && hasProof) && !isExpired}
+                    <button
+                        onclick={() => (isChangingMethod = !isChangingMethod)}
+                        class="mt-4 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-[#FFD700] text-xs font-bold rounded-full border border-slate-700 transition-all flex items-center justify-center gap-2 mx-auto"
+                    >
+                        <i
+                            class="fa-solid {isChangingMethod
+                                ? 'fa-xmark'
+                                : 'fa-arrows-rotate'}"
+                        ></i>
+                        {isChangingMethod
+                            ? "Batal Ubah"
+                            : "Ganti Metode Pembayaran"}
+                    </button>
+                {/if}
             </div>
         {/if}
 
-        {#if !isPaid && !isCash && !(isManualTransfer && hasProof) && !isExpired}
+        {#if isChangingMethod && !isPaid && !isExpired}
+            <div
+                class="bg-slate-950 rounded-[2.5rem] shadow-2xl border border-slate-800 overflow-hidden"
+            >
+                <div class="p-6 border-b border-slate-800">
+                    <h3 class="font-bold text-slate-100 italic">
+                        Pilih Metode Pembayaran Baru
+                    </h3>
+                </div>
+                <div class="divide-y divide-slate-800 max-h-[400px] overflow-y-auto custom-scrollbar">
+                    {#each Object.entries(paymentMethods) as [category, methods]}
+                        <div class="bg-slate-900/50 px-6 py-2">
+                            <span
+                                class="text-[10px] font-black text-slate-500 uppercase tracking-widest"
+                            >
+                                {category}
+                            </span>
+                        </div>
+                        {#each methods as method}
+                            <button
+                                class="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-800 transition-colors bg-slate-950 group"
+                                onclick={() => updateMethod(method.id)}
+                            >
+                                <div class="flex items-center gap-4">
+                                    {#if method.photo}
+                                        <img
+                                            src={method.photo}
+                                            alt={method.name}
+                                            class="w-10 h-10 object-contain rounded-xl bg-slate-800 p-1.5 border border-slate-700 group-hover:border-[#FFD700] transition-colors"
+                                        />
+                                    {:else}
+                                        <div
+                                            class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-slate-500 border border-slate-700 group-hover:border-[#FFD700] transition-colors"
+                                        >
+                                            <i class="fa-solid fa-wallet"></i>
+                                        </div>
+                                    {/if}
+                                    <div class="text-left">
+                                        <p
+                                            class="font-black text-slate-100 text-sm {order.payment_method_id ===
+                                            method.id
+                                                ? 'text-[#FFD700]'
+                                                : ''}"
+                                        >
+                                            {method.name}
+                                            {#if order.payment_method_id === method.id}
+                                                <span
+                                                    class="ml-2 text-[10px] bg-[#FFD700]/10 text-[#FFD700] px-2 py-0.5 rounded-full"
+                                                    >Aktif</span
+                                                >
+                                            {/if}
+                                        </p>
+                                        {#if method.service_fee_rate > 0 || method.service_fee_fixed > 0}
+                                            <p class="text-[10px] text-slate-500 mt-0.5 italic">
+                                                Biaya: {method.service_fee_rate}% {method.service_fee_fixed > 0 ? `+ ${formatRupiah(method.service_fee_fixed)}` : ''}
+                                            </p>
+                                        {/if}
+                                    </div>
+                                </div>
+                                <i
+                                    class="fa-solid fa-chevron-right text-slate-700 group-hover:text-[#FFD700] transition-colors text-xs"
+                                ></i>
+                            </button>
+                        {/each}
+                    {/each}
+                </div>
+            </div>
+        {/if}
+
+        {#if !isChangingMethod && !isPaid && !isCash && !(isManualTransfer && hasProof) && !isExpired}
             {#if midtransData}
                 <div
                     class="bg-slate-950 rounded-[2.5rem] p-8 shadow-2xl border border-slate-800 space-y-8"
