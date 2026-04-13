@@ -507,6 +507,49 @@ class OrderService
     }
 
     /**
+     * Get orders awaiting payment approval (unpaid, non-cash).
+     */
+    public function getPaymentApprovalOrders(int $perPage = 15)
+    {
+        return Order::query()
+            ->with(['customer', 'paymentMethod', 'items'])
+            ->where('payment_status', 'pending')
+            ->whereDoesntHave('paymentMethod', fn($q) => $q->where('category', 'cash'))
+            ->orderBy('payment_expired_at', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->paginate($perPage);
+    }
+
+    /**
+     * Get orders currently being processed or shipped, with optional filters.
+     */
+    public function getProcessingOrders(\App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
+    {
+        $query = Order::query()
+            ->with(['customer', 'dropPoint', 'items.chef', 'paymentMethod'])
+            ->where(function ($q) {
+                $q->where(function ($inner) {
+                    $inner->where('payment_status', '!=', 'pending')
+                        ->orWhereHas('paymentMethod', fn($pq) => $pq->where('category', 'cash'));
+                })->whereIn('order_status', ['pending', 'confirmed', 'shipped']);
+            });
+
+        if ($dto->dropPointId) {
+            $query->where('drop_point_id', $dto->dropPointId);
+        }
+
+        if ($dto->chefId) {
+            $query->whereHas('items', fn($q) => $q->where('chef_id', $dto->chefId));
+        }
+
+        if ($dto->deliveryDate) {
+            $query->whereDate('delivery_date', $dto->deliveryDate);
+        }
+
+        return $query->orderBy('delivery_date', 'asc')->orderBy('created_at', 'asc')->paginate($perPage);
+    }
+
+    /**
      * Get filtered and paginated order items for a chef.
      *
      * @param string $chefId

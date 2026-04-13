@@ -116,10 +116,30 @@ class HandleInertiaRequests extends Middleware
                 'items' => [
                     [
                         'id'    => 'orders',
-                        'label' => 'Pesanan',
+                        'label' => 'Semua Pesanan',
                         'icon'  => 'fa-bag-shopping',
                         'link'  => route('admin.orders.index'),
+                    ],
+                    [
+                        'id'    => 'orders-payments',
+                        'label' => 'Approval Pembayaran',
+                        'icon'  => 'fa-money-check',
+                        'link'  => route('admin.orders.payments'),
                         'badge' => Order::query()
+                            ->where('payment_status', 'pending')
+                            ->whereDoesntHave('paymentMethod', fn($q) => $q->where('category', 'cash'))
+                            ->count(),
+                    ],
+                    [
+                        'id'    => 'orders-processing',
+                        'label' => 'Pesanan Diproses',
+                        'icon'  => 'fa-kitchen-set',
+                        'link'  => route('admin.orders.processing'),
+                        'badge' => Order::query()
+                            ->where(function ($q) {
+                                $q->where('payment_status', '!=', 'pending')
+                                    ->orWhereHas('paymentMethod', fn($pq) => $pq->where('category', 'cash'));
+                            })
                             ->whereIn('order_status', ['pending', 'confirmed', 'shipped'])
                             ->count(),
                     ],

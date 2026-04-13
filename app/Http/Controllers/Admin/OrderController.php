@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
+use App\Models\{Chef, DropPoint, Order};
 use App\Services\OrderService;
 use App\Traits\FileHelperTrait;
 use Illuminate\Http\{RedirectResponse, Request};
@@ -25,7 +25,7 @@ class OrderController extends Controller
      */
     public function index(Request $request, OrderService $service): Response
     {
-        $dto = \App\DTOs\Order\OrderFilterDTO::from($request->all());
+        $dto = \App\DTOs\Order\OrderFilterDTO::from($request);
 
         $orders = $service->getFilteredOrdersForAdmin($dto, perPage: 15)->withQueryString();
 
@@ -212,6 +212,35 @@ class OrderController extends Controller
 
             return redirect()->back();
         }
+    }
+
+    /**
+     * Display orders awaiting payment approval.
+     */
+    public function payments(OrderService $service): Response
+    {
+        $orders = $service->getPaymentApprovalOrders(perPage: 15)->withQueryString();
+
+        return Inertia::render('Domains/Admin/Order/Payments', [
+            'orders' => \App\Http\Resources\OrderResource::collection($orders),
+        ]);
+    }
+
+    /**
+     * Display orders currently being processed or shipped.
+     */
+    public function processing(Request $request, OrderService $service): Response
+    {
+        $dto = \App\DTOs\Order\OrderFilterDTO::from($request);
+
+        $orders = $service->getProcessingOrders($dto, perPage: 15)->withQueryString();
+
+        return Inertia::render('Domains/Admin/Order/Processing', [
+            'orders'     => \App\Http\Resources\OrderResource::collection($orders),
+            'filters'    => $request->only(['drop_point_id', 'chef_id', 'delivery_date']),
+            'dropPoints' => DropPoint::where('is_active', true)->get(['id', 'name']),
+            'chefs'      => Chef::where('is_active', true)->get(['id', 'name']),
+        ]);
     }
 
     /**
