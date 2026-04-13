@@ -159,7 +159,11 @@
     });
 
     function goBack() {
-        router.visit("/"); // Or `/drop-points/${dropPoint.id}`
+        if (dropPoint?.id) {
+            router.visit(`/order-type?drop_point_id=${dropPoint.id}`);
+        } else {
+            router.visit("/order-type");
+        }
     }
 
     function scrollTabIntoView(categoryId: string) {
