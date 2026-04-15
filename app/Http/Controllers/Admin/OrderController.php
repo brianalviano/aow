@@ -232,12 +232,17 @@ class OrderController extends Controller
     public function processing(Request $request, OrderService $service): Response
     {
         $dto = \App\DTOs\Order\OrderFilterDTO::from($request);
+        $view = $request->query('view', 'list');
+        $perPage = ($view === 'list') ? 15 : 200; // Larger limit for grouped views to allow complete overview
 
-        $orders = $service->getProcessingOrders($dto, perPage: 15)->withQueryString();
+        $orders = $service->getProcessingOrders($dto, perPage: $perPage)->withQueryString();
 
         return Inertia::render('Domains/Admin/Order/Processing', [
             'orders'     => \App\Http\Resources\OrderResource::collection($orders),
-            'filters'    => $request->only(['drop_point_id', 'chef_id', 'delivery_date']),
+            'filters'    => array_merge(
+                $request->only(['drop_point_id', 'chef_id', 'delivery_date']),
+                ['view' => $view]
+            ),
             'dropPoints' => DropPoint::where('is_active', true)->get(['id', 'name']),
             'chefs'      => Chef::where('is_active', true)->get(['id', 'name']),
         ]);
