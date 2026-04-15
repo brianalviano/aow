@@ -324,6 +324,7 @@
                         <thead>
                             <tr>
                                 <th>No. Pesanan</th>
+                                <th>Jam</th>
                                 <th>Customer</th>
                                 <th>Drop Point</th>
                                 <th>Dapur / Chef</th>
@@ -353,6 +354,9 @@
                                         class="font-medium text-gray-900 dark:text-white"
                                     >
                                         {item.number}
+                                    </td>
+                                    <td class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                        {item.delivery_time ?? "-"}
                                     </td>
                                     <td>
                                         <div
