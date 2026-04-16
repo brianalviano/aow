@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import { page } from "@inertiajs/svelte";
 
     interface NavLink {
         href: string;
@@ -19,12 +18,7 @@
         title?: string;
     }
 
-    let {
-        children,
-        navSections = [],
-        tocItems = [],
-        title = "Dokumentasi",
-    }: Props = $props();
+    let { children, navSections = [], tocItems = [] }: Props = $props();
 
     // ── scroll-spy ──────────────────────────────────────────────────────────
     let activeId = $state<string>("");
@@ -107,13 +101,6 @@
                 >Dokumentasi</a
             >
             <a href="/" class="hover:text-white transition-colors">Beranda</a>
-            <a
-                href="/admin/login"
-                class="px-4 py-1.5 rounded font-semibold text-xs hover:opacity-90 transition-opacity"
-                style="background:#e8c547;color:#0d0f14;"
-            >
-                Login Admin
-            </a>
         </nav>
     </div>
 </header>
