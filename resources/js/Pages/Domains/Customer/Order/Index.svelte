@@ -173,6 +173,13 @@
             };
         }
 
+        if (orderStatus === "arrived") {
+            return {
+                text: "Tiba di Tujuan",
+                classes: "bg-blue-900/20 text-blue-400 border border-blue-800",
+            };
+        }
+
         if (orderStatus === "pending" || orderStatus === "confirmed") {
             if (paymentStatus === "pending") {
                 if (isCash) {

@@ -97,20 +97,6 @@
 
     // Recalculate fees locally to handle quantity changes
     const localDeliveryFee = $derived.by(() => {
-        if (
-            settings.free_courier_min_order > 0 &&
-            subtotal >= settings.free_courier_min_order
-        ) {
-            return 0;
-        }
-
-        if (fees.useBiteship && fees.shippingBreakdown) {
-            return fees.shippingBreakdown.reduce(
-                (sum, shipping) => sum + (shipping.success ? shipping.fee : 0),
-                0,
-            );
-        }
-
         return fees.baseDeliveryFee;
     });
 
@@ -710,41 +696,6 @@
                         {/if}
                     </span>
                 </div>
-
-                {#if fees.useBiteship && fees.shippingBreakdown && fees.shippingBreakdown.length > 0 && localDeliveryFee > 0}
-                    <div
-                        class="pl-3 mt-1 space-y-1.5 border-l-2 border-slate-700"
-                    >
-                        {#each fees.shippingBreakdown as shipping}
-                            <div
-                                class="flex justify-between items-start text-xs"
-                            >
-                                <span
-                                    class="text-slate-400 w-2/3 pr-2 leading-tight"
-                                >
-                                    <i
-                                        class="fa-solid fa-truck-fast text-[10px] mr-1.5 text-[#FFD700]"
-                                    ></i>
-                                    Dapur: {shipping.chef_name}
-                                    <span class="text-slate-500"
-                                        >({shipping.courier_name})</span
-                                    >
-                                </span>
-                                <span
-                                    class="text-slate-300 font-medium whitespace-nowrap"
-                                >
-                                    {#if shipping.success}
-                                        {formatRupiah(shipping.fee)}
-                                    {:else}
-                                        <span class="text-red-500 italic"
-                                            >Tidak tersedia</span
-                                        >
-                                    {/if}
-                                </span>
-                            </div>
-                        {/each}
-                    </div>
-                {/if}
             </div>
             {#if settings.tax_enabled}
                 <div class="flex justify-between items-center">

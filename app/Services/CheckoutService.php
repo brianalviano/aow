@@ -69,8 +69,8 @@ class CheckoutService
         $useBiteship = false;
 
         if ($address && $address->latitude && $address->longitude) {
-            // Custom address → use Biteship for per-chef dynamic shipping
-            $useBiteship = true;
+            // Custom address → Biteship is temporarily disabled
+            $useBiteship = false;
 
             if ($subtotal >= $minOrderFreeDelivery && $minOrderFreeDelivery > 0) {
                 $deliveryFee = 0;

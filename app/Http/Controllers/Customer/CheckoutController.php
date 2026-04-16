@@ -39,8 +39,9 @@ class CheckoutController extends Controller
         }
 
         $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id'] ?? null, $addressData['id'] ?? null);
-
-        $orderType = session('checkout_order_type', 'preorder');
+        
+        // Force preorder as instant is temporarily disabled
+        $orderType = 'preorder';
         $deliveryDate = session('checkout_delivery_date');
         $deliveryTime = session('checkout_delivery_time');
         $notes = session('checkout_notes');

@@ -49,8 +49,8 @@
 
     let { roles, orderFlow }: Props = $props();
 
-    // ── Nav & TOC data ────────────────────────────────────────────────────
-    const navSections = [
+    // ── Nav & TOC data (Dynamic) ──────────────────────────────────────────
+    const navSections = $derived([
         {
             group: "Overview",
             links: [
@@ -58,60 +58,26 @@
                 { href: "#order-flow", label: "Alur Order" },
             ],
         },
-        {
-            group: "Customer",
+        ...roles.map((role) => ({
+            group: role.name,
             links: [
-                { href: "#customer", label: "Overview" },
-                { href: "#cust-auth", label: "Autentikasi & Profil" },
-                { href: "#cust-browse", label: "Browsing & Menu" },
-                { href: "#cust-checkout", label: "Checkout & Pembayaran" },
-                { href: "#cust-orders", label: "Pesanan & Testimoni" },
-                { href: "#cust-engage", label: "Feedback & Notifikasi" },
+                { href: `#${role.id}`, label: "Overview" },
+                ...role.sections.map((s) => ({
+                    href: `#${s.id}`,
+                    label: s.title,
+                })),
             ],
-        },
-        {
-            group: "Chef",
-            links: [
-                { href: "#chef", label: "Overview" },
-                { href: "#chef-dashboard", label: "Dashboard" },
-                { href: "#chef-orders", label: "Manajemen Item" },
-                { href: "#chef-report", label: "Laporan Keuangan" },
-            ],
-        },
-        {
-            group: "PIC Pickup Point",
-            links: [
-                { href: "#pic", label: "Overview" },
-                { href: "#pic-dashboard", label: "Dashboard" },
-                { href: "#pic-orders", label: "Operasi Order" },
-            ],
-        },
-        {
-            group: "Admin",
-            links: [
-                { href: "#admin", label: "Overview" },
-                { href: "#admin-dashboard", label: "Dashboard" },
-                { href: "#admin-orders", label: "Manajemen Order" },
-                { href: "#admin-products", label: "Produk & Kategori" },
-                { href: "#admin-chefs", label: "Manajemen Chef" },
-                { href: "#admin-locations", label: "Drop & Pickup Point" },
-                { href: "#admin-payments", label: "Metode Pembayaran" },
-                { href: "#admin-customers", label: "Customer" },
-                { href: "#admin-requests", label: "Food Request" },
-                { href: "#admin-reports", label: "Laporan" },
-                { href: "#admin-settings", label: "Pengaturan & User" },
-            ],
-        },
-    ];
+        })),
+    ]);
 
-    const tocItems = [
+    const tocItems = $derived([
         { href: "#introduction", label: "Pendahuluan" },
         { href: "#order-flow", label: "Alur Order" },
-        { href: "#customer", label: "Customer" },
-        { href: "#chef", label: "Chef" },
-        { href: "#pic", label: "PIC Pickup Point" },
-        { href: "#admin", label: "Admin" },
-    ];
+        ...roles.map((role) => ({
+            href: `#${role.id}`,
+            label: role.name,
+        })),
+    ]);
 
     // ── Helpers ───────────────────────────────────────────────────────────
     const methodStyle: Record<string, string> = {
@@ -201,7 +167,7 @@
             class="font-[Lora] text-base leading-relaxed mb-6"
             style="color:#8b91a8;"
         >
-            AOWenak adalah platform pre-order dan instant order makanan berbasis
+            AOWenak adalah platform pre-order makanan berbasis
             web yang menghubungkan customer, chef mitra, petugas pickup point,
             dan admin dalam satu ekosistem terintegrasi. Dokumentasi ini
             menjelaskan kemampuan dan alur kerja masing-masing dari 4 role yang
@@ -241,7 +207,7 @@
                 Tech Stack
             </p>
             <div class="flex flex-wrap gap-2">
-                {#each ["Laravel 12", "Svelte 5", "Inertia.js", "PostgreSQL", "Tailwind CSS v4", "Midtrans", "Biteship", "Fonnte (WhatsApp)"] as tech}
+                {#each ["Laravel 12", "Svelte 5", "Inertia.js", "PostgreSQL", "Tailwind CSS v4", "Fonnte (WhatsApp)"] as tech}
                     <span
                         class="font-['Fira_Code'] text-xs px-2.5 py-1 rounded"
                         style="background:#1f2433;color:#8b91a8;"

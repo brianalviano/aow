@@ -52,24 +52,11 @@
         dateIso === new Date().toISOString().split("T")[0],
     );
 
-    const minTime = $derived.by(() => {
-        if (orderType === "instant" && isToday) {
-            const now = new Date();
-            // Add 30 minutes buffer for instant
-            now.setMinutes(now.getMinutes() + 30);
-            return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-        }
-        return "";
-    });
+    const minTime = "";
 
     function handleSave() {
         if (!dateIso || !time) {
             error = "Pilih tanggal dan waktu pengiriman";
-            return;
-        }
-
-        if (minTime && time < minTime) {
-            error = `Waktu minimal untuk hari ini adalah ${minTime}`;
             return;
         }
 
@@ -79,11 +66,6 @@
 
     // Prevent scrolling behind modal
     onMount(() => {
-        // If instant and no initial time, set to minTime
-        if (orderType === "instant" && !time && minTime) {
-            time = minTime;
-        }
-
         document.body.style.overflow = "hidden";
         return () => {
             document.body.style.overflow = "";
@@ -131,7 +113,7 @@
                     min={minDateIso}
                     placeholder="Pilih Tanggal"
                     showIcon={true}
-                    disabled={orderType === "instant"}
+                    disabled={false}
                 />
 
                 <TimeInput

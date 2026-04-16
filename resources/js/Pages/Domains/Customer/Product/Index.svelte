@@ -779,11 +779,6 @@
                     class="text-white font-bold text-sm bg-[#FFC700] px-4 py-2 rounded-lg flex items-center justify-center min-w-[120px] disabled:opacity-75 disabled:cursor-not-allowed"
                     disabled={isCheckoutLoading}
                     on:click|stopPropagation={() => {
-                        if (orderType === 'instant' && chefCount > 1) {
-                            showChefWarningModal = true;
-                            return;
-                        }
-
                         isCheckoutLoading = true;
                         router.post(
                             "/checkout/session",

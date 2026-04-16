@@ -41,8 +41,8 @@ class OrderService
     {
         try {
             return DB::transaction(function () use ($order, $deliveryPhotoPath) {
-                // Ensure the order is currently shipped before marking as delivered
-                if ($order->order_status !== OrderStatus::SHIPPED) {
+                // Ensure the order is currently arrived or shipped before marking as delivered
+                if (!in_array($order->order_status, [OrderStatus::ARRIVED, OrderStatus::SHIPPED])) {
                     throw new \Exception("Pesanan tidak dapat diselesaikan karena status saat ini adalah {$order->order_status->value}.");
                 }
 
@@ -1030,8 +1030,12 @@ class OrderService
                     }
 
                     // PIC flow: Biteship delivers from pickup point to customer
+                    // Change to ARRIVED so customer must confirm receipt
                     if ($order->order_status === OrderStatus::ON_DELIVERY) {
-                        $this->completeOrder($order);
+                        $order->update([
+                            'order_status' => OrderStatus::ARRIVED,
+                            'arrived_at' => now(),
+                        ]);
                     }
 
                     $order->load('customer');
@@ -1046,7 +1050,35 @@ class OrderService
                 'status' => $status,
                 'error' => $e->getMessage(),
             ]);
-            throw $e;
         }
+    }
+
+    /**
+     * Automatically complete orders that have been in ARRIVED status for more than 6 hours.
+     * 
+     * @return int Number of orders auto-completed.
+     */
+    public function autoCompleteArrivedOrders(): int
+    {
+        $expiredOrders = Order::query()
+            ->where('order_status', OrderStatus::ARRIVED)
+            ->where('arrived_at', '<=', now()->subHours(6))
+            ->get();
+
+        $count = 0;
+        foreach ($expiredOrders as $order) {
+            /** @var \App\Models\Order $order */
+            try {
+                $this->completeOrder($order);
+                $count++;
+            } catch (\Throwable $e) {
+                Log::error('Gagal menyelesaikan pesanan otomatis (timeout 6 jam)', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $count;
     }
 }

@@ -17,6 +17,7 @@ enum OrderStatus: string
     case SHIPPED = 'shipped';
     case AT_PICKUP_POINT = 'at_pickup_point';
     case ON_DELIVERY = 'on_delivery';
+    case ARRIVED = 'arrived';
     case DELIVERED = 'delivered';
     case CANCELLED = 'cancelled';
 
@@ -31,6 +32,7 @@ enum OrderStatus: string
             self::SHIPPED => 'Dikirim ke Pickup Point',
             self::AT_PICKUP_POINT => 'Di Pickup Point',
             self::ON_DELIVERY => 'Sedang Dikirim ke Customer',
+            self::ARRIVED => 'Tiba di Tujuan',
             self::DELIVERED => 'Selesai',
             self::CANCELLED => 'Dibatalkan',
         };
@@ -47,6 +49,7 @@ enum OrderStatus: string
             self::SHIPPED => 'Chef sedang mengirim makanan ke pickup point.',
             self::AT_PICKUP_POINT => 'Semua makanan sudah sampai di pickup point.',
             self::ON_DELIVERY => 'PIC sedang mengirim pesanan ke customer.',
+            self::ARRIVED => 'Pesanan telah sampai dan menunggu konfirmasi pelanggan.',
             self::DELIVERED => 'Pesanan telah diterima oleh pelanggan.',
             self::CANCELLED => 'Pesanan telah dibatalkan.',
         };

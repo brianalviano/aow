@@ -102,6 +102,15 @@
             };
         }
 
+        if (orderStatus === "arrived") {
+            return {
+                text: "Tiba di Tujuan",
+                classes:
+                    "bg-blue-900/20 text-blue-400 border border-blue-800",
+                icon: "fa-solid fa-house-circle-check",
+            };
+        }
+
         if (orderStatus === "pending" || orderStatus === "confirmed") {
             if (paymentStatus === "pending") {
                 if (isCash) {
@@ -324,7 +333,7 @@
             </Link>
         {/if}
 
-        {#if order.order_status === "shipped"}
+        {#if order.order_status === "arrived"}
             <Link
                 href={`/orders/${order.id}/complete`}
                 method="post"
