@@ -390,7 +390,7 @@
                                 variant="primary"
                                 size="sm"
                                 icon="fa-solid fa-eye"
-                                href={`/admin/orders/${item.id}`}
+                                href={`/admin/orders/${item.id}?from=processing`}
                             >
                                 Detail
                             </Button>

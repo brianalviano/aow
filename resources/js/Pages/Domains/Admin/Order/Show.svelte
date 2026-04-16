@@ -347,6 +347,13 @@
 
         return Object.values(groups);
     });
+    const backUrl = $derived.by(() => {
+        const params = new URLSearchParams(window.location.search);
+        const from = params.get("from");
+        if (from === "processing") return "/admin/orders/processing";
+        if (from === "payments") return "/admin/orders/payments";
+        return "/admin/orders";
+    });
 </script>
 
 <svelte:head>
@@ -363,7 +370,7 @@
                     variant="secondary"
                     size="sm"
                     icon="fa-solid fa-arrow-left"
-                    href="/admin/orders"
+                    href={backUrl}
                 />
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
                     Detail Pesanan
