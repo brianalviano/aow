@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DocsController;
 use App\Http\Controllers\Admin\{
     AccountSettingController,
     ChefController,
@@ -48,6 +49,14 @@ use App\Http\Controllers\Customer\{
     FoodRequestController,
     CustomerAddressController,
 };
+
+/*
+|--------------------------------------------------------------------------
+| Documentation
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/docs', [DocsController::class, 'index'])->name('docs');
 
 /*
 |--------------------------------------------------------------------------
