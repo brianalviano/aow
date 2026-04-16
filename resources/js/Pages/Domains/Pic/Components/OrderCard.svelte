@@ -148,9 +148,9 @@
         confirmDialog = {
             isOpen: true,
             type: "success",
-            title: "Selesaikan Pesanan",
-            message: `Apakah Anda yakin ingin menandai pesanan ${order.number} telah selesai dan diterima oleh pelanggan?`,
-            confirmText: "Ya, Selesaikan",
+            title: "Konfirmasi Pesanan Tiba",
+            message: `Apakah Anda yakin pesanan ${order.number} telah sampai di lokasi tujuan?`,
+            confirmText: "Ya, Pesanan Sampai",
             action: "complete",
         };
     }
@@ -413,7 +413,16 @@
                 </Button>
             {/if}
         {:else if tab === "on_delivery"}
-            {#if isPreOrder()}
+            {#if order.order_status === "arrived"}
+                <Badge
+                    variant="info"
+                    size="lg"
+                    class="rounded-full bg-blue-900/20 text-blue-400 border border-blue-500/20 font-black px-6 py-2"
+                >
+                    <i class="fa-solid fa-clock mr-2"></i>
+                    Menunggu Konfirmasi Pelanggan
+                </Badge>
+            {:else if isPreOrder()}
                 <Button
                     variant="success"
                     size="lg"
@@ -422,7 +431,7 @@
                     onclick={confirmComplete}
                     class="rounded-2xl font-black bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
-                    Tandai Selesai
+                    Pesanan Tiba
                 </Button>
             {:else}
                 <Badge

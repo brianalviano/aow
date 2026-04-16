@@ -43,6 +43,7 @@ class OrderResource extends JsonResource
             'tax_amount'               => $this->tax_amount,
             'payment_expired_at'       => $this->payment_expired_at?->toIso8601String(),
             'delivered_at'             => $this->delivered_at?->toIso8601String(),
+            'arrived_at'               => $this->arrived_at?->toIso8601String(),
             'created_at'               => $this->created_at?->toIso8601String(),
             'updated_at'               => $this->updated_at?->toIso8601String(),
             'chef_status_summary'      => $this->chef_status_summary,

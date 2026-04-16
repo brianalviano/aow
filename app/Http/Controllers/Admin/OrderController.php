@@ -41,7 +41,7 @@ class OrderController extends Controller
                     $q->where('payment_status', '!=', 'pending')
                         ->orWhereHas('paymentMethod', fn($pq) => $pq->where('category', 'cash'));
                 })->whereIn('order_status', ['pending', 'confirmed'])->count(),
-                'shipped'   => Order::where('order_status', 'shipped')->count(),
+                'shipped'   => Order::whereIn('order_status', ['shipped', 'arrived'])->count(),
                 'completed' => Order::where('order_status', 'delivered')->count(),
                 'cancelled' => Order::where(function ($q) {
                     $q->where('order_status', 'cancelled')

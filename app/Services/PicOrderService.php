@@ -74,7 +74,7 @@ class PicOrderService
     {
         return Order::query()
             ->where('pick_up_point_id', $pickUpPointId)
-            ->where('order_status', OrderStatus::ON_DELIVERY)
+            ->whereIn('order_status', [OrderStatus::ON_DELIVERY, OrderStatus::ARRIVED])
             ->with(['items.product', 'customer', 'dropPoint', 'customerAddress', 'pickUpPoint', 'shippings'])
             ->latest()
             ->paginate(15)

@@ -156,6 +156,8 @@
                 return { variant: "info", label: "Dikonfirmasi" };
             case "shipped":
                 return { variant: "primary", label: "Dikirim" };
+            case "arrived":
+                return { variant: "info", label: "Tiba di Tujuan" };
             default:
                 return { variant: "secondary", label: status };
         }

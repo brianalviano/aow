@@ -67,6 +67,7 @@
         payment_proof_url?: string;
         delivery_photo_url?: string;
         delivered_at?: string;
+        arrived_at?: string;
         created_at: string;
         items: (OrderItem & {
             chef?: { id: string; name: string };
@@ -304,6 +305,8 @@
                 return { variant: "info", label: "Di Pickup Point" };
             case "on_delivery":
                 return { variant: "primary", label: "Sedang Dikirim" };
+            case "arrived":
+                return { variant: "info", label: "Tiba di Tujuan" };
             case "delivered":
                 return { variant: "success", label: "Selesai" };
             case "cancelled":
@@ -1187,6 +1190,48 @@
                             )}
                         </div>
                     </div>
+                    {#if order.arrived_at}
+                        <div>
+                            <div
+                                class="text-xs font-semibold text-gray-500 uppercase"
+                            >
+                                Pesanan Tiba Pada
+                            </div>
+                            <div class="text-sm text-indigo-600 font-bold">
+                                {new Date(order.arrived_at).toLocaleString(
+                                    "id-ID",
+                                    {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    },
+                                )}
+                            </div>
+                        </div>
+                    {/if}
+                    {#if order.delivered_at}
+                        <div>
+                            <div
+                                class="text-xs font-semibold text-gray-500 uppercase"
+                            >
+                                Pesanan Selesai Pada
+                            </div>
+                            <div class="text-sm text-emerald-600 font-bold">
+                                {new Date(order.delivered_at).toLocaleString(
+                                    "id-ID",
+                                    {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    },
+                                )}
+                            </div>
+                        </div>
+                    {/if}
                     {#if order.payment_status === "pending" && order.payment_expired_at}
                         <div>
                             <div
