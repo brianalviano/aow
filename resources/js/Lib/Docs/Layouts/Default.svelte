@@ -24,21 +24,43 @@
     let activeId = $state<string>("");
 
     $effect(() => {
-        const sections = document.querySelectorAll<HTMLElement>("section[id]");
+        // Accessing props to ensure effect re-runs when mode changes content
+        navSections;
+        tocItems;
+
+        const sections = document.querySelectorAll<HTMLElement>("section[id], [id^='step-']");
+
+        const handleScroll = () => {
+            const isAtBottom = (window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 50;
+            const lastSection = sections[sections.length - 1];
+            if (isAtBottom && lastSection) {
+                activeId = lastSection.id;
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
 
         const observer = new IntersectionObserver(
             (entries) => {
+                // Only use observer if not at the very bottom to avoid conflicts
+                const isAtBottom = (window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 50;
+                if (isAtBottom) return;
+
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
                         activeId = entry.target.id;
                     }
                 });
             },
-            { rootMargin: "-20% 0px -70% 0px" },
+            { rootMargin: "-10% 0px -70% 0px" },
         );
 
         sections.forEach((s) => observer.observe(s));
-        return () => observer.disconnect();
+        
+        return () => {
+            observer.disconnect();
+            window.removeEventListener("scroll", handleScroll);
+        };
     });
 
     const roleColors: Record<string, string> = {
@@ -279,8 +301,8 @@
 
     .sidebar {
         position: sticky;
-        top: 0;
-        height: 100vh;
+        top: 56px;
+        height: calc(100vh - 56px);
         overflow-y: auto;
     }
 

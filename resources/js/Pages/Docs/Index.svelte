@@ -42,42 +42,70 @@
         desc: string;
     }
 
+    interface UserGuideStep {
+        title: string;
+        items: string[];
+    }
+
     interface Props {
         roles: Role[];
         orderFlow: OrderFlowStep[];
+        userGuide: UserGuideStep[];
     }
 
-    let { roles, orderFlow }: Props = $props();
+    let { roles, orderFlow, userGuide }: Props = $props();
+
+    // ── Mode State ────────────────────────────────────────────────────────
+    let docMode = $state<"user" | "tech">("user");
 
     // ── Nav & TOC data (Dynamic) ──────────────────────────────────────────
-    const navSections = $derived([
-        {
-            group: "Overview",
-            links: [
-                { href: "#introduction", label: "Pendahuluan" },
-                { href: "#order-flow", label: "Alur Order" },
-            ],
-        },
-        ...roles.map((role) => ({
-            group: role.name,
-            links: [
-                { href: `#${role.id}`, label: "Overview" },
-                ...role.sections.map((s) => ({
-                    href: `#${s.id}`,
-                    label: s.title,
-                })),
-            ],
-        })),
-    ]);
+    const navSections = $derived(
+        docMode === "user"
+            ? [
+                  {
+                      group: "Panduan Pengguna",
+                      links: userGuide.map((step, i) => ({
+                          href: `#step-${i}`,
+                          label: step.title,
+                      })),
+                  },
+              ]
+            : [
+                  {
+                      group: "Overview",
+                      links: [
+                          { href: "#introduction", label: "Pendahuluan" },
+                          { href: "#order-flow", label: "Alur Order" },
+                      ],
+                  },
+                  ...roles.map((role) => ({
+                      group: role.name,
+                      links: [
+                          { href: `#${role.id}`, label: "Overview" },
+                          ...role.sections.map((s) => ({
+                              href: `#${s.id}`,
+                              label: s.title,
+                          })),
+                      ],
+                  })),
+              ],
+    );
 
-    const tocItems = $derived([
-        { href: "#introduction", label: "Pendahuluan" },
-        { href: "#order-flow", label: "Alur Order" },
-        ...roles.map((role) => ({
-            href: `#${role.id}`,
-            label: role.name,
-        })),
-    ]);
+    const tocItems = $derived(
+        docMode === "user"
+            ? userGuide.map((step, i) => ({
+                  href: `#step-${i}`,
+                  label: step.title,
+              }))
+            : [
+                  { href: "#introduction", label: "Pendahuluan" },
+                  { href: "#order-flow", label: "Alur Order" },
+                  ...roles.map((role) => ({
+                      href: `#${role.id}`,
+                      label: role.name,
+                  })),
+              ],
+    );
 
     // ── Helpers ───────────────────────────────────────────────────────────
     const methodStyle: Record<string, string> = {
@@ -145,7 +173,7 @@
 
 <DocsLayout {navSections} {tocItems} title="Dokumentasi">
     <!-- ═══════════════════════════════════════════════════════════════════
-         INTRODUCTION
+         INTRODUCTION / TOGGLE SECTION
     ════════════════════════════════════════════════════════════════════ -->
     <section id="introduction" class="doc-section mb-16">
         <div class="flex items-center gap-3 mb-5">
@@ -153,7 +181,7 @@
                 class="font-['Fira_Code'] text-[0.65rem] uppercase tracking-widest font-semibold px-3 py-1 rounded-full"
                 style="background:#13161e;border:1px solid #1f2433;color:#e8c547;"
             >
-                Pendahuluan
+                {docMode === "user" ? "User Guide" : "Technical Docs"}
             </span>
         </div>
 
@@ -164,353 +192,410 @@
         </h1>
 
         <p
-            class="font-[Lora] text-base leading-relaxed mb-6"
+            class="font-[Lora] text-base leading-relaxed mb-8"
             style="color:#8b91a8;"
         >
-            AOWenak adalah platform pre-order makanan berbasis
-            web yang menghubungkan customer, chef mitra, petugas pickup point,
-            dan admin dalam satu ekosistem terintegrasi. Dokumentasi ini
-            menjelaskan kemampuan dan alur kerja masing-masing dari 4 role yang
-            ada.
+            AOWenak adalah platform pre-order makanan berbasis web yang
+            menghubungkan customer, chef mitra, petugas pickup point, dan admin
+            dalam satu ekosistem terintegrasi.
         </p>
 
-        <!-- Role Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            {#each roles as role}
-                <a
-                    href="#{role.id}"
-                    class="rounded-xl px-4 py-4 border transition-all hover:scale-[1.03]"
-                    style="background:#13161e;border-color:{roleStyle[
-                        role.color
-                    ].borderLeft}40;"
-                >
-                    <div
-                        class="w-2 h-2 rounded-full mb-3"
-                        style={roleStyle[role.color].dot}
-                    ></div>
-                    <p class="font-[Syne] font-semibold text-white text-sm">
-                        {role.name}
-                    </p>
-                    <p class="text-xs mt-1" style="color:#4a5068;">
-                        {role.sections.length} section
-                    </p>
-                </a>
-            {/each}
+        <!-- Mode Toggle -->
+        <div
+            class="flex p-1 bg-[#13161e] border border-[#1f2433] rounded-xl w-fit mb-12"
+        >
+            <button
+                onclick={() => (docMode = "user")}
+                class="px-6 py-2.5 rounded-lg text-xs font-bold transition-all duration-300 flex items-center gap-2
+                {docMode === 'user'
+                    ? 'bg-[#e8c547] text-[#0d0f14] shadow-lg shadow-[#e8c547]/20'
+                    : 'text-[#8b91a8] hover:text-white'}"
+            >
+                <i class="fa-solid fa-book-open"></i>
+                Panduan Pengguna
+            </button>
+            <button
+                onclick={() => (docMode = "tech")}
+                class="px-6 py-2.5 rounded-lg text-xs font-bold transition-all duration-300 flex items-center gap-2
+                {docMode === 'tech'
+                    ? 'bg-[#e8c547] text-[#0d0f14] shadow-lg shadow-[#e8c547]/20'
+                    : 'text-[#8b91a8] hover:text-white'}"
+            >
+                <i class="fa-solid fa-code"></i>
+                Dokumentasi Teknis
+            </button>
         </div>
 
-        <!-- Tech stack callout -->
-        <div
-            class="border-l-2 rounded-r-xl px-5 py-4"
-            style="border-color:#e8c547;background:#13161e;"
-        >
-            <p class="font-[Syne] font-semibold text-white text-sm mb-2">
-                Tech Stack
-            </p>
-            <div class="flex flex-wrap gap-2">
-                {#each ["Laravel 12", "Svelte 5", "Inertia.js", "PostgreSQL", "Tailwind CSS v4", "Fonnte (WhatsApp)"] as tech}
-                    <span
-                        class="font-['Fira_Code'] text-xs px-2.5 py-1 rounded"
-                        style="background:#1f2433;color:#8b91a8;"
-                    >
-                        {tech}
-                    </span>
+        {#if docMode === "user"}
+            <!-- ─────────────────────────────────────────────────────────────
+                 USER GUIDE VIEW
+                 ───────────────────────────────────────────────────────────── -->
+            <div class="space-y-12">
+                {#each userGuide as step, i}
+                    <div id="step-{i}" class="relative pl-12">
+                        {#if i < userGuide.length - 1}
+                            <div
+                                class="absolute left-[23px] top-12 bottom-[-48px] w-0.5 bg-linear-to-b from-[#e8c547] to-transparent opacity-20"
+                            ></div>
+                        {/if}
+
+                        <div
+                            class="absolute left-0 top-0 w-12 h-12 rounded-2xl bg-[#13161e] border border-[#1f2433] flex items-center justify-center text-[#e8c547] font-black text-lg shadow-xl shadow-black/40"
+                        >
+                            {i + 1}
+                        </div>
+
+                        <div
+                            class="bg-[#13161e] border border-[#1f2433] rounded-3xl p-8 hover:border-[#e8c547]/30 transition-all group"
+                        >
+                            <h3
+                                class="font-[Syne] text-xl font-bold text-white mb-6 group-hover:text-[#e8c547] transition-colors flex items-center gap-3"
+                            >
+                                {step.title}
+                            </h3>
+
+                            <ul class="space-y-4">
+                                {#each step.items as item}
+                                    <li class="flex items-start gap-3">
+                                        <div
+                                            class="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#e8c547] shrink-0 shadow-[0_0_8px_#e8c547]"
+                                        ></div>
+                                        <p
+                                            class="font-[Lora] text-base leading-relaxed"
+                                            style="color:#8b91a8;"
+                                        >
+                                            {item}
+                                        </p>
+                                    </li>
+                                {/each}
+                            </ul>
+                        </div>
+                    </div>
                 {/each}
             </div>
-        </div>
+        {:else}
+            <!-- ─────────────────────────────────────────────────────────────
+                 TECHNICAL OVERVIEW
+                 ───────────────────────────────────────────────────────────── -->
+            <div class="space-y-12">
+                <div
+                    class="border-l-2 rounded-r-xl px-5 py-4"
+                    style="border-color:#e8c547;background:#13161e;"
+                >
+                    <p
+                        class="text-sm font-[Lora] leading-relaxed"
+                        style="color:#8b91a8;"
+                    >
+                        <i class="fa-solid fa-circle-info mr-2 text-[#e8c547]"
+                        ></i>
+                        Gunakan panduan ini untuk memahami struktur API, rute sistem,
+                        dan detail alur operasional teknis antar role.
+                    </p>
+                </div>
+
+                <!-- Role Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {#each roles as role}
+                        <a
+                            href="#{role.id}"
+                            class="rounded-xl px-4 py-4 border transition-all hover:scale-[1.03]"
+                            style="background:#13161e;border-color:{roleStyle[
+                                role.color
+                            ].borderLeft}40;"
+                        >
+                            <div
+                                class="w-2 h-2 rounded-full mb-3"
+                                style={roleStyle[role.color].dot}
+                            ></div>
+                            <p
+                                class="font-[Syne] font-semibold text-white text-sm"
+                            >
+                                {role.name}
+                            </p>
+                            <p class="text-xs mt-1" style="color:#4a5068;">
+                                {role.sections.length} section
+                            </p>
+                        </a>
+                    {/each}
+                </div>
+
+                <!-- Tech Stack -->
+                <div
+                    class="border-l-2 rounded-r-xl px-5 py-4"
+                    style="border-color:#e8c547;background:#13161e;"
+                >
+                    <p
+                        class="font-[Syne] font-semibold text-white text-sm mb-2"
+                    >
+                        Tech Stack
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        {#each ["Laravel 12", "Svelte 5", "Inertia.js", "PostgreSQL", "Tailwind CSS v4", "Fonnte (WhatsApp)"] as tech}
+                            <span
+                                class="font-['Fira_Code'] text-xs px-2.5 py-1 rounded"
+                                style="background:#1f2433;color:#8b91a8;"
+                            >
+                                {tech}
+                            </span>
+                        {/each}
+                    </div>
+                </div>
+            </div>
+        {/if}
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════════════════
-         ORDER FLOW
-    ════════════════════════════════════════════════════════════════════ -->
-    <section id="order-flow" class="doc-section mb-16">
-        <h2
-            class="font-[Syne] text-2xl font-bold text-white mb-2 tracking-tight"
-        >
-            Alur Status Order
-        </h2>
-        <p
-            class="font-[Lora] text-sm leading-relaxed mb-6"
-            style="color:#8b91a8;"
-        >
-            Setiap order melewati status berikut secara berurutan. Masing-masing
-            status dipicu oleh role yang berbeda.
-        </p>
+    {#if docMode === "tech"}
+        <!-- ═══════════════════════════════════════════════════════════════════
+             ORDER FLOW (TECH ONLY)
+             ════════════════════════════════════════════════════════════════════ -->
+        <section id="order-flow" class="doc-section mb-16">
+            <h2
+                class="font-[Syne] text-2xl font-bold text-white mb-2 tracking-tight"
+            >
+                Alur Status Order
+            </h2>
+            <p
+                class="font-[Lora] text-sm leading-relaxed mb-6"
+                style="color:#8b91a8;"
+            >
+                Setiap order melewati status berikut secara berurutan.
+                Masing-masing status dipicu oleh role yang berbeda.
+            </p>
 
-        <!-- Flow diagram -->
-        <div
-            class="flex flex-wrap items-center gap-2 mb-8 p-5 rounded-xl border"
-            style="background:#13161e;border-color:#1f2433;"
-        >
-            {#each orderFlow.filter((s) => s.status !== "CANCELLED") as step, i}
+            <div
+                class="flex flex-wrap items-center gap-2 mb-8 p-5 rounded-xl border"
+                style="background:#13161e;border-color:#1f2433;"
+            >
+                {#each orderFlow.filter((s) => s.status !== "CANCELLED") as step, i}
+                    <span
+                        class="font-['Fira_Code'] text-xs font-semibold px-3 py-1.5 rounded-lg"
+                        style={flowColorStyle[step.color]}
+                    >
+                        {step.status}
+                    </span>
+                    {#if i < orderFlow.filter((s) => s.status !== "CANCELLED").length - 1}
+                        <span style="color:#4a5068;">→</span>
+                    {/if}
+                {/each}
+                <span style="color:#4a5068;" class="mx-1">│</span>
                 <span
                     class="font-['Fira_Code'] text-xs font-semibold px-3 py-1.5 rounded-lg"
-                    style={flowColorStyle[step.color]}
+                    style={flowColorStyle["red"]}
                 >
-                    {step.status}
+                    CANCELLED
                 </span>
-                {#if i < orderFlow.filter((s) => s.status !== "CANCELLED").length - 1}
-                    <span style="color:#4a5068;">→</span>
-                {/if}
-            {/each}
-            <span style="color:#4a5068;" class="mx-1">│</span>
-            <span
-                class="font-['Fira_Code'] text-xs font-semibold px-3 py-1.5 rounded-lg"
-                style={flowColorStyle["red"]}
-            >
-                CANCELLED
-            </span>
-            <span class="text-xs ml-1" style="color:#4a5068;"
-                >(kapan saja sebelum DELIVERED)</span
-            >
-        </div>
+            </div>
 
-        <!-- Flow table -->
-        <div
-            class="rounded-xl overflow-hidden border"
-            style="border-color:#1f2433;"
-        >
-            <table>
-                <thead>
-                    <tr style="background:#13161e;">
-                        <th
-                            class="text-left px-5 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
-                            style="color:#8b91a8;">Status</th
-                        >
-                        <th
-                            class="text-left px-5 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
-                            style="color:#8b91a8;">Dilakukan Oleh</th
-                        >
-                        <th
-                            class="text-left px-5 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
-                            style="color:#8b91a8;">Keterangan</th
-                        >
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each orderFlow as step}
-                        <tr
-                            class="transition-colors"
-                            style="background:transparent;"
-                            onmouseenter={(e) =>
-                                ((
-                                    e.currentTarget as HTMLElement
-                                ).style.background = "rgba(255,255,255,0.02)")}
-                            onmouseleave={(e) =>
-                                ((
-                                    e.currentTarget as HTMLElement
-                                ).style.background = "transparent")}
-                        >
-                            <td class="px-5 py-3">
-                                <span
-                                    class="font-['Fira_Code'] text-xs font-semibold px-2.5 py-1 rounded"
-                                    style={flowColorStyle[step.color]}
-                                >
-                                    {step.status}
-                                </span>
-                            </td>
-                            <td
-                                class="px-5 py-3 text-sm font-[Syne] font-medium"
-                                style="color:#d4d8e8;">{step.actor}</td
+            <div
+                class="rounded-xl overflow-hidden border"
+                style="border-color:#1f2433;"
+            >
+                <table class="w-full">
+                    <thead>
+                        <tr style="background:#13161e;">
+                            <th
+                                class="text-left px-5 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
+                                style="color:#8b91a8;">Status</th
                             >
-                            <td
-                                class="px-5 py-3 text-sm font-[Lora] leading-relaxed"
-                                style="color:#8b91a8;">{step.desc}</td
+                            <th
+                                class="text-left px-5 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
+                                style="color:#8b91a8;">Aktor</th
+                            >
+                            <th
+                                class="text-left px-5 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
+                                style="color:#8b91a8;">Keterangan</th
                             >
                         </tr>
-                    {/each}
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════════════════════════════
-         ROLE SECTIONS (generated from roles prop)
-    ════════════════════════════════════════════════════════════════════ -->
-    {#each roles as role, roleIdx}
-        <!-- Role header section -->
-        <section id={role.id} class="doc-section mb-6">
-            <div
-                class="rounded-xl px-6 py-6 border-l-4"
-                style="background:#13161e;border-left-color:{roleStyle[
-                    role.color
-                ].borderLeft};"
-            >
-                <div class="flex items-center gap-3 mb-3">
-                    <span
-                        class="font-['Fira_Code'] text-[0.65rem] uppercase tracking-widest font-semibold px-3 py-1 rounded-full"
-                        style={roleStyle[role.color].badge}
-                    >
-                        {role.name}
-                    </span>
-                    <span class="text-xs font-[Syne]" style="color:#4a5068;">
-                        {role.sections.length} section · {role.sections.reduce(
-                            (a, s) => a + (s.routes?.length ?? 0),
-                            0,
-                        )} routes
-                    </span>
-                </div>
-                <h2
-                    class="font-[Syne] text-2xl font-bold tracking-tight mb-2"
-                    style={roleStyle[role.color].title}
-                >
-                    {role.name}
-                </h2>
-                <p
-                    class="font-[Lora] text-sm leading-relaxed"
-                    style="color:#8b91a8;"
-                >
-                    {role.desc}
-                </p>
+                    </thead>
+                    <tbody>
+                        {#each orderFlow as step}
+                            <tr class="transition-colors hover:bg-white/2">
+                                <td class="px-5 py-3">
+                                    <span
+                                        class="font-['Fira_Code'] text-xs font-semibold px-2.5 py-1 rounded"
+                                        style={flowColorStyle[step.color]}
+                                    >
+                                        {step.status}
+                                    </span>
+                                </td>
+                                <td
+                                    class="px-5 py-3 text-sm font-[Syne] font-medium"
+                                    style="color:#d4d8e8;">{step.actor}</td
+                                >
+                                <td
+                                    class="px-5 py-3 text-sm font-[Lora] leading-relaxed"
+                                    style="color:#8b91a8;">{step.desc}</td
+                                >
+                            </tr>
+                        {/each}
+                    </tbody>
+                </table>
             </div>
         </section>
 
-        <!-- Sub-sections -->
-        {#each role.sections as section}
-            <section id={section.id} class="doc-section mb-10">
-                <h3
-                    class="font-[Syne] text-lg font-semibold text-white mb-1 tracking-tight"
+        <!-- ═══════════════════════════════════════════════════════════════════
+             ROLE SECTIONS (TECH ONLY)
+             ════════════════════════════════════════════════════════════════════ -->
+        {#each roles as role, roleIdx}
+            <section id={role.id} class="doc-section mb-6">
+                <div
+                    class="rounded-xl px-6 py-6 border-l-4"
+                    style="background:#13161e;border-left-color:{roleStyle[
+                        role.color
+                    ].borderLeft};"
                 >
-                    {section.title}
-                </h3>
-                <p
-                    class="font-[Lora] text-sm leading-relaxed mb-5"
-                    style="color:#8b91a8;"
-                >
-                    {section.desc}
-                </p>
-
-                <!-- Routes table -->
-                {#if section.routes && section.routes.length > 0}
-                    <div
-                        class="rounded-xl overflow-hidden border mb-4"
-                        style="border-color:#1f2433;"
-                    >
-                        <table>
-                            <thead>
-                                <tr style="background:#13161e;">
-                                    <th
-                                        class="text-left px-4 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider w-24"
-                                        style="color:#8b91a8;">Method</th
-                                    >
-                                    <th
-                                        class="text-left px-4 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
-                                        style="color:#8b91a8;">Path</th
-                                    >
-                                    <th
-                                        class="text-left px-4 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
-                                        style="color:#8b91a8;">Deskripsi</th
-                                    >
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {#each section.routes as route}
-                                    <tr
-                                        style="background:transparent;"
-                                        onmouseenter={(e) =>
-                                            ((
-                                                e.currentTarget as HTMLElement
-                                            ).style.background =
-                                                "rgba(255,255,255,0.025)")}
-                                        onmouseleave={(e) =>
-                                            ((
-                                                e.currentTarget as HTMLElement
-                                            ).style.background = "transparent")}
-                                    >
-                                        <td class="px-4 py-3">
-                                            <span
-                                                class="font-['Fira_Code'] text-[0.65rem] font-semibold uppercase tracking-wider px-2 py-0.5 rounded"
-                                                style={methodStyle[
-                                                    route.method
-                                                ] ?? methodStyle["GET"]}
-                                            >
-                                                {route.method}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <code
-                                                class="font-['Fira_Code'] text-xs"
-                                                style="background:#1f2433;color:#e8c547;padding:2px 7px;border-radius:4px;"
-                                            >
-                                                {route.path}
-                                            </code>
-                                        </td>
-                                        <td
-                                            class="px-4 py-3 text-sm font-[Lora] leading-relaxed"
-                                            style="color:#8b91a8;"
-                                        >
-                                            {route.desc}
-                                        </td>
-                                    </tr>
-                                {/each}
-                            </tbody>
-                        </table>
-                    </div>
-                {/if}
-
-                <!-- Status flow -->
-                {#if section.flow && section.flow.length > 0}
-                    <div
-                        class="rounded-xl border px-5 py-4 mb-4"
-                        style="background:#13161e;border-color:#1f2433;"
-                    >
-                        <p
-                            class="font-[Syne] font-semibold text-white text-xs uppercase tracking-wider mb-3"
+                    <div class="flex items-center gap-3 mb-3">
+                        <span
+                            class="font-['Fira_Code'] text-[0.65rem] uppercase tracking-widest font-semibold px-3 py-1 rounded-full"
+                            style={roleStyle[role.color].badge}
                         >
-                            Alur Status
-                        </p>
-                        <div class="space-y-2">
-                            {#each section.flow as step}
-                                <div class="flex items-center gap-2">
-                                    <span
-                                        class="w-1.5 h-1.5 rounded-full shrink-0"
-                                        style={roleStyle[role.color].dot}
-                                    ></span>
-                                    <code
-                                        class="font-['Fira_Code'] text-xs"
-                                        style="color:#d4d8e8;">{step}</code
-                                    >
-                                </div>
-                            {/each}
-                        </div>
+                            {role.name}
+                        </span>
                     </div>
-                {/if}
-
-                <!-- Notes callout -->
-                {#if section.notes && section.notes.length > 0}
-                    <div
-                        class="border-l-2 rounded-r-xl px-5 py-4"
-                        style="border-color:{roleStyle[role.color]
-                            .callout};background:#13161e;"
+                    <h2
+                        class="font-[Syne] text-2xl font-bold tracking-tight mb-2"
+                        style={roleStyle[role.color].title}
                     >
-                        <p
-                            class="font-[Syne] font-semibold text-white text-xs uppercase tracking-wider mb-2"
-                        >
-                            Catatan
-                        </p>
-                        <ul class="space-y-1.5">
-                            {#each section.notes as note}
-                                <li
-                                    class="text-sm font-[Lora] leading-relaxed flex items-start gap-2"
-                                    style="color:#8b91a8;"
-                                >
-                                    <span
-                                        class="mt-2 w-1 h-1 rounded-full shrink-0"
-                                        style="background:#4a5068;"
-                                    ></span>
-                                    {note}
-                                </li>
-                            {/each}
-                        </ul>
-                    </div>
-                {/if}
+                        {role.name}
+                    </h2>
+                    <p
+                        class="font-[Lora] text-sm leading-relaxed"
+                        style="color:#8b91a8;"
+                    >
+                        {role.desc}
+                    </p>
+                </div>
             </section>
-        {/each}
 
-        <!-- Divider between roles (not after last) -->
-        {#if roleIdx < roles.length - 1}
-            <div class="my-12 border-t" style="border-color:#1f2433;"></div>
-        {/if}
-    {/each}
+            {#each role.sections as section}
+                <section id={section.id} class="doc-section mb-10">
+                    <h3
+                        class="font-[Syne] text-lg font-semibold text-white mb-1 tracking-tight"
+                    >
+                        {section.title}
+                    </h3>
+                    <p
+                        class="font-[Lora] text-sm leading-relaxed mb-5"
+                        style="color:#8b91a8;"
+                    >
+                        {section.desc}
+                    </p>
+
+                    {#if section.routes && section.routes.length > 0}
+                        <div
+                            class="rounded-xl overflow-hidden border mb-4"
+                            style="border-color:#1f2433;"
+                        >
+                            <table class="w-full">
+                                <thead>
+                                    <tr style="background:#13161e;">
+                                        <th
+                                            class="text-left px-4 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider w-24"
+                                            style="color:#8b91a8;">Method</th
+                                        >
+                                        <th
+                                            class="text-left px-4 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
+                                            style="color:#8b91a8;">Path</th
+                                        >
+                                        <th
+                                            class="text-left px-4 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
+                                            style="color:#8b91a8;">Deskripsi</th
+                                        >
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {#each section.routes as route}
+                                        <tr class="hover:bg-white/2.5">
+                                            <td class="px-4 py-3">
+                                                <span
+                                                    class="font-['Fira_Code'] text-[0.65rem] font-semibold uppercase tracking-wider px-2 py-0.5 rounded"
+                                                    style={methodStyle[
+                                                        route.method
+                                                    ] ?? methodStyle["GET"]}
+                                                >
+                                                    {route.method}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <code
+                                                    class="font-['Fira_Code'] text-xs text-[#e8c547] bg-[#1f2433] rounded px-2 py-1 block w-fit"
+                                                >
+                                                    {route.path}
+                                                </code>
+                                            </td>
+                                            <td
+                                                class="px-4 py-3 text-sm font-[Lora] leading-relaxed"
+                                                style="color:#8b91a8;"
+                                                >{route.desc}</td
+                                            >
+                                        </tr>
+                                    {/each}
+                                </tbody>
+                            </table>
+                        </div>
+                    {/if}
+
+                    {#if section.flow && section.flow.length > 0}
+                        <div
+                            class="rounded-xl border px-5 py-4 mb-4"
+                            style="background:#13161e;border-color:#1f2433;"
+                        >
+                            <p
+                                class="font-[Syne] font-semibold text-white text-xs uppercase tracking-wider mb-3"
+                            >
+                                Alur Status
+                            </p>
+                            <div class="space-y-2">
+                                {#each section.flow as step}
+                                    <div class="flex items-center gap-2">
+                                        <div
+                                            class="w-1.5 h-1.5 rounded-full shrink-0"
+                                            style={roleStyle[role.color].dot}
+                                        ></div>
+                                        <code
+                                            class="font-['Fira_Code'] text-xs"
+                                            style="color:#d4d8e8;">{step}</code
+                                        >
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if section.notes && section.notes.length > 0}
+                        <div
+                            class="border-l-2 rounded-r-xl px-5 py-4"
+                            style="border-color:{roleStyle[role.color]
+                                .callout};background:#13161e;"
+                        >
+                            <p
+                                class="font-[Syne] font-semibold text-white text-xs uppercase tracking-wider mb-2"
+                            >
+                                Catatan
+                            </p>
+                            <ul class="space-y-1.5">
+                                {#each section.notes as note}
+                                    <li
+                                        class="text-sm font-[Lora] leading-relaxed flex items-start gap-2"
+                                        style="color:#8b91a8;"
+                                    >
+                                        <div
+                                            class="mt-2 w-1 h-1 rounded-full shrink-0 bg-[#4a5068]"
+                                        ></div>
+                                        {note}
+                                    </li>
+                                {/each}
+                            </ul>
+                        </div>
+                    {/if}
+                </section>
+            {/each}
+
+            {#if roleIdx < roles.length - 1}
+                <div class="my-12 border-t border-[#1f2433]"></div>
+            {/if}
+        {/each}
+    {/if}
 
     <!-- ── FOOTER ──────────────────────────────────────────────────────── -->
     <footer

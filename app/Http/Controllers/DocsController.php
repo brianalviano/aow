@@ -12,6 +12,7 @@ class DocsController extends Controller
         return Inertia::render('Docs/Index', [
             'orderFlow' => $this->orderFlow(),
             'roles'     => $this->roles(),
+            'userGuide' => $this->userGuide(),
         ]);
     }
 
@@ -262,9 +263,65 @@ class DocsController extends Controller
                         ['method' => 'PUT', 'path' => '/admin/settings', 'desc' => 'Update cutoff time & window pemesanan'],
                         ['method' => 'GET', 'path' => '/admin/reports',  'desc' => 'Analitik penjualan & profitabilitas'],
                     ],
-                    'notes' => [
-                        'Perubahan "Order Window" akan langsung mempengaruhi ketersediaan menu di sisi Customer.',
-                    ],
+                ],
+            ],
+        ];
+    }
+
+    // User Guide (Simple Steps for Normal Users)
+    // -------------------------------------------------------------------------
+
+    private function userGuide(): array
+    {
+        return [
+            [
+                'title' => 'Pilih Lokasi & Menu',
+                'items' => [
+                    'Buka halaman utama / aowenak.com',
+                    'Pilih "Drop Point" (titik pengambilan) atau "Alamat Lain" (masukkan alamat lengkap & titik lokasi).',
+                    'Pilih produk makanan/minuman yang Anda inginkan.',
+                ],
+            ],
+            [
+                'title' => 'Checkout & Jadwal',
+                'items' => [
+                    'Klik Checkout. Anda wajib mengisi Tanggal & Jam pengiriman.',
+                    'Tambahkan catatan jika ada permintaan khusus.',
+                ],
+            ],
+            [
+                'title' => 'Akun & Pembayaran',
+                'items' => [
+                    'Isi data pribadi Anda di halaman pembayaran.',
+                    'Akun akan dibuat otomatis dan informasi login dikirim ke Email Anda.',
+                    'Lakukan pembayaran ke rekening BCA yang tertera.',
+                    'Input/Upload bukti bayar agar dapat diverifikasi Admin.',
+                ],
+            ],
+            [
+                'title' => 'Verifikasi & Notifikasi',
+                'items' => [
+                    'Tunggu Admin memverifikasi dana yang masuk.',
+                    'Anda akan menerima notifikasi (WA/Telegram/Email) saat Admin menyetujui pesanan.',
+                    'Pesanan akan diteruskan ke Chef. Anda bisa memantau status di menu "Pesanan" pada beranda.',
+                ],
+            ],
+            [
+                'title' => 'Proses Masak & Pengiriman',
+                'items' => [
+                    'Chef akan memulai memasak setelah menyetujui pesanan Anda.',
+                    'Setelah selesai, masakan dikirim ke Pickup Point.',
+                    'PIC (Petugas Pickup) akan memastikan semua pesanan Anda lengkap sebelum dikirim ke lokasi Anda.',
+                    'Anda mendapatkan notifikasi saat pesanan mulai dikirim (Status: Dikirim).',
+                ],
+            ],
+            [
+                'title' => 'Pesanan Tiba & Selesai',
+                'items' => [
+                    'Saat pesanan tiba, petugas akan upload bukti foto serah terima.',
+                    'Klik "Selesaikan Pesanan" di halaman detail pesanan.',
+                    'Jika dalam 6 jam Anda tidak klik selesai, sistem akan menganggap pesanan sukses (Selesai Otomatis).',
+                    'Jangan lupa berikan testimoni dan bintang untuk masakan Chef kami!',
                 ],
             ],
         ];
