@@ -324,6 +324,18 @@
                             <div class="text-xs text-gray-500">
                                 {item.customer?.email ?? ""}
                             </div>
+                            {#if item.items && item.items.length > 0}
+                                <div
+                                    class="mt-1 text-[10px] text-blue-600 dark:text-blue-400 font-medium italic border-t border-gray-100 dark:border-gray-800 pt-1"
+                                >
+                                    {item.items
+                                        .map(
+                                            (i: any) =>
+                                                `${i.product?.name ?? "Produk"} ${i.quantity}`,
+                                        )
+                                        .join(", ")}
+                                </div>
+                            {/if}
                         </td>
                         <td>
                             <div

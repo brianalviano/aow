@@ -442,7 +442,7 @@ class OrderService
     public function getFilteredOrdersForAdmin(\App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
-            ->with(['dropPoint', 'customerAddress', 'paymentMethod', 'customer', 'items']);
+            ->with(['dropPoint', 'customerAddress', 'paymentMethod', 'customer', 'items.product']);
 
         // Filter by Status
         if ($dto->status && $dto->status !== 'all') {
@@ -512,7 +512,7 @@ class OrderService
     public function getPaymentApprovalOrders(int $perPage = 15)
     {
         return Order::query()
-            ->with(['customer', 'paymentMethod', 'items'])
+            ->with(['customer', 'paymentMethod', 'items.product'])
             ->where('payment_status', 'pending')
             ->whereDoesntHave('paymentMethod', fn($q) => $q->where('category', 'cash'))
             ->orderBy('payment_expired_at', 'asc')
@@ -526,7 +526,7 @@ class OrderService
     public function getProcessingOrders(\App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
-            ->with(['customer', 'dropPoint', 'items.chef', 'paymentMethod'])
+            ->with(['customer', 'dropPoint', 'items.chef', 'items.product', 'paymentMethod'])
             ->where(function ($q) {
                 $q->where(function ($inner) {
                     $inner->where('payment_status', '!=', 'pending')
