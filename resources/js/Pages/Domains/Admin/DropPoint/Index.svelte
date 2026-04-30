@@ -206,22 +206,6 @@
                                         {/if}
                                     </td>
                                     <td>
-                                        <div class="text-xs space-y-1">
-                                            <div>
-                                                <span class="text-gray-400">Qty:</span>
-                                                <span class="font-medium text-gray-900 dark:text-white">
-                                                    {item.min_po_qty ? `${item.min_po_qty} porsi` : '-'}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <span class="text-gray-400">Amount:</span>
-                                                <span class="font-medium text-gray-900 dark:text-white">
-                                                    {item.min_po_amount ? `Rp ${item.min_po_amount.toLocaleString('id-ID')}` : '-'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
                                         <div
                                             class="text-sm font-medium text-gray-900 dark:text-white"
                                         >
@@ -271,13 +255,29 @@
                                         {/if}
                                     </td>
                                     <td>
+                                        <div class="text-xs space-y-1">
+                                            <div>
+                                                <span class="text-gray-400">Qty:</span>
+                                                <span class="font-medium text-gray-900 dark:text-white">
+                                                    {item.min_po_qty ? `${item.min_po_qty} porsi` : '-'}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-400">Amount:</span>
+                                                <span class="font-medium text-gray-900 dark:text-white">
+                                                    {item.min_po_amount ? `Rp ${item.min_po_amount.toLocaleString('id-ID')}` : '-'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
                                         <div
                                             class="text-sm text-gray-900 dark:text-white font-medium"
                                         >
                                             {item.delivery_fee > 0
                                                 ? formatCurrency(
                                                       item.delivery_fee,
-                                                  )
+                                                   )
                                                 : "Gratis"}
                                         </div>
                                     </td>

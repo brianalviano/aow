@@ -131,6 +131,18 @@
         {} as Record<string, number>,
     );
 
+    $: displayCurrentQty = (quotaProgress?.current_qty || 0) + totalCartItems;
+    $: displayCurrentAmount = (quotaProgress?.current_amount || 0) + totalCartPrice;
+    $: isDisplayFulfilled = (quotaProgress?.min_qty ? displayCurrentQty >= quotaProgress.min_qty : true) && 
+                             (quotaProgress?.min_amount ? displayCurrentAmount >= quotaProgress.min_amount : true);
+    $: displayPercentage = (function() {
+        if (!quotaProgress?.has_quota) return 100;
+        const qtyP = quotaProgress.min_qty ? Math.min(100, (displayCurrentQty / quotaProgress.min_qty) * 100) : 100;
+        const amtP = quotaProgress.min_amount ? Math.min(100, (displayCurrentAmount / quotaProgress.min_amount) * 100) : 100;
+        if (quotaProgress.min_qty && quotaProgress.min_amount) return Math.min(qtyP, amtP);
+        return quotaProgress.min_qty ? qtyP : amtP;
+    })();
+
     $: uniqueChefIds = [
         ...new Set(
             Object.values(cart).flatMap((item) => {
@@ -447,11 +459,11 @@
                             Kuota PO Drop Point
                         </h3>
                         <span
-                            class="text-[9px] font-bold px-1.5 py-0.5 rounded-full {quotaProgress.is_fulfilled
+                            class="text-[9px] font-bold px-1.5 py-0.5 rounded-full {isDisplayFulfilled
                                 ? 'text-green-400 bg-green-900/30'
                                 : 'text-[#FFD700] bg-yellow-900/20'}"
                         >
-                            {quotaProgress.is_fulfilled
+                            {isDisplayFulfilled
                                 ? "TERPENUHI"
                                 : "BELUM TERPENUHI"}
                         </span>
@@ -465,7 +477,7 @@
                                 >
                                     <span class="text-slate-300">Pesanan</span>
                                     <span class="font-medium text-slate-100"
-                                        >{quotaProgress.current_qty} / {quotaProgress.min_qty}
+                                        >{displayCurrentQty} / {quotaProgress.min_qty}
                                         porsi</span
                                     >
                                 </div>
@@ -476,7 +488,7 @@
                                         class="bg-[#FFD700] h-1 rounded-full transition-all"
                                         style="width: {Math.min(
                                             100,
-                                            (quotaProgress.current_qty /
+                                            (displayCurrentQty /
                                                 quotaProgress.min_qty) *
                                                 100,
                                         )}%"
@@ -494,7 +506,7 @@
                                     >
                                     <span class="font-medium text-slate-100"
                                         >{formatRupiah(
-                                            quotaProgress.current_amount,
+                                            displayCurrentAmount,
                                         )} / {formatRupiah(
                                             quotaProgress.min_amount,
                                         )}</span
@@ -507,7 +519,7 @@
                                         class="bg-[#FFD700] h-1 rounded-full transition-all"
                                         style="width: {Math.min(
                                             100,
-                                            (quotaProgress.current_amount /
+                                            (displayCurrentAmount /
                                                 quotaProgress.min_amount) *
                                                 100,
                                         )}%"
@@ -517,14 +529,20 @@
                         {/if}
                     </div>
 
-                    {#if !quotaProgress.is_fulfilled}
+                    {#if !isDisplayFulfilled}
                         <div
                             class="mt-1 text-[10px] text-blue-300 bg-blue-900/30 p-2 rounded flex gap-1.5 items-start"
                         >
                             <i class="fa-solid fa-circle-info mt-0.5 shrink-0"
                             ></i>
                             <p class="leading-tight">
-                                Drop point ini minimal order <b>{quotaProgress.min_qty} porsi</b>, kamu bisa mengajak temanmu / guru kamu / orang lain agar memenuhi minimum order.
+                                {#if quotaProgress.min_qty && displayCurrentQty < quotaProgress.min_qty}
+                                    kurang <b>{quotaProgress.min_qty - displayCurrentQty} porsi</b> lagi untuk memenuhi kuota, ayo ajak teman kamu atau orang lain buat order.
+                                {:else if quotaProgress.min_amount && displayCurrentAmount < quotaProgress.min_amount}
+                                    kurang <b>{formatRupiah(quotaProgress.min_amount - displayCurrentAmount)}</b> lagi untuk memenuhi kuota, ayo ajak teman kamu atau orang lain buat order.
+                                {:else}
+                                    Drop point ini minimal order <b>{quotaProgress.min_qty} porsi</b>, kamu bisa mengajak temanmu / guru kamu / orang lain agar memenuhi minimum order.
+                                {/if}
                             </p>
                         </div>
                     {/if}

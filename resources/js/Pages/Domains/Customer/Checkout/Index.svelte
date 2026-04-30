@@ -95,6 +95,25 @@
         items.reduce((sum, item) => sum + item.totalPrice, 0),
     );
 
+    const totalCartItemsCount = $derived(
+        items.reduce((sum, item) => sum + item.quantity, 0),
+    );
+
+    const displayCurrentQty = $derived(
+        (quotaProgress?.current_qty || 0) + totalCartItemsCount,
+    );
+    const displayCurrentAmount = $derived(
+        (quotaProgress?.current_amount || 0) + subtotal,
+    );
+    const isDisplayFulfilled = $derived(
+        (quotaProgress?.min_qty
+            ? displayCurrentQty >= quotaProgress.min_qty
+            : true) &&
+            (quotaProgress?.min_amount
+                ? displayCurrentAmount >= quotaProgress.min_amount
+                : true),
+    );
+
     // Recalculate fees locally to handle quantity changes
     const localDeliveryFee = $derived.by(() => {
         return fees.baseDeliveryFee;
@@ -436,7 +455,7 @@
                         <i class="fa-solid fa-users text-[#FFD700]"></i>
                         Kuota PO Drop Point
                     </h3>
-                    {#if quotaProgress.is_fulfilled}
+                    {#if isDisplayFulfilled}
                         <span
                             class="text-[10px] font-bold text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full"
                             >TERPENUHI</span
@@ -457,7 +476,7 @@
                                     >Target Pesanan</span
                                 >
                                 <span class="font-medium text-slate-100"
-                                    >{quotaProgress.current_qty} / {quotaProgress.min_qty}
+                                    >{displayCurrentQty} / {quotaProgress.min_qty}
                                     porsi</span
                                 >
                             </div>
@@ -466,7 +485,7 @@
                                     class="bg-[#FFD700] h-1.5 rounded-full transition-all duration-500"
                                     style="width: {Math.min(
                                         100,
-                                        (quotaProgress.current_qty /
+                                        (displayCurrentQty /
                                             quotaProgress.min_qty) *
                                             100,
                                     )}%"
@@ -483,7 +502,7 @@
                                 >
                                 <span class="font-medium text-slate-100"
                                     >{formatRupiah(
-                                        quotaProgress.current_amount,
+                                        displayCurrentAmount,
                                     )} / {formatRupiah(
                                         quotaProgress.min_amount,
                                     )}</span
@@ -494,7 +513,7 @@
                                     class="bg-[#FFD700] h-1.5 rounded-full transition-all duration-500"
                                     style="width: {Math.min(
                                         100,
-                                        (quotaProgress.current_amount /
+                                        (displayCurrentAmount /
                                             quotaProgress.min_amount) *
                                             100,
                                     )}%"
@@ -504,18 +523,22 @@
                     {/if}
                 </div>
 
-                {#if !quotaProgress.is_fulfilled}
+                {#if !isDisplayFulfilled}
                     <div
                         class="mt-3 text-[11px] text-blue-300 bg-blue-900/30 p-2.5 rounded-lg border border-blue-800 flex gap-2"
                     >
                         <i class="fa-solid fa-circle-info mt-0.5"></i>
                         <p class="leading-relaxed">
-                            Mohon maaf pesanan Anda per kolektif drop point
-                            kurang dari minimum order sehingga <b
-                                >tidak bisa kami proses otomatis</b
-                            >
-                            pada batas waktu. Ayoo, <b>ajak teman/saudaramu</b> untuk
-                            order bareng!!
+                            {#if quotaProgress.min_qty && displayCurrentQty < quotaProgress.min_qty}
+                                kurang <b>{quotaProgress.min_qty - displayCurrentQty} porsi</b> lagi untuk memenuhi kuota, ayo ajak teman kamu atau orang lain buat order.
+                            {:else if quotaProgress.min_amount && displayCurrentAmount < quotaProgress.min_amount}
+                                kurang <b>{formatRupiah(quotaProgress.min_amount - displayCurrentAmount)}</b> lagi untuk memenuhi kuota, ayo ajak teman kamu atau orang lain buat order.
+                            {:else}
+                                Mohon maaf pesanan Anda per kolektif drop point
+                                kurang dari minimum order sehingga <b>tidak bisa kami proses otomatis</b>
+                                pada batas waktu. Ayoo, <b>ajak teman/saudaramu</b> untuk
+                                order bareng!!
+                            {/if}
                         </p>
                     </div>
                 {/if}
