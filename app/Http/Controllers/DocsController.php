@@ -82,9 +82,9 @@ class DocsController extends Controller
     {
         return [
             $this->customerRole(),
+            $this->adminRole(),
             $this->chefRole(),
             $this->picRole(),
-            $this->adminRole(),
         ];
     }
 
