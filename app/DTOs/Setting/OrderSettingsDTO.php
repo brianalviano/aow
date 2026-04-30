@@ -23,7 +23,6 @@ class OrderSettingsDTO extends Data
         public readonly int $orderMinDaysAhead,
         public readonly string $instantOrderStartTime,
         public readonly string $instantOrderEndTime,
-        public readonly int $minOrderQuantity,
 
         public readonly string $deliveryFeeMode,
         public readonly int $deliveryFeeFlat,
@@ -69,7 +68,6 @@ class OrderSettingsDTO extends Data
                 orderMinDaysAhead: (int) ($settings['order_min_days_ahead'] ?? 1),
                 instantOrderStartTime: $settings['instant_order_start_time'] ?? '08:00',
                 instantOrderEndTime: $settings['instant_order_end_time'] ?? '21:00',
-                minOrderQuantity: (int) ($settings['min_order_quantity'] ?? 0),
 
                 deliveryFeeMode: $settings['delivery_fee_mode'] ?? 'per_drop_point',
                 deliveryFeeFlat: (int) ($settings['delivery_fee_flat'] ?? 0),

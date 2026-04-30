@@ -34,11 +34,6 @@ class OrderSettingSeeder extends Seeder
                 'value'       => '21:00',
                 'description' => 'Waktu tutup untuk pesanan tipe Instant (format HH:MM)',
             ],
-            [
-                'key'         => 'min_order_quantity',
-                'value'       => '15',
-                'description' => 'Minimal total quantity order untuk bisa checkout',
-            ],
 
             // -------------------------------------------------------
             // Konfigurasi Ongkir

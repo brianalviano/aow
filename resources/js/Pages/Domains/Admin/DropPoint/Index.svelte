@@ -25,6 +25,8 @@
         category: string;
         category_label: string;
         delivery_fee: number;
+        min_po_qty: number | null;
+        min_po_amount: number | null;
         created_at: string;
         updated_at: string;
     }
@@ -176,6 +178,7 @@
                             <th>Nama & Alamat</th>
                             <th>Kategori</th>
                             <th>Kontak & PIC</th>
+                            <th>Min. Order (PO)</th>
                             <th>Biaya Pengiriman</th>
                             <th>Status</th>
                             <th class="w-32 text-center">Aksi</th>
@@ -201,6 +204,22 @@
                                                 ></i>
                                             </div>
                                         {/if}
+                                    </td>
+                                    <td>
+                                        <div class="text-xs space-y-1">
+                                            <div>
+                                                <span class="text-gray-400">Qty:</span>
+                                                <span class="font-medium text-gray-900 dark:text-white">
+                                                    {item.min_po_qty ? `${item.min_po_qty} porsi` : '-'}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-400">Amount:</span>
+                                                <span class="font-medium text-gray-900 dark:text-white">
+                                                    {item.min_po_amount ? `Rp ${item.min_po_amount.toLocaleString('id-ID')}` : '-'}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         <div

@@ -47,7 +47,6 @@ class SettingData extends Data
             'order_min_days_ahead' => ['nullable', 'integer', 'min:0'],
             'instant_order_start_time' => ['nullable', 'string', 'max:5'],
             'instant_order_end_time' => ['nullable', 'string', 'max:5'],
-            'min_order_quantity' => ['nullable', 'integer', 'min:1'],
 
             'delivery_fee_mode' => ['nullable', 'string', 'in:per_drop_point,flat,free'],
             'delivery_fee_flat' => ['nullable', 'numeric', 'min:0'],
@@ -104,7 +103,6 @@ class SettingData extends Data
             orderSettings: [
                 'order_cutoff_time' => $validated['order_cutoff_time'] ?? null,
                 'order_min_days_ahead' => $validated['order_min_days_ahead'] ?? null,
-                'min_order_quantity' => $validated['min_order_quantity'] ?? null,
 
                 'delivery_fee_mode' => $validated['delivery_fee_mode'] ?? null,
                 'delivery_fee_flat' => $validated['delivery_fee_flat'] ?? null,

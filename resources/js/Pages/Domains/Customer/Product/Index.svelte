@@ -75,7 +75,6 @@
         percentage: number;
     } | null = null;
 
-    export let minOrderQuantity = 0;
 
     // State
     let isCheckoutLoading = false;
@@ -85,7 +84,6 @@
     let selectedProduct: any = null;
     let showModal = false;
     let showChefWarningModal = false;
-    let showMinQtyModal = false;
     let baseDeliveryFee: number = 0;
 
     // Scroll Spy State
@@ -526,10 +524,7 @@
                             <i class="fa-solid fa-circle-info mt-0.5 shrink-0"
                             ></i>
                             <p class="leading-tight">
-                                Mohon maaf pesanan PO per kolektif drop point
-                                ini masih kurang. Ayoo, <b
-                                    >ajak teman order bareng</b
-                                > biar bisa diproses!
+                                Drop point ini minimal order <b>{quotaProgress.min_qty} porsi</b>, kamu bisa mengajak temanmu / guru kamu / orang lain agar memenuhi minimum order.
                             </p>
                         </div>
                     {/if}
@@ -782,14 +777,6 @@
                     class="text-white font-bold text-sm bg-[#FFC700] px-4 py-2 rounded-lg flex items-center justify-center min-w-[120px] disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isCheckoutLoading}
                     on:click|stopPropagation={() => {
-                        if (
-                            minOrderQuantity > 0 &&
-                            totalCartItems < minOrderQuantity
-                        ) {
-                            showMinQtyModal = true;
-                            return;
-                        }
-
                         isCheckoutLoading = true;
                         router.post(
                             "/checkout/session",
@@ -889,50 +876,8 @@
         </div>
     </div>
 {/if}
-
-{#if showMinQtyModal}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-        class="fixed inset-0 bg-black/60 z-60 flex items-center justify-center p-4"
-        on:click={() => (showMinQtyModal = false)}
-    >
-        <div
-            class="bg-slate-950 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl border border-slate-800"
-            on:click|stopPropagation
-        >
-            <div class="p-6 text-center">
-                <div
-                    class="w-16 h-16 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500"
-                >
-                    <i class="fa-solid fa-circle-exclamation text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-bold text-slate-100 mb-2">
-                    Pesanan Belum Cukup
-                </h3>
-                <p class="text-sm text-slate-300 mb-6 leading-relaxed">
-                    Mohon maaf, minimal total pemesanan adalah <strong
-                        class="text-[#FFD700] text-base">{minOrderQuantity} porsi</strong
-                    >.<br />
-                    Saat ini pesanan kamu baru <strong class="text-slate-100"
-                        >{totalCartItems} porsi</strong
-                    >.
-                </p>
-
-                <div class="flex flex-col gap-3">
-                    <button
-                        class="w-full py-3 bg-[#FFD700] text-slate-900 font-bold rounded-xl active:scale-[0.98] transition-all"
-                        on:click={() => (showMinQtyModal = false)}
-                    >
-                        Tambah Pesanan Lagi
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-{/if}
-
-<style>
+ 
+ <style>
     /* Hide scrollbar for Chrome, Safari and Opera */
     .hide-scrollbar::-webkit-scrollbar {
         display: none;

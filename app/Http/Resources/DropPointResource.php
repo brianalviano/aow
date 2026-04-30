@@ -33,6 +33,8 @@ class DropPointResource extends JsonResource
             'pic_phone' => $this->pic_phone,
             'is_active' => $this->is_active,
             'delivery_fee' => $this->delivery_fee,
+            'min_po_qty' => $this->min_po_qty,
+            'min_po_amount' => $this->min_po_amount,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -24,7 +24,6 @@
         order_min_days_ahead: string | null;
         instant_order_start_time: string | null;
         instant_order_end_time: string | null;
-        min_order_quantity: string | null;
 
         delivery_fee_mode: string | null;
         delivery_fee_flat: string | null;
@@ -75,8 +74,6 @@
             instant_order_start_time:
                 settings?.instant_order_start_time ?? "08:00",
             instant_order_end_time: settings?.instant_order_end_time ?? "21:00",
-            min_order_quantity:
-                settings?.min_order_quantity?.toString() ?? "0",
 
             delivery_fee_mode: settings?.delivery_fee_mode ?? "per_drop_point",
             delivery_fee_flat: settings?.delivery_fee_flat?.toString() ?? "0",
@@ -314,16 +311,6 @@
                                 bind:value={$form.instant_order_end_time}
                                 error={$form.errors.instant_order_end_time}
                             />
-                            <div class="md:col-span-2">
-                                <TextInput
-                                    id="min_order_quantity"
-                                    name="min_order_quantity"
-                                    type="number"
-                                    label="Minimal Total Quantity Order"
-                                    bind:value={$form.min_order_quantity}
-                                    error={$form.errors.min_order_quantity}
-                                />
-                            </div>
                             <div class="md:col-span-2">
                                 <TextInput
                                     id="payment_expired_duration"
