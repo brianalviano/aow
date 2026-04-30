@@ -27,6 +27,7 @@ return new class extends Migration
             $table->enum('type', PaymentMethodType::values())->default(PaymentMethodType::MANUAL->value);
             $table->decimal('service_fee_rate', 5, 2)->default(0);
             $table->integer('service_fee_fixed')->default(0);
+            $table->string('qr_image')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

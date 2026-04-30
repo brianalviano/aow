@@ -24,6 +24,7 @@ class PaymentMethod extends Model
         'type',
         'code',
         'photo',
+        'qr_image',
         'is_active',
         'account_number',
         'account_name',
@@ -63,6 +64,17 @@ class PaymentMethod extends Model
      * @return string|null
      */
     protected function getPhotoAttribute(?string $value): ?string
+    {
+        return $this->getFileUrl($value);
+    }
+
+    /**
+     * Get the QR image URL.
+     *
+     * @param string|null $value
+     * @return string|null
+     */
+    protected function getQrImageAttribute(?string $value): ?string
     {
         return $this->getFileUrl($value);
     }

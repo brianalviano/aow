@@ -26,6 +26,7 @@ class PaymentMethodResource extends JsonResource
             'name' => $this->resource->name,
             'category' => $this->resource->category,
             'photo' => $this->resource->photo,
+            'qr_image' => $this->resource->qr_image,
             'is_active' => $this->resource->is_active,
             'type' => $this->resource->type,
             'code' => $this->resource->code,

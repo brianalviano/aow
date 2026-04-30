@@ -530,14 +530,11 @@
                         <i class="fa-solid fa-circle-info mt-0.5"></i>
                         <p class="leading-relaxed">
                             {#if quotaProgress.min_qty && displayCurrentQty < quotaProgress.min_qty}
-                                kurang <b>{quotaProgress.min_qty - displayCurrentQty} porsi</b> lagi untuk memenuhi kuota, ayo ajak teman kamu atau orang lain buat order.
+                                kurang <b>{quotaProgress.min_qty - displayCurrentQty} porsi</b> lagi untuk memenuhi minimum order, ayo tambah pesanan atau ajak teman pesan bareng.
                             {:else if quotaProgress.min_amount && displayCurrentAmount < quotaProgress.min_amount}
-                                kurang <b>{formatRupiah(quotaProgress.min_amount - displayCurrentAmount)}</b> lagi untuk memenuhi kuota, ayo ajak teman kamu atau orang lain buat order.
+                                kurang <b>{formatRupiah(quotaProgress.min_amount - displayCurrentAmount)}</b> lagi untuk memenuhi minimum order, ayo tambah pesanan atau ajak teman pesan bareng.
                             {:else}
-                                Mohon maaf pesanan Anda per kolektif drop point
-                                kurang dari minimum order sehingga <b>tidak bisa kami proses otomatis</b>
-                                pada batas waktu. Ayoo, <b>ajak teman/saudaramu</b> untuk
-                                order bareng!!
+                                Mohon maaf pesanan Anda belum memenuhi minimum order <b>{quotaProgress.min_qty} porsi</b> sehingga <b>tidak bisa kami proses otomatis</b>. Yuk, ajak teman/saudaramu untuk order bareng!
                             {/if}
                         </p>
                     </div>

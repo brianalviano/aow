@@ -18,6 +18,7 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
  * @property PaymentMethodCategory|null $category Kategori (bank_transfer, e_wallet, dll)
  * @property PaymentMethodType $type Tipe (manual, midtrans)
  * @property UploadedFile|null $photo Logo/icon pembayaran
+ * @property UploadedFile|null $qrImage Gambar QRIS (untuk statis)
  * @property bool $isActive Status aktif
  * @property string|null $code Kode internal
  * @property string|null $accountNumber Nomor rekening
@@ -38,6 +39,9 @@ class PaymentMethodData extends Data
 
         #[Rule('nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048')]
         public readonly ?UploadedFile $photo = null,
+
+        #[Rule('nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048')]
+        public readonly ?UploadedFile $qrImage = null,
 
         #[Rule('required', 'boolean')]
         public readonly bool $isActive = true,
@@ -66,7 +70,7 @@ class PaymentMethodData extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(ValidationContext $context): array
+    public static function rules(ValidationContext|null $context = null): array
     {
         return [
             'category' => ['nullable', ValidationRule::enum(PaymentMethodCategory::class)],

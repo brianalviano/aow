@@ -34,6 +34,16 @@ class PaymentMethodSeeder extends Seeder
                 'payment_guide_id' => $manualGuideId,
                 'photo' => 'payment_methods/bca.svg',
             ],
+            [
+                'name' => 'BCA QRIS',
+                'category' => \App\Enums\PaymentMethodCategory::E_WALLET,
+                'type' => \App\Enums\PaymentMethodType::MANUAL,
+                'is_active' => true,
+                'code' => 'bca_qris',
+                'payment_guide_id' => $qrisGuideId,
+                'photo' => 'payment_methods/qris.svg',
+                'qr_image' => 'payment_methods/bca-qris.jpeg',
+            ],
             // [
             //     'name' => 'QRIS',
             //     'category' => \App\Enums\PaymentMethodCategory::E_WALLET,

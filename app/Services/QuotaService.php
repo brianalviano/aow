@@ -36,124 +36,79 @@ class QuotaService
             ];
         }
 
-        // Only count active PO orders (PENDING, CONFIRMED)
-        // Usually, order_status 'CONFIRMED' means it's paid and valid.
+        // We no longer query existing orders because the quota is now per-order (MOQ).
+        // The frontend will add current cart items to these base values.
+        return [
+            'has_quota' => true,
+            'min_qty' => $dropPoint->min_po_qty,
+            'min_amount' => $dropPoint->min_po_amount,
+            'current_qty' => 0,
+            'current_amount' => 0,
+            'is_fulfilled' => false,
+            'percentage' => 0,
+        ];
+    }
+
+    /**
+     * Check PO quotas for individual orders and cancel those that do not meet the MOQ.
+     * 
+     * @param string $deliveryDate (format: Y-m-d)
+     * @return array Array containing the number of checked orders and cancelled orders.
+     */
+    public function cancelUnderperformingPoOrders(string $deliveryDate): array
+    {
         $validStatuses = [
             OrderStatus::PENDING->value,
             OrderStatus::CONFIRMED->value,
         ];
 
-        $orders = Order::where('drop_point_id', $dropPoint->id)
+        // Get all orders for the delivery date that have a drop point
+        $orders = Order::whereNotNull('drop_point_id')
             ->whereDate('delivery_date', $deliveryDate)
             ->whereIn('order_status', $validStatuses)
-            ->with('items')
+            ->with(['dropPoint', 'items'])
             ->get();
 
-        $currentQty = 0;
-        foreach ($orders as $order) {
-            $currentQty += $order->items->sum('quantity');
-        }
-
-        $currentAmount = $orders->sum('total_amount');
-
-        $isQtyFulfilled = $dropPoint->min_po_qty ? $currentQty >= $dropPoint->min_po_qty : true;
-        $isAmountFulfilled = $dropPoint->min_po_amount ? $currentAmount >= $dropPoint->min_po_amount : true;
-
-        $isFulfilled = $isQtyFulfilled && $isAmountFulfilled;
-
-        $qtyPercentage = 0;
-        if ($dropPoint->min_po_qty) {
-            $qtyPercentage = min(100, ($currentQty / $dropPoint->min_po_qty) * 100);
-        }
-
-        $amountPercentage = 0;
-        if ($dropPoint->min_po_amount) {
-            $amountPercentage = min(100, ($currentAmount / $dropPoint->min_po_amount) * 100);
-        }
-
-        // Use the highest relevant percentage for the progress bar
-        $percentage = 100;
-        if ($dropPoint->min_po_qty && $dropPoint->min_po_amount) {
-            $percentage = min($qtyPercentage, $amountPercentage);
-        } elseif ($dropPoint->min_po_qty) {
-            $percentage = $qtyPercentage;
-        } elseif ($dropPoint->min_po_amount) {
-            $percentage = $amountPercentage;
-        }
-
-        return [
-            'has_quota' => true,
-            'min_qty' => $dropPoint->min_po_qty,
-            'min_amount' => $dropPoint->min_po_amount,
-            'current_qty' => $currentQty,
-            'current_amount' => $currentAmount,
-            'is_fulfilled' => $isFulfilled,
-            'percentage' => round($percentage),
-        ];
-    }
-
-    /**
-     * Check PO quotas for all active drop points and cancel orders for underperforming ones.
-     * 
-     * @param string $deliveryDate (format: Y-m-d)
-     * @return array Array containing the number of checked drop points and cancelled orders.
-     */
-    public function cancelUnderperformingPoOrders(string $deliveryDate): array
-    {
-        $dropPoints = DropPoint::where(function ($query) {
-            $query->whereNotNull('min_po_qty')
-                ->orWhereNotNull('min_po_amount');
-        })->where('is_active', true)->get();
-
         $cancelledCount = 0;
-        $failedDropPointsCount = 0;
 
-        foreach ($dropPoints as $dropPoint) {
-            $quotaStatus = $this->calculateDropPointQuotaProgress($dropPoint->id, $deliveryDate);
+        foreach ($orders as $order) {
+            $dropPoint = $order->dropPoint;
+            
+            // Skip if drop point no longer exists or has no quota requirements
+            if (!$dropPoint || (!$dropPoint->min_po_qty && !$dropPoint->min_po_amount)) {
+                continue;
+            }
 
-            if (!$quotaStatus['is_fulfilled']) {
-                $failedDropPointsCount++;
+            $currentQty = $order->items->sum('quantity');
+            $currentAmount = $order->total_amount;
 
-                $validStatuses = [
-                    OrderStatus::PENDING->value,
-                    OrderStatus::CONFIRMED->value,
-                ];
+            $isQtyFulfilled = $dropPoint->min_po_qty ? $currentQty >= $dropPoint->min_po_qty : true;
+            $isAmountFulfilled = $dropPoint->min_po_amount ? $currentAmount >= $dropPoint->min_po_amount : true;
 
-                $ordersToCancel = Order::where('drop_point_id', $dropPoint->id)
-                    ->whereDate('delivery_date', $deliveryDate)
-                    ->whereIn('order_status', $validStatuses)
-                    ->get();
-
-                if ($ordersToCancel->isEmpty()) {
-                    continue;
-                }
-
+            if (!$isQtyFulfilled || !$isAmountFulfilled) {
                 try {
-                    DB::transaction(function () use ($ordersToCancel, &$cancelledCount) {
-                        foreach ($ordersToCancel as $order) {
-                            $order->update([
-                                'order_status' => OrderStatus::CANCELLED->value,
-                                'cancellation_note' => 'Otomatis dibatalkan sistem: Kuota minimum kolektif Drop Point (PO) tidak terpenuhi hingga batas waktu pemesanan.',
-                            ]);
-                            $cancelledCount++;
-                        }
+                    DB::transaction(function () use ($order, &$cancelledCount) {
+                        /** @var \App\Models\Order $order */
+                        $order->update([
+                            'order_status' => OrderStatus::CANCELLED->value,
+                            'cancellation_note' => 'Otomatis dibatalkan sistem: Pesanan Anda tidak memenuhi kuota minimum (MOQ) yang disyaratkan oleh Drop Point.',
+                        ]);
+                        $cancelledCount++;
                     });
                 } catch (\Throwable $e) {
-                    Log::error('Failed to cancel underperforming PO orders', [
-                        'drop_point_id' => $dropPoint->id,
+                    Log::error('Failed to cancel underperforming individual order', [
+                        'order_id' => $order->id,
                         'delivery_date' => $deliveryDate,
                         'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString(),
                     ]);
-                    throw $e;
                 }
             }
         }
 
         return [
-            'checked_drop_points' => $dropPoints->count(),
-            'failed_drop_points' => $failedDropPointsCount,
+            'checked_orders' => $orders->count(),
             'cancelled_orders' => $cancelledCount,
         ];
     }
+
 }

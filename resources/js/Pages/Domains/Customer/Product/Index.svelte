@@ -537,11 +537,11 @@
                             ></i>
                             <p class="leading-tight">
                                 {#if quotaProgress.min_qty && displayCurrentQty < quotaProgress.min_qty}
-                                    kurang <b>{quotaProgress.min_qty - displayCurrentQty} porsi</b> lagi untuk memenuhi kuota, ayo ajak teman kamu atau orang lain buat order.
+                                    kurang <b>{quotaProgress.min_qty - displayCurrentQty} porsi</b> lagi untuk memenuhi minimum order, ayo ajak teman kamu atau orang lain buat pesan bareng.
                                 {:else if quotaProgress.min_amount && displayCurrentAmount < quotaProgress.min_amount}
-                                    kurang <b>{formatRupiah(quotaProgress.min_amount - displayCurrentAmount)}</b> lagi untuk memenuhi kuota, ayo ajak teman kamu atau orang lain buat order.
+                                    kurang <b>{formatRupiah(quotaProgress.min_amount - displayCurrentAmount)}</b> lagi untuk memenuhi minimum order, ayo ajak teman kamu atau orang lain buat pesan bareng.
                                 {:else}
-                                    Drop point ini minimal order <b>{quotaProgress.min_qty} porsi</b>, kamu bisa mengajak temanmu / guru kamu / orang lain agar memenuhi minimum order.
+                                    Pesanan kamu belum memenuhi minimum order <b>{quotaProgress.min_qty} porsi</b> untuk drop point ini. Yuk ajak temanmu pesan bareng!
                                 {/if}
                             </p>
                         </div>

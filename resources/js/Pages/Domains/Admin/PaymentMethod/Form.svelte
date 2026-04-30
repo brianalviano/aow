@@ -19,6 +19,7 @@
             | "cash"
             | null;
         photo: string | null;
+        qr_image: string | null;
         is_active: boolean;
         type: "manual" | "gateway";
         code: string | null;
@@ -46,6 +47,7 @@
             type: paymentMethod?.type ?? "manual",
             code: paymentMethod?.code ?? "",
             photo: null as File | null,
+            qr_image: null as File | null,
             is_active: paymentMethod?.is_active ?? true,
             account_number: paymentMethod?.account_number ?? "",
             account_name: paymentMethod?.account_name ?? "",
@@ -163,6 +165,33 @@
                             bind:value={$form.photo}
                             error={$form.errors.photo}
                             uploadText="Pilih atau seret logo logo di sini"
+                            uploadSubtext="Batas maksimal 2MB. Format: JPG, PNG, WEBP."
+                            maxSize={2 * 1024 * 1024}
+                        />
+
+                        {#if paymentMethod?.qr_image}
+                            <div class="mb-4">
+                                <span
+                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                                >
+                                    QR Image Saat Ini
+                                </span>
+                                <img
+                                    src={paymentMethod.qr_image}
+                                    alt="QRIS"
+                                    class="w-24 h-24 object-contain rounded-lg border bg-white p-2 dark:border-gray-700"
+                                />
+                            </div>
+                        {/if}
+
+                        <FileUpload
+                            id="qr_image"
+                            name="qr_image"
+                            label="Gambar QRIS (Opsional)"
+                            accept="image/*"
+                            bind:value={$form.qr_image}
+                            error={$form.errors.qr_image}
+                            uploadText="Pilih atau seret gambar QRIS di sini"
                             uploadSubtext="Batas maksimal 2MB. Format: JPG, PNG, WEBP."
                             maxSize={2 * 1024 * 1024}
                         />

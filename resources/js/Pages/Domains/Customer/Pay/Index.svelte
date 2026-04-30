@@ -592,6 +592,40 @@
                         </div>
                     {/if}
 
+                    {#if order.payment_method?.qr_image}
+                        <div class="space-y-8 text-center pt-4 border-t border-slate-800">
+                            <p
+                                class="text-xs font-bold text-slate-500 uppercase tracking-widest"
+                            >
+                                Scan QRIS
+                            </p>
+                            <div
+                                class="bg-white p-6 rounded-4xl inline-block shadow-2xl border-4 border-[#FFD700]"
+                            >
+                                <img
+                                    src={order.payment_method.qr_image}
+                                    alt="QRIS Code"
+                                    class="w-64 h-64 object-contain mx-auto"
+                                />
+                            </div>
+                            <p
+                                class="text-xs text-slate-400 max-w-[200px] mx-auto"
+                            >
+                                Buka aplikasi e-wallet kamu dan scan kode di
+                                atas.
+                            </p>
+                            <a
+                                href={order.payment_method.qr_image}
+                                download={`QRIS-BCA-${order.number}.jpg`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="w-full py-4 bg-slate-800 text-slate-100 font-bold rounded-2xl border border-slate-700 hover:bg-slate-700 hover:border-[#FFD700] transition-all flex items-center justify-center gap-2"
+                            >
+                                <i class="fa-solid fa-download"></i> Simpan QRIS
+                            </a>
+                        </div>
+                    {/if}
+
                     <div>
                         <button
                             onclick={() => showGuide(order.payment_method)}

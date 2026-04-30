@@ -43,6 +43,7 @@ class PaymentMethodService
             try {
                 return DB::transaction(function () use ($data) {
                     $photoPath = $this->handleFileInput($data->photo, null, 'payment_methods');
+                    $qrImagePath = $this->handleFileInput($data->qrImage, null, 'payment_methods');
 
                     return PaymentMethod::create([
                         'name' => $data->name,
@@ -50,6 +51,7 @@ class PaymentMethodService
                         'type' => $data->type,
                         'code' => $data->code,
                         'photo' => $photoPath,
+                        'qr_image' => $qrImagePath,
                         'is_active' => $data->isActive,
                         'account_number' => $data->accountNumber,
                         'account_name' => $data->accountName,
@@ -85,6 +87,7 @@ class PaymentMethodService
             try {
                 return DB::transaction(function () use ($paymentMethod, $data) {
                     $photoPath = $this->handleFileInput($data->photo, $paymentMethod->photo, 'payment_methods');
+                    $qrImagePath = $this->handleFileInput($data->qrImage, $paymentMethod->qr_image, 'payment_methods');
 
                     $paymentMethod->update([
                         'name' => $data->name,
@@ -92,6 +95,7 @@ class PaymentMethodService
                         'type' => $data->type,
                         'code' => $data->code,
                         'photo' => $photoPath,
+                        'qr_image' => $qrImagePath,
                         'is_active' => $data->isActive,
                         'account_number' => $data->accountNumber,
                         'account_name' => $data->accountName,
@@ -131,6 +135,9 @@ class PaymentMethodService
                 return DB::transaction(function () use ($paymentMethod) {
                     if ($paymentMethod->photo) {
                         $this->deleteFile($paymentMethod->photo);
+                    }
+                    if ($paymentMethod->qr_image) {
+                        $this->deleteFile($paymentMethod->qr_image);
                     }
                     return $paymentMethod->delete();
                 });
