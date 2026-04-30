@@ -394,6 +394,10 @@
                     <thead>
                         <tr style="background:#13161e;">
                             <th
+                                class="text-left px-5 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider w-12"
+                                style="color:#8b91a8;">No</th
+                            >
+                            <th
                                 class="text-left px-5 py-3 text-xs font-[Syne] font-semibold uppercase tracking-wider"
                                 style="color:#8b91a8;">Status</th
                             >
@@ -408,8 +412,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {#each orderFlow as step}
+                        {#each orderFlow as step, i}
                             <tr class="transition-colors hover:bg-white/2">
+                                <td class="px-5 py-3 text-xs font-bold" style="color:#4a5068;">
+                                    {i + 1}
+                                </td>
                                 <td class="px-5 py-3">
                                     <span
                                         class="font-['Fira_Code'] text-xs font-semibold px-2.5 py-1 rounded"
@@ -537,25 +544,30 @@
 
                     {#if section.flow && section.flow.length > 0}
                         <div
-                            class="rounded-xl border px-5 py-4 mb-4"
+                            class="rounded-xl border px-5 py-5 mb-4"
                             style="background:#13161e;border-color:#1f2433;"
                         >
                             <p
-                                class="font-[Syne] font-semibold text-white text-xs uppercase tracking-wider mb-3"
+                                class="font-[Syne] font-semibold text-white text-xs uppercase tracking-wider mb-4 flex items-center gap-2"
                             >
-                                Alur Status
+                                <i class="fa-solid fa-list-ol text-[#e8c547]"></i>
+                                Alur Proses
                             </p>
-                            <div class="space-y-2">
-                                {#each section.flow as step}
-                                    <div class="flex items-center gap-2">
+                            <div class="space-y-3">
+                                {#each section.flow as step, stepIdx}
+                                    <div class="flex items-start gap-3">
                                         <div
-                                            class="w-1.5 h-1.5 rounded-full shrink-0"
-                                            style={roleStyle[role.color].dot}
-                                        ></div>
-                                        <code
-                                            class="font-['Fira_Code'] text-xs"
-                                            style="color:#d4d8e8;">{step}</code
+                                            class="flex items-center justify-center w-5 h-5 rounded-md text-[10px] font-bold shrink-0 mt-0.5"
+                                            style="{roleStyle[role.color].badge}; opacity: 0.9;"
                                         >
+                                            {stepIdx + 1}
+                                        </div>
+                                        <p
+                                            class="text-sm font-[Lora] leading-relaxed"
+                                            style="color:#d4d8e8;"
+                                        >
+                                            {step}
+                                        </p>
                                     </div>
                                 {/each}
                             </div>
