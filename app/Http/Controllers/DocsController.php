@@ -275,53 +275,100 @@ class DocsController extends Controller
     {
         return [
             [
-                'title' => 'Pilih Lokasi & Menu',
+                'title' => 'Akses Platform',
                 'items' => [
-                    'Buka halaman utama / aowenak.com',
-                    'Pilih "Drop Point" (titik pengambilan) atau "Alamat Lain" (masukkan alamat lengkap & titik lokasi).',
-                    'Pilih produk makanan/minuman yang Anda inginkan.',
+                    'Buka halaman utama / aowenak.com melalui browser Anda.',
+                    'Dapatkan inspirasi menu premium dari Chef mitra terbaik kami langsung di beranda.',
                 ],
             ],
             [
-                'title' => 'Checkout & Jadwal',
+                'title' => 'Menentukan Lokasi Pengiriman',
                 'items' => [
-                    'Klik Checkout. Anda wajib mengisi Tanggal & Jam pengiriman.',
-                    'Tambahkan catatan jika ada permintaan khusus.',
+                    'Pilih "Drop Point" jika Anda ingin mengambil pesanan di titik pengambilan resmi kami (Lebih Hemat).',
+                    'Pilih "Alamat Lain" jika ingin pesanan dikirim langsung ke pintu rumah Anda.',
+                    'Pastikan titik GPS lokasi Anda akurat untuk memudahkan kurir mencari alamat.',
                 ],
             ],
             [
-                'title' => 'Akun & Pembayaran',
+                'title' => 'Memilih Produk & Menu',
                 'items' => [
-                    'Isi data pribadi Anda di halaman pembayaran.',
-                    'Akun akan dibuat otomatis dan informasi login dikirim ke Email Anda.',
-                    'Lakukan pembayaran ke rekening BCA yang tertera.',
-                    'Input/Upload bukti bayar agar dapat diverifikasi Admin.',
+                    'Jelajahi kategori makanan dan minuman yang tersedia.',
+                    'Klik pada produk untuk melihat deskripsi detail, bahan-bahan, dan rating dari pembeli lain.',
+                    'Kumpulkan menu favorit Anda ke dalam keranjang belanja.',
                 ],
             ],
             [
-                'title' => 'Verifikasi & Notifikasi',
+                'title' => 'Atur Jadwal & Catatan khusus',
                 'items' => [
-                    'Tunggu Admin memverifikasi dana yang masuk.',
-                    'Anda akan menerima notifikasi (WA/Telegram/Email) saat Admin menyetujui pesanan.',
-                    'Pesanan akan diteruskan ke Chef. Anda bisa memantau status di menu "Pesanan" pada beranda.',
+                    'Klik icon keranjang dan pilih "Checkout".',
+                    'Wajib mengisi Tanggal dan Jam pengiriman karena sistem kami berbasis pre-order.',
+                    'Tambahkan "Catatan" jika ada permintaan khusus (misal: "Tanpa pedas", "Sertakan sendok", dll).',
                 ],
             ],
             [
-                'title' => 'Proses Masak & Pengiriman',
+                'title' => 'Review Pesanan & Checkout',
                 'items' => [
-                    'Chef akan memulai memasak setelah menyetujui pesanan Anda.',
-                    'Setelah selesai, masakan dikirim ke Pickup Point.',
-                    'PIC (Petugas Pickup) akan memastikan semua pesanan Anda lengkap sebelum dikirim ke lokasi Anda.',
-                    'Anda mendapatkan notifikasi saat pesanan mulai dikirim (Status: Dikirim).',
+                    'Periksa kembali rincian pesanan, alamat, dan total biaya Anda.',
+                    'Pastikan tidak ada yang terlewat sebelum melanjutkan ke tahap pembayaran.',
                 ],
             ],
             [
-                'title' => 'Pesanan Tiba & Selesai',
+                'title' => 'Registrasi Akun Otomatis',
                 'items' => [
-                    'Saat pesanan tiba, petugas akan upload bukti foto serah terima.',
-                    'Klik "Selesaikan Pesanan" di halaman detail pesanan.',
-                    'Jika dalam 6 jam Anda tidak klik selesai, sistem akan menganggap pesanan sukses (Selesai Otomatis).',
-                    'Jangan lupa berikan testimoni dan bintang untuk masakan Chef kami!',
+                    'Di halaman pembayaran, masukkan data diri (Nama, WA, Email) dengan benar.',
+                    'Sistem akan otomatis membuatkan akun untuk Anda.',
+                    'Informasi login (Username & Password) akan dikirimkan secara instan ke alamat Email yang Anda daftarkan.',
+                ],
+            ],
+            [
+                'title' => 'Lakukan Pembayaran',
+                'items' => [
+                    'Transfer nominal transaksi ke rekening Bank BCA yang tertera di layar.',
+                    'Harap membayar sesuai nominal hingga angka terakhir (jika ada kode unik) untuk mempercepat proses verifikasi.',
+                ],
+            ],
+            [
+                'title' => 'Konfirmasi Pembayaran',
+                'items' => [
+                    'Masuk ke menu "Pesanan" (Login menggunakan akun yang dikirim ke email).',
+                    'Klik "Konfirmasi Bayar" dan unggah foto bukti transfer Anda.',
+                    'Admin kami akan melakukan verifikasi secara manual dalam hitungan menit.',
+                ],
+            ],
+            [
+                'title' => 'Notifikasi & Persetujuan',
+                'items' => [
+                    'Anda akan menerima notifikasi otomatis via WhatsApp/Telegram saat Admin menyetujui pembayaran.',
+                    'Status pesanan akan berubah menjadi "Diproses" dan diteruskan ke dapur Chef.',
+                ],
+            ],
+            [
+                'title' => 'Proses Masak & Quality Control',
+                'items' => [
+                    'Chef mitra kami akan menyiapkan masakan Anda dengan bahan segar sesuai jadwal.',
+                    'Setelah matang, pesanan akan dikirim ke Drop Point untuk dilakukan pengecekan akhir (QC) oleh petugas kami guna memastikan kualitas tetap terjaga.',
+                ],
+            ],
+            [
+                'title' => 'Pengiriman ke Lokasi',
+                'items' => [
+                    'Petugas kami akan mengirimkan pesanan dari Drop Point ke lokasi Anda.',
+                    'Anda akan menerima notifikasi "Sedang Dikirim" sehingga Anda dapat bersiap menerima paket.',
+                ],
+            ],
+            [
+                'title' => 'Penerimaan & Bukti Foto',
+                'items' => [
+                    'Saat pesanan sampai, petugas akan mengambil satu foto sebagai bukti serah terima yang sah.',
+                    'Foto ini akan muncul di halaman detail pesanan Anda untuk transparansi.',
+                ],
+            ],
+            [
+                'title' => 'Konfirmasi Selesai & Review',
+                'items' => [
+                    'Setelah menerima dan memeriksa isi paket, klik tombol "Pesanan Diterima" di halaman detail pesanan.',
+                    'Jika lupa, sistem akan menyelesaikan pesanan secara otomatis dalam waktu 6 jam setelah tiba.',
+                    'Berikan rating bintang 5 dan ulasan positif untuk membantu Chef mitra kami terus berkembang!',
                 ],
             ],
         ];
