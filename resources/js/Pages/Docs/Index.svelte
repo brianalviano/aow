@@ -295,7 +295,7 @@
 
                 <!-- Role Cards -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {#each roles as role}
+                    {#each roles as role, i}
                         <a
                             href="#{role.id}"
                             class="rounded-xl px-4 py-4 border transition-all hover:scale-[1.03]"
@@ -304,9 +304,11 @@
                             ].borderLeft}40;"
                         >
                             <div
-                                class="w-2 h-2 rounded-full mb-3"
-                                style={roleStyle[role.color].dot}
-                            ></div>
+                                class="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold mb-3"
+                                style={roleStyle[role.color].badge}
+                            >
+                                {i + 1}
+                            </div>
                             <p
                                 class="font-[Syne] font-semibold text-white text-sm"
                             >
