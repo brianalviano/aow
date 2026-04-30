@@ -98,6 +98,14 @@ class CheckoutController extends Controller
             'address' => 'nullable|array',
         ]);
 
+        $minQty = \App\DTOs\Setting\OrderSettingsDTO::load()->minOrderQuantity;
+        if ($minQty > 0) {
+            $totalQty = array_reduce($request->input('cart'), fn($sum, $item) => $sum + $item['quantity'], 0);
+            if ($totalQty < $minQty) {
+                return back()->withErrors(['cart' => "Minimal total pesanan adalah {$minQty} porsi."]);
+            }
+        }
+
         session([
             'checkout_cart' => $request->input('cart'),
             'checkout_drop_point' => $request->input('dropPoint'),
@@ -128,6 +136,14 @@ class CheckoutController extends Controller
             'dropPoint' => 'nullable|array',
             'address' => 'nullable|array',
         ]);
+
+        $minQty = \App\DTOs\Setting\OrderSettingsDTO::load()->minOrderQuantity;
+        if ($minQty > 0) {
+            $totalQty = array_reduce($request->input('cart'), fn($sum, $item) => $sum + $item['quantity'], 0);
+            if ($totalQty < $minQty) {
+                return back()->withErrors(['cart' => "Minimal total pesanan adalah {$minQty} porsi."]);
+            }
+        }
 
         session([
             'checkout_cart' => $request->input('cart'),

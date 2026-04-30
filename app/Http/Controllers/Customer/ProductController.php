@@ -105,6 +105,7 @@ class ProductController extends Controller
             'savedCart' => (object) session('checkout_cart', []),
             'orderType' => $orderType,
             'quotaProgress' => $quotaProgress,
+            'minOrderQuantity' => \App\DTOs\Setting\OrderSettingsDTO::load()->minOrderQuantity,
         ]);
     }
 

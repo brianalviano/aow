@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\DTOs\Setting;
 
-use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
  * Data Transfer Object for application settings (company profile + order settings).
@@ -29,7 +29,7 @@ class SettingData extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(): array
+    public static function rules(ValidationContext|null $context = null): array
     {
         return [
             // Company Profile
@@ -47,6 +47,7 @@ class SettingData extends Data
             'order_min_days_ahead' => ['nullable', 'integer', 'min:0'],
             'instant_order_start_time' => ['nullable', 'string', 'max:5'],
             'instant_order_end_time' => ['nullable', 'string', 'max:5'],
+            'min_order_quantity' => ['nullable', 'integer', 'min:1'],
 
             'delivery_fee_mode' => ['nullable', 'string', 'in:per_drop_point,flat,free'],
             'delivery_fee_flat' => ['nullable', 'numeric', 'min:0'],
@@ -103,6 +104,7 @@ class SettingData extends Data
             orderSettings: [
                 'order_cutoff_time' => $validated['order_cutoff_time'] ?? null,
                 'order_min_days_ahead' => $validated['order_min_days_ahead'] ?? null,
+                'min_order_quantity' => $validated['min_order_quantity'] ?? null,
 
                 'delivery_fee_mode' => $validated['delivery_fee_mode'] ?? null,
                 'delivery_fee_flat' => $validated['delivery_fee_flat'] ?? null,
