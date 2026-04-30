@@ -248,8 +248,8 @@ class PicOrderService
         try {
             return DB::transaction(function () use ($order, $officer) {
                 $order->update([
-                    'order_status' => OrderStatus::ARRIVED,
-                    'arrived_at' => now(),
+                    'order_status' => OrderStatus::DELIVERED,
+                    'delivered_at' => now(),
                 ]);
 
                 Log::info('PIC marked order as delivered', [

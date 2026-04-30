@@ -111,6 +111,7 @@
                     preserveScroll: true,
                     onFinish: () => {
                         isProcessing = false;
+                        confirmDialog.isOpen = false;
                         confirmDialog.action = null;
                         resolve();
                     },
@@ -194,7 +195,7 @@
 </script>
 
 <div
-    class="bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden hover:border-[#FFD700]/30 transition-all duration-300"
+    class="bg-slate-900/40 backdrop-blur-sm rounded-3xl border border-slate-800/50 shadow-2xl overflow-hidden hover:border-[#FFD700]/30 transition-all duration-300"
 >
     <!-- Header -->
     <div class="bg-slate-950/50 p-6 border-b border-slate-800">

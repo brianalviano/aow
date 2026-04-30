@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\DTOs\PickUpPoint;
 
+use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
@@ -19,6 +21,7 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
  * @property bool $isActive Status aktif
  * @property array<string> $officerIds ID officer yang di-assign
  */
+#[MapInputName(SnakeCaseMapper::class)]
 class PickUpPointData extends Data
 {
     public function __construct(
@@ -49,10 +52,10 @@ class PickUpPointData extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(ValidationContext $context): array
+    public static function rules(ValidationContext|null $context = null): array
     {
         return [
-            'officer_ids.*' => ['exists:pick_up_points_officers,id'],
+            'officer_ids.*' => ['exists:pick_up_point_officers,id'],
         ];
     }
 }

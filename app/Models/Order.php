@@ -51,6 +51,7 @@ class Order extends Model
         'tax_amount',
         'delivery_time',
         'delivered_at',
+        'arrived_at',
         'payment_proof',
         'delivery_photo',
     ];
@@ -66,6 +67,7 @@ class Order extends Model
             'delivery_date' => 'date',
             'delivery_time' => 'datetime',
             'delivered_at' => 'datetime',
+            'arrived_at' => 'datetime',
             'payment_expired_at' => 'timestamp',
             'payment_details' => 'array',
             'shipping_method' => ShippingMethod::class,

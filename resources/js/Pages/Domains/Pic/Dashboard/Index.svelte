@@ -67,22 +67,20 @@
     }
 
     function getTabCount(tab: string) {
-        switch (tab) {
-            case "incoming":
-                return incomingOrders?.data?.length ?? 0;
-            case "at_pickup":
-                return atPickupOrders?.data?.length ?? 0;
-            case "on_delivery":
-                return onDeliveryOrders?.data?.length ?? 0;
-            default:
-                return 0;
-        }
+        const orderData = {
+            incoming: incomingOrders,
+            at_pickup: atPickupOrders,
+            on_delivery: onDeliveryOrders,
+            completed: completedOrders,
+        }[tab];
+
+        return orderData?.meta?.total ?? orderData?.data?.length ?? 0;
     }
 
     const tabs = [
         {
             id: "incoming" as const,
-            label: "Menuju",
+            label: "Diterima",
             icon: "fa-solid fa-truck-arrow-right",
         },
         {
@@ -144,7 +142,7 @@
             {#each tabs as tab}
                 <button
                     onclick={() => (activeTab = tab.id)}
-                    class="flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] font-bold uppercase tracking-wider transition-colors relative
+                    class="flex-1 flex items-center justify-center gap-1.5 py-3 text-[10px] font-semibold uppercase tracking-wider transition-colors relative
                         {activeTab === tab.id
                         ? 'text-[#FFD700]'
                         : 'text-slate-500 hover:text-slate-300'}"
@@ -175,7 +173,7 @@
     <div class="p-4 space-y-4 pb-24">
         {#if orders.length === 0}
             <div
-                class="bg-slate-950 rounded-2xl border border-slate-800 p-8 text-center"
+                class="bg-slate-900/50 rounded-2xl border border-slate-800/50 p-8 text-center backdrop-blur-sm"
             >
                 <div
                     class="inline-flex items-center justify-center w-14 h-14 bg-slate-800 rounded-2xl mb-3 border border-slate-700"
@@ -221,16 +219,16 @@
 
     <!-- Bottom Info -->
     <div
-        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-10"
+        class="fixed bottom-0 left-0 right-0 bg-slate-950/80 backdrop-blur-md border-t border-slate-800 px-4 py-3 z-20"
     >
         <div class="flex items-center justify-between">
-            <p class="text-xs text-gray-400">
+            <p class="text-[10px] font-medium text-slate-500">
                 &copy; {currentYear}
-                {appName($page.props.settings)}
+                <span class="text-slate-400">{appName($page.props.settings)}</span>
             </p>
             {#if pickUpPoint?.address}
-                <p class="text-xs text-gray-500 truncate max-w-[200px]">
-                    <i class="fa-solid fa-location-dot mr-1"></i>
+                <p class="text-[10px] text-slate-500 truncate max-w-[200px] flex items-center gap-1.5">
+                    <i class="fa-solid fa-location-dot text-[#FFD700]"></i>
                     {pickUpPoint.address}
                 </p>
             {/if}
