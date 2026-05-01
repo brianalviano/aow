@@ -426,13 +426,18 @@
                         variant="primary"
                         icon="fa-solid fa-check"
                         disabled={isProcessing}
-                        onclick={() =>
+                        onclick={() => {
+                            const hasProof = !!order.payment_proof_url;
+                            const message = hasProof
+                                ? `Apakah Anda yakin ingin mengkonfirmasi pesanan #${order.number}?`
+                                : `PERINGATAN: Bukti pembayaran belum diunggah. Apakah Anda yakin ingin tetap mengkonfirmasi pesanan #${order.number} secara manual?`;
                             openConfirm(
                                 "Konfirmasi Pesanan",
-                                `Apakah Anda yakin ingin mengkonfirmasi pesanan #${order.number}?`,
+                                message,
                                 () => postAction("confirm"),
-                                "primary",
-                            )}
+                                hasProof ? "primary" : "warning",
+                            );
+                        }}
                     >
                         {#snippet children()}Konfirmasi{/snippet}
                     </Button>

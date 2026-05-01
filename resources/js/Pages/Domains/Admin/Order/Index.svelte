@@ -184,6 +184,68 @@
                 return { variant: "secondary", label: status };
         }
     }
+
+    interface ConfirmDialog {
+        open: boolean;
+        title: string;
+        message: string;
+        action: (() => void) | null;
+        variant: "danger" | "primary" | "success" | "warning";
+    }
+
+    let confirmDialog = $state<ConfirmDialog>({
+        open: false,
+        title: "",
+        message: "",
+        action: null,
+        variant: "primary",
+    });
+
+    let isProcessing = $state(false);
+
+    function openConfirm(
+        title: string,
+        message: string,
+        action: () => void,
+        variant: ConfirmDialog["variant"] = "primary",
+    ) {
+        confirmDialog = { open: true, title, message, action, variant };
+    }
+
+    function closeConfirm() {
+        confirmDialog = { ...confirmDialog, open: false, action: null };
+    }
+
+    function executeAction() {
+        if (!confirmDialog.action) return;
+        isProcessing = true;
+        confirmDialog.action();
+        closeConfirm();
+    }
+
+    function approveOrder(orderId: string) {
+        router.post(
+            `/admin/orders/${orderId}/confirm`,
+            {},
+            {
+                onFinish: () => {
+                    isProcessing = false;
+                },
+            },
+        );
+    }
+
+    function rejectOrder(orderId: string) {
+        router.post(
+            `/admin/orders/${orderId}/cancel`,
+            { cancellation_note: "Ditolak oleh Admin" },
+            {
+                onFinish: () => {
+                    isProcessing = false;
+                },
+            },
+        );
+    }
 </script>
 
 <svelte:head>
@@ -253,7 +315,8 @@
                         <th>Status Pesanan</th>
                         <th>Status Dapur</th>
                         <th>Status Bayar</th>
-                        <th class="w-32 text-center">Aksi</th>
+                        <th>Bukti</th>
+                        <th class="w-48 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -376,6 +439,24 @@
                                         {#snippet children()}{paymentBadge.label}{/snippet}
                                     </Badge>
                                 </td>
+                                <td class="text-center">
+                                    {#if (item as any).payment_proof_url}
+                                        <div
+                                            class="flex items-center justify-center"
+                                        >
+                                            <img
+                                                src={(item as any).payment_proof_url}
+                                                alt="Bukti"
+                                                class="w-8 h-8 object-cover rounded border border-gray-200 dark:border-gray-700"
+                                            />
+                                        </div>
+                                    {:else}
+                                        <span
+                                            class="text-[10px] text-gray-400 italic"
+                                            >Belum ada</span
+                                        >
+                                    {/if}
+                                </td>
                                 <td
                                     class="px-4 py-3 whitespace-nowrap text-center"
                                 >
@@ -384,12 +465,47 @@
                                     >
                                         <Button
                                             variant="primary"
-                                            size="sm"
+                                            size="xs"
                                             icon="fa-solid fa-eye"
                                             href={`/admin/orders/${item.id}`}
-                                        >
-                                            Detail
-                                        </Button>
+                                            title="Detail"
+                                        />
+                                        {#if item.order_status === "pending"}
+                                            <Button
+                                                variant="success"
+                                                size="xs"
+                                                icon="fa-solid fa-check"
+                                                disabled={isProcessing}
+                                                onclick={() =>
+                                                    openConfirm(
+                                                        "Konfirmasi Pesanan",
+                                                        `Apakah Anda yakin ingin menyetujui pesanan #${item.number}?`,
+                                                        () =>
+                                                            approveOrder(
+                                                                item.id,
+                                                            ),
+                                                        "success",
+                                                    )}
+                                                title="Setujui"
+                                            />
+                                            <Button
+                                                variant="danger"
+                                                size="xs"
+                                                icon="fa-solid fa-xmark"
+                                                disabled={isProcessing}
+                                                onclick={() =>
+                                                    openConfirm(
+                                                        "Tolak Pesanan",
+                                                        `Apakah Anda yakin ingin menolak pesanan #${item.number}?`,
+                                                        () =>
+                                                            rejectOrder(
+                                                                item.id,
+                                                            ),
+                                                        "danger",
+                                                    )}
+                                                title="Tolak"
+                                            />
+                                        {/if}
                                     </div>
                                 </td>
                             </tr>
@@ -397,7 +513,7 @@
                     {:else}
                         <tr>
                             <td
-                                colspan="8"
+                                colspan="9"
                                 class="py-12 text-sm text-center text-gray-500 dark:text-gray-400"
                             >
                                 <div
@@ -427,3 +543,66 @@
         </div>
     </div>
 </section>
+
+<!-- Confirmation Dialog Modal -->
+{#if confirmDialog.open}
+    <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+    >
+        <div
+            class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+        >
+            <div class="flex items-start gap-4">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full
+                        {confirmDialog.variant === 'danger'
+                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                        : confirmDialog.variant === 'success'
+                          ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                          : confirmDialog.variant === 'warning'
+                            ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+                            : 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'}"
+                >
+                    <i
+                        class="fa-solid
+                            {confirmDialog.variant === 'danger'
+                            ? 'fa-triangle-exclamation'
+                            : confirmDialog.variant === 'success'
+                              ? 'fa-circle-check'
+                              : confirmDialog.variant === 'warning'
+                                ? 'fa-circle-exclamation'
+                                : 'fa-circle-question'}"
+                    ></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                        {confirmDialog.title}
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        {confirmDialog.message}
+                    </p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <Button variant="secondary" size="sm" onclick={closeConfirm}>
+                    Batal
+                </Button>
+                <Button
+                    variant={confirmDialog.variant === "danger"
+                        ? "danger"
+                        : confirmDialog.variant === "success"
+                          ? "success"
+                          : "primary"}
+                    size="sm"
+                    disabled={isProcessing}
+                    onclick={executeAction}
+                >
+                    Ya, Lanjutkan
+                </Button>
+            </div>
+        </div>
+    </div>
+{/if}
+
