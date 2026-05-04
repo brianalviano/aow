@@ -18,19 +18,19 @@ class ClearTransactionsCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Hapus seluruh data transaksi (orders) beserta relasinya';
+    protected $description = 'Hapus seluruh data transaksi (orders) dan data customer beserta relasinya';
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        if (!$this->option('force') && !$this->confirm('Apakah Anda yakin ingin menghapus SELURUH data transaksi? Tindakan ini tidak dapat dibatalkan.')) {
+        if (!$this->option('force') && !$this->confirm('Apakah Anda yakin ingin menghapus SELURUH data transaksi dan CUSTOMER? Tindakan ini tidak dapat dibatalkan.')) {
             $this->info('Operasi dibatalkan.');
             return 0;
         }
 
-        $this->info('Menghapus data transaksi...');
+        $this->info('Menghapus data transaksi dan customer...');
 
         try {
             \Illuminate\Support\Facades\DB::beginTransaction();
@@ -70,13 +70,33 @@ class ClearTransactionsCommand extends Command
             \App\Models\ProductSummary::query()->delete();
             $this->line("- Terhapus {$productSummaryCount} ringkasan produk.");
 
+            // 8. Hapus Customer Addresses
+            $addressCount = \App\Models\CustomerAddress::withTrashed()->count();
+            \App\Models\CustomerAddress::withTrashed()->forceDelete();
+            $this->line("- Terhapus {$addressCount} alamat customer.");
+
+            // 9. Hapus Feedback
+            $feedbackCount = \App\Models\Feedback::count();
+            \App\Models\Feedback::query()->delete();
+            $this->line("- Terhapus {$feedbackCount} feedback.");
+
+            // 10. Hapus Food Requests
+            $foodRequestCount = \App\Models\FoodRequest::count();
+            \App\Models\FoodRequest::query()->delete();
+            $this->line("- Terhapus {$foodRequestCount} permintaan makanan.");
+
+            // 11. Hapus Customers (Force delete karena menggunakan SoftDeletes)
+            $customerCount = \App\Models\Customer::withTrashed()->count();
+            \App\Models\Customer::withTrashed()->forceDelete();
+            $this->line("- Terhapus {$customerCount} data customer (termasuk yang di-soft delete).");
+
             \Illuminate\Support\Facades\DB::commit();
 
-            // 8. Clear Cache (Redis) - Sesuai strategi cache proyek
+            // 12. Clear Cache (Redis) - Sesuai strategi cache proyek
             \Illuminate\Support\Facades\Redis::flushall();
             $this->line("- Cache Redis telah dibersihkan.");
 
-            $this->info('Seluruh data transaksi berhasil dihapus.');
+            $this->info('Seluruh data transaksi dan customer berhasil dihapus.');
 
             return 0;
         } catch (\Exception $e) {
