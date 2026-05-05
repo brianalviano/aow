@@ -37,6 +37,30 @@ class AppServiceProvider extends ServiceProvider
         $this->configureInertia();
         $this->registerAuthRedirect();
         $this->registerAuthorizationGates();
+        $this->configurePasswordResets();
+    }
+
+    /**
+     * Konfigurasi URL reset password untuk berbagai guard.
+     * Memastikan Admin dan Customer mendapatkan link reset yang sesuai.
+     *
+     * @return void
+     */
+    private function configurePasswordResets(): void
+    {
+        \Illuminate\Auth\Notifications\ResetPassword::createUrlUsing(function ($user, string $token) {
+            if ($user instanceof User) {
+                return url(config('app.url') . route('admin.password.reset', [
+                    'token' => $token,
+                    'email' => $user->getEmailForPasswordReset(),
+                ], false));
+            }
+
+            return url(config('app.url') . route('password.reset', [
+                'token' => $token,
+                'email' => $user->getEmailForPasswordReset(),
+            ], false));
+        });
     }
 
     /**

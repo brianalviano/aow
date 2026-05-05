@@ -120,6 +120,18 @@ Route::middleware('guest:customer')->group(function () {
 
     Route::get('/register', [AuthController::class, 'showRegister'])->name('customer.register');
     Route::post('/register', [AuthController::class, 'register'])->name('customer.register.store');
+
+    // Password Reset
+    Route::get('/forgot-password', [\App\Http\Controllers\Customer\PasswordResetController::class, 'showForgot'])
+        ->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\Customer\PasswordResetController::class, 'sendResetLink'])
+        ->middleware('throttle:6,1')
+        ->name('password.email');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\Customer\PasswordResetController::class, 'showReset'])
+        ->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\Customer\PasswordResetController::class, 'reset'])
+        ->middleware('throttle:6,1')
+        ->name('password.update');
 });
 
 // Customer Authenticated Routes
