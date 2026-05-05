@@ -503,6 +503,19 @@ class OrderService
             ]);
         }
 
+        // Additional Admin Filters
+        if ($dto->dropPointId) {
+            $query->where('drop_point_id', $dto->dropPointId);
+        }
+
+        if ($dto->chefId) {
+            $query->whereHas('items', fn($q) => $q->where('chef_id', $dto->chefId));
+        }
+
+        if ($dto->deliveryDate) {
+            $query->whereDate('delivery_date', $dto->deliveryDate);
+        }
+
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 

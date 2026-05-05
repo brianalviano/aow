@@ -31,7 +31,7 @@ class OrderController extends Controller
 
         return Inertia::render('Domains/Admin/Order/Index', [
             'orders'  => \App\Http\Resources\OrderResource::collection($orders),
-            'filters' => $request->only(['search', 'date_range', 'start_date', 'end_date', 'status']),
+            'filters' => $request->only(['search', 'date_range', 'start_date', 'end_date', 'status', 'drop_point_id', 'chef_id', 'delivery_date']),
             'status_counts' => [
                 'all'       => Order::count(),
                 'unpaid'    => Order::where('payment_status', 'pending')
@@ -48,6 +48,8 @@ class OrderController extends Controller
                         ->orWhere('payment_status', 'failed');
                 })->count(),
             ],
+            'dropPoints' => DropPoint::where('is_active', true)->get(['id', 'name']),
+            'chefs'      => Chef::where('is_active', true)->get(['id', 'name']),
         ]);
     }
 

@@ -6,6 +6,8 @@
     import Tab from "@/Lib/Admin/Components/Ui/Tab.svelte";
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import Pagination from "@/Lib/Admin/Components/Ui/Pagination.svelte";
+    import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
+    import DateInput from "@/Lib/Admin/Components/Ui/DateInput.svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
     import { untrack } from "svelte";
     import debounce from "lodash-es/debounce";
@@ -37,8 +39,22 @@
     );
 
     let filters = $derived(
-        $page.props.filters as { search?: string; status?: string } | undefined,
+        $page.props.filters as
+            | {
+                  search?: string;
+                  status?: string;
+                  date_range?: string;
+                  start_date?: string;
+                  end_date?: string;
+                  drop_point_id?: string;
+                  chef_id?: string;
+                  delivery_date?: string;
+              }
+            | undefined,
     );
+
+    let dropPoints = $derived(($page.props.dropPoints as any[]) || []);
+    let chefs = $derived(($page.props.chefs as any[]) || []);
 
     let statusCounts = $derived(
         ($page.props.status_counts as Record<string, number>) || {},
@@ -46,6 +62,14 @@
 
     let searchQuery = $state(untrack(() => filters?.search || ""));
     let statusFilter = $state(untrack(() => filters?.status || "all"));
+    let dateRange = $state(untrack(() => filters?.date_range || "all"));
+    let startDate = $state(untrack(() => filters?.start_date || ""));
+    let endDate = $state(untrack(() => filters?.end_date || ""));
+    let dropPointId = $state(untrack(() => filters?.drop_point_id || ""));
+    let chefId = $state(untrack(() => filters?.chef_id || ""));
+    let deliveryDate = $state(untrack(() => filters?.delivery_date || ""));
+
+    let isFilterExpanded = $state(false);
 
     let meta = $derived(
         orders?.meta ?? {
@@ -104,6 +128,22 @@
         if (statusFilter && statusFilter !== "all") {
             params.set("status", statusFilter);
         }
+        if (dateRange && dateRange !== "all") {
+            params.set("date_range", dateRange);
+            if (dateRange === "custom") {
+                if (startDate) params.set("start_date", startDate);
+                if (endDate) params.set("end_date", endDate);
+            }
+        }
+        if (dropPointId) {
+            params.set("drop_point_id", dropPointId);
+        }
+        if (chefId) {
+            params.set("chef_id", chefId);
+        }
+        if (deliveryDate) {
+            params.set("delivery_date", deliveryDate);
+        }
 
         router.get(
             "/admin/orders?" + params.toString(),
@@ -119,7 +159,13 @@
     $effect(() => {
         if (
             searchQuery !== (filters?.search || "") ||
-            statusFilter !== (filters?.status || "all")
+            statusFilter !== (filters?.status || "all") ||
+            dateRange !== (filters?.date_range || "all") ||
+            startDate !== (filters?.start_date || "") ||
+            endDate !== (filters?.end_date || "") ||
+            dropPointId !== (filters?.drop_point_id || "") ||
+            chefId !== (filters?.chef_id || "") ||
+            deliveryDate !== (filters?.delivery_date || "")
         ) {
             handleSearch();
         }
@@ -287,13 +333,27 @@
                 />
             </div>
             <div class="flex gap-2 shrink-0">
-                {#if searchQuery || (statusFilter && statusFilter !== "all")}
+                <Button
+                    variant="light"
+                    size="sm"
+                    icon="fa-solid fa-filter"
+                    onclick={() => (isFilterExpanded = !isFilterExpanded)}
+                >
+                    Filter Lanjutan
+                </Button>
+                {#if searchQuery || statusFilter !== "all" || dateRange !== "all" || dropPointId || chefId || deliveryDate}
                     <Button
                         variant="secondary"
                         size="sm"
                         onclick={() => {
                             searchQuery = "";
                             statusFilter = "all";
+                            dateRange = "all";
+                            startDate = "";
+                            endDate = "";
+                            dropPointId = "";
+                            chefId = "";
+                            deliveryDate = "";
                             handleSearch();
                         }}
                     >
@@ -303,12 +363,76 @@
             </div>
         </div>
 
+        {#if isFilterExpanded}
+            <div
+                class="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 border-t border-gray-100 dark:border-gray-800 pt-4"
+            >
+                <Select
+                    label="Rentang Tanggal"
+                    bind:value={dateRange}
+                    options={[
+                        { value: "all", label: "Semua Waktu" },
+                        { value: "30_days", label: "30 Hari Terakhir" },
+                        { value: "90_days", label: "90 Hari Terakhir" },
+                        { value: "custom", label: "Rentang Custom" },
+                    ]}
+                    placeholder="Pilih rentang..."
+                />
+
+                {#if dateRange === "custom"}
+                    <DateInput
+                        label="Tgl. Mulai"
+                        bind:value={startDate}
+                        placeholder="Mulai"
+                    />
+                    <DateInput
+                        label="Tgl. Selesai"
+                        bind:value={endDate}
+                        placeholder="Selesai"
+                    />
+                {/if}
+
+                <Select
+                    label="Drop Point"
+                    bind:value={dropPointId}
+                    options={[
+                        { value: "", label: "Semua Drop Point" },
+                        ...dropPoints.map((dp) => ({
+                            value: dp.id,
+                            label: dp.name,
+                        })),
+                    ]}
+                    placeholder="Pilih drop point..."
+                    searchable={true}
+                />
+
+                <Select
+                    label="Chef / Dapur"
+                    bind:value={chefId}
+                    options={[
+                        { value: "", label: "Semua Chef" },
+                        ...chefs.map((c) => ({
+                            value: c.id,
+                            label: c.name,
+                        })),
+                    ]}
+                    placeholder="Pilih chef..."
+                    searchable={true}
+                />
+
+                <DateInput
+                    label="Tgl. Pengiriman"
+                    bind:value={deliveryDate}
+                    placeholder="Pilih tgl pengiriman"
+                />
+            </div>
+        {/if}
+
         <div class="overflow-x-auto">
             <table class="custom-table min-w-full">
                 <thead>
                     <tr>
                         <th>No. Pesanan</th>
-                        <th>Tanggal</th>
                         <th>Tgl. Kirim</th>
                         <th>Customer</th>
                         <th>Total</th>
@@ -334,15 +458,17 @@
                                 <td
                                     class="font-medium text-gray-900 dark:text-white"
                                 >
-                                    {item.number}
-                                </td>
-                                <td>
+                                    <div>{item.number}</div>
                                     <div
-                                        class="text-sm text-gray-900 dark:text-white"
+                                        class="text-[10px] text-gray-500 font-normal mt-0.5"
                                     >
                                         {new Date(
                                             item.created_at,
-                                        ).toLocaleDateString("id-ID")}
+                                        ).toLocaleDateString("id-ID", {
+                                            day: "numeric",
+                                            month: "short",
+                                            year: "numeric",
+                                        })}
                                     </div>
                                 </td>
                                 <td>
