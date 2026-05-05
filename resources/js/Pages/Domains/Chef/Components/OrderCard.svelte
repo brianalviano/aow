@@ -79,7 +79,7 @@
     function getStatusVariant(status: string) {
         switch (status) {
             case "accepted":
-                return "info";
+                return "warning";
             case "shipped":
                 return "primary";
             case "delivered":
@@ -117,10 +117,10 @@
 </script>
 
 <div
-    class="bg-slate-950 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden mb-6 hover:border-[#FFD700]/30 transition-all duration-300"
+    class="bg-slate-950 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden mb-4 hover:border-[#FFD700]/30 transition-all duration-300"
 >
     <div
-        class="bg-slate-950/50 p-6 border-b border-slate-800 flex flex-wrap justify-between items-center gap-4"
+        class="bg-slate-950/50 px-4 py-3 border-b border-slate-800 flex flex-wrap justify-between items-center gap-4"
     >
         <div>
             <div class="flex items-center gap-3 mb-2">
@@ -135,15 +135,15 @@
                     >{group.order.number}</Badge
                 >
             </div>
-            <div class="text-base font-black text-slate-100">
+            <div class="text-sm font-black text-slate-100">
                 {group.order.customer?.name}
                 <span class="text-slate-600 mx-2">•</span>
-                <span class="text-slate-400 font-medium"
+                <span class="text-slate-400 font-medium text-xs"
                     >{group.order.drop_point?.name || "Alamat Kustom"}</span
                 >
             </div>
         </div>
-        <div class="text-right">
+        <div>
             <span
                 class="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] block mb-1"
                 >Tanggal Pengiriman</span
@@ -169,7 +169,7 @@
 
     {#if group.order.pick_up_point}
         <div
-            class="bg-blue-900/10 px-6 py-4 border-b border-blue-900/20 flex flex-wrap items-center justify-between gap-4"
+            class="bg-blue-900/10 px-4 py-2.5 border-b border-blue-900/20 flex flex-wrap items-center justify-between gap-4"
         >
             <div>
                 <div class="flex items-center gap-2 mb-1">
@@ -180,7 +180,7 @@
                         >Kirim ke Pickup Point</span
                     >
                 </div>
-                <p class="text-base font-black text-slate-100">
+                <p class="text-sm font-black text-slate-100">
                     {group.order.pick_up_point.name}
                 </p>
                 <p class="text-xs text-slate-500 mt-1">
@@ -194,7 +194,7 @@
                             group.order.pick_up_point?.latitude,
                             group.order.pick_up_point?.longitude,
                         )}
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-xs font-black rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
+                    class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-[10px] font-black rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
                 >
                     <i class="fa-solid fa-map-location-dot"></i>
                     Google Maps
@@ -206,7 +206,7 @@
     <div class="divide-y divide-slate-800">
         {#each group.items as item}
             <div
-                class="p-6 flex flex-wrap items-center justify-between gap-6 hover:bg-slate-800/20 transition-colors"
+                class="px-4 py-3 flex flex-wrap items-center justify-between gap-4 hover:bg-slate-800/20 transition-colors"
             >
                 <div class="flex items-center gap-6">
                     {#if item.product?.image}
@@ -214,24 +214,24 @@
                             src={item.product.image}
                             alt={item.product.name}
                             class="{context === 'dashboard'
-                                ? 'w-20 h-20 rounded-2xl'
-                                : 'w-14 h-14 rounded-xl'} object-cover border border-slate-800 shadow-xl"
+                                ? 'w-16 h-16 rounded-xl'
+                                : 'w-12 h-12 rounded-lg'} object-cover border border-slate-800 shadow-xl"
                         />
                     {:else}
                         <div
                             class="{context === 'dashboard'
-                                ? 'w-20 h-20 rounded-2xl'
-                                : 'w-14 h-14 rounded-xl'} bg-slate-800 flex items-center justify-center border border-slate-700"
+                                ? 'w-16 h-16 rounded-xl'
+                                : 'w-12 h-12 rounded-lg'} bg-slate-800 flex items-center justify-center border border-slate-700"
                         >
                             <i
-                                class="fa-solid fa-bowl-food text-slate-600 text-2xl"
+                                class="fa-solid fa-bowl-food text-slate-600 text-xl"
                             ></i>
                         </div>
                     {/if}
                     <div>
                         {#if context === "orders" && item.created_at}
                             <div class="flex items-center gap-3">
-                                <h4 class="font-black text-slate-100 text-lg">
+                                <h4 class="font-black text-slate-100 text-base">
                                     {item.product?.name}
                                 </h4>
                                 <span
@@ -242,7 +242,7 @@
                                 >
                             </div>
                         {:else}
-                            <h4 class="font-black text-slate-100 text-lg">
+                            <h4 class="font-black text-slate-100 text-base">
                                 {item.product?.name}
                             </h4>
                         {/if}
@@ -284,7 +284,7 @@
                             >
                                 Tolak
                             </Button>
-                        {:else if item.chef_status === "accepted" && group.order.order_status === "confirmed" && isAllItemsApproved(group.order)}
+                        {:else if item.chef_status === "accepted" && (group.order.order_status === "confirmed" || group.order.order_status === "shipped") && isAllItemsApproved(group.order)}
                             <Button
                                 variant="primary"
                                 size="sm"
@@ -306,7 +306,7 @@
                         >
                             {getStatusLabel(item.chef_status)}
                         </Badge>
-                        {#if item.chef_status === "accepted" && group.order.order_status === "confirmed" && isAllItemsApproved(group.order)}
+                        {#if item.chef_status === "accepted" && (group.order.order_status === "confirmed" || group.order.order_status === "shipped") && isAllItemsApproved(group.order)}
                             <Button
                                 variant="primary"
                                 size="sm"
