@@ -16,7 +16,7 @@ use Spatie\LaravelData\Data;
  * @property string|null $address Optional address
  * @property string|null $email Optional email (unique)
  * @property string $password Password (min 8, must be confirmed)
- * @property string|null $schoolClass Optional class/school description
+ * @property string|null $school_class Optional class/school description
  */
 class RegisterCustomerDTO extends Data
 {
@@ -40,6 +40,6 @@ class RegisterCustomerDTO extends Data
         public readonly string $password,
 
         #[Rule('nullable', 'string', 'max:255')]
-        public readonly ?string $schoolClass = null,
+        public readonly ?string $school_class = null,
     ) {}
 }

@@ -11,6 +11,8 @@
         username: "",
         email: "",
         phone: "",
+        address: "",
+        school_class: "",
         password: "",
         password_confirmation: "",
     });
@@ -102,6 +104,28 @@
                     bind:value={$form.phone}
                     placeholder="Cth: 08123456789"
                     error={$form.errors.phone}
+                />
+
+                <TextInput
+                    id="school_class"
+                    name="school_class"
+                    label="Kelas"
+                    type="text"
+                    disabled={$form.processing}
+                    bind:value={$form.school_class}
+                    placeholder="Cth: 12 IPA 1"
+                    error={$form.errors.school_class}
+                />
+
+                <TextInput
+                    id="address"
+                    name="address"
+                    label="Alamat"
+                    type="text"
+                    disabled={$form.processing}
+                    bind:value={$form.address}
+                    placeholder="Cth: Jl. Merdeka No. 123"
+                    error={$form.errors.address}
                 />
 
                 <TextInput

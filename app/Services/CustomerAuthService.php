@@ -27,7 +27,7 @@ class CustomerAuthService
                 $customer = Customer::create([
                     'name'          => $dto->name,
                     'username'      => $dto->username,
-                    'phone'         => $dto->phone,
+                    'phone'         => $this->normalizePhone($dto->phone),
                     'address'       => $dto->address,
                     'email'         => $dto->email,
                     'password'      => $dto->password,
