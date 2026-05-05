@@ -120,23 +120,28 @@ class Order extends Model
     /**
      * Determine if admin can still change the pickup point for this order.
      *
-     * Allowed only when not all chef items have shipped yet.
-     * Once all items are shipped (or beyond), the pickup point is locked.
+     * Allowed only when the order is PENDING or CONFIRMED, 
+     * AND no items have been shipped by chefs yet.
      */
     public function canChangePickUpPoint(): bool
     {
+        if (!in_array($this->order_status, [OrderStatus::PENDING, OrderStatus::CONFIRMED])) {
+            return false;
+        }
+
         if (!$this->items->count()) {
             return true;
         }
 
-        $allShipped = $this->items->every(
+        // Return true only if NO items have been shipped or delivered to hub
+        $anyShipped = $this->items->contains(
             fn($item) => in_array($item->chef_status, [
                 \App\Enums\ChefStatus::SHIPPED,
                 \App\Enums\ChefStatus::DELIVERED,
             ])
         );
 
-        return !$allShipped;
+        return !$anyShipped;
     }
 
     public function customer(): BelongsTo

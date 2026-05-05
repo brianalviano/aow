@@ -795,9 +795,15 @@ class OrderService
                         'tax_amount'         => $fees['taxAmount'],
                     ]);
 
+                    $firstChef = null;
+
                     foreach ($data->cart as $item) {
                         $product = Product::find(data_get($item, 'product.id'));
                         $chef = $product?->chefs->first();
+
+                        if (!$firstChef && $chef) {
+                            $firstChef = $chef;
+                        }
 
                         $orderItem = OrderItem::create([
                             'order_id'          => $order->id,
@@ -825,6 +831,17 @@ class OrderService
                                     ]);
                                 }
                             }
+                        }
+                    }
+
+                    // Assign nearest pickup point based on first chef's location
+                    if ($firstChef && $firstChef->latitude && $firstChef->longitude) {
+                        $nearestPickup = PicOrderService::findNearestPickUpPoint(
+                            $firstChef->latitude,
+                            $firstChef->longitude
+                        );
+                        if ($nearestPickup) {
+                            $order->update(['pick_up_point_id' => $nearestPickup->id]);
                         }
                     }
 
@@ -881,21 +898,6 @@ class OrderService
                     });
 
                     session()->forget(['checkout_cart', 'checkout_drop_point', 'checkout_address']);
-
-                    // Assign nearest pickup point based on first chef's location
-                    $firstChefId = $order->items->pluck('chef_id')->filter()->first();
-                    if ($firstChefId) {
-                        $chef = \App\Models\Chef::find($firstChefId);
-                        if ($chef && $chef->latitude && $chef->longitude) {
-                            $nearestPickup = PicOrderService::findNearestPickUpPoint(
-                                $chef->latitude,
-                                $chef->longitude
-                            );
-                            if ($nearestPickup) {
-                                $order->update(['pick_up_point_id' => $nearestPickup->id]);
-                            }
-                        }
-                    }
 
                     return $order;
                 });
