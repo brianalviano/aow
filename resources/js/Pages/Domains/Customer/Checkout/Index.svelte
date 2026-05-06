@@ -316,21 +316,25 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Pre-order logic
+        // Pre-order logic: Reset time for date-only calculations
+        const today = new Date(now);
+        today.setHours(0, 0, 0, 0);
+
         const cutoffParts = (settings.order_cutoff_time || "20:00").split(":");
         const cutoffHour = Number(cutoffParts[0] || 20);
         const cutoffMinute = Number(cutoffParts[1] || 0);
 
-        const cutoffDate = new Date();
+        const cutoffDate = new Date(now);
         cutoffDate.setHours(cutoffHour, cutoffMinute, 0, 0);
 
-        let targetDate = new Date();
+        let targetDate = new Date(today);
         const minDays =
             typeof settings.order_min_days_ahead === "number"
-                ? settings.order_min_days_ahead
+                ? Math.max(1, settings.order_min_days_ahead)
                 : 1;
-        targetDate.setDate(now.getDate() + minDays);
+        targetDate.setDate(targetDate.getDate() + minDays);
 
+        // If current time is past cutoff, add one more day
         if (now > cutoffDate) {
             targetDate.setDate(targetDate.getDate() + 1);
         }
@@ -339,6 +343,15 @@
         const month = String(targetDate.getMonth() + 1).padStart(2, "0");
         const day = String(targetDate.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
+    });
+
+    // Validate if current delivery date is still valid (e.g. if session is old)
+    $effect(() => {
+        if (deliveryDateIso && minDateIso && deliveryDateIso < minDateIso) {
+            deliveryDateIso = "";
+            deliveryTime = "";
+            updateSession();
+        }
     });
 
     function updateSession() {

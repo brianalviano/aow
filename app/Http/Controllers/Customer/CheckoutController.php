@@ -45,10 +45,17 @@ class CheckoutController extends Controller
         $deliveryDate = session('checkout_delivery_date');
         $deliveryTime = session('checkout_delivery_time');
         $notes = session('checkout_notes');
+        $minDate = $this->getMinDeliveryDate();
+
+        if ($deliveryDate && $deliveryDate < $minDate) {
+            session()->forget(['checkout_delivery_date', 'checkout_delivery_time']);
+            $deliveryDate = null;
+            $deliveryTime = null;
+        }
 
         $quotaProgress = null;
         if ($dropPointData && $orderType === 'preorder') {
-            $quotaDate = $deliveryDate ?: now()->addDay()->format('Y-m-d');
+            $quotaDate = $deliveryDate ?: $minDate;
             $quotaProgress = $this->quotaService->calculateDropPointQuotaProgress($dropPointData['id'], $quotaDate);
         }
 
@@ -98,11 +105,17 @@ class CheckoutController extends Controller
             'address' => 'nullable|array',
         ]);
 
+        $deliveryDate = $request->input('delivery_date');
+        $minDate = $this->getMinDeliveryDate();
+        if ($deliveryDate && $deliveryDate < $minDate) {
+            $deliveryDate = null;
+        }
+
         session([
             'checkout_cart' => $request->input('cart'),
             'checkout_drop_point' => $request->input('dropPoint'),
             'checkout_address' => $request->input('address'),
-            'checkout_delivery_date' => $request->input('delivery_date'),
+            'checkout_delivery_date' => $deliveryDate,
             'checkout_delivery_time' => $request->input('delivery_time'),
             'checkout_notes' => $request->input('notes'),
             'checkout_redirect_after_selection' => $request->boolean('redirect_to_checkout'),
@@ -129,16 +142,45 @@ class CheckoutController extends Controller
             'address' => 'nullable|array',
         ]);
 
+        $deliveryDate = $request->input('delivery_date');
+        $minDate = $this->getMinDeliveryDate();
+        if ($deliveryDate && $deliveryDate < $minDate) {
+            $deliveryDate = session('checkout_delivery_date'); // Keep old if new is invalid
+        }
+
         session([
             'checkout_cart' => $request->input('cart'),
             'checkout_drop_point' => $request->input('dropPoint'),
             'checkout_address' => $request->input('address'),
-            'checkout_delivery_date' => $request->input('delivery_date'),
+            'checkout_delivery_date' => $deliveryDate,
             'checkout_delivery_time' => $request->input('delivery_time'),
             'checkout_notes' => $request->input('notes'),
             'checkout_order_type' => $request->input('order_type', session('checkout_order_type', 'preorder')),
         ]);
 
         return back();
+    }
+
+    /**
+     * Get the minimum delivery date for pre-orders.
+     *
+     * @return string
+     */
+    private function getMinDeliveryDate(): string
+    {
+        $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+        $cutoffTime = $settings->orderCutoffTime ?: '20:00';
+        $minDays = max(1, $settings->orderMinDaysAhead);
+
+        $now = now();
+        $cutoffDate = now()->setTimeFromTimeString($cutoffTime);
+
+        $targetDate = now()->startOfDay()->addDays($minDays);
+
+        if ($now->greaterThan($cutoffDate)) {
+            $targetDate->addDay();
+        }
+
+        return $targetDate->format('Y-m-d');
     }
 }

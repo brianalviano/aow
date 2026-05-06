@@ -60,6 +60,11 @@
             return;
         }
 
+        if (dateIso < minDateIso) {
+            error = "Tanggal pengiriman tidak valid (minimal 1 hari sebelumnya)";
+            return;
+        }
+
         error = "";
         onSave(dateIso, time);
     }
