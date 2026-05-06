@@ -72,8 +72,7 @@
 
         return orderItems.every(
             (item: any) =>
-                item.chef_status !== "pending" &&
-                item.chef_status !== "rejected",
+                item.chef_status !== "pending",
         );
     }
 
@@ -223,65 +222,73 @@
     <div class="divide-y divide-slate-800">
         {#each group.items as item}
             <div
-                class="px-4 py-3 flex flex-wrap items-center justify-between gap-4 hover:bg-slate-800/20 transition-colors"
+                class="px-4 py-4 hover:bg-slate-800/20 transition-colors flex flex-col gap-4"
             >
-                <div class="flex items-center gap-3">
-                    {#if item.product?.image}
-                        <img
-                            src={item.product.image}
-                            alt={item.product.name}
-                            class="{context === 'dashboard'
-                                ? 'w-16 h-16 rounded-xl'
-                                : 'w-12 h-12 rounded-lg'} object-cover border border-slate-800 shadow-xl"
-                        />
-                    {:else}
-                        <div
-                            class="{context === 'dashboard'
-                                ? 'w-16 h-16 rounded-xl'
-                                : 'w-12 h-12 rounded-lg'} bg-slate-800 flex items-center justify-center border border-slate-700"
-                        >
-                            <i
-                                class="fa-solid fa-bowl-food text-slate-600 text-xl"
-                            ></i>
-                        </div>
-                    {/if}
-                    <div>
-                        {#if context === "orders" && item.created_at}
-                            <div class="flex items-center gap-3">
-                                <h4 class="font-semibold text-slate-100 text-base">
-                                    {item.product?.name}
-                                </h4>
-                            </div>
+                <div class="flex justify-between items-start gap-4">
+                    <div class="flex items-center gap-3">
+                        {#if item.product?.image}
+                            <img
+                                src={item.product.image}
+                                alt={item.product.name}
+                                class="{context === 'dashboard'
+                                    ? 'w-16 h-16 rounded-xl'
+                                    : 'w-12 h-12 rounded-lg'} object-cover border border-slate-800 shadow-xl"
+                            />
                         {:else}
+                            <div
+                                class="{context === 'dashboard'
+                                    ? 'w-16 h-16 rounded-xl'
+                                    : 'w-12 h-12 rounded-lg'} bg-slate-800 flex items-center justify-center border border-slate-700"
+                            >
+                                <i
+                                    class="fa-solid fa-bowl-food text-slate-600 text-xl"
+                                ></i>
+                            </div>
+                        {/if}
+                        <div>
                             <h4 class="font-semibold text-slate-100 text-base">
                                 {item.product?.name}
                             </h4>
-                        {/if}
-                        <p
-                            class="{context === 'dashboard'
-                                ? 'text-sm'
-                                : 'text-xs'} text-slate-400 mt-1"
-                        >
-                            Jumlah: <span class="font-black text-[#FFD700]"
-                                >{item.quantity}x</span
-                            >
-                        </p>
-                        {#if item.note}
                             <p
-                                class="text-[10px] font-black tracking-wider uppercase text-[#FFD700] bg-[#FFD700]/10 px-3 py-1 rounded-full mt-3 inline-flex items-center gap-2 border border-[#FFD700]/20"
+                                class="{context === 'dashboard'
+                                    ? 'text-sm'
+                                    : 'text-xs'} text-slate-400 mt-1"
                             >
-                                <i class="fa-solid fa-comment-dots"></i>
-                                {item.note}
+                                Jumlah: <span class="font-black text-[#FFD700]"
+                                    >{item.quantity}x</span
+                                >
                             </p>
-                        {/if}
+                            {#if item.note}
+                                <p
+                                    class="text-[10px] font-black tracking-wider uppercase text-[#FFD700] bg-[#FFD700]/10 px-3 py-1 rounded-full mt-3 inline-flex items-center gap-2 border border-[#FFD700]/20"
+                                >
+                                    <i class="fa-solid fa-comment-dots"></i>
+                                    {item.note}
+                                </p>
+                            {/if}
+                        </div>
+                    </div>
+
+                    <div class="shrink-0">
+                        <Badge
+                            variant={getStatusVariant(item.chef_status)}
+                            size="sm"
+                        >
+                            {#if item.chef_status === "shipped"}
+                                <i class="fa-solid fa-truck mr-1"></i>
+                            {/if}
+                            {getStatusLabel(item.chef_status)}
+                        </Badge>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    {#if context === "dashboard"}
+
+                {#if (context === "dashboard" && (item.chef_status === "pending" || (item.chef_status === "accepted" && (group.order.order_status === "confirmed" || group.order.order_status === "shipped") && isAllItemsApproved(group.order)))) || (context === "orders" && item.chef_status === "accepted" && (group.order.order_status === "confirmed" || group.order.order_status === "shipped") && isAllItemsApproved(group.order))}
+                    <div class="flex flex-col sm:flex-row gap-2 w-full mt-1">
                         {#if item.chef_status === "pending"}
                             <Button
                                 variant="success"
                                 size="sm"
+                                class="w-full flex-1"
                                 icon="fa-solid fa-check"
                                 onclick={() => onApprove?.(item.id)}
                             >
@@ -290,45 +297,26 @@
                             <Button
                                 variant="outline-danger"
                                 size="sm"
+                                class="w-full flex-1"
                                 icon="fa-solid fa-xmark"
                                 onclick={() => onReject?.(item.id)}
                             >
                                 Tolak
                             </Button>
-                        {:else if item.chef_status === "accepted" && (group.order.order_status === "confirmed" || group.order.order_status === "shipped") && isAllItemsApproved(group.order)}
+                        {:else if item.chef_status === "accepted"}
                             <Button
                                 variant="primary"
                                 size="sm"
+                                class="w-full"
                                 icon="fa-solid fa-truck"
-                                onclick={() => onShip?.(item.id)}
-                            >
-                                Kirim ke Pickup Point
-                            </Button>
-                        {:else if item.chef_status === "shipped"}
-                            <Badge variant="primary" size="sm">
-                                <i class="fa-solid fa-truck mr-1"></i>
-                                Dalam Pengiriman
-                            </Badge>
-                        {/if}
-                    {:else if context === "orders"}
-                        <Badge
-                            variant={getStatusVariant(item.chef_status)}
-                            size="sm"
-                        >
-                            {getStatusLabel(item.chef_status)}
-                        </Badge>
-                        {#if item.chef_status === "accepted" && (group.order.order_status === "confirmed" || group.order.order_status === "shipped") && isAllItemsApproved(group.order)}
-                            <Button
-                                variant="primary"
-                                size="sm"
-                                icon="fa-solid fa-truck"
+                                fullWidth
                                 onclick={() => onShip?.(item.id)}
                             >
                                 Kirim ke Pickup Point
                             </Button>
                         {/if}
-                    {/if}
-                </div>
+                    </div>
+                {/if}
             </div>
         {/each}
     </div>
