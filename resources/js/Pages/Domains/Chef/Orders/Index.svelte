@@ -21,6 +21,7 @@
         delivery_date: string;
         delivery_time?: string;
         order_status: string;
+        note?: string;
         customer?: {
             name: string;
         };

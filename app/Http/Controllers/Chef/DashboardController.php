@@ -25,7 +25,7 @@ class DashboardController extends Controller
         $chef = Auth::guard('chef')->user();
 
         $items = OrderItem::query()
-            ->with(['order.customer', 'order.dropPoint', 'product'])
+            ->with(['order.customer', 'order.dropPoint', 'order.pickUpPoint', 'product'])
             ->where('chef_id', $chef->id)
             ->whereHas('order', function ($query) {
                 $query->where('order_status', \App\Enums\OrderStatus::CONFIRMED);

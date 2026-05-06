@@ -26,6 +26,7 @@
         delivery_date: string;
         delivery_time?: string;
         order_status: string;
+        note?: string;
         customer?: {
             name: string;
         };
@@ -167,6 +168,22 @@
         </div>
     </div>
 
+    {#if group.order.note}
+        <div
+            class="bg-amber-900/10 px-4 py-2.5 border-b border-amber-900/20 flex items-center gap-3"
+        >
+            <div class="bg-amber-500/20 p-2 rounded-lg border border-amber-500/30">
+                <i class="fa-solid fa-comment-dots text-amber-500"></i>
+            </div>
+            <div>
+                <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-0.5">Catatan Pesanan</span>
+                <p class="text-sm font-medium text-amber-200">
+                    "{group.order.note}"
+                </p>
+            </div>
+        </div>
+    {/if}
+
     {#if group.order.pick_up_point}
         <div
             class="bg-blue-900/10 px-4 py-2.5 border-b border-blue-900/20 flex flex-wrap items-center justify-between gap-4"
@@ -208,7 +225,7 @@
             <div
                 class="px-4 py-3 flex flex-wrap items-center justify-between gap-4 hover:bg-slate-800/20 transition-colors"
             >
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3">
                     {#if item.product?.image}
                         <img
                             src={item.product.image}
@@ -231,18 +248,12 @@
                     <div>
                         {#if context === "orders" && item.created_at}
                             <div class="flex items-center gap-3">
-                                <h4 class="font-black text-slate-100 text-base">
+                                <h4 class="font-semibold text-slate-100 text-base">
                                     {item.product?.name}
                                 </h4>
-                                <span
-                                    class="text-[10px] font-black text-slate-500 uppercase tracking-widest"
-                                    >• {dayjs(item.created_at).format(
-                                        "DD/MM/YY",
-                                    )}</span
-                                >
                             </div>
                         {:else}
-                            <h4 class="font-black text-slate-100 text-base">
+                            <h4 class="font-semibold text-slate-100 text-base">
                                 {item.product?.name}
                             </h4>
                         {/if}
@@ -255,7 +266,7 @@
                                 >{item.quantity}x</span
                             >
                         </p>
-                        {#if context === "dashboard" && item.note}
+                        {#if item.note}
                             <p
                                 class="text-[10px] font-black tracking-wider uppercase text-[#FFD700] bg-[#FFD700]/10 px-3 py-1 rounded-full mt-3 inline-flex items-center gap-2 border border-[#FFD700]/20"
                             >
