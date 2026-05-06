@@ -2,6 +2,7 @@
     import { router, page } from "@inertiajs/svelte";
     import ProductDetailModal from "../Product/Modal.svelte";
     import ScheduleModal from "./ScheduleModal.svelte";
+    import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
     import { toastStore } from "@/Lib/Admin/Stores/toast";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
 
@@ -85,6 +86,7 @@
     let selectedItem: any = $state(null);
     let editingItemKey: string | null = $state(null);
     let processing = $state(false);
+    let showWarningDialog = $state(false);
 
     // Convert cart object to array for easier iteration
     const items = $derived(
@@ -350,6 +352,7 @@
         if (deliveryDateIso && minDateIso && deliveryDateIso < minDateIso) {
             deliveryDateIso = "";
             deliveryTime = "";
+            showWarningDialog = true;
             updateSession();
         }
     });
@@ -810,3 +813,15 @@
         onSave={handleUpdateSchedule}
     />
 {/if}
+
+<Dialog
+    bind:isOpen={showWarningDialog}
+    type="warning"
+    title="Jadwal Tidak Tersedia"
+    message="Mohon maaf, pemesanan minimal 1 hari sebelumnya dan dikirim di jam makan siang"
+    showCancel={false}
+    confirmText="Oke, Mengerti"
+    onConfirm={() => {
+        showWarningDialog = false;
+    }}
+/>
