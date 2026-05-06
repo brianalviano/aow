@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('username')->unique()->nullable();
             $table->string('phone')->unique();
             $table->text('address')->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->unique();
             $table->string('password');
             $table->string('school_class')->nullable();
             $table->boolean('is_active')->default(true);

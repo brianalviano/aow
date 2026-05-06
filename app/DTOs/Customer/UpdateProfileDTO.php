@@ -31,7 +31,7 @@ class UpdateProfileDTO extends Data
 
         public readonly ?string $username = null,
 
-        public readonly ?string $email = null,
+        public readonly string $email,
 
         #[Rule('nullable', 'string', 'min:8', 'confirmed')]
         public readonly ?string $password = null,
@@ -45,7 +45,7 @@ class UpdateProfileDTO extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(ValidationContext $context): array
+    public static function rules(ValidationContext|null $context = null): array
     {
         $customerId = auth('customer')->id();
 

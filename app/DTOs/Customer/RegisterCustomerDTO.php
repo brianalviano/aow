@@ -33,8 +33,8 @@ class RegisterCustomerDTO extends Data
         #[Rule('nullable', 'string')]
         public readonly ?string $address,
 
-        #[Rule('nullable', 'string', 'email', 'max:255', 'unique:customers,email')]
-        public readonly ?string $email,
+        #[Rule('required', 'string', 'email', 'max:255', 'unique:customers,email')]
+        public readonly string $email,
 
         #[Rule('required', 'string', 'min:8', 'confirmed')]
         public readonly string $password,
