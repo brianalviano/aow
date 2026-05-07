@@ -45,7 +45,7 @@ class CustomerAddressController extends Controller
     /**
      * Store a newly created custom address in storage and session.
      *
-     * @param StoreCustomerAddressRequest $request
+     * @param CustomerAddressData $data
      * @return RedirectResponse
      */
     public function store(CustomerAddressData $data): RedirectResponse
@@ -59,12 +59,12 @@ class CustomerAddressController extends Controller
                 // Handle guest registration
                 if (!$customerId) {
                     $dto = new \App\DTOs\Customer\RegisterCustomerDTO(
-                        name: $validated['register_name'],
+                        name: $data->registerName,
                         username: null,
-                        phone: $validated['register_phone'],
-                        address: $validated['address'],
-                        email: $validated['email'],
-                        password: $validated['password'],
+                        phone: $data->registerPhone,
+                        address: $data->address,
+                        email: $data->email,
+                        password: $data->password,
                     );
 
                     $customer = $this->authService->register($dto);
@@ -93,7 +93,7 @@ class CustomerAddressController extends Controller
     /**
      * Update the specified address.
      *
-     * @param StoreCustomerAddressRequest $request
+     * @param CustomerAddressData $data
      * @param CustomerAddress $address
      * @return RedirectResponse
      */

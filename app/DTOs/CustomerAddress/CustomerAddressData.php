@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\DTOs\CustomerAddress;
 
-use Spatie\LaravelData\{Attributes\Validation\Rule, Data};
+use Spatie\LaravelData\{Attributes\MapInputName, Attributes\MapOutputName, Attributes\Validation\Rule, Data};
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
@@ -13,6 +14,8 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
  * Handles both authenticated and guest checkout scenarios.
  * Guest users must provide registration details alongside address data.
  */
+#[MapInputName(SnakeCaseMapper::class)]
+#[MapOutputName(SnakeCaseMapper::class)]
 class CustomerAddressData extends Data
 {
     public function __construct(
@@ -46,7 +49,7 @@ class CustomerAddressData extends Data
      *
      * @return array<string, array<mixed>>
      */
-    public static function rules(ValidationContext $context): array
+    public static function rules(ValidationContext|null $context = null): array
     {
         $rules = [];
 
