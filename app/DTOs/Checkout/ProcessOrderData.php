@@ -58,6 +58,8 @@ class ProcessOrderData extends Data
 
         #[Rule('nullable')]
         public readonly ?string $deliveryTime = null,
+
+        public readonly ?string $orderType = 'preorder',
     ) {}
 
     /**
@@ -65,7 +67,7 @@ class ProcessOrderData extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(ValidationContext $context): array
+    public static function rules(?ValidationContext $context = null): array
     {
         $dropPoint = session('checkout_drop_point');
         $isSchool = $dropPoint && ($dropPoint['category'] ?? '') === DropPointCategory::SCHOOL->value;
@@ -104,6 +106,7 @@ class ProcessOrderData extends Data
             address: $address,
             deliveryDate: $validated['delivery_date'] ?? null,
             deliveryTime: $validated['delivery_time'] ?? null,
+            orderType: session('checkout_order_type', 'preorder'),
         );
     }
 }

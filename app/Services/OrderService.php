@@ -464,7 +464,12 @@ class OrderService
                     })->whereIn('order_status', ['pending', 'confirmed']);
                     break;
                 case 'shipped':
-                    $query->whereIn('order_status', ['shipped', 'arrived']);
+                    $query->whereIn('order_status', [
+                        OrderStatus::SHIPPED,
+                        OrderStatus::AT_PICKUP_POINT,
+                        OrderStatus::ON_DELIVERY,
+                        OrderStatus::ARRIVED
+                    ]);
                     break;
                 case 'completed':
                     $query->where('order_status', 'delivered');
@@ -544,7 +549,7 @@ class OrderService
                 $q->where(function ($inner) {
                     $inner->where('payment_status', '!=', 'pending')
                         ->orWhereHas('paymentMethod', fn($pq) => $pq->where('category', 'cash'));
-                })->whereIn('order_status', ['pending', 'confirmed', 'shipped', 'arrived']);
+                })->whereIn('order_status', ['pending', 'confirmed', 'shipped', 'at_pickup_point', 'on_delivery', 'arrived']);
             });
 
         if ($dto->dropPointId) {

@@ -190,7 +190,8 @@
     const trackingUrl = $derived(getTrackingUrl());
 
     function isPreOrder(): boolean {
-        return order.drop_point !== null && order.drop_point !== undefined;
+        return (order.drop_point !== null && order.drop_point !== undefined) || 
+               (order.delivery_date && dayjs(order.delivery_date).isAfter(dayjs().startOf('day')));
     }
 </script>
 

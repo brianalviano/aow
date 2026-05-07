@@ -106,7 +106,7 @@ class Order extends Model
      */
     public function isPreOrder(): bool
     {
-        return $this->drop_point_id !== null;
+        return $this->drop_point_id !== null || ($this->delivery_date && $this->delivery_date->isAfter(now()->startOfDay()));
     }
 
     /**
@@ -114,7 +114,7 @@ class Order extends Model
      */
     public function isInstant(): bool
     {
-        return $this->customer_address_id !== null;
+        return $this->customer_address_id !== null && $this->drop_point_id === null && (!$this->delivery_date || $this->delivery_date->isToday());
     }
 
     /**

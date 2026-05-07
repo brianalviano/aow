@@ -12,12 +12,16 @@
             id: string;
             name: string;
             address: string;
+            latitude?: number;
+            longitude?: number;
         } | null;
         address?: {
             id: string;
             name: string;
             phone: string;
             address: string;
+            latitude?: number;
+            longitude?: number;
             note?: string;
         } | null;
         fees: {

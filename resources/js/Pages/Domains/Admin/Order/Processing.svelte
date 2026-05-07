@@ -155,7 +155,11 @@
             case "confirmed":
                 return { variant: "info", label: "Dikonfirmasi" };
             case "shipped":
-                return { variant: "primary", label: "Dikirim" };
+                return { variant: "primary", label: "Dikirim ke Pickup" };
+            case "at_pickup_point":
+                return { variant: "info", label: "Di Pickup Point" };
+            case "on_delivery":
+                return { variant: "primary", label: "Sedang Dikirim" };
             case "arrived":
                 return { variant: "info", label: "Tiba di Tujuan" };
             default:
