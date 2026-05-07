@@ -168,10 +168,16 @@
         label: string;
     } {
         switch (status) {
-            case "accepted":
+            case "delivered":
                 return { variant: "success", label: "Selesai" };
+            case "shipped":
+                return { variant: "primary", label: "Dikirim" };
+            case "accepted":
+                return { variant: "info", label: "Diproses" };
             case "rejected":
                 return { variant: "danger", label: "Ditolak" };
+            case "rejected_partial":
+                return { variant: "danger", label: "Ditolak Sebagian" };
             case "partial":
                 return { variant: "purple", label: "Sebagian" };
             default:

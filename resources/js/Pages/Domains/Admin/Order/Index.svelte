@@ -536,23 +536,34 @@
                                     <Badge
                                         size="sm"
                                         rounded="pill"
-                                        variant={chefStatus === "rejected"
+                                        variant={chefStatus === "rejected" ||
+                                        chefStatus === "rejected_partial"
                                             ? "danger"
-                                            : chefStatus === "accepted"
+                                            : chefStatus === "delivered"
                                               ? "success"
-                                              : chefStatus === "partial"
-                                                ? "purple"
-                                                : "warning"}
+                                              : chefStatus === "shipped"
+                                                ? "primary"
+                                                : chefStatus === "accepted"
+                                                  ? "info"
+                                                  : chefStatus === "partial"
+                                                    ? "purple"
+                                                    : "warning"}
                                         dot={true}
                                     >
                                         {#snippet children()}
                                             {chefStatus === "rejected"
                                                 ? "Ditolak"
-                                                : chefStatus === "accepted"
-                                                  ? "Selesai"
-                                                  : chefStatus === "partial"
-                                                    ? "Sebagian"
-                                                    : "Menunggu"}
+                                                : chefStatus === "rejected_partial"
+                                                  ? "Ditolak Sebagian"
+                                                  : chefStatus === "delivered"
+                                                    ? "Selesai"
+                                                    : chefStatus === "shipped"
+                                                      ? "Dikirim"
+                                                      : chefStatus === "accepted"
+                                                        ? "Diproses"
+                                                        : chefStatus === "partial"
+                                                          ? "Sebagian"
+                                                          : "Menunggu"}
                                         {/snippet}
                                     </Badge>
                                 </td>

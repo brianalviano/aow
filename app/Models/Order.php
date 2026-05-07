@@ -222,7 +222,7 @@ class Order extends Model
         $statuses = $this->items->pluck('chef_status')->unique();
 
         if ($statuses->contains(\App\Enums\ChefStatus::REJECTED)) {
-            return 'rejected';
+            return $statuses->count() > 1 ? 'rejected_partial' : 'rejected';
         }
 
         if ($statuses->contains(\App\Enums\ChefStatus::PENDING) || $statuses->contains(null)) {
@@ -231,6 +231,14 @@ class Order extends Model
                 || $statuses->contains(\App\Enums\ChefStatus::DELIVERED);
 
             return $hasProcessed ? 'partial' : 'pending';
+        }
+
+        if ($statuses->count() === 1 && $statuses->first() === \App\Enums\ChefStatus::DELIVERED) {
+            return 'delivered';
+        }
+
+        if ($statuses->contains(\App\Enums\ChefStatus::SHIPPED)) {
+            return 'shipped';
         }
 
         return 'accepted';

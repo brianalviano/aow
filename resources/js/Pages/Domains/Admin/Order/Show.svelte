@@ -457,7 +457,7 @@
         </div>
     </header>
 
-    {#if order.chef_status_summary === "rejected"}
+    {#if order.chef_status_summary === "rejected" || order.chef_status_summary === "rejected_partial"}
         <div
             class="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20"
         >
@@ -469,7 +469,9 @@
                 </div>
                 <div>
                     <h4 class="font-bold text-red-800 dark:text-red-300">
-                        Konfirmasi Dapur Ditolak
+                        {order.chef_status_summary === "rejected_partial"
+                            ? "Konfirmasi Dapur Ditolak Sebagian"
+                            : "Konfirmasi Dapur Ditolak"}
                     </h4>
                     <p class="text-sm text-red-700 dark:text-red-400">
                         Salah satu atau lebih item dalam pesanan ini ditolak
@@ -562,7 +564,13 @@
                                                                       "accepted",
                                                               )
                                                             ? "info"
-                                                            : "warning"}
+                                                            : group.items.some(
+                                                                    (i) =>
+                                                                        i.chef_status ===
+                                                                        "rejected",
+                                                                )
+                                                              ? "danger"
+                                                              : "warning"}
                                                     dot={true}
                                                 >
                                                     {#snippet children()}
@@ -584,7 +592,13 @@
                                                                           "accepted",
                                                                   )
                                                                 ? "Diproses"
-                                                                : "Menunggu"}
+                                                                : group.items.some(
+                                                                        (i) =>
+                                                                            i.chef_status ===
+                                                                            "rejected",
+                                                                    )
+                                                                  ? "Ditolak"
+                                                                  : "Menunggu"}
                                                     {/snippet}
                                                 </Badge>
                                             {/if}
