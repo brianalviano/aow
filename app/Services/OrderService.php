@@ -770,18 +770,35 @@ class OrderService
                         Auth::guard('customer')->login($customer);
                     }
 
+                    $dropPoint = $data->dropPoint;
+                    $address = $data->address;
+
+                    // Automatically pick nearest drop point if not selected but address is provided
+                    if (empty($dropPoint) && !empty($address) && isset($address['latitude'], $address['longitude'])) {
+                        $nearestDropPoint = \App\Models\DropPoint::findNearest((float) $address['latitude'], (float) $address['longitude']);
+                        if ($nearestDropPoint) {
+                            $dropPoint = [
+                                'id' => $nearestDropPoint->id,
+                                'name' => $nearestDropPoint->name,
+                                'address' => $nearestDropPoint->address,
+                                'latitude' => $nearestDropPoint->latitude,
+                                'longitude' => $nearestDropPoint->longitude,
+                            ];
+                        }
+                    }
+
                     $fees = $this->checkoutService->calculateFees(
                         $data->cart,
-                        (string) data_get($data->dropPoint, 'id', ''),
-                        (string) data_get($data->address, 'id', ''),
+                        (string) data_get($dropPoint, 'id', ''),
+                        (string) data_get($address, 'id', ''),
                         $data->paymentMethodId
                     );
                     $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'] + $fees['serviceFee'];
 
                     $order = Order::create([
                         'number'             => $this->generateOrderNumber(),
-                        'drop_point_id'      => data_get($data->dropPoint, 'id'),
-                        'customer_address_id' => data_get($data->address, 'id'),
+                        'drop_point_id'      => data_get($dropPoint, 'id'),
+                        'customer_address_id' => data_get($address, 'id'),
                         'customer_id'        => $customer->id,
                         'delivery_date'      => $data->deliveryDate ?? now()->addDay()->format('Y-m-d'),
                         'delivery_time'      => $data->deliveryTime ?? '12:00',

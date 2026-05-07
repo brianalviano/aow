@@ -209,6 +209,19 @@
                             >{formatTimeStr(order.delivery_time)}</strong
                         >.
                     </p>
+                    {#if order.drop_point}
+                        <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                            <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Lokasi Pickup</span>
+                            <span class="block text-sm font-bold text-slate-100">{order.drop_point.name}</span>
+                            <span class="block text-xs text-slate-400 mt-1">{order.drop_point.address}</span>
+                        </div>
+                    {:else if order.customer_address}
+                        <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                            <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Alamat Pengiriman</span>
+                            <span class="block text-sm font-bold text-slate-100">{order.customer_address.name}</span>
+                            <span class="block text-xs text-slate-400 mt-1">{order.customer_address.address}</span>
+                        </div>
+                    {/if}
                     {#if isCash}
                         <div class="pt-4 border-t border-slate-800">
                             <span

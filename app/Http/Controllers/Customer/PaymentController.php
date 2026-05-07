@@ -91,7 +91,7 @@ class PaymentController extends Controller
     public function show(\Illuminate\Http\Request $request, \App\Models\Order $order): Response|RedirectResponse
     {
         return Inertia::render('Domains/Customer/Pay/Index', [
-            'order' => $order->load('paymentMethod.paymentGuide'),
+            'order' => $order->load(['paymentMethod.paymentGuide', 'dropPoint', 'customerAddress']),
             'from' => $request->query('from'),
             'paymentMethods' => $this->getAvailablePaymentMethods(),
         ]);

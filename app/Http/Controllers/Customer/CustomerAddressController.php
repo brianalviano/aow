@@ -140,13 +140,27 @@ class CustomerAddressController extends Controller
     }
 
     /**
-     * Helper to set checkout address in session.
+     * Helper to set checkout address in session and automatically find nearest drop point.
      *
      * @param CustomerAddress $address
      * @return void
      */
     private function setCheckoutAddressInSession(CustomerAddress $address): void
     {
+        $nearestDropPoint = \App\Models\DropPoint::findNearest($address->latitude, $address->longitude);
+        $dropPointData = null;
+
+        if ($nearestDropPoint) {
+            $dropPointData = [
+                'id' => $nearestDropPoint->id,
+                'name' => $nearestDropPoint->name,
+                'address' => $nearestDropPoint->address,
+                'latitude' => $nearestDropPoint->latitude,
+                'longitude' => $nearestDropPoint->longitude,
+                'category' => $nearestDropPoint->category->value,
+            ];
+        }
+
         session([
             'checkout_address' => [
                 'id' => $address->id,
@@ -157,8 +171,7 @@ class CustomerAddressController extends Controller
                 'longitude' => $address->longitude,
                 'note' => $address->note,
             ],
-            // Clear any previously selected drop point
-            'checkout_drop_point' => null,
+            'checkout_drop_point' => $dropPointData,
         ]);
     }
 }

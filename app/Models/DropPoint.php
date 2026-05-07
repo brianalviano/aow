@@ -60,4 +60,27 @@ class DropPoint extends Model
     {
         return $this->getFileUrl($value);
     }
+
+    /**
+     * Find the nearest active drop point to the given coordinates.
+     *
+     * @param float $latitude
+     * @param float $longitude
+     * @return self|null
+     */
+    public static function findNearest(float $latitude, float $longitude): ?self
+    {
+        return self::query()
+            ->where('is_active', true)
+            ->selectRaw("
+                *,
+                (6371 * acos(
+                    cos(radians(?)) * cos(radians(latitude)) *
+                    cos(radians(longitude) - radians(?)) +
+                    sin(radians(?)) * sin(radians(latitude))
+                )) AS distance_km
+            ", [$latitude, $longitude, $latitude])
+            ->orderBy('distance_km')
+            ->first();
+    }
 }
