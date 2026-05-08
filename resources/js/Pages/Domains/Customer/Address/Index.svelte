@@ -434,6 +434,7 @@
                         placeholder="Contoh: 081234567890"
                         bind:value={$form.register_phone}
                         error={$form.errors.register_phone}
+                        maxlength={15}
                         required
                     />
 
@@ -541,6 +542,7 @@
                     placeholder="Contoh: 081234567890"
                     bind:value={$form.phone}
                     error={$form.errors.phone}
+                    maxlength={15}
                     required
                 />
             </div>

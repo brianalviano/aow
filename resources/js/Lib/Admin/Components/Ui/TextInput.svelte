@@ -414,7 +414,7 @@
     // ===== EVENT HANDLERS =====
 
     function handleKeyPress(event: KeyboardEvent) {
-        // Handle telephone input - only allow digits
+        // Handle telephone input - only allow digits and '+'
         if (isTelType) {
             const allowedKeys = [
                 "Backspace",
@@ -426,11 +426,17 @@
                 "ArrowRight",
                 "ArrowUp",
                 "ArrowDown",
+                "+",
             ];
             const char = event.key;
 
-            // Allow control keys
+            // Allow control keys and '+'
             if (allowedKeys.includes(char)) {
+                // Only allow '+' if it's the first character
+                if (char === "+" && (event.target as HTMLInputElement).selectionStart !== 0) {
+                    event.preventDefault();
+                    return;
+                }
                 onkeypress?.(event);
                 return;
             }
@@ -487,8 +493,16 @@
         const inputValue = target.value;
 
         // Handle telephone input - strip non-digits
+        // Handle telephone input - strip invalid characters, allow leading '+'
         if (isTelType) {
-            const cleanValue = inputValue.replace(/\D/g, "");
+            let cleanValue = inputValue.replace(/[^\d+]/g, "");
+            
+            // Ensure '+' only appears at the start
+            if (cleanValue.includes("+")) {
+                const hasPlusAtStart = cleanValue.startsWith("+");
+                cleanValue = (hasPlusAtStart ? "+" : "") + cleanValue.replace(/\+/g, "");
+            }
+
             if (cleanValue !== inputValue) {
                 target.value = cleanValue;
             }

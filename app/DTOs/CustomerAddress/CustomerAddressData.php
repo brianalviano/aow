@@ -25,7 +25,7 @@ class CustomerAddressData extends Data
         #[Rule(['required', 'string'])]
         public readonly string $address,
 
-        #[Rule(['required', 'string', 'max:20'])]
+        #[Rule(['required', 'string', 'max:15'])]
         public readonly string $phone,
 
         #[Rule(['nullable', 'numeric'])]
@@ -55,7 +55,7 @@ class CustomerAddressData extends Data
 
         if (!auth()->guard('customer')->check()) {
             $rules['register_name'] = ['required', 'string', 'max:255'];
-            $rules['register_phone'] = ['required', 'string', 'max:20'];
+            $rules['register_phone'] = ['required', 'string', 'max:15'];
             $rules['email'] = ['required', 'string', 'email', 'max:255', 'unique:customers,email'];
             $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
         }

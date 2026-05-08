@@ -27,7 +27,7 @@ class RegisterCustomerDTO extends Data
         #[Rule('nullable', 'string', 'max:255', 'unique:customers,username')]
         public readonly ?string $username,
 
-        #[Rule('required', 'string', 'max:20', 'unique:customers,phone')]
+        #[Rule('required', 'string', 'max:15', 'unique:customers,phone')]
         public readonly string $phone,
 
         #[Rule('nullable', 'string')]
