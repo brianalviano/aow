@@ -52,4 +52,27 @@ class PickUpPoint extends Model
     {
         return $this->hasMany(PickUpPointOfficer::class);
     }
+
+    /**
+     * Find the nearest active pickup point to the given coordinates.
+     *
+     * @param float $latitude
+     * @param float $longitude
+     * @return self|null
+     */
+    public static function findNearest(float $latitude, float $longitude): ?self
+    {
+        return self::query()
+            ->where('is_active', true)
+            ->selectRaw("
+                *,
+                (6371 * acos(
+                    cos(radians(?)) * cos(radians(latitude)) *
+                    cos(radians(longitude) - radians(?)) +
+                    sin(radians(?)) * sin(radians(latitude))
+                )) AS distance_km
+            ", [$latitude, $longitude, $latitude])
+            ->orderBy('distance_km')
+            ->first();
+    }
 }

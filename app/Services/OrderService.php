@@ -129,13 +129,14 @@ class OrderService
      * Confirm the given pending order.
      *
      * @param Order $order
+     * @param string|null $pickUpPointId
      * @return Order
      * @throws \Throwable
      */
-    public function confirmOrder(Order $order): Order
+    public function confirmOrder(Order $order, ?string $pickUpPointId = null): Order
     {
         try {
-            return DB::transaction(function () use ($order) {
+            return DB::transaction(function () use ($order, $pickUpPointId) {
                 if ($order->order_status !== OrderStatus::PENDING) {
                     throw new \Exception("Pesanan tidak dapat dikonfirmasi karena status saat ini adalah {$order->order_status->value}.");
                 }
@@ -145,6 +146,10 @@ class OrderService
                 $updateData = [
                     'order_status' => OrderStatus::CONFIRMED,
                 ];
+
+                if ($pickUpPointId) {
+                    $updateData['pick_up_point_id'] = $pickUpPointId;
+                }
 
                 if ($order->payment_status === \App\Enums\PaymentStatus::PENDING && $order->paymentMethod?->category !== 'cash') {
                     $updateData['payment_status'] = \App\Enums\PaymentStatus::PAID;
@@ -169,6 +174,7 @@ class OrderService
             Log::error('Gagal mengkonfirmasi pesanan', [
                 'order_id'    => $order->id,
                 'customer_id' => $order->customer_id,
+                'pick_up_point_id' => $pickUpPointId,
                 'error'       => $e->getMessage(),
                 'trace'       => $e->getTraceAsString(),
             ]);

@@ -75,7 +75,7 @@ class OrderController extends Controller
         return Inertia::render('Domains/Admin/Order/Show', [
             'order' => (new \App\Http\Resources\OrderResource($order))->resolve(),
             'chefs' => \App\Models\Chef::where('is_active', true)->get(['id', 'name']),
-            'pickUpPoints' => \App\Models\PickUpPoint::where('is_active', true)->get(['id', 'name', 'address']),
+            'pickUpPoints' => \App\Models\PickUpPoint::where('is_active', true)->get(['id', 'name', 'address', 'latitude', 'longitude']),
             'canChangePickUpPoint' => $order->canChangePickUpPoint(),
         ]);
     }
@@ -115,10 +115,14 @@ class OrderController extends Controller
      *
      * @throws \Throwable
      */
-    public function confirm(Order $order, OrderService $service): RedirectResponse
+    public function confirm(Request $request, Order $order, OrderService $service): RedirectResponse
     {
+        $request->validate([
+            'pick_up_point_id' => ['required', 'exists:pick_up_points,id'],
+        ]);
+
         try {
-            $service->confirmOrder($order);
+            $service->confirmOrder($order, $request->input('pick_up_point_id'));
 
             Inertia::flash('toast', [
                 'message' => 'Pesanan berhasil dikonfirmasi.',
