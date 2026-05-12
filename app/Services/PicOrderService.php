@@ -130,6 +130,14 @@ class PicOrderService
                     'pick_up_point_id' => $officer->pick_up_point_id,
                 ]);
 
+                DB::afterCommit(function () use ($order) {
+                    $order->load(['customer', 'pickUpPoint']);
+                    $message = "Halo {$order->customer->name},\n\n"
+                        . "Kabar baik! Pesanan Anda dengan nomor *{$order->number}* telah tiba di titik transit kami (*{$order->pickUpPoint->name}*).\n\n"
+                        . "Tim kami akan segera mengirimkannya ke alamat Anda. Mohon ditunggu ya!";
+                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                });
+
                 return $order->fresh();
             });
         } catch (Throwable $e) {

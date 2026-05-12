@@ -168,6 +168,11 @@ class OrderService
                     $chef->notify(new \App\Notifications\ChefOrderAssignedNotification($order));
                 }
 
+                DB::afterCommit(function () use ($order) {
+                    $message = "Halo {$order->customer->name},\n\nPesanan Anda dengan nomor *{$order->number}* telah dikonfirmasi dan sedang diproses oleh dapur.\n\nTerima kasih telah memesan!";
+                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                });
+
                 return $order->fresh();
             });
         } catch (\Throwable $e) {
@@ -1084,6 +1089,13 @@ class OrderService
                     $order->load('customer');
                     if ($order->customer) {
                         $order->customer->notify(new OrderStatusChangedNotification($order, 'delivered'));
+
+                        DB::afterCommit(function () use ($order) {
+                            $message = "Halo {$order->customer->name},\n\n"
+                                . "Pesanan Anda dengan nomor *{$order->number}* telah TIBA di tujuan!\n\n"
+                                . "Silakan periksa pesanan Anda dan jangan lupa konfirmasi penerimaan di aplikasi. Selamat menikmati!";
+                            dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                        });
                     }
                 }
             });
