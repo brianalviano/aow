@@ -2,8 +2,8 @@
 
 namespace App\Traits;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 trait NormalizationTrait
@@ -12,7 +12,6 @@ trait NormalizationTrait
      * Normalize date string to Y-m-d format.
      *
      * @param  mixed  $value
-     * @return ?string
      */
     private function normalizeDate($value): ?string
     {
@@ -22,6 +21,7 @@ trait NormalizationTrait
         if (is_numeric($value)) {
             try {
                 $dt = ExcelDate::excelToDateTimeObject((float) $value);
+
                 return Carbon::instance($dt)->toDateString();
             } catch (\Exception $e) {
                 return null;
@@ -42,6 +42,7 @@ trait NormalizationTrait
         foreach ($formats as $fmt) {
             try {
                 $d = Carbon::createFromFormat($fmt, $s);
+
                 return $d->toDateString();
             } catch (\Exception $e) {
             }
@@ -57,11 +58,10 @@ trait NormalizationTrait
      * Normalize gender string to 'male' or 'female'.
      *
      * @param  mixed  $value
-     * @return ?string
      */
     private function normalizeGender(?string $value): ?string
     {
-        if (!$value) {
+        if (! $value) {
             return null;
         }
         $v = preg_replace('/[^a-z]/', '', Str::lower(trim($value)));
@@ -73,6 +73,30 @@ trait NormalizationTrait
         if (in_array($v, $male, true)) {
             return 'male';
         }
+
         return null;
+    }
+
+    /**
+     * Normalize phone number to start with '0'.
+     */
+    public function normalizePhone(?string $input): string
+    {
+        if ($input === null || $input === '') {
+            return '';
+        }
+
+        $digits = preg_replace('/\D+/', '', $input);
+        if ($digits === null || $digits === '') {
+            return '';
+        }
+        if (str_starts_with($digits, '62')) {
+            return '0'.substr($digits, 2);
+        }
+        if (str_starts_with($digits, '0')) {
+            return $digits;
+        }
+
+        return '0'.$digits;
     }
 }

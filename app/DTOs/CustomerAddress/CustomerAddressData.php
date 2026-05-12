@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\DTOs\CustomerAddress;
 
-use Spatie\LaravelData\{Attributes\MapInputName, Attributes\MapOutputName, Attributes\Validation\Rule, Data};
+use App\Traits\NormalizationTrait;
+use Spatie\LaravelData\Attributes\MapInputName;
+use Spatie\LaravelData\Attributes\MapOutputName;
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
@@ -18,6 +22,8 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
 #[MapOutputName(SnakeCaseMapper::class)]
 class CustomerAddressData extends Data
 {
+    use NormalizationTrait;
+
     public function __construct(
         #[Rule(['required', 'string', 'max:255'])]
         public readonly string $name,
@@ -45,17 +51,38 @@ class CustomerAddressData extends Data
     ) {}
 
     /**
+     * Prepare data before validation.
+     */
+    public static function prepareForValidation(array $data): array
+    {
+        $normalizer = new class
+        {
+            use NormalizationTrait;
+        };
+
+        if (isset($data['register_phone'])) {
+            $data['register_phone'] = $normalizer->normalizePhone($data['register_phone']);
+        }
+
+        if (isset($data['phone'])) {
+            $data['phone'] = $normalizer->normalizePhone($data['phone']);
+        }
+
+        return $data;
+    }
+
+    /**
      * Dynamic rules: guest checkout requires registration fields.
      *
      * @return array<string, array<mixed>>
      */
-    public static function rules(ValidationContext|null $context = null): array
+    public static function rules(?ValidationContext $context = null): array
     {
         $rules = [];
 
-        if (!auth()->guard('customer')->check()) {
+        if (! auth()->guard('customer')->check()) {
             $rules['register_name'] = ['required', 'string', 'max:255'];
-            $rules['register_phone'] = ['required', 'string', 'max:15'];
+            $rules['register_phone'] = ['required', 'string', 'max:15', 'unique:customers,phone'];
             $rules['email'] = ['required', 'string', 'email', 'max:255', 'unique:customers,email'];
             $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
         }

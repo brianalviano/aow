@@ -7,17 +7,18 @@ namespace App\Services;
 use App\DTOs\Customer\LoginCustomerDTO;
 use App\DTOs\Customer\RegisterCustomerDTO;
 use App\Models\Customer;
+use App\Traits\NormalizationTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CustomerAuthService
 {
+    use NormalizationTrait;
+
     /**
      * Register a new customer.
      *
-     * @param RegisterCustomerDTO $dto
-     * @return Customer
      * @throws \Throwable
      */
     public function register(RegisterCustomerDTO $dto): Customer
@@ -25,13 +26,13 @@ class CustomerAuthService
         try {
             return DB::transaction(function () use ($dto) {
                 $customer = Customer::create([
-                    'name'          => $dto->name,
-                    'username'      => $dto->username,
-                    'phone'         => $this->normalizePhone($dto->phone),
-                    'address'       => $dto->address,
-                    'email'         => $dto->email,
-                    'password'      => $dto->password,
-                    'school_class'  => $dto->school_class,
+                    'name' => $dto->name,
+                    'username' => $dto->username,
+                    'phone' => $this->normalizePhone($dto->phone),
+                    'address' => $dto->address,
+                    'email' => $dto->email,
+                    'password' => $dto->password,
+                    'school_class' => $dto->school_class,
                 ]);
 
                 return $customer;
@@ -48,9 +49,6 @@ class CustomerAuthService
 
     /**
      * Attempt to login a customer.
-     *
-     * @param LoginCustomerDTO $dto
-     * @return bool
      */
     public function login(LoginCustomerDTO $dto): bool
     {
@@ -63,6 +61,7 @@ class CustomerAuthService
                 $user = Auth::guard('customer')->getProvider()->retrieveByCredentials($fields);
                 if ($user) {
                     Auth::guard('customer')->login($user, $remember);
+
                     return true;
                 }
             }
@@ -86,26 +85,5 @@ class CustomerAuthService
         }
 
         return false;
-    }
-
-    /**
-     * Normalize phone number to start with '0'.
-     *
-     * @param string $input
-     * @return string
-     */
-    private function normalizePhone(string $input): string
-    {
-        $digits = preg_replace('/\D+/', '', $input);
-        if ($digits === null || $digits === '') {
-            return '';
-        }
-        if (str_starts_with($digits, '62')) {
-            return '0' . substr($digits, 2);
-        }
-        if (str_starts_with($digits, '0')) {
-            return $digits;
-        }
-        return '0' . $digits;
     }
 }

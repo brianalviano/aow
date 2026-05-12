@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTOs\Customer;
 
+use App\Traits\NormalizationTrait;
 use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
 
@@ -20,6 +21,8 @@ use Spatie\LaravelData\Data;
  */
 class RegisterCustomerDTO extends Data
 {
+    use NormalizationTrait;
+
     public function __construct(
         #[Rule('required', 'string', 'max:255')]
         public readonly string $name,
@@ -42,4 +45,21 @@ class RegisterCustomerDTO extends Data
         #[Rule('nullable', 'string', 'max:255')]
         public readonly ?string $school_class = null,
     ) {}
+
+    /**
+     * Prepare data before validation.
+     */
+    public static function prepareForValidation(array $data): array
+    {
+        $normalizer = new class
+        {
+            use NormalizationTrait;
+        };
+
+        if (isset($data['phone'])) {
+            $data['phone'] = $normalizer->normalizePhone($data['phone']);
+        }
+
+        return $data;
+    }
 }

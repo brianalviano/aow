@@ -1,54 +1,51 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AccountSettingController;
+use App\Http\Controllers\Admin\ChefController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DropPointController;
+use App\Http\Controllers\Admin\FoodRequestController as AdminFoodRequestController;
+use App\Http\Controllers\Admin\LoginController as AdminLoginController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\PasswordResetController;
+use App\Http\Controllers\Admin\PaymentGuideController;
+use App\Http\Controllers\Admin\PaymentMethodController;
+use App\Http\Controllers\Admin\PickUpPointController;
+use App\Http\Controllers\Admin\PickUpPointOfficerController;
+use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\SliderController;
+use App\Http\Controllers\Admin\TestimonialTemplateController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Chef\DashboardController as ChefDashboardController;
+use App\Http\Controllers\Chef\LoginController as ChefLoginController;
+use App\Http\Controllers\Chef\OrderController as ChefOrderController;
+use App\Http\Controllers\Chef\ReportController as ChefReportController;
+use App\Http\Controllers\Customer\AuthController;
+use App\Http\Controllers\Customer\CheckoutController;
+use App\Http\Controllers\Customer\CustomerAddressController;
+use App\Http\Controllers\Customer\DropPointController as CustomerDropPointController;
+use App\Http\Controllers\Customer\FeedbackController;
+use App\Http\Controllers\Customer\FoodRequestController;
+use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\MenuController;
+use App\Http\Controllers\Customer\OrderTypeController;
+use App\Http\Controllers\Customer\PaymentController;
+use App\Http\Controllers\Customer\PrivacyPolicyController;
+use App\Http\Controllers\Customer\ProductController as CustomerProductController;
+use App\Http\Controllers\Customer\ProfileController;
+use App\Http\Controllers\Customer\TermsAndConditionController;
 use App\Http\Controllers\DocsController;
-use App\Http\Controllers\Admin\{
-    AccountSettingController,
-    ChefController,
-    LoginController as AdminLoginController,
-    CustomerController,
-    DashboardController,
-    DropPointController,
-    FoodRequestController as AdminFoodRequestController,
-    NotificationController,
-    OrderController,
-    PasswordResetController,
-    PaymentGuideController,
-    PaymentMethodController,
-    PickUpPointController,
-    ProductCategoryController,
-    ProductController,
-    ReportController,
-    SettingController,
-    SliderController,
-    TestimonialTemplateController,
-    UserController
-};
-use App\Http\Controllers\Chef\{
-    DashboardController as ChefDashboardController,
-    LoginController as ChefLoginController,
-    OrderController as ChefOrderController,
-    ReportController as ChefReportController
-};
-use App\Http\Controllers\Pic\{
-    DashboardController as PicDashboardController,
-    LoginController as PicLoginController,
-    OrderController as PicOrderController
-};
-use App\Http\Controllers\Customer\{
-    AuthController,
-    HomeController,
-    MenuController,
-    DropPointController as CustomerDropPointController,
-    ProductController as CustomerProductController,
-    PrivacyPolicyController,
-    TermsAndConditionController,
-    CheckoutController,
-    PaymentController,
-    FeedbackController,
-    FoodRequestController,
-    CustomerAddressController,
-};
+use App\Http\Controllers\Pic\DashboardController as PicDashboardController;
+use App\Http\Controllers\Pic\LoginController as PicLoginController;
+use App\Http\Controllers\Pic\OrderController as PicOrderController;
+use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,10 +65,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/drop-points', [CustomerDropPointController::class, 'index'])->name('customer.drop-points.index');
 Route::get('/drop-points/{id}', [CustomerDropPointController::class, 'show'])->name('customer.drop-points.show');
 Route::get('/drop-points/{id}/products', [CustomerProductController::class, 'index'])->name('customer.products');
-Route::get('/order-type', [\App\Http\Controllers\Customer\OrderTypeController::class, 'index'])->name('customer.order-type.index');
-Route::post('/order-type', [\App\Http\Controllers\Customer\OrderTypeController::class, 'store'])->name('customer.order-type.store');
+Route::get('/order-type', [OrderTypeController::class, 'index'])->name('customer.order-type.index');
+Route::post('/order-type', [OrderTypeController::class, 'store'])->name('customer.order-type.store');
 Route::get('/custom-address', [CustomerAddressController::class, 'index'])->name('customer.addresses.index');
 Route::post('/custom-address', [CustomerAddressController::class, 'store'])->name('customer.addresses.store');
+Route::post('/custom-address/login', [CustomerAddressController::class, 'login'])->name('customer.addresses.login');
 Route::put('/custom-address/{address}', [CustomerAddressController::class, 'update'])->name('customer.addresses.update');
 Route::delete('/custom-address/{address}', [CustomerAddressController::class, 'destroy'])->name('customer.addresses.destroy');
 Route::get('/products', [CustomerProductController::class, 'generalIndex'])->name('customer.products.general');
@@ -93,23 +91,25 @@ Route::get('/payment/finish', function () {
     return redirect()->route('customer.products')->with('success', 'Pembayaran sedang diproses atau sudah berhasil.');
 })->name('payment.finish');
 
-Route::get('/checkout/unfinish', function (\Illuminate\Http\Request $request) {
+Route::get('/checkout/unfinish', function (Request $request) {
     if ($request->has('order_id')) {
-        $order = \App\Models\Order::where('number', $request->order_id)->first();
+        $order = Order::where('number', $request->order_id)->first();
         if ($order) {
             return redirect()->route('customer.payment.show', $order->id)->with('warning', 'Pembayaran belum diselesaikan.');
         }
     }
+
     return redirect()->route('customer.payment-summary')->with('warning', 'Pembayaran belum diselesaikan.');
 })->name('payment.unfinish');
 
-Route::get('/checkout/error', function (\Illuminate\Http\Request $request) {
+Route::get('/checkout/error', function (Request $request) {
     if ($request->has('order_id')) {
-        $order = \App\Models\Order::where('number', $request->order_id)->first();
+        $order = Order::where('number', $request->order_id)->first();
         if ($order) {
             return redirect()->route('customer.payment.show', $order->id)->with('error', 'Terjadi kesalahan saat memproses pembayaran.');
         }
     }
+
     return redirect()->route('customer.payment-summary')->with('error', 'Terjadi kesalahan saat memproses pembayaran.');
 })->name('payment.error');
 
@@ -122,14 +122,14 @@ Route::middleware('guest:customer')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('customer.register.store');
 
     // Password Reset
-    Route::get('/forgot-password', [\App\Http\Controllers\Customer\PasswordResetController::class, 'showForgot'])
+    Route::get('/forgot-password', [App\Http\Controllers\Customer\PasswordResetController::class, 'showForgot'])
         ->name('password.request');
-    Route::post('/forgot-password', [\App\Http\Controllers\Customer\PasswordResetController::class, 'sendResetLink'])
+    Route::post('/forgot-password', [App\Http\Controllers\Customer\PasswordResetController::class, 'sendResetLink'])
         ->middleware('throttle:6,1')
         ->name('password.email');
-    Route::get('/reset-password/{token}', [\App\Http\Controllers\Customer\PasswordResetController::class, 'showReset'])
+    Route::get('/reset-password/{token}', [App\Http\Controllers\Customer\PasswordResetController::class, 'showReset'])
         ->name('password.reset');
-    Route::post('/reset-password', [\App\Http\Controllers\Customer\PasswordResetController::class, 'reset'])
+    Route::post('/reset-password', [App\Http\Controllers\Customer\PasswordResetController::class, 'reset'])
         ->middleware('throttle:6,1')
         ->name('password.update');
 });
@@ -137,17 +137,17 @@ Route::middleware('guest:customer')->group(function () {
 // Customer Authenticated Routes
 Route::middleware('auth:customer')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('customer.logout');
-    Route::get('/profile', [\App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('customer.profile.edit');
-    Route::put('/profile', [\App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
-    Route::get('/notifications', [\App\Http\Controllers\Customer\NotificationController::class, 'index'])->name('customer.notifications.index');
-    Route::post('/notifications/mark-as-read', [\App\Http\Controllers\Customer\NotificationController::class, 'markAsRead'])->name('customer.notifications.mark-as-read');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('customer.profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
+    Route::get('/notifications', [App\Http\Controllers\Customer\NotificationController::class, 'index'])->name('customer.notifications.index');
+    Route::post('/notifications/mark-as-read', [App\Http\Controllers\Customer\NotificationController::class, 'markAsRead'])->name('customer.notifications.mark-as-read');
 
     // Orders
-    Route::get('/orders', [\App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
-    Route::get('/orders/{order}', [\App\Http\Controllers\Customer\OrderController::class, 'show'])->name('customer.orders.show');
-    Route::post('/orders/{order}/complete', [\App\Http\Controllers\Customer\OrderController::class, 'complete'])->name('customer.orders.complete');
+    Route::get('/orders', [App\Http\Controllers\Customer\OrderController::class, 'index'])->name('customer.orders.index');
+    Route::get('/orders/{order}', [App\Http\Controllers\Customer\OrderController::class, 'show'])->name('customer.orders.show');
+    Route::post('/orders/{order}/complete', [App\Http\Controllers\Customer\OrderController::class, 'complete'])->name('customer.orders.complete');
     // Testimonials (Refactored to Order Item)
-    Route::post('/order-items/{orderItem}/testimonial', [\App\Http\Controllers\Customer\OrderController::class, 'testimonial'])->name('customer.order-items.testimonial');
+    Route::post('/order-items/{orderItem}/testimonial', [App\Http\Controllers\Customer\OrderController::class, 'testimonial'])->name('customer.order-items.testimonial');
 
     // Feedback
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('customer.feedback.index');
@@ -166,7 +166,7 @@ Route::middleware('auth:customer')->group(function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/', fn() => redirect()->route('admin.login'));
+    Route::get('/', fn () => redirect()->route('admin.login'));
 
     // Admin guest routes
     Route::get('/login', [AdminLoginController::class, 'show'])
@@ -255,12 +255,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('/pick-up-points/{pickUpPoint}', [PickUpPointController::class, 'destroy'])->name('pick-up-points.destroy');
 
         // Pick Up Point Officers
-        Route::get('/pick-up-point-officers', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'index'])->name('pick-up-point-officers.index');
-        Route::get('/pick-up-point-officers/create', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'create'])->name('pick-up-point-officers.create');
-        Route::post('/pick-up-point-officers', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'store'])->name('pick-up-point-officers.store');
-        Route::get('/pick-up-point-officers/{pickUpPointOfficer}/edit', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'edit'])->name('pick-up-point-officers.edit');
-        Route::put('/pick-up-point-officers/{pickUpPointOfficer}', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'update'])->name('pick-up-point-officers.update');
-        Route::delete('/pick-up-point-officers/{pickUpPointOfficer}', [\App\Http\Controllers\Admin\PickUpPointOfficerController::class, 'destroy'])->name('pick-up-point-officers.destroy');
+        Route::get('/pick-up-point-officers', [PickUpPointOfficerController::class, 'index'])->name('pick-up-point-officers.index');
+        Route::get('/pick-up-point-officers/create', [PickUpPointOfficerController::class, 'create'])->name('pick-up-point-officers.create');
+        Route::post('/pick-up-point-officers', [PickUpPointOfficerController::class, 'store'])->name('pick-up-point-officers.store');
+        Route::get('/pick-up-point-officers/{pickUpPointOfficer}/edit', [PickUpPointOfficerController::class, 'edit'])->name('pick-up-point-officers.edit');
+        Route::put('/pick-up-point-officers/{pickUpPointOfficer}', [PickUpPointOfficerController::class, 'update'])->name('pick-up-point-officers.update');
+        Route::delete('/pick-up-point-officers/{pickUpPointOfficer}', [PickUpPointOfficerController::class, 'destroy'])->name('pick-up-point-officers.destroy');
 
         // Payment Methods
         Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment-methods.index');

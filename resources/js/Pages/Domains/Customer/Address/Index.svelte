@@ -28,6 +28,18 @@
         password_confirmation: "",
     });
 
+    const loginForm = useForm({
+        login: "",
+        password: "",
+        remember: false,
+    });
+
+    let authMode = $state<"register" | "login">("register");
+
+    function toggleAuthMode() {
+        authMode = authMode === "register" ? "login" : "register";
+    }
+
     function useAccountName() {
         $form.name = $form.register_name;
     }
@@ -285,6 +297,13 @@
             });
         }
     };
+
+    const submitLogin = (e: Event) => {
+        e.preventDefault();
+        $loginForm.post("/custom-address/login", {
+            preserveScroll: true,
+        });
+    };
 </script>
 
 <svelte:head>
@@ -406,72 +425,126 @@
             <!-- Registration Section for Guests -->
             {#if !isAuthenticated && !editingId}
                 <div class="space-y-5 pb-6 border-b border-slate-800">
-                    <div class="mb-4">
-                        <h2 class="text-lg font-bold text-slate-100">
-                            Buat Akun Baru
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">
-                            Lengkapi data di bawah ini untuk mendaftarkan akun
-                            Anda.
-                        </p>
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-100">
+                                {authMode === "register"
+                                    ? "Buat Akun Baru"
+                                    : "Masuk ke Akun Anda"}
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-1">
+                                {authMode === "register"
+                                    ? "Lengkapi data di bawah ini untuk mendaftarkan akun Anda."
+                                    : "Gunakan kredensial Anda untuk masuk."}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onclick={toggleAuthMode}
+                            class="text-xs font-bold text-[#FFD700] hover:text-yellow-300 bg-yellow-900/20 px-3 py-2 rounded-xl transition-all"
+                        >
+                            {authMode === "register"
+                                ? "Punya Akun?"
+                                : "Belum Punya Akun?"}
+                        </button>
                     </div>
 
-                    <TextInput
-                        id="register_name"
-                        name="register_name"
-                        label="Nama Lengkap"
-                        placeholder="Contoh: Budi Susanto"
-                        bind:value={$form.register_name}
-                        error={$form.errors.register_name}
-                        required
-                    />
-
-                    <TextInput
-                        id="register_phone"
-                        name="register_phone"
-                        type="tel"
-                        label="Nomor HP"
-                        placeholder="Contoh: 081234567890"
-                        bind:value={$form.register_phone}
-                        error={$form.errors.register_phone}
-                        maxlength={15}
-                        required
-                    />
-
-                    <TextInput
-                        id="email"
-                        name="email"
-                        type="email"
-                        label="Alamat Email"
-                        placeholder="rino@example.com"
-                        bind:value={$form.email}
-                        error={$form.errors.email}
-                        required
-                    />
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {#if authMode === "register"}
                         <TextInput
-                            id="password"
-                            name="password"
-                            type="password"
-                            label="Kata Sandi"
-                            placeholder="••••••••"
-                            bind:value={$form.password}
-                            error={$form.errors.password}
+                            id="register_name"
+                            name="register_name"
+                            label="Nama Lengkap"
+                            placeholder="Contoh: Budi Susanto"
+                            bind:value={$form.register_name}
+                            error={$form.errors.register_name}
                             required
                         />
 
                         <TextInput
-                            id="password_confirmation"
-                            name="password_confirmation"
-                            type="password"
-                            label="Konfirmasi Kata Sandi"
-                            placeholder="••••••••"
-                            bind:value={$form.password_confirmation}
-                            error={$form.errors.password_confirmation}
+                            id="register_phone"
+                            name="register_phone"
+                            type="tel"
+                            label="Nomor HP"
+                            placeholder="Contoh: 081234567890"
+                            bind:value={$form.register_phone}
+                            error={$form.errors.register_phone}
+                            maxlength={15}
                             required
                         />
-                    </div>
+
+                        <TextInput
+                            id="email"
+                            name="email"
+                            type="email"
+                            label="Alamat Email"
+                            placeholder="rino@example.com"
+                            bind:value={$form.email}
+                            error={$form.errors.email}
+                            required
+                        />
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <TextInput
+                                id="password"
+                                name="password"
+                                type="password"
+                                label="Kata Sandi"
+                                placeholder="••••••••"
+                                bind:value={$form.password}
+                                error={$form.errors.password}
+                                required
+                            />
+
+                            <TextInput
+                                id="password_confirmation"
+                                name="password_confirmation"
+                                type="password"
+                                label="Konfirmasi Kata Sandi"
+                                placeholder="••••••••"
+                                bind:value={$form.password_confirmation}
+                                error={$form.errors.password_confirmation}
+                                required
+                            />
+                        </div>
+                    {:else}
+                        <!-- Login form fields -->
+                        <div class="space-y-4">
+                            <TextInput
+                                id="login"
+                                name="login"
+                                label="Email atau Nomor HP"
+                                placeholder="Contoh: 081234567890"
+                                bind:value={$loginForm.login}
+                                error={$loginForm.errors.login}
+                                required
+                            />
+
+                            <TextInput
+                                id="login_password"
+                                name="password"
+                                type="password"
+                                label="Kata Sandi"
+                                placeholder="••••••••"
+                                bind:value={$loginForm.password}
+                                error={$loginForm.errors.password}
+                                required
+                            />
+
+                            <button
+                                type="button"
+                                onclick={submitLogin}
+                                disabled={$loginForm.processing}
+                                class="w-full flex justify-center items-center py-3 px-4 border border-slate-700 rounded-xl shadow-sm text-sm font-bold text-[#FFD700] bg-slate-800 hover:bg-slate-700 transition-all disabled:opacity-50"
+                            >
+                                {#if $loginForm.processing}
+                                    <i class="fa-solid fa-spinner fa-spin mr-2"
+                                    ></i> Masuk...
+                                {:else}
+                                    Masuk Sekarang
+                                {/if}
+                            </button>
+                        </div>
+                    {/if}
                 </div>
             {/if}
 

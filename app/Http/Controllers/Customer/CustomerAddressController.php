@@ -4,23 +4,28 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Customer;
 
+use App\DTOs\Customer\LoginCustomerDTO;
+use App\DTOs\Customer\RegisterCustomerDTO;
 use App\DTOs\CustomerAddress\CustomerAddressData;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerAddress;
+use App\Models\DropPoint;
+use App\Services\CustomerAuthService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Inertia\{Inertia, Response};
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CustomerAddressController extends Controller
 {
     public function __construct(
-        private readonly \App\Services\CustomerAuthService $authService,
+        private readonly CustomerAuthService $authService,
     ) {}
 
     /**
      * Show the form for creating a new custom address.
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -44,21 +49,18 @@ class CustomerAddressController extends Controller
 
     /**
      * Store a newly created custom address in storage and session.
-     *
-     * @param CustomerAddressData $data
-     * @return RedirectResponse
      */
     public function store(CustomerAddressData $data): RedirectResponse
     {
         $validated = $data->toArray();
 
         try {
-            return \Illuminate\Support\Facades\DB::transaction(function () use ($data, $validated) {
+            return DB::transaction(function () use ($data, $validated) {
                 $customerId = Auth::guard('customer')->id();
 
                 // Handle guest registration
-                if (!$customerId) {
-                    $dto = new \App\DTOs\Customer\RegisterCustomerDTO(
+                if (! $customerId) {
+                    $dto = new RegisterCustomerDTO(
                         name: $data->registerName,
                         username: null,
                         phone: $data->registerPhone,
@@ -81,7 +83,7 @@ class CustomerAddressController extends Controller
                 return redirect()->route('customer.order-type.index');
             });
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to store address and register customer', [
+            Log::error('Failed to store address and register customer', [
                 'error' => $e->getMessage(),
                 'payload' => $validated,
                 'trace' => $e->getTraceAsString(),
@@ -91,11 +93,28 @@ class CustomerAddressController extends Controller
     }
 
     /**
+     * Handle authentication for existing users.
+     */
+    public function login(LoginCustomerDTO $dto): RedirectResponse
+    {
+        if ($this->authService->login($dto)) {
+            request()->session()->regenerate();
+
+            Inertia::flash('toast', [
+                'message' => 'Berhasil login',
+                'type' => 'success',
+            ]);
+
+            return redirect()->route('customer.addresses.index');
+        }
+
+        return back()->withErrors([
+            'login' => 'Identitas atau kata sandi salah',
+        ]);
+    }
+
+    /**
      * Update the specified address.
-     *
-     * @param CustomerAddressData $data
-     * @param CustomerAddress $address
-     * @return RedirectResponse
      */
     public function update(CustomerAddressData $data, CustomerAddress $address): RedirectResponse
     {
@@ -113,9 +132,6 @@ class CustomerAddressController extends Controller
 
     /**
      * Remove the specified address.
-     *
-     * @param CustomerAddress $address
-     * @return RedirectResponse
      */
     public function destroy(CustomerAddress $address): RedirectResponse
     {
@@ -131,7 +147,7 @@ class CustomerAddressController extends Controller
             session(['checkout_address' => null]);
         }
 
-        \Inertia\Inertia::flash('toast', [
+        Inertia::flash('toast', [
             'message' => 'Alamat berhasil dihapus',
             'type' => 'success',
         ]);
@@ -141,13 +157,10 @@ class CustomerAddressController extends Controller
 
     /**
      * Helper to set checkout address in session and automatically find nearest drop point.
-     *
-     * @param CustomerAddress $address
-     * @return void
      */
     private function setCheckoutAddressInSession(CustomerAddress $address): void
     {
-        $nearestDropPoint = \App\Models\DropPoint::findNearest($address->latitude, $address->longitude);
+        $nearestDropPoint = DropPoint::findNearest($address->latitude, $address->longitude);
         $dropPointData = null;
 
         if ($nearestDropPoint) {
