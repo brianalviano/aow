@@ -50,6 +50,7 @@ class OrderController extends Controller
             ],
             'dropPoints' => DropPoint::where('is_active', true)->get(['id', 'name']),
             'chefs'      => Chef::where('is_active', true)->get(['id', 'name']),
+            'pickUpPoints' => \App\Models\PickUpPoint::where('is_active', true)->get(['id', 'name', 'address', 'latitude', 'longitude']),
         ]);
     }
 

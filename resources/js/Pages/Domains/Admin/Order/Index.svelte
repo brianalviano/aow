@@ -59,6 +59,7 @@
     let statusCounts = $derived(
         ($page.props.status_counts as Record<string, number>) || {},
     );
+    let pickUpPoints = $derived(($page.props.pickUpPoints as any[]) || []);
 
     let searchQuery = $state(untrack(() => filters?.search || ""));
     let statusFilter = $state(untrack(() => filters?.status || "all"));
@@ -253,6 +254,73 @@
 
     let isProcessing = $state(false);
 
+    let confirmOrderModalOpen = $state(false);
+    let confirmPickUpPointId = $state("");
+    let selectedOrder = $state<Order | null>(null);
+
+    const pickUpPointOptions = $derived(
+        pickUpPoints.map((pp) => ({
+            value: pp.id,
+            label: `${pp.name} - ${pp.address}`,
+        })),
+    );
+
+    function calculateDistance(
+        lat1: number,
+        lon1: number,
+        lat2: number,
+        lon2: number,
+    ) {
+        const R = 6371; // km
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+                Math.cos((lat2 * Math.PI) / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
+    function getSuggestedPickUpPoint(order: any) {
+        if (order.pick_up_point_id) return order.pick_up_point_id;
+
+        const targetLat =
+            order.customer_address?.latitude || order.drop_point?.latitude;
+        const targetLon =
+            order.customer_address?.longitude || order.drop_point?.longitude;
+
+        if (!targetLat || !targetLon || pickUpPoints.length === 0) return "";
+
+        let nearestId = "";
+        let minDistance = Infinity;
+
+        pickUpPoints.forEach((pp) => {
+            if (pp.latitude && pp.longitude) {
+                const dist = calculateDistance(
+                    targetLat,
+                    targetLon,
+                    pp.latitude,
+                    pp.longitude,
+                );
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    nearestId = pp.id;
+                }
+            }
+        });
+
+        return nearestId || pickUpPoints[0]?.id || "";
+    }
+
+    function openConfirmOrderModal(order: Order) {
+        selectedOrder = order;
+        confirmPickUpPointId = getSuggestedPickUpPoint(order);
+        confirmOrderModalOpen = true;
+    }
+
     function openConfirm(
         title: string,
         message: string,
@@ -273,13 +341,17 @@
         closeConfirm();
     }
 
-    function approveOrder(orderId: string) {
+    function approveOrder() {
+        if (!selectedOrder || !confirmPickUpPointId) return;
+        isProcessing = true;
         router.post(
-            `/admin/orders/${orderId}/confirm`,
-            {},
+            `/admin/orders/${selectedOrder.id}/confirm`,
+            { pick_up_point_id: confirmPickUpPointId },
             {
                 onFinish: () => {
                     isProcessing = false;
+                    confirmOrderModalOpen = false;
+                    selectedOrder = null;
                 },
             },
         );
@@ -618,15 +690,7 @@
                                                 icon="fa-solid fa-check"
                                                 disabled={isProcessing}
                                                 onclick={() =>
-                                                    openConfirm(
-                                                        "Konfirmasi Pesanan",
-                                                        `Apakah Anda yakin ingin menyetujui pesanan #${item.number}?`,
-                                                        () =>
-                                                            approveOrder(
-                                                                item.id,
-                                                            ),
-                                                        "success",
-                                                    )}
+                                                    openConfirmOrderModal(item)}
                                                 title="Setujui"
                                             />
                                             <Button
@@ -741,6 +805,94 @@
                     onclick={executeAction}
                 >
                     Ya, Lanjutkan
+                </Button>
+            </div>
+        </div>
+    </div>
+{/if}
+
+<!-- Confirm Order Modal -->
+{#if confirmOrderModalOpen && selectedOrder}
+    <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+    >
+        <div
+            class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+        >
+            <div class="flex items-start gap-4 mb-4">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full
+                        {!(selectedOrder as any).payment_proof_url && (selectedOrder as any).payment_method?.category !== 'cash'
+                            ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+                            : 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'}"
+                >
+                    <i
+                        class="fa-solid {!(selectedOrder as any).payment_proof_url && (selectedOrder as any).payment_method?.category !== 'cash'
+                            ? 'fa-triangle-exclamation'
+                            : 'fa-circle-question'}"
+                    ></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                        Konfirmasi Pesanan
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        {#if !(selectedOrder as any).payment_proof_url && (selectedOrder as any).payment_method?.category !== 'cash'}
+                            <span class="text-amber-600 font-bold"
+                                >PERINGATAN: Bukti pembayaran belum diunggah.</span
+                            > Apakah Anda yakin ingin tetap mengkonfirmasi pesanan
+                            <strong>#{selectedOrder.number}</strong> secara manual?
+                        {:else}
+                            Apakah Anda yakin ingin mengkonfirmasi pesanan <strong
+                                >#{selectedOrder.number}</strong
+                            >?
+                        {/if}
+                    </p>
+                </div>
+            </div>
+
+            <div class="space-y-4 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <div>
+                    <label
+                        for="confirm-pickup-point"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                    >
+                        Pilih Pickup Point
+                    </label>
+                    <Select
+                        id="confirm-pickup-point"
+                        bind:value={confirmPickUpPointId}
+                        options={pickUpPointOptions}
+                        placeholder="-- Pilih Pickup Point --"
+                        searchable={true}
+                    />
+                    {#if confirmPickUpPointId && confirmPickUpPointId === getSuggestedPickUpPoint(selectedOrder) && !(selectedOrder as any).pick_up_point_id}
+                        <p class="mt-1 text-[10px] text-green-600 flex items-center gap-1">
+                            <i class="fa-solid fa-location-dot"></i> Disarankan (Terdekat)
+                        </p>
+                    {/if}
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    onclick={() => (confirmOrderModalOpen = false)}
+                    disabled={isProcessing}
+                >
+                    {#snippet children()}Batal{/snippet}
+                </Button>
+                <Button
+                    variant={!(selectedOrder as any).payment_proof_url && (selectedOrder as any).payment_method?.category !== 'cash' ? "warning" : "primary"}
+                    size="sm"
+                    disabled={isProcessing || !confirmPickUpPointId}
+                    loading={isProcessing}
+                    onclick={approveOrder}
+                >
+                    {#snippet children()}Ya, Konfirmasi{/snippet}
                 </Button>
             </div>
         </div>
