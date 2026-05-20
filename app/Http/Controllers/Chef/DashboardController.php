@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Chef;
 
+use App\Enums\ChefStatus;
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
-use Inertia\Inertia;
-use Inertia\Response;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Controller for chef dashboard.
@@ -17,20 +19,21 @@ class DashboardController extends Controller
 {
     /**
      * Show the chef dashboard.
-     *
-     * @return \Inertia\Response
      */
     public function index(): Response
     {
         $chef = Auth::guard('chef')->user();
 
         $items = OrderItem::query()
-            ->with(['order.customer', 'order.dropPoint', 'order.pickUpPoint', 'product'])
+            ->with(['order.customer', 'order.dropPoint', 'order.pickUpPoint', 'order.items', 'product'])
             ->where('chef_id', $chef->id)
             ->whereHas('order', function ($query) {
-                $query->where('order_status', \App\Enums\OrderStatus::CONFIRMED);
+                $query->where('order_status', OrderStatus::CONFIRMED);
             })
-            ->where('chef_status', \App\Enums\ChefStatus::PENDING)
+            ->whereIn('chef_status', [
+                ChefStatus::PENDING,
+                ChefStatus::ACCEPTED,
+            ])
             ->latest()
             ->get();
 

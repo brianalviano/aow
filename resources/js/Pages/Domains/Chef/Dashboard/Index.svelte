@@ -42,6 +42,9 @@
     }
 
     let { items = [] } = $props<{ items: Item[] }>();
+    
+    const pendingCount = $derived(items.filter((item: Item) => item.chef_status === 'pending').length);
+    const acceptedCount = $derived(items.filter((item: Item) => item.chef_status === 'accepted').length);
 
     const form = useForm({});
 
@@ -225,9 +228,11 @@
                 Halo, {$page.props.auth?.user?.name || "Chef"}!
             </h2>
             <p class="text-slate-400 mt-2 font-medium relative z-10">
-                Anda memiliki <span class="text-[#FFD700] font-black"
-                    >{items.length}</span
-                > item pesanan yang menunggu konfirmasi.
+                Anda memiliki <span class="text-[#FFD700] font-black">{items.length}</span> item pesanan aktif 
+                {#if pendingCount > 0 || acceptedCount > 0}
+                    (<span class="text-[#FFD700] font-black">{pendingCount}</span> menunggu konfirmasi, 
+                    <span class="text-[#FFD700] font-black">{acceptedCount}</span> sedang diproses)
+                {/if}.
             </p>
         </div>
 
