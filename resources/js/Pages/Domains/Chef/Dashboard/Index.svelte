@@ -260,7 +260,7 @@
                 {#each groupedItems as group (group.order.id)}
                     <OrderCard
                         {group}
-                        context="dashboard"
+                        context="orders"
                         onApprove={approveItem}
                         onReject={rejectItem}
                         onShip={shipItem}

@@ -282,7 +282,7 @@
                     </div>
                 </div>
 
-                {#if (context === "dashboard" && (item.chef_status === "pending" || (item.chef_status === "accepted" && (group.order.order_status === "confirmed" || group.order.order_status === "shipped") && isAllItemsApproved(group.order)))) || (context === "orders" && item.chef_status === "accepted" && (group.order.order_status === "confirmed" || group.order.order_status === "shipped") && isAllItemsApproved(group.order))}
+                {#if item.chef_status === "pending" || (item.chef_status === "accepted" && (group.order.order_status === "confirmed" || group.order.order_status === "shipped") && isAllItemsApproved(group.order))}
                     <div class="flex flex-col sm:flex-row gap-2 w-full mt-1">
                         {#if item.chef_status === "pending"}
                             <Button

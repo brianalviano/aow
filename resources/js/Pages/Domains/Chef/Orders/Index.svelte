@@ -206,6 +206,75 @@
         onConfirm: async (data?: any) => {},
     });
 
+    function approveItem(itemId: string) {
+        dialogState = {
+            isOpen: true,
+            type: "success",
+            title: "Konfirmasi Penerimaan",
+            message: "Apakah Anda yakin ingin menerima item ini?",
+            confirmText: "Ya, Terima",
+            cancelText: "Batal",
+            loading: false,
+            formFields: [],
+            onConfirm: async () => {
+                dialogState.loading = true;
+                router.post(
+                    "/chef/orders/approve",
+                    {
+                        item_ids: [itemId],
+                    },
+                    {
+                        onFinish: () => {
+                            dialogState.isOpen = false;
+                            dialogState.loading = false;
+                            applyFilters();
+                        },
+                    },
+                );
+            },
+        };
+    }
+
+    function rejectItem(itemId: string) {
+        dialogState = {
+            isOpen: true,
+            type: "danger",
+            title: "Konfirmasi Penolakan",
+            message:
+                "Menolak item ini akan membatalkan seluruh pesanan. Apakah Anda yakin?",
+            confirmText: "Ya, Tolak",
+            cancelText: "Batal",
+            loading: false,
+            formFields: [
+                {
+                    id: "reason",
+                    name: "reason",
+                    type: "textarea",
+                    label: "Alasan Penolakan (opsional)",
+                    placeholder: "Berikan alasan jika ada...",
+                    required: false,
+                },
+            ],
+            onConfirm: async (formData) => {
+                dialogState.loading = true;
+                router.post(
+                    "/chef/orders/reject",
+                    {
+                        item_ids: [itemId],
+                        reason: formData?.reason,
+                    },
+                    {
+                        onFinish: () => {
+                            dialogState.isOpen = false;
+                            dialogState.loading = false;
+                            applyFilters();
+                        },
+                    },
+                );
+            },
+        };
+    }
+
     function shipItem(itemId: string) {
         dialogState = {
             isOpen: true,
@@ -367,7 +436,13 @@
         {:else}
             <div class="space-y-6">
                 {#each groupedItems as group (group.order.id)}
-                    <OrderCard {group} context="orders" onShip={shipItem} />
+                    <OrderCard
+                        {group}
+                        context="orders"
+                        onApprove={approveItem}
+                        onReject={rejectItem}
+                        onShip={shipItem}
+                    />
                 {/each}
             </div>
 

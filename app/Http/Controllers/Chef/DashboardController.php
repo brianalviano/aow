@@ -28,7 +28,10 @@ class DashboardController extends Controller
             ->with(['order.customer', 'order.dropPoint', 'order.pickUpPoint', 'order.items', 'product'])
             ->where('chef_id', $chef->id)
             ->whereHas('order', function ($query) {
-                $query->where('order_status', OrderStatus::CONFIRMED);
+                $query->whereNotIn('order_status', [
+                    OrderStatus::DELIVERED,
+                    OrderStatus::CANCELLED,
+                ]);
             })
             ->whereIn('chef_status', [
                 ChefStatus::PENDING,
