@@ -613,7 +613,9 @@
                                         size="sm"
                                         rounded="pill"
                                         variant={chefStatus === "rejected" ||
-                                        chefStatus === "rejected_partial"
+                                        chefStatus === "rejected_partial" ||
+                                        chefStatus === "cancelled" ||
+                                        chefStatus === "cancelled_partial"
                                             ? "danger"
                                             : chefStatus === "delivered"
                                               ? "success"
@@ -627,7 +629,11 @@
                                         dot={true}
                                     >
                                         {#snippet children()}
-                                            {chefStatus === "rejected"
+                                            {chefStatus === "cancelled"
+                                                ? "Dibatalkan"
+                                                : chefStatus === "cancelled_partial"
+                                                  ? "Dibatalkan Sebagian"
+                                                  : chefStatus === "rejected"
                                                 ? "Ditolak"
                                                 : chefStatus === "rejected_partial"
                                                   ? "Ditolak Sebagian"
@@ -898,4 +904,3 @@
         </div>
     </div>
 {/if}
-

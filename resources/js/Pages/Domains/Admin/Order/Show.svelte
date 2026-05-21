@@ -534,7 +534,30 @@
         </div>
     </header>
 
-    {#if order.chef_status_summary === "rejected" || order.chef_status_summary === "rejected_partial"}
+    {#if order.chef_status_summary === "cancelled" || order.chef_status_summary === "cancelled_partial"}
+        <div
+            class="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20"
+        >
+            <div class="flex items-center gap-3">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                >
+                    <i class="fa-solid fa-ban"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-red-800 dark:text-red-300">
+                        {order.chef_status_summary === "cancelled_partial"
+                            ? "Status Dapur Dibatalkan Sebagian"
+                            : "Status Dapur Dibatalkan"}
+                    </h4>
+                    <p class="text-sm text-red-700 dark:text-red-400">
+                        Pesanan ini sudah dibatalkan sehingga status dapur ikut
+                        ditandai batal.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {:else if order.chef_status_summary === "rejected" || order.chef_status_summary === "rejected_partial"}
         <div
             class="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20"
         >
@@ -644,9 +667,11 @@
                                                             : group.items.some(
                                                                     (i) =>
                                                                         i.chef_status ===
-                                                                        "rejected",
+                                                                            "rejected" ||
+                                                                        i.chef_status ===
+                                                                            "cancelled",
                                                                 )
-                                                              ? "danger"
+                                                               ? "danger"
                                                               : "warning"}
                                                     dot={true}
                                                 >
@@ -672,9 +697,15 @@
                                                                 : group.items.some(
                                                                         (i) =>
                                                                             i.chef_status ===
+                                                                                "cancelled",
+                                                                    )
+                                                                  ? "Dibatalkan"
+                                                                  : group.items.some(
+                                                                        (i) =>
+                                                                            i.chef_status ===
                                                                             "rejected",
                                                                     )
-                                                                  ? "Ditolak"
+                                                                   ? "Ditolak"
                                                                   : "Menunggu"}
                                                     {/snippet}
                                                 </Badge>
@@ -826,6 +857,9 @@
                                                               "accepted"
                                                             ? "info"
                                                             : item.chef_status ===
+                                                                "cancelled"
+                                                              ? "danger"
+                                                              : item.chef_status ===
                                                                 "rejected"
                                                               ? "danger"
                                                               : "warning"}
@@ -841,7 +875,10 @@
                                                               : item.chef_status ===
                                                                   "accepted"
                                                                 ? "Diterima"
-                                                                : item.chef_status ===
+                                                               : item.chef_status ===
+                                                                    "cancelled"
+                                                                  ? "Dibatalkan"
+                                                                  : item.chef_status ===
                                                                     "rejected"
                                                                   ? "Ditolak"
                                                                   : "Menunggu"}

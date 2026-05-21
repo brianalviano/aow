@@ -86,6 +86,8 @@
                 return "success";
             case "rejected":
                 return "danger";
+            case "cancelled":
+                return "danger";
             default:
                 return "warning";
         }
@@ -101,6 +103,8 @@
                 return "Selesai";
             case "rejected":
                 return "Ditolak";
+            case "cancelled":
+                return "Dibatalkan";
             default:
                 return "Menunggu";
         }

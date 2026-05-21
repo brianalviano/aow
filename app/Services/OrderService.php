@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\Checkout\ProcessOrderData;
-use App\Enums\{OrderStatus, PaymentMethodType};
+use App\Enums\{ChefStatus, OrderStatus, PaymentMethodType};
 use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
 use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderShipping, PaymentMethod, PickUpPoint, Product};
 use App\Notifications\{OrderPlacedNotification, OrderStatusChangedNotification};
@@ -67,7 +67,7 @@ class OrderService
 
                 return $order->fresh();
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Gagal menyelesaikan pesanan', [
                 'order_id'            => $order->id,
                 'customer_id'         => $order->customer_id,
@@ -86,7 +86,7 @@ class OrderService
      * @param Order $order
      * @param string|null $reason
      * @return Order
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function cancelOrder(Order $order, ?string $reason = null): Order
     {
@@ -102,6 +102,20 @@ class OrderService
                     'cancellation_note' => $reason,
                 ]);
 
+                OrderItem::where('order_id', $order->id)
+                    ->where('chef_status', '!=', ChefStatus::CANCELLED->value)
+                    ->update([
+                        'chef_status'       => ChefStatus::CANCELLED,
+                        'chef_confirmed_at' => now(),
+                    ]);
+
+                OrderShipping::where('order_id', $order->id)
+                    ->where(function ($query) {
+                        $query->whereNull('biteship_status')
+                            ->orWhere('biteship_status', '!=', 'cancelled');
+                    })
+                    ->update(['biteship_status' => 'cancelled']);
+
                 $order->load('customer');
                 $order->customer->notify(new OrderStatusChangedNotification($order, 'cancelled'));
 
@@ -112,7 +126,7 @@ class OrderService
 
                 return $order->fresh();
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Gagal membatalkan pesanan', [
                 'order_id'    => $order->id,
                 'customer_id' => $order->customer_id,
@@ -131,7 +145,7 @@ class OrderService
      * @param Order $order
      * @param string|null $pickUpPointId
      * @return Order
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function confirmOrder(Order $order, ?string $pickUpPointId = null): Order
     {
@@ -175,7 +189,7 @@ class OrderService
 
                 return $order->fresh();
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Gagal mengkonfirmasi pesanan', [
                 'order_id'    => $order->id,
                 'customer_id' => $order->customer_id,
@@ -194,7 +208,7 @@ class OrderService
      * @param array $itemIds
      * @param \App\Models\Chef $chef
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function chefApproveItems(array $itemIds, \App\Models\Chef $chef): void
     {
@@ -206,14 +220,14 @@ class OrderService
 
                 foreach ($items as $item) {
                     $item->update([
-                        'chef_status'       => \App\Enums\ChefStatus::ACCEPTED,
+                        'chef_status'       => ChefStatus::ACCEPTED,
                         'chef_confirmed_at' => now(),
                     ]);
                 }
 
-                $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::ACCEPTED);
+                $this->notifyCustomerAboutChefStatus($items, ChefStatus::ACCEPTED);
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Chef failed to approve items', [
                 'chef_id'  => $chef->id,
                 'item_ids' => $itemIds,
@@ -230,7 +244,7 @@ class OrderService
      * @param \App\Models\Chef $chef
      * @param string|null $reason
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function chefRejectItems(array $itemIds, \App\Models\Chef $chef, ?string $reason = null): void
     {
@@ -242,14 +256,14 @@ class OrderService
 
                 foreach ($items as $item) {
                     $item->update([
-                        'chef_status'       => \App\Enums\ChefStatus::REJECTED,
+                        'chef_status'       => ChefStatus::REJECTED,
                         'chef_confirmed_at' => now(),
                     ]);
                 }
 
-                $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::REJECTED);
+                $this->notifyCustomerAboutChefStatus($items, ChefStatus::REJECTED);
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Chef failed to reject items', [
                 'chef_id'  => $chef->id,
                 'item_ids' => $itemIds,
@@ -268,7 +282,7 @@ class OrderService
      * @param array $itemIds
      * @param \App\Models\Chef $chef
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function chefShipItems(array $itemIds, \App\Models\Chef $chef): void
     {
@@ -286,7 +300,7 @@ class OrderService
 
                 foreach ($items as $item) {
                     $item->update([
-                        'chef_status'       => \App\Enums\ChefStatus::SHIPPED,
+                        'chef_status'       => ChefStatus::SHIPPED,
                         'chef_confirmed_at' => now(),
                     ]);
                     $orderIdsToProcess[$item->order_id] = true;
@@ -301,9 +315,9 @@ class OrderService
                     }
                 }
 
-                $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::SHIPPED);
+                $this->notifyCustomerAboutChefStatus($items, ChefStatus::SHIPPED);
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Chef failed to ship items', [
                 'chef_id'  => $chef->id,
                 'item_ids' => $itemIds,
@@ -320,7 +334,7 @@ class OrderService
      * @param \App\Models\Chef $chef
      * @param \Illuminate\Http\UploadedFile|string|null $deliveryPhotoPath 
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function chefDeliverItems(array $itemIds, \App\Models\Chef $chef, $deliveryPhotoPath = null): void
     {
@@ -334,7 +348,7 @@ class OrderService
 
                 foreach ($items as $item) {
                     $item->update([
-                        'chef_status'       => \App\Enums\ChefStatus::DELIVERED,
+                        'chef_status'       => ChefStatus::DELIVERED,
                         'chef_confirmed_at' => now(),
                     ]);
                     $orderIdsToProcess[$item->order_id] = true;
@@ -345,16 +359,16 @@ class OrderService
                     /** @var Order $order */
                     $order = Order::with('items')->find($orderId);
                     if ($order && $order->order_status === OrderStatus::SHIPPED) {
-                        $allDelivered = $order->items->every(fn($i) => $i->chef_status === \App\Enums\ChefStatus::DELIVERED);
+                        $allDelivered = $order->items->every(fn($i) => $i->chef_status === ChefStatus::DELIVERED);
                         if ($allDelivered) {
                             $this->completeOrder($order, $deliveryPhotoPath);
                         }
                     }
                 }
 
-                $this->notifyCustomerAboutChefStatus($items, \App\Enums\ChefStatus::DELIVERED);
+                $this->notifyCustomerAboutChefStatus($items, ChefStatus::DELIVERED);
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Chef failed to deliver items', [
                 'chef_id'  => $chef->id,
                 'item_ids' => $itemIds,
@@ -367,18 +381,18 @@ class OrderService
     /**
      * Reassign an order item to another chef.
      *
-     * @param \App\Models\OrderItem $item
+     * @param OrderItem $item
      * @param string $chefId
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      */
-    public function reassignChef(\App\Models\OrderItem $item, string $chefId): void
+    public function reassignChef(OrderItem $item, string $chefId): void
     {
         try {
             DB::transaction(function () use ($item, $chefId) {
                 $item->update([
                     'chef_id'           => $chefId,
-                    'chef_status'       => \App\Enums\ChefStatus::PENDING,
+                    'chef_status'       => ChefStatus::PENDING,
                     'chef_confirmed_at' => null,
                 ]);
 
@@ -388,7 +402,7 @@ class OrderService
                     $item->chef->notify(new \App\Notifications\ChefOrderAssignedNotification($item->order));
                 }
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Failed to reassign chef to item', [
                 'item_id' => $item->id,
                 'chef_id' => $chefId,
@@ -403,7 +417,7 @@ class OrderService
      *
      * @param Order $order
      * @return Order
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function shipOrder(Order $order): Order
     {
@@ -431,7 +445,7 @@ class OrderService
 
                 return $order->fresh();
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Gagal mengubah status pesanan ke dikirim', [
                 'order_id'    => $order->id,
                 'customer_id' => $order->customer_id,
@@ -596,24 +610,27 @@ class OrderService
         if ($dto->status && $dto->status !== 'all') {
             switch ($dto->status) {
                 case 'pending':
-                    $query->where('chef_status', \App\Enums\ChefStatus::PENDING);
+                    $query->where('chef_status', ChefStatus::PENDING);
                     break;
                 case 'accepted':
                     // Accepted items that are not yet in a delivered order
-                    $query->where('chef_status', \App\Enums\ChefStatus::ACCEPTED)
+                    $query->where('chef_status', ChefStatus::ACCEPTED)
                         ->whereHas('order', function ($q) {
-                            $q->where('order_status', '!=', \App\Enums\OrderStatus::DELIVERED)
-                                ->where('order_status', '!=', \App\Enums\OrderStatus::CANCELLED);
+                            $q->where('order_status', '!=', OrderStatus::DELIVERED)
+                                ->where('order_status', '!=', OrderStatus::CANCELLED);
                         });
                     break;
                 case 'completed':
                     // Items where the final order is delivered
                     $query->whereHas('order', function ($q) {
-                        $q->where('order_status', \App\Enums\OrderStatus::DELIVERED);
+                        $q->where('order_status', OrderStatus::DELIVERED);
                     });
                     break;
                 case 'rejected':
-                    $query->where('chef_status', \App\Enums\ChefStatus::REJECTED);
+                    $query->where('chef_status', ChefStatus::REJECTED);
+                    break;
+                case 'cancelled':
+                    $query->where('chef_status', ChefStatus::CANCELLED);
                     break;
             }
         }
@@ -727,6 +744,7 @@ class OrderService
      */
     public function cancelExpiredOrders(): int
     {
+        /** @var \Illuminate\Support\Collection<int, Order> $expiredOrders */
         $expiredOrders = Order::query()
             ->where('payment_status', 'pending')
             ->where('order_status', 'pending')
@@ -739,7 +757,7 @@ class OrderService
             try {
                 $this->cancelOrder($order, 'Pembatalan otomatis oleh sistem karena melewati batas waktu pembayaran.');
                 $count++;
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Individual failures are logged inside cancelOrder, we continue with others
                 continue;
             }
@@ -846,7 +864,7 @@ class OrderService
                             'subtotal'          => $item['totalPrice'],
                             'note'              => $item['notes'] ?? null,
                             'chef_id'           => $chef?->id,
-                            'chef_status'       => $chef ? \App\Enums\ChefStatus::PENDING : null,
+                            'chef_status'       => $chef ? ChefStatus::PENDING : null,
                             'chef_confirmed_at' => null,
                         ]);
 
@@ -983,10 +1001,10 @@ class OrderService
      * Notify customer about chef status updates for their items.
      *
      * @param Collection $items
-     * @param \App\Enums\ChefStatus $newStatus
+     * @param ChefStatus $newStatus
      * @return void
      */
-    private function notifyCustomerAboutChefStatus(Collection $items, \App\Enums\ChefStatus $newStatus): void
+    private function notifyCustomerAboutChefStatus(Collection $items, ChefStatus $newStatus): void
     {
         if ($items->isEmpty()) {
             return;
@@ -1099,7 +1117,7 @@ class OrderService
                     }
                 }
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Gagal memproses update status dari Biteship', [
                 'biteship_order_id' => $biteshipOrderId,
                 'status' => $status,
@@ -1126,7 +1144,7 @@ class OrderService
             try {
                 $this->completeOrder($order);
                 $count++;
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 Log::error('Gagal menyelesaikan pesanan otomatis (timeout 6 jam)', [
                     'order_id' => $order->id,
                     'error' => $e->getMessage(),

@@ -211,7 +211,7 @@ class Order extends Model
     /**
      * Get aggregate chef status for the order.
      * 
-     * @return string (pending|accepted|rejected|partial)
+     * @return string (pending|accepted|rejected|cancelled|partial)
      */
     public function getChefStatusSummaryAttribute(): string
     {
@@ -220,6 +220,14 @@ class Order extends Model
         }
 
         $statuses = $this->items->pluck('chef_status')->unique();
+
+        if ($statuses->count() === 1 && $statuses->first() === \App\Enums\ChefStatus::CANCELLED) {
+            return 'cancelled';
+        }
+
+        if ($statuses->contains(\App\Enums\ChefStatus::CANCELLED)) {
+            return 'cancelled_partial';
+        }
 
         if ($statuses->contains(\App\Enums\ChefStatus::REJECTED)) {
             return $statuses->count() > 1 ? 'rejected_partial' : 'rejected';

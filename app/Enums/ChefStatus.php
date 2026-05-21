@@ -14,6 +14,7 @@ enum ChefStatus: string
     case SHIPPED = 'shipped';
     case DELIVERED = 'delivered';
     case REJECTED = 'rejected';
+    case CANCELLED = 'cancelled';
 
     /**
      * Get the label for the status.
@@ -26,6 +27,7 @@ enum ChefStatus: string
             self::SHIPPED => 'Dikirim',
             self::DELIVERED => 'Selesai',
             self::REJECTED => 'Ditolak Chef',
+            self::CANCELLED => 'Dibatalkan',
         };
     }
 

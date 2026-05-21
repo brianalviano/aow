@@ -182,6 +182,10 @@
                 return { variant: "danger", label: "Ditolak" };
             case "rejected_partial":
                 return { variant: "danger", label: "Ditolak Sebagian" };
+            case "cancelled":
+                return { variant: "danger", label: "Dibatalkan" };
+            case "cancelled_partial":
+                return { variant: "danger", label: "Dibatalkan Sebagian" };
             case "partial":
                 return { variant: "purple", label: "Sebagian" };
             default:

@@ -92,6 +92,7 @@
         { id: "accepted", label: "Diproses" },
         { id: "completed", label: "Selesai" },
         { id: "rejected", label: "Ditolak" },
+        { id: "cancelled", label: "Dibatalkan" },
     ];
 
     // Group items by order_id
@@ -393,7 +394,7 @@
         <!-- Tabs -->
         <div class="bg-slate-950 border-b border-slate-800">
             <div class="flex overflow-x-auto hide-scrollbar scroll-smooth">
-                {#each ["all", "pending", "accepted", "completed", "rejected"] as status}
+                {#each ["all", "pending", "accepted", "completed", "rejected", "cancelled"] as status}
                     <button
                         class="shrink-0 px-4 py-3 text-sm font-medium transition-colors border-b-2 {activeTab ===
                         status
@@ -409,7 +410,9 @@
                                 ? "Diproses"
                                 : status === "completed"
                                   ? "Selesai"
-                                  : "Ditolak"}
+                                  : status === "rejected"
+                                    ? "Ditolak"
+                                    : "Dibatalkan"}
                     </button>
                 {/each}
             </div>
