@@ -132,23 +132,90 @@ class ProductService
                         'sort_order' => $data->sortOrder,
                     ]);
 
-                    // Clean sync by deleting existing options and recreating them
-                    $product->productOptions()->delete();
+                    // Smart sync options
+                    $existingOptions = $product->productOptions()->with('items')->get()->keyBy('id');
+                    $keepOptionIds = [];
 
                     foreach ($data->options as $optionData) {
-                        $option = $product->productOptions()->create([
-                            'name' => $optionData->name,
-                            'is_required' => $optionData->isRequired,
-                            'is_multiple' => $optionData->isMultiple,
-                            'sort_order' => $optionData->sortOrder,
-                        ]);
+                        $optionId = $optionData->id;
+                        $option = null;
+
+                        if ($optionId && $existingOptions->has($optionId)) {
+                            $option = $existingOptions->get($optionId);
+                            $option->update([
+                                'name' => $optionData->name,
+                                'is_required' => $optionData->isRequired,
+                                'is_multiple' => $optionData->isMultiple,
+                                'sort_order' => $optionData->sortOrder,
+                            ]);
+                        } else {
+                            $option = $product->productOptions()->create([
+                                'name' => $optionData->name,
+                                'is_required' => $optionData->isRequired,
+                                'is_multiple' => $optionData->isMultiple,
+                                'sort_order' => $optionData->sortOrder,
+                            ]);
+                        }
+
+                        $keepOptionIds[] = $option->id;
+
+                        // Reconcile items for this option
+                        $existingItems = $option->items->keyBy('id');
+                        $keepItemIds = [];
 
                         foreach ($optionData->items as $itemData) {
-                            $option->items()->create([
-                                'name' => $itemData->name,
-                                'extra_price' => $itemData->extraPrice,
-                                'sort_order' => $itemData->sortOrder,
-                            ]);
+                            $itemId = $itemData->id;
+                            $item = null;
+
+                            if ($itemId && $existingItems->has($itemId)) {
+                                $item = $existingItems->get($itemId);
+                                $item->update([
+                                    'name' => $itemData->name,
+                                    'extra_price' => $itemData->extraPrice,
+                                    'sort_order' => $itemData->sortOrder,
+                                ]);
+                            } else {
+                                $item = $option->items()->create([
+                                    'name' => $itemData->name,
+                                    'extra_price' => $itemData->extraPrice,
+                                    'sort_order' => $itemData->sortOrder,
+                                ]);
+                            }
+
+                            $keepItemIds[] = $item->id;
+                        }
+
+                        // Delete removed items
+                        foreach ($existingItems as $existingItemId => $existingItem) {
+                            if (!in_array($existingItemId, $keepItemIds)) {
+                                try {
+                                    $existingItem->delete();
+                                } catch (\Illuminate\Database\QueryException $e) {
+                                    if ($e->getCode() === '23503') {
+                                        throw new \RuntimeException(
+                                            "Gagal menghapus item opsi '{$existingItem->name}' karena sudah digunakan dalam riwayat pesanan."
+                                        );
+                                    }
+                                    throw $e;
+                                }
+                            }
+                        }
+                    }
+
+                    // Delete removed options
+                    foreach ($existingOptions as $existingOptionId => $existingOption) {
+                        if (!in_array($existingOptionId, $keepOptionIds)) {
+                            try {
+                                $existingOption->items()->delete();
+                                $existingOption->delete();
+                            } catch (\Illuminate\Database\QueryException $e) {
+                                if ($e->getCode() === '23503') {
+                                    throw new \RuntimeException(
+                                        "Gagal menghapus opsi '{$existingOption->name}' karena sudah digunakan dalam riwayat pesanan."
+                                    );
+                                }
+                                throw $e;
+                            }
                         }
                     }
 

@@ -17,6 +17,9 @@ use Spatie\LaravelData\Data;
 class ProductOptionItemData extends Data
 {
     public function __construct(
+        #[Rule('nullable', 'uuid')]
+        public readonly ?string $id = null,
+
         #[Rule('required', 'string', 'max:255')]
         public readonly string $name,
 
