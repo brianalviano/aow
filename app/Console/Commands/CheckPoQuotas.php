@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\DTOs\Setting\OrderSettingsDTO;
+use App\Services\QuotaService;
 use Illuminate\Console\Command;
 
 class CheckPoQuotas extends Command
@@ -23,12 +25,12 @@ class CheckPoQuotas extends Command
     /**
      * Execute the console command.
      */
-    public function handle(\App\Services\QuotaService $quotaService)
+    public function handle(QuotaService $quotaService)
     {
         // Identify the delivery date we are checking for.
         // If this runs at cutoff time (e.g. 20:00), we are checking for orders to be delivered tomorrow (or based on min_days_ahead).
         // To be safe, let's target all active preorder orders. Usually, we just check tomorrow's date if it's H-1.
-        $orderSettings = \App\DTOs\Setting\OrderSettingsDTO::load();
+        $orderSettings = OrderSettingsDTO::load();
         $minDays = $orderSettings->orderMinDaysAhead ?: 1;
         $targetDeliveryDate = now()->addDays($minDays)->format('Y-m-d');
 
@@ -36,12 +38,11 @@ class CheckPoQuotas extends Command
 
         $result = $quotaService->cancelUnderperformingPoOrders($targetDeliveryDate);
 
-        $this->info("PO Quota check completed.");
+        $this->info('PO Quota check completed.');
         $this->table(
             ['Metric', 'Value'],
             [
-                ['Drop Points Evaluated', $result['checked_drop_points']],
-                ['Drop Points Failed Quota', $result['failed_drop_points']],
+                ['Orders Evaluated', $result['checked_orders']],
                 ['Orders Cancelled', $result['cancelled_orders']],
             ]
         );

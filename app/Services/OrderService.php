@@ -5,44 +5,65 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\Checkout\ProcessOrderData;
-use App\Enums\{ChefStatus, OrderStatus, PaymentMethodType};
-use App\Mail\{CustomerWelcomeMail, OrderPlacedMail};
-use App\Models\{Customer, Order, OrderItem, OrderItemOption, OrderShipping, PaymentMethod, PickUpPoint, Product};
-use App\Notifications\{OrderPlacedNotification, OrderStatusChangedNotification};
-use App\Jobs\{SendTelegramNotificationJob, SendWhatsAppNotificationJob};
-use App\Traits\{FileHelperTrait, RetryableTransactionsTrait};
-use Illuminate\Support\Facades\{Auth, DB, Hash, Log, Mail};
+use App\DTOs\Order\OrderFilterDTO;
+use App\Enums\ChefStatus;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentMethodType;
+use App\Enums\PaymentStatus;
+use App\Jobs\SendTelegramNotificationJob;
+use App\Jobs\SendWhatsAppNotificationJob;
+use App\Mail\CustomerWelcomeMail;
+use App\Mail\OrderPlacedMail;
+use App\Models\Chef;
+use App\Models\Customer;
+use App\Models\DropPoint;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\OrderItemOption;
+use App\Models\OrderShipping;
+use App\Models\PaymentMethod;
+use App\Models\Product;
+use App\Notifications\ChefOrderAssignedNotification;
+use App\Notifications\ChefStatusUpdatedNotification;
+use App\Notifications\OrderPlacedNotification;
+use App\Notifications\OrderStatusChangedNotification;
+use App\Traits\FileHelperTrait;
+use App\Traits\RetryableTransactionsTrait;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class OrderService
 {
-    use RetryableTransactionsTrait, FileHelperTrait;
+    use FileHelperTrait, RetryableTransactionsTrait;
 
     /**
      * Create a new OrderService instance.
-     *
-     * @param CheckoutService $checkoutService
-     * @param MidtransService $midtransService
      */
     public function __construct(
         private readonly CheckoutService $checkoutService,
         private readonly MidtransService $midtransService
     ) {}
+
     /**
      * Mark the given order as completed/delivered with photo proof.
      *
-     * @param Order       $order
-     * @param \Illuminate\Http\UploadedFile|string|null $deliveryPhotoPath Storage path or UploadedFile of the delivery photo proof.
-     * @return Order
-     * @throws \Throwable
+     * @param  UploadedFile|string|null  $deliveryPhotoPath  Storage path or UploadedFile of the delivery photo proof.
+     *
+     * @throws Throwable
      */
     public function completeOrder(Order $order, $deliveryPhotoPath = null): Order
     {
         try {
             return DB::transaction(function () use ($order, $deliveryPhotoPath) {
                 // Ensure the order is currently arrived or shipped before marking as delivered
-                if (!in_array($order->order_status, [OrderStatus::ARRIVED, OrderStatus::SHIPPED])) {
+                if (! in_array($order->order_status, [OrderStatus::ARRIVED, OrderStatus::SHIPPED])) {
                     throw new \Exception("Pesanan tidak dapat diselesaikan karena status saat ini adalah {$order->order_status->value}.");
                 }
 
@@ -51,13 +72,13 @@ class OrderService
                 $order->load('paymentMethod');
 
                 $updateData = [
-                    'order_status'   => OrderStatus::DELIVERED,
+                    'order_status' => OrderStatus::DELIVERED,
                     'delivery_photo' => $photoPath,
-                    'delivered_at'   => now(),
+                    'delivered_at' => now(),
                 ];
 
-                if ($order->payment_status === \App\Enums\PaymentStatus::PENDING && $order->paymentMethod?->category === 'cash') {
-                    $updateData['payment_status'] = \App\Enums\PaymentStatus::PAID;
+                if ($order->payment_status === PaymentStatus::PENDING && $order->paymentMethod?->category === 'cash') {
+                    $updateData['payment_status'] = PaymentStatus::PAID;
                 }
 
                 $order->update($updateData);
@@ -69,11 +90,11 @@ class OrderService
             });
         } catch (Throwable $e) {
             Log::error('Gagal menyelesaikan pesanan', [
-                'order_id'            => $order->id,
-                'customer_id'         => $order->customer_id,
+                'order_id' => $order->id,
+                'customer_id' => $order->customer_id,
                 'delivery_photo_path' => $deliveryPhotoPath,
-                'error'               => $e->getMessage(),
-                'trace'               => $e->getTraceAsString(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw $e;
@@ -83,9 +104,6 @@ class OrderService
     /**
      * Cancel the given order.
      *
-     * @param Order $order
-     * @param string|null $reason
-     * @return Order
      * @throws Throwable
      */
     public function cancelOrder(Order $order, ?string $reason = null): Order
@@ -98,14 +116,14 @@ class OrderService
                 }
 
                 $order->update([
-                    'order_status'      => OrderStatus::CANCELLED,
+                    'order_status' => OrderStatus::CANCELLED,
                     'cancellation_note' => $reason,
                 ]);
 
                 OrderItem::where('order_id', $order->id)
                     ->where('chef_status', '!=', ChefStatus::CANCELLED->value)
                     ->update([
-                        'chef_status'       => ChefStatus::CANCELLED,
+                        'chef_status' => ChefStatus::CANCELLED,
                         'chef_confirmed_at' => now(),
                     ]);
 
@@ -120,7 +138,7 @@ class OrderService
                 $order->customer->notify(new OrderStatusChangedNotification($order, 'cancelled'));
 
                 DB::afterCommit(function () use ($order, $reason) {
-                    $message = "Halo {$order->customer->name},\n\nMohon maaf, pesanan Anda dengan nomor *{$order->number}* telah dibatalkan oleh Admin.\n\nAlasan: " . ($reason ?: 'Tidak disebutkan');
+                    $message = "Halo {$order->customer->name},\n\nMohon maaf, pesanan Anda dengan nomor *{$order->number}* telah dibatalkan oleh Admin.\n\nAlasan: ".($reason ?: 'Tidak disebutkan');
                     dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
                 });
 
@@ -128,11 +146,11 @@ class OrderService
             });
         } catch (Throwable $e) {
             Log::error('Gagal membatalkan pesanan', [
-                'order_id'    => $order->id,
+                'order_id' => $order->id,
                 'customer_id' => $order->customer_id,
-                'reason'      => $reason,
-                'error'       => $e->getMessage(),
-                'trace'       => $e->getTraceAsString(),
+                'reason' => $reason,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw $e;
@@ -142,9 +160,6 @@ class OrderService
     /**
      * Confirm the given pending order.
      *
-     * @param Order $order
-     * @param string|null $pickUpPointId
-     * @return Order
      * @throws Throwable
      */
     public function confirmOrder(Order $order, ?string $pickUpPointId = null): Order
@@ -165,8 +180,8 @@ class OrderService
                     $updateData['pick_up_point_id'] = $pickUpPointId;
                 }
 
-                if ($order->payment_status === \App\Enums\PaymentStatus::PENDING && $order->paymentMethod?->category !== 'cash') {
-                    $updateData['payment_status'] = \App\Enums\PaymentStatus::PAID;
+                if ($order->payment_status === PaymentStatus::PENDING && $order->paymentMethod?->category !== 'cash') {
+                    $updateData['payment_status'] = PaymentStatus::PAID;
                 }
 
                 $order->update($updateData);
@@ -177,9 +192,9 @@ class OrderService
                 $order->customer->notify(new OrderStatusChangedNotification($order, 'confirmed'));
 
                 // Notify Assigned Chefs
-                $chefs = $order->items->map(fn($item) => $item->chef)->filter()->unique('id');
+                $chefs = $order->items->map(fn ($item) => $item->chef)->filter()->unique('id');
                 foreach ($chefs as $chef) {
-                    $chef->notify(new \App\Notifications\ChefOrderAssignedNotification($order));
+                    $chef->notify(new ChefOrderAssignedNotification($order));
                 }
 
                 DB::afterCommit(function () use ($order) {
@@ -191,11 +206,11 @@ class OrderService
             });
         } catch (Throwable $e) {
             Log::error('Gagal mengkonfirmasi pesanan', [
-                'order_id'    => $order->id,
+                'order_id' => $order->id,
                 'customer_id' => $order->customer_id,
                 'pick_up_point_id' => $pickUpPointId,
-                'error'       => $e->getMessage(),
-                'trace'       => $e->getTraceAsString(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw $e;
@@ -205,12 +220,9 @@ class OrderService
     /**
      * Chef approves specific items in an order.
      *
-     * @param array $itemIds
-     * @param \App\Models\Chef $chef
-     * @return void
      * @throws Throwable
      */
-    public function chefApproveItems(array $itemIds, \App\Models\Chef $chef): void
+    public function chefApproveItems(array $itemIds, Chef $chef): void
     {
         try {
             DB::transaction(function () use ($itemIds, $chef) {
@@ -220,7 +232,7 @@ class OrderService
 
                 foreach ($items as $item) {
                     $item->update([
-                        'chef_status'       => ChefStatus::ACCEPTED,
+                        'chef_status' => ChefStatus::ACCEPTED,
                         'chef_confirmed_at' => now(),
                     ]);
                 }
@@ -229,9 +241,9 @@ class OrderService
             });
         } catch (Throwable $e) {
             Log::error('Chef failed to approve items', [
-                'chef_id'  => $chef->id,
+                'chef_id' => $chef->id,
                 'item_ids' => $itemIds,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -240,23 +252,19 @@ class OrderService
     /**
      * Chef rejects specific items in an order, which cancels the entire order.
      *
-     * @param array $itemIds
-     * @param \App\Models\Chef $chef
-     * @param string|null $reason
-     * @return void
      * @throws Throwable
      */
-    public function chefRejectItems(array $itemIds, \App\Models\Chef $chef, ?string $reason = null): void
+    public function chefRejectItems(array $itemIds, Chef $chef, ?string $reason = null): void
     {
         try {
-            DB::transaction(function () use ($itemIds, $chef, $reason) {
+            DB::transaction(function () use ($itemIds, $chef) {
                 $items = OrderItem::whereIn('id', $itemIds)
                     ->where('chef_id', $chef->id)
                     ->get();
 
                 foreach ($items as $item) {
                     $item->update([
-                        'chef_status'       => ChefStatus::REJECTED,
+                        'chef_status' => ChefStatus::REJECTED,
                         'chef_confirmed_at' => now(),
                     ]);
                 }
@@ -265,9 +273,9 @@ class OrderService
             });
         } catch (Throwable $e) {
             Log::error('Chef failed to reject items', [
-                'chef_id'  => $chef->id,
+                'chef_id' => $chef->id,
                 'item_ids' => $itemIds,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -279,12 +287,9 @@ class OrderService
      * Chef no longer auto-books Biteship. PIC handles courier booking.
      * When a chef ships, items go to the assigned pickup point.
      *
-     * @param array $itemIds
-     * @param \App\Models\Chef $chef
-     * @return void
      * @throws Throwable
      */
-    public function chefShipItems(array $itemIds, \App\Models\Chef $chef): void
+    public function chefShipItems(array $itemIds, Chef $chef): void
     {
         try {
             DB::transaction(function () use ($itemIds, $chef) {
@@ -300,7 +305,7 @@ class OrderService
 
                 foreach ($items as $item) {
                     $item->update([
-                        'chef_status'       => ChefStatus::SHIPPED,
+                        'chef_status' => ChefStatus::SHIPPED,
                         'chef_confirmed_at' => now(),
                     ]);
                     $orderIdsToProcess[$item->order_id] = true;
@@ -319,9 +324,9 @@ class OrderService
             });
         } catch (Throwable $e) {
             Log::error('Chef failed to ship items', [
-                'chef_id'  => $chef->id,
+                'chef_id' => $chef->id,
                 'item_ids' => $itemIds,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -330,13 +335,11 @@ class OrderService
     /**
      * Chef marks specific items in an order as delivered.
      *
-     * @param array $itemIds
-     * @param \App\Models\Chef $chef
-     * @param \Illuminate\Http\UploadedFile|string|null $deliveryPhotoPath 
-     * @return void
+     * @param  UploadedFile|string|null  $deliveryPhotoPath
+     *
      * @throws Throwable
      */
-    public function chefDeliverItems(array $itemIds, \App\Models\Chef $chef, $deliveryPhotoPath = null): void
+    public function chefDeliverItems(array $itemIds, Chef $chef, $deliveryPhotoPath = null): void
     {
         try {
             DB::transaction(function () use ($itemIds, $chef, $deliveryPhotoPath) {
@@ -348,7 +351,7 @@ class OrderService
 
                 foreach ($items as $item) {
                     $item->update([
-                        'chef_status'       => ChefStatus::DELIVERED,
+                        'chef_status' => ChefStatus::DELIVERED,
                         'chef_confirmed_at' => now(),
                     ]);
                     $orderIdsToProcess[$item->order_id] = true;
@@ -359,7 +362,7 @@ class OrderService
                     /** @var Order $order */
                     $order = Order::with('items')->find($orderId);
                     if ($order && $order->order_status === OrderStatus::SHIPPED) {
-                        $allDelivered = $order->items->every(fn($i) => $i->chef_status === ChefStatus::DELIVERED);
+                        $allDelivered = $order->items->every(fn ($i) => $i->chef_status === ChefStatus::DELIVERED);
                         if ($allDelivered) {
                             $this->completeOrder($order, $deliveryPhotoPath);
                         }
@@ -370,9 +373,9 @@ class OrderService
             });
         } catch (Throwable $e) {
             Log::error('Chef failed to deliver items', [
-                'chef_id'  => $chef->id,
+                'chef_id' => $chef->id,
                 'item_ids' => $itemIds,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -381,9 +384,6 @@ class OrderService
     /**
      * Reassign an order item to another chef.
      *
-     * @param OrderItem $item
-     * @param string $chefId
-     * @return void
      * @throws Throwable
      */
     public function reassignChef(OrderItem $item, string $chefId): void
@@ -391,22 +391,22 @@ class OrderService
         try {
             DB::transaction(function () use ($item, $chefId) {
                 $item->update([
-                    'chef_id'           => $chefId,
-                    'chef_status'       => ChefStatus::PENDING,
+                    'chef_id' => $chefId,
+                    'chef_status' => ChefStatus::PENDING,
                     'chef_confirmed_at' => null,
                 ]);
 
                 // Notify New Chef
                 $item->load('chef', 'order');
                 if ($item->chef) {
-                    $item->chef->notify(new \App\Notifications\ChefOrderAssignedNotification($item->order));
+                    $item->chef->notify(new ChefOrderAssignedNotification($item->order));
                 }
             });
         } catch (Throwable $e) {
             Log::error('Failed to reassign chef to item', [
                 'item_id' => $item->id,
                 'chef_id' => $chefId,
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -415,8 +415,6 @@ class OrderService
     /**
      * Mark the given confirmed order as shipped.
      *
-     * @param Order $order
-     * @return Order
      * @throws Throwable
      */
     public function shipOrder(Order $order): Order
@@ -437,9 +435,9 @@ class OrderService
                 DB::afterCommit(function () use ($order) {
                     $dpName = $order->dropPoint ? $order->dropPoint->name : 'Custom Address';
                     $message = "<b>PESANAN MENUJU PICKUP POINT</b>\n\n"
-                        . "Order: <b>{$order->number}</b>\n"
-                        . "Chef telah selesai memasak dan pesanan sedang dikirim ke <b>{$dpName}</b>.\n"
-                        . "Harap PIC bersiap untuk menerima pesanan.";
+                        ."Order: <b>{$order->number}</b>\n"
+                        ."Chef telah selesai memasak dan pesanan sedang dikirim ke <b>{$dpName}</b>.\n"
+                        .'Harap PIC bersiap untuk menerima pesanan.';
                     dispatch(new SendTelegramNotificationJob($message));
                 });
 
@@ -447,10 +445,10 @@ class OrderService
             });
         } catch (Throwable $e) {
             Log::error('Gagal mengubah status pesanan ke dikirim', [
-                'order_id'    => $order->id,
+                'order_id' => $order->id,
                 'customer_id' => $order->customer_id,
-                'error'       => $e->getMessage(),
-                'trace'       => $e->getTraceAsString(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw $e;
@@ -460,11 +458,9 @@ class OrderService
     /**
      * Get filtered and paginated orders for Admin.
      *
-     * @param \App\DTOs\Order\OrderFilterDTO $dto
-     * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function getFilteredOrdersForAdmin(\App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
+    public function getFilteredOrdersForAdmin(OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
             ->with(['dropPoint', 'customerAddress', 'paymentMethod', 'customer', 'items.product']);
@@ -493,7 +489,7 @@ class OrderService
                         OrderStatus::SHIPPED,
                         OrderStatus::AT_PICKUP_POINT,
                         OrderStatus::ON_DELIVERY,
-                        OrderStatus::ARRIVED
+                        OrderStatus::ARRIVED,
                     ]);
                     break;
                 case 'completed':
@@ -528,8 +524,8 @@ class OrderService
             $query->where('created_at', '>=', now()->subDays(90));
         } elseif ($dto->dateRange === 'custom' && $dto->startDate && $dto->endDate) {
             $query->whereBetween('created_at', [
-                $dto->startDate . ' 00:00:00',
-                $dto->endDate . ' 23:59:59'
+                $dto->startDate.' 00:00:00',
+                $dto->endDate.' 23:59:59',
             ]);
         }
 
@@ -539,7 +535,7 @@ class OrderService
         }
 
         if ($dto->chefId) {
-            $query->whereHas('items', fn($q) => $q->where('chef_id', $dto->chefId));
+            $query->whereHas('items', fn ($q) => $q->where('chef_id', $dto->chefId));
         }
 
         if ($dto->deliveryDate) {
@@ -557,7 +553,7 @@ class OrderService
         return Order::query()
             ->with(['customer', 'paymentMethod', 'items.product'])
             ->where('payment_status', 'pending')
-            ->whereDoesntHave('paymentMethod', fn($q) => $q->where('category', 'cash'))
+            ->whereDoesntHave('paymentMethod', fn ($q) => $q->where('category', 'cash'))
             ->orderBy('payment_expired_at', 'asc')
             ->orderBy('created_at', 'asc')
             ->paginate($perPage);
@@ -566,14 +562,14 @@ class OrderService
     /**
      * Get orders currently being processed or shipped, with optional filters.
      */
-    public function getProcessingOrders(\App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
+    public function getProcessingOrders(OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
             ->with(['customer', 'dropPoint', 'items.chef', 'items.product', 'paymentMethod'])
             ->where(function ($q) {
                 $q->where(function ($inner) {
                     $inner->where('payment_status', '!=', 'pending')
-                        ->orWhereHas('paymentMethod', fn($pq) => $pq->where('category', 'cash'));
+                        ->orWhereHas('paymentMethod', fn ($pq) => $pq->where('category', 'cash'));
                 })->whereIn('order_status', ['pending', 'confirmed', 'shipped', 'at_pickup_point', 'on_delivery', 'arrived']);
             });
 
@@ -582,7 +578,7 @@ class OrderService
         }
 
         if ($dto->chefId) {
-            $query->whereHas('items', fn($q) => $q->where('chef_id', $dto->chefId));
+            $query->whereHas('items', fn ($q) => $q->where('chef_id', $dto->chefId));
         }
 
         if ($dto->deliveryDate) {
@@ -595,12 +591,9 @@ class OrderService
     /**
      * Get filtered and paginated order items for a chef.
      *
-     * @param string $chefId
-     * @param \App\DTOs\Order\OrderFilterDTO $dto
-     * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function getFilteredOrderItemsForChef(string $chefId, \App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
+    public function getFilteredOrderItemsForChef(string $chefId, OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = OrderItem::query()
             ->with(['order.customer', 'order.dropPoint', 'order.pickUpPoint', 'product', 'order.items'])
@@ -656,8 +649,8 @@ class OrderService
             $query->where('created_at', '>=', now()->subDays(90));
         } elseif ($dto->dateRange === 'custom' && $dto->startDate && $dto->endDate) {
             $query->whereBetween('created_at', [
-                $dto->startDate . ' 00:00:00',
-                $dto->endDate . ' 23:59:59'
+                $dto->startDate.' 00:00:00',
+                $dto->endDate.' 23:59:59',
             ]);
         }
 
@@ -667,12 +660,9 @@ class OrderService
     /**
      * Get filtered and paginated orders for a customer.
      *
-     * @param string $customerId
-     * @param \App\DTOs\Order\OrderFilterDTO $dto
-     * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function getFilteredOrders(string $customerId, \App\DTOs\Order\OrderFilterDTO $dto, int $perPage = 15)
+    public function getFilteredOrders(string $customerId, OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
             ->with(['dropPoint', 'customerAddress', 'paymentMethod'])
@@ -729,8 +719,8 @@ class OrderService
             $query->where('created_at', '>=', now()->subDays(90));
         } elseif ($dto->dateRange === 'custom' && $dto->startDate && $dto->endDate) {
             $query->whereBetween('created_at', [
-                $dto->startDate . ' 00:00:00',
-                $dto->endDate . ' 23:59:59'
+                $dto->startDate.' 00:00:00',
+                $dto->endDate.' 23:59:59',
             ]);
         }
 
@@ -744,7 +734,7 @@ class OrderService
      */
     public function cancelExpiredOrders(): int
     {
-        /** @var \Illuminate\Support\Collection<int, Order> $expiredOrders */
+        /** @var Collection<int, Order> $expiredOrders */
         $expiredOrders = Order::query()
             ->where('payment_status', 'pending')
             ->where('order_status', 'pending')
@@ -769,8 +759,9 @@ class OrderService
     /**
      * Process order creation within a transaction.
      *
-     * @param ProcessOrderData $data Data for creating the order.
+     * @param  ProcessOrderData  $data  Data for creating the order.
      * @return Order The created order object.
+     *
      * @throws Throwable
      */
     public function processOrder(ProcessOrderData $data): Order
@@ -780,19 +771,19 @@ class OrderService
                 return DB::transaction(function () use ($data) {
                     $customer = Auth::guard('customer')->user();
 
-                    if (!$customer) {
+                    if (! $customer) {
                         $customer = Customer::where('email', $data->email)->first();
 
-                        if (!$customer) {
+                        if (! $customer) {
                             $password = '12345678';
 
                             $customer = Customer::create([
-                                'name'          => $data->name,
-                                'phone'         => $data->phone,
-                                'email'         => $data->email,
-                                'password'      => Hash::make($password),
-                                'school_class'  => $data->schoolClass,
-                                'is_active'     => true,
+                                'name' => $data->name,
+                                'phone' => $data->phone,
+                                'email' => $data->email,
+                                'password' => Hash::make($password),
+                                'school_class' => $data->schoolClass,
+                                'is_active' => true,
                             ]);
 
                             // Send welcome email with credentials
@@ -808,8 +799,8 @@ class OrderService
                     $address = $data->address;
 
                     // Automatically pick nearest drop point if not selected but address is provided
-                    if (empty($dropPoint) && !empty($address) && isset($address['latitude'], $address['longitude'])) {
-                        $nearestDropPoint = \App\Models\DropPoint::findNearest((float) $address['latitude'], (float) $address['longitude']);
+                    if (empty($dropPoint) && ! empty($address) && isset($address['latitude'], $address['longitude'])) {
+                        $nearestDropPoint = DropPoint::findNearest((float) $address['latitude'], (float) $address['longitude']);
                         if ($nearestDropPoint) {
                             $dropPoint = [
                                 'id' => $nearestDropPoint->id,
@@ -830,20 +821,20 @@ class OrderService
                     $totalAmount = $fees['subtotal'] + $fees['deliveryFee'] + $fees['taxAmount'] + $fees['adminFee'] + $fees['serviceFee'];
 
                     $order = Order::create([
-                        'number'             => $this->generateOrderNumber(),
-                        'drop_point_id'      => data_get($dropPoint, 'id'),
+                        'number' => $this->generateOrderNumber(),
+                        'drop_point_id' => data_get($dropPoint, 'id'),
                         'customer_address_id' => data_get($address, 'id'),
-                        'customer_id'        => $customer->id,
-                        'delivery_date'      => $data->deliveryDate ?? now()->addDay()->format('Y-m-d'),
-                        'delivery_time'      => $data->deliveryTime ?? '12:00',
-                        'payment_method_id'  => $data->paymentMethodId,
-                        'payment_status'     => 'pending',
-                        'order_status'       => 'pending',
-                        'total_amount'       => $totalAmount,
-                        'delivery_fee'       => $fees['deliveryFee'],
-                        'admin_fee'          => $fees['adminFee'],
-                        'service_fee'        => $fees['serviceFee'],
-                        'tax_amount'         => $fees['taxAmount'],
+                        'customer_id' => $customer->id,
+                        'delivery_date' => $data->deliveryDate ?? now()->addDay()->format('Y-m-d'),
+                        'delivery_time' => $data->deliveryTime ?? '12:00',
+                        'payment_method_id' => $data->paymentMethodId,
+                        'payment_status' => 'pending',
+                        'order_status' => 'pending',
+                        'total_amount' => $totalAmount,
+                        'delivery_fee' => $fees['deliveryFee'],
+                        'admin_fee' => $fees['adminFee'],
+                        'service_fee' => $fees['serviceFee'],
+                        'tax_amount' => $fees['taxAmount'],
                     ]);
 
                     $firstChef = null;
@@ -852,19 +843,19 @@ class OrderService
                         $product = Product::find(data_get($item, 'product.id'));
                         $chef = $product?->chefs->first();
 
-                        if (!$firstChef && $chef) {
+                        if (! $firstChef && $chef) {
                             $firstChef = $chef;
                         }
 
                         $orderItem = OrderItem::create([
-                            'order_id'          => $order->id,
-                            'product_id'        => $product->id,
-                            'quantity'          => $item['quantity'],
-                            'price'             => $item['basePrice'],
-                            'subtotal'          => $item['totalPrice'],
-                            'note'              => $item['notes'] ?? null,
-                            'chef_id'           => $chef?->id,
-                            'chef_status'       => $chef ? ChefStatus::PENDING : null,
+                            'order_id' => $order->id,
+                            'product_id' => $product->id,
+                            'quantity' => $item['quantity'],
+                            'price' => $item['basePrice'],
+                            'subtotal' => $item['totalPrice'],
+                            'note' => $item['notes'] ?? null,
+                            'chef_id' => $chef?->id,
+                            'chef_status' => $chef ? ChefStatus::PENDING : null,
                             'chef_confirmed_at' => null,
                         ]);
 
@@ -872,13 +863,16 @@ class OrderService
                             foreach ($item['selectedOptions'] as $optionId => $selection) {
                                 $itemIds = is_array($selection) ? $selection : [$selection];
                                 foreach ($itemIds as $optionItemId) {
+                                    if (blank($optionItemId)) {
+                                        continue;
+                                    }
                                     $extraPrice = $this->resolveOptionExtraPrice($item, (string) $optionId, (string) $optionItemId);
 
                                     OrderItemOption::create([
-                                        'order_item_id'          => $orderItem->id,
-                                        'product_option_id'      => $optionId,
+                                        'order_item_id' => $orderItem->id,
+                                        'product_option_id' => $optionId,
                                         'product_option_item_id' => $optionItemId,
-                                        'extra_price'            => $extraPrice,
+                                        'extra_price' => $extraPrice,
                                     ]);
                                 }
                             }
@@ -899,20 +893,20 @@ class OrderService
                     // Create per-chef shipping records (Biteship)
                     $shippingBreakdown = $fees['shippingBreakdown'] ?? [];
                     foreach ($shippingBreakdown as $shipping) {
-                        if (!$shipping['success']) {
+                        if (! $shipping['success']) {
                             continue;
                         }
                         OrderShipping::create([
-                            'order_id'              => $order->id,
-                            'chef_id'               => $shipping['chef_id'],
-                            'courier_company'       => $shipping['courier_company'] ?? 'unknown',
-                            'courier_type'          => $shipping['courier_type'] ?? 'instant',
-                            'courier_name'          => $shipping['courier_name'] ?? 'Kurir Instant',
-                            'shipping_fee'          => $shipping['fee'],
-                            'origin_address'        => $shipping['origin_address'] ?? null,
-                            'origin_latitude'       => $shipping['origin_latitude'] ?? null,
-                            'origin_longitude'      => $shipping['origin_longitude'] ?? null,
-                            'destination_latitude'  => $shipping['destination_latitude'] ?? null,
+                            'order_id' => $order->id,
+                            'chef_id' => $shipping['chef_id'],
+                            'courier_company' => $shipping['courier_company'] ?? 'unknown',
+                            'courier_type' => $shipping['courier_type'] ?? 'instant',
+                            'courier_name' => $shipping['courier_name'] ?? 'Kurir Instant',
+                            'shipping_fee' => $shipping['fee'],
+                            'origin_address' => $shipping['origin_address'] ?? null,
+                            'origin_latitude' => $shipping['origin_latitude'] ?? null,
+                            'origin_longitude' => $shipping['origin_longitude'] ?? null,
+                            'destination_latitude' => $shipping['destination_latitude'] ?? null,
                             'destination_longitude' => $shipping['destination_longitude'] ?? null,
                         ]);
                     }
@@ -928,7 +922,7 @@ class OrderService
                         } catch (Throwable $e) {
                             Log::error('Order Creation - Midtrans Charge Failed', [
                                 'order_id' => $order->id,
-                                'error'    => $e->getMessage(),
+                                'error' => $e->getMessage(),
                             ]);
                             throw $e;
                         }
@@ -941,10 +935,10 @@ class OrderService
 
                         // 1. Notify Admin via Telegram
                         $message = "<b>PESANAN BARU MASUK!</b>\n\n"
-                            . "Order: <b>{$order->number}</b>\n"
-                            . "Customer: {$order->customer->name}\n"
-                            . "Total: Rp " . number_format($order->total_amount, 0, ',', '.') . "\n"
-                            . "Harap segera cek dashboard admin.";
+                            ."Order: <b>{$order->number}</b>\n"
+                            ."Customer: {$order->customer->name}\n"
+                            .'Total: Rp '.number_format($order->total_amount, 0, ',', '.')."\n"
+                            .'Harap segera cek dashboard admin.';
                         dispatch(new SendTelegramNotificationJob($message));
                     });
 
@@ -954,15 +948,15 @@ class OrderService
                 });
             } catch (Throwable $e) {
                 Log::error('OrderService - Failed to process order', [
-                    'error'       => $e->getMessage(),
-                    'trace'       => $e->getTraceAsString(),
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                     'customer_id' => Auth::guard('customer')->id(),
-                    'payload'     => [
-                        'email'             => $data->email,
+                    'payload' => [
+                        'email' => $data->email,
                         'payment_method_id' => $data->paymentMethodId,
-                        'cart_count'        => count($data->cart),
-                        'drop_point'        => $data->dropPoint,
-                        'cart_sample'       => collect($data->cart)->first(),
+                        'cart_count' => count($data->cart),
+                        'drop_point' => $data->dropPoint,
+                        'cart_sample' => collect($data->cart)->first(),
                     ],
                 ]);
                 throw $e;
@@ -972,7 +966,7 @@ class OrderService
 
     /**
      * Generate a unique order number with format ORD/MMYYYY/XXXXXX.
-     * 
+     *
      * The sequence number (XXXXXX) resets every month.
      *
      * @return string The generated order number.
@@ -980,7 +974,7 @@ class OrderService
     private function generateOrderNumber(): string
     {
         $now = now();
-        $prefix = "ORD/" . $now->format('mY') . "/";
+        $prefix = 'ORD/'.$now->format('mY').'/';
 
         $lastOrder = Order::where('number', 'like', "{$prefix}%")
             ->orderBy('number', 'desc')
@@ -994,15 +988,11 @@ class OrderService
             $sequence = $lastSequence + 1;
         }
 
-        return $prefix . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
+        return $prefix.str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
     }
 
     /**
      * Notify customer about chef status updates for their items.
-     *
-     * @param Collection $items
-     * @param ChefStatus $newStatus
-     * @return void
      */
     private function notifyCustomerAboutChefStatus(Collection $items, ChefStatus $newStatus): void
     {
@@ -1018,7 +1008,7 @@ class OrderService
             foreach ($groupedByOrder as $orderId => $orderItems) {
                 $order = $orderItems->first()->order;
                 if ($order && $order->customer) {
-                    $order->customer->notify(new \App\Notifications\ChefStatusUpdatedNotification($order, $orderItems, $newStatus));
+                    $order->customer->notify(new ChefStatusUpdatedNotification($order, $orderItems, $newStatus));
                 }
             }
         });
@@ -1027,9 +1017,9 @@ class OrderService
     /**
      * Resolve the extra price for a specific product option item.
      *
-     * @param array $item The cart item containing product and option data.
-     * @param string $optionId The ID of the product option.
-     * @param string $optionItemId The ID of the product option item.
+     * @param  array  $item  The cart item containing product and option data.
+     * @param  string  $optionId  The ID of the product option.
+     * @param  string  $optionItemId  The ID of the product option item.
      * @return int The extra price for the specified option item.
      */
     private function resolveOptionExtraPrice(array $item, string $optionId, string $optionItemId): int
@@ -1037,7 +1027,7 @@ class OrderService
         $options = data_get($item, 'product.options', []);
         $productOptions = isset($options['data']) ? $options['data'] : $options;
 
-        if (!is_array($productOptions)) {
+        if (! is_array($productOptions)) {
             return 0;
         }
 
@@ -1046,7 +1036,7 @@ class OrderService
                 $items = data_get($opt, 'items', []);
                 $optionItems = isset($items['data']) ? $items['data'] : $items;
 
-                if (!is_array($optionItems)) {
+                if (! is_array($optionItems)) {
                     continue;
                 }
 
@@ -1060,25 +1050,22 @@ class OrderService
 
         return 0;
     }
+
     /**
      * Update status pesanan berdasarkan webhook dari Biteship.
      *
      * In the new PIC flow, Biteship orders are created by PIC (from pickup point to customer).
      * When status is 'delivered', we mark the order as DELIVERED.
-     *
-     * @param string $biteshipOrderId
-     * @param string $status
-     * @param array $payload
-     * @return void
      */
     public function updateStatusFromBiteship(string $biteshipOrderId, string $status, array $payload = []): void
     {
         try {
-            DB::transaction(function () use ($biteshipOrderId, $status, $payload) {
-                $shipping = \App\Models\OrderShipping::where('biteship_order_id', $biteshipOrderId)->first();
+            DB::transaction(function () use ($biteshipOrderId, $status) {
+                $shipping = OrderShipping::where('biteship_order_id', $biteshipOrderId)->first();
 
-                if (!$shipping) {
+                if (! $shipping) {
                     Log::warning('Biteship order_id tidak ditemukan di database kita', ['biteship_order_id' => $biteshipOrderId]);
+
                     return;
                 }
 
@@ -1091,7 +1078,7 @@ class OrderService
                     /** @var Order $order */
                     $order = Order::find($shipping->order_id);
 
-                    if (!$order) {
+                    if (! $order) {
                         return;
                     }
 
@@ -1110,8 +1097,8 @@ class OrderService
 
                         DB::afterCommit(function () use ($order) {
                             $message = "Halo {$order->customer->name},\n\n"
-                                . "Pesanan Anda dengan nomor *{$order->number}* telah TIBA di tujuan!\n\n"
-                                . "Silakan periksa pesanan Anda dan jangan lupa konfirmasi penerimaan di aplikasi. Selamat menikmati!";
+                                ."Pesanan Anda dengan nomor *{$order->number}* telah TIBA di tujuan!\n\n"
+                                .'Silakan periksa pesanan Anda dan jangan lupa konfirmasi penerimaan di aplikasi. Selamat menikmati!';
                             dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
                         });
                     }
@@ -1128,7 +1115,7 @@ class OrderService
 
     /**
      * Automatically complete orders that have been in ARRIVED status for more than 6 hours.
-     * 
+     *
      * @return int Number of orders auto-completed.
      */
     public function autoCompleteArrivedOrders(): int
@@ -1140,7 +1127,7 @@ class OrderService
 
         $count = 0;
         foreach ($expiredOrders as $order) {
-            /** @var \App\Models\Order $order */
+            /** @var Order $order */
             try {
                 $this->completeOrder($order);
                 $count++;

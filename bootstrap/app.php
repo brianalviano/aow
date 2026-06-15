@@ -1,22 +1,23 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Inertia\Inertia;
-use Illuminate\Auth\{AuthenticationException, Access\AuthorizationException};
-use Illuminate\Validation\ValidationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        api: __DIR__ . '/../routes/api.php',
-        web: __DIR__ . '/../routes/web.php',
-        commands: __DIR__ . '/../routes/console.php',
+        api: __DIR__.'/../routes/api.php',
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -70,12 +71,14 @@ return Application::configure(basePath: dirname(__DIR__))
                     $message = 'Terlalu banyak permintaan';
                 }
 
-                Log::error('api_exception', [
-                    'path' => (string) $request->path(),
-                    'status' => (int) $statusCode,
-                    'exception' => get_class($exception),
-                    'message' => (string) $exception->getMessage(),
-                ]);
+                if ($statusCode >= 500) {
+                    Log::error('api_exception', [
+                        'path' => (string) $request->path(),
+                        'status' => (int) $statusCode,
+                        'exception' => get_class($exception),
+                        'message' => (string) $exception->getMessage(),
+                    ]);
+                }
 
                 return response()->json([
                     'success' => false,
@@ -85,10 +88,10 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             if (
-                !$request->expectsJson()
-                && !$request->is('api/*')
-                && !$request->is('build/*')
-                && !$request->is('storage/*')
+                ! $request->expectsJson()
+                && ! $request->is('api/*')
+                && ! $request->is('build/*')
+                && ! $request->is('storage/*')
                 && in_array($statusCode, [503, 404, 403, 419], true)
             ) {
                 return Inertia::render('ErrorPage', ['status' => $statusCode])
