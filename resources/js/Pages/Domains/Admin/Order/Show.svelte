@@ -469,6 +469,27 @@
             },
         );
     }
+
+    function getCustomerResendLabel(status: string): string {
+        const labels: Record<string, string> = {
+            pending: "Tagihan / Pesanan Baru",
+            shipped: "Dikirim ke Pickup Point",
+            at_pickup_point: "Transit di Pickup Point",
+            on_delivery: "Sedang Diantar",
+            arrived: "Tiba di Tujuan",
+        };
+        return labels[status] || status;
+    }
+
+    function getAdminResendLabel(status: string): string {
+        const labels: Record<string, string> = {
+            shipped: "Menuju Pickup Point",
+            at_pickup_point: "Di Pickup Point",
+            on_delivery: "Sedang Dikirim",
+            arrived: "Tiba di Tujuan",
+        };
+        return labels[status] || "Update Status";
+    }
 </script>
 
 <svelte:head>
@@ -533,41 +554,6 @@
 
             <!-- Status Action Buttons -->
             <div class="flex flex-wrap gap-2">
-                <!-- Resend Notifications -->
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    icon="fa-solid fa-user"
-                    disabled={isProcessing}
-                    onclick={() => resendNotifications('customer')}
-                >
-                    {#snippet children()}Ke Customer{/snippet}
-                </Button>
-
-                {#if order.order_status === 'pending' || order.order_status === 'confirmed'}
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        icon="fa-solid fa-kitchen-set"
-                        disabled={isProcessing}
-                        onclick={() => resendNotifications('chef')}
-                    >
-                        {#snippet children()}Ke Chef{/snippet}
-                    </Button>
-                {/if}
-
-                {#if order.order_status !== 'delivered' && order.order_status !== 'cancelled'}
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        icon="fa-brands fa-telegram"
-                        disabled={isProcessing}
-                        onclick={() => resendNotifications('admin')}
-                    >
-                        {#snippet children()}Ke PIC / Admin{/snippet}
-                    </Button>
-                {/if}
-
                 {#if order.order_status === "pending"}
                     <Button
                         variant="primary"
@@ -1198,6 +1184,48 @@
                     </div>
                 </div>
             </Card>
+
+            {#if order.order_status !== 'delivered' && order.order_status !== 'cancelled'}
+                <Card title="Kirim Ulang Notifikasi">
+                    <div class="flex flex-col gap-2">
+                        {#if order.order_status !== 'confirmed'}
+                            <Button
+                                variant="success"
+                                size="sm"
+                                icon="fa-solid fa-user"
+                                disabled={isProcessing}
+                                onclick={() => resendNotifications('customer')}
+                            >
+                                {#snippet children()}Ke Customer: {getCustomerResendLabel(order.order_status)}{/snippet}
+                            </Button>
+                        {/if}
+
+                        {#if order.order_status === 'pending' || order.order_status === 'confirmed'}
+                            <Button
+                                variant="warning"
+                                size="sm"
+                                icon="fa-solid fa-kitchen-set"
+                                disabled={isProcessing}
+                                onclick={() => resendNotifications('chef')}
+                            >
+                                {#snippet children()}Ke Chef: Penugasan Masak{/snippet}
+                            </Button>
+                        {/if}
+
+                        {#if order.order_status === 'shipped' || order.order_status === 'at_pickup_point' || order.order_status === 'on_delivery' || order.order_status === 'arrived'}
+                            <Button
+                                variant="info"
+                                size="sm"
+                                icon="fa-brands fa-telegram"
+                                disabled={isProcessing}
+                                onclick={() => resendNotifications('admin')}
+                            >
+                                {#snippet children()}Ke PIC / Admin: {getAdminResendLabel(order.order_status)}{/snippet}
+                            </Button>
+                        {/if}
+                    </div>
+                </Card>
+            {/if}
 
             <Card title="Ringkasan Pembayaran">
                 <div class="space-y-3">
