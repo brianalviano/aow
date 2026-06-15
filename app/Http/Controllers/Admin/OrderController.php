@@ -4,13 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTOs\Order\OrderFilterDTO;
 use App\Http\Controllers\Controller;
-use App\Models\{Chef, DropPoint, Order};
+use App\Http\Resources\OrderResource;
+use App\Models\Chef;
+use App\Models\DropPoint;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\PickUpPoint;
+use App\Models\Testimonial;
 use App\Services\OrderService;
 use App\Traits\FileHelperTrait;
-use Illuminate\Http\{RedirectResponse, Request};
-use Illuminate\Support\Facades\Storage;
-use Inertia\{Inertia, Response};
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 use Throwable;
 
 /**
@@ -25,23 +33,23 @@ class OrderController extends Controller
      */
     public function index(Request $request, OrderService $service): Response
     {
-        $dto = \App\DTOs\Order\OrderFilterDTO::from($request);
+        $dto = OrderFilterDTO::from($request);
 
         $orders = $service->getFilteredOrdersForAdmin($dto, perPage: 15)->withQueryString();
 
         return Inertia::render('Domains/Admin/Order/Index', [
-            'orders'  => \App\Http\Resources\OrderResource::collection($orders),
+            'orders' => OrderResource::collection($orders),
             'filters' => $request->only(['search', 'date_range', 'start_date', 'end_date', 'status', 'drop_point_id', 'chef_id', 'delivery_date']),
             'status_counts' => [
-                'all'       => Order::count(),
-                'unpaid'    => Order::where('payment_status', 'pending')
-                    ->whereDoesntHave('paymentMethod', fn($q) => $q->where('category', 'cash'))
+                'all' => Order::count(),
+                'unpaid' => Order::where('payment_status', 'pending')
+                    ->whereDoesntHave('paymentMethod', fn ($q) => $q->where('category', 'cash'))
                     ->count(),
-                'process'   => Order::where(function ($q) {
+                'process' => Order::where(function ($q) {
                     $q->where('payment_status', '!=', 'pending')
-                        ->orWhereHas('paymentMethod', fn($pq) => $pq->where('category', 'cash'));
+                        ->orWhereHas('paymentMethod', fn ($pq) => $pq->where('category', 'cash'));
                 })->whereIn('order_status', ['pending', 'confirmed'])->count(),
-                'shipped'   => Order::whereIn('order_status', ['shipped', 'at_pickup_point', 'on_delivery', 'arrived'])->count(),
+                'shipped' => Order::whereIn('order_status', ['shipped', 'at_pickup_point', 'on_delivery', 'arrived'])->count(),
                 'completed' => Order::where('order_status', 'delivered')->count(),
                 'cancelled' => Order::where(function ($q) {
                     $q->where('order_status', 'cancelled')
@@ -49,8 +57,8 @@ class OrderController extends Controller
                 })->count(),
             ],
             'dropPoints' => DropPoint::where('is_active', true)->get(['id', 'name']),
-            'chefs'      => Chef::where('is_active', true)->get(['id', 'name']),
-            'pickUpPoints' => \App\Models\PickUpPoint::where('is_active', true)->get(['id', 'name', 'address', 'latitude', 'longitude']),
+            'chefs' => Chef::where('is_active', true)->get(['id', 'name']),
+            'pickUpPoints' => PickUpPoint::where('is_active', true)->get(['id', 'name', 'address', 'latitude', 'longitude']),
         ]);
     }
 
@@ -74,9 +82,9 @@ class OrderController extends Controller
         ]);
 
         return Inertia::render('Domains/Admin/Order/Show', [
-            'order' => (new \App\Http\Resources\OrderResource($order))->resolve(),
-            'chefs' => \App\Models\Chef::where('is_active', true)->get(['id', 'name']),
-            'pickUpPoints' => \App\Models\PickUpPoint::where('is_active', true)->get(['id', 'name', 'address', 'latitude', 'longitude']),
+            'order' => (new OrderResource($order))->resolve(),
+            'chefs' => Chef::where('is_active', true)->get(['id', 'name']),
+            'pickUpPoints' => PickUpPoint::where('is_active', true)->get(['id', 'name', 'address', 'latitude', 'longitude']),
             'canChangePickUpPoint' => $order->canChangePickUpPoint(),
         ]);
     }
@@ -84,7 +92,7 @@ class OrderController extends Controller
     /**
      * Cancel a pending order (admin action).
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function cancel(Request $request, Order $order, OrderService $service): RedirectResponse
     {
@@ -97,14 +105,40 @@ class OrderController extends Controller
 
             Inertia::flash('toast', [
                 'message' => 'Pesanan berhasil dibatalkan.',
-                'type'    => 'success',
+                'type' => 'success',
             ]);
 
             return redirect()->back();
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membatalkan pesanan: ' . $e->getMessage(),
-                'type'    => 'error',
+                'message' => 'Gagal membatalkan pesanan: '.$e->getMessage(),
+                'type' => 'error',
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
+    /**
+     * Resend order notifications (admin action).
+     *
+     * @throws Throwable
+     */
+    public function resendNotifications(Order $order, string $target, OrderService $service): RedirectResponse
+    {
+        try {
+            $service->resendOrderNotifications($order, $target);
+
+            Inertia::flash('toast', [
+                'message' => 'Notifikasi berhasil dikirim ulang.',
+                'type' => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal mengirim ulang notifikasi: '.$e->getMessage(),
+                'type' => 'error',
             ]);
 
             return redirect()->back();
@@ -114,7 +148,7 @@ class OrderController extends Controller
     /**
      * Confirm a pending order (admin action).
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function confirm(Request $request, Order $order, OrderService $service): RedirectResponse
     {
@@ -127,14 +161,14 @@ class OrderController extends Controller
 
             Inertia::flash('toast', [
                 'message' => 'Pesanan berhasil dikonfirmasi.',
-                'type'    => 'success',
+                'type' => 'success',
             ]);
 
             return redirect()->back();
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal mengkonfirmasi pesanan: ' . $e->getMessage(),
-                'type'    => 'error',
+                'message' => 'Gagal mengkonfirmasi pesanan: '.$e->getMessage(),
+                'type' => 'error',
             ]);
 
             return redirect()->back();
@@ -144,21 +178,21 @@ class OrderController extends Controller
     /**
      * Approve a customer testimonial.
      */
-    public function approveTestimonial(\App\Models\Testimonial $testimonial): RedirectResponse
+    public function approveTestimonial(Testimonial $testimonial): RedirectResponse
     {
         try {
             $testimonial->update(['is_approved' => true]);
 
             Inertia::flash('toast', [
                 'message' => 'Testimoni berhasil disetujui.',
-                'type'    => 'success',
+                'type' => 'success',
             ]);
 
             return redirect()->back();
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menyetujui testimoni: ' . $e->getMessage(),
-                'type'    => 'error',
+                'message' => 'Gagal menyetujui testimoni: '.$e->getMessage(),
+                'type' => 'error',
             ]);
 
             return redirect()->back();
@@ -168,7 +202,7 @@ class OrderController extends Controller
     /**
      * Reject/Delete a customer testimonial.
      */
-    public function rejectTestimonial(\App\Models\Testimonial $testimonial): RedirectResponse
+    public function rejectTestimonial(Testimonial $testimonial): RedirectResponse
     {
         try {
             if ($testimonial->photo) {
@@ -178,15 +212,15 @@ class OrderController extends Controller
 
             Inertia::flash('toast', [
                 'message' => 'Testimoni berhasil dihapus.',
-                'type'    => 'success',
+                'type' => 'success',
             ]);
 
             return redirect()->back();
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus testimoni: ' . $e->getMessage(),
-                'type'    => 'error',
-                'trace'   => $e->getTraceAsString(),
+                'message' => 'Gagal menghapus testimoni: '.$e->getMessage(),
+                'type' => 'error',
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return redirect()->back();
@@ -196,7 +230,7 @@ class OrderController extends Controller
     /**
      * Reassign an order item to a new chef.
      */
-    public function reassignItemChef(\App\Models\OrderItem $order_item, \App\Services\OrderService $service): \Illuminate\Http\RedirectResponse
+    public function reassignItemChef(OrderItem $order_item, OrderService $service): RedirectResponse
     {
         $data = request()->validate([
             'chef_id' => 'required|exists:chefs,id',
@@ -205,16 +239,16 @@ class OrderController extends Controller
         try {
             $service->reassignChef($order_item, $data['chef_id']);
 
-            \Inertia\Inertia::flash('toast', [
+            Inertia::flash('toast', [
                 'message' => 'Chef berhasil diperbarui.',
-                'type'    => 'success',
+                'type' => 'success',
             ]);
 
             return redirect()->back();
-        } catch (\Throwable $e) {
-            \Inertia\Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui chef: ' . $e->getMessage(),
-                'type'    => 'error',
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal memperbarui chef: '.$e->getMessage(),
+                'type' => 'error',
             ]);
 
             return redirect()->back();
@@ -229,7 +263,7 @@ class OrderController extends Controller
         $orders = $service->getPaymentApprovalOrders(perPage: 15)->withQueryString();
 
         return Inertia::render('Domains/Admin/Order/Payments', [
-            'orders' => \App\Http\Resources\OrderResource::collection($orders),
+            'orders' => OrderResource::collection($orders),
         ]);
     }
 
@@ -238,20 +272,20 @@ class OrderController extends Controller
      */
     public function processing(Request $request, OrderService $service): Response
     {
-        $dto = \App\DTOs\Order\OrderFilterDTO::from($request);
+        $dto = OrderFilterDTO::from($request);
         $view = $request->query('view', 'list');
         $perPage = ($view === 'list') ? 15 : 200; // Larger limit for grouped views to allow complete overview
 
         $orders = $service->getProcessingOrders($dto, perPage: $perPage)->withQueryString();
 
         return Inertia::render('Domains/Admin/Order/Processing', [
-            'orders'     => \App\Http\Resources\OrderResource::collection($orders),
-            'filters'    => array_merge(
+            'orders' => OrderResource::collection($orders),
+            'filters' => array_merge(
                 $request->only(['drop_point_id', 'chef_id', 'delivery_date']),
                 ['view' => $view]
             ),
             'dropPoints' => DropPoint::where('is_active', true)->get(['id', 'name']),
-            'chefs'      => Chef::where('is_active', true)->get(['id', 'name']),
+            'chefs' => Chef::where('is_active', true)->get(['id', 'name']),
         ]);
     }
 
@@ -259,10 +293,6 @@ class OrderController extends Controller
      * Update the pickup point for an order (admin action).
      *
      * Only allowed when not all chef items have been shipped yet.
-     *
-     * @param Request $request
-     * @param Order $order
-     * @return RedirectResponse
      */
     public function updatePickUpPoint(Request $request, Order $order): RedirectResponse
     {
@@ -273,11 +303,12 @@ class OrderController extends Controller
         try {
             $order->load('items');
 
-            if (!$order->canChangePickUpPoint()) {
+            if (! $order->canChangePickUpPoint()) {
                 Inertia::flash('toast', [
                     'message' => 'Tidak dapat mengubah pickup point karena semua item sudah dikirim.',
                     'type' => 'error',
                 ]);
+
                 return redirect()->back();
             }
 
@@ -293,7 +324,7 @@ class OrderController extends Controller
             return redirect()->back();
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui pickup point: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui pickup point: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 

@@ -445,6 +445,30 @@
         if (from === "payments") return "/admin/orders/payments";
         return "/admin/orders";
     });
+
+    function resendNotifications(target: "customer" | "chef" | "admin") {
+        let targetLabel = "";
+        if (target === "customer") targetLabel = "Customer (WhatsApp & Email)";
+        if (target === "chef") targetLabel = "Chef (Email & Notifikasi)";
+        if (target === "admin") targetLabel = "PIC / Admin (Telegram)";
+
+        if (
+            !confirm(
+                `Apakah Anda yakin ingin mengirim ulang notifikasi ke ${targetLabel} untuk pesanan ini?`,
+            )
+        )
+            return;
+        isProcessing = true;
+        router.post(
+            `/admin/orders/${order.id}/resend-notifications/${target}`,
+            {},
+            {
+                onFinish: () => {
+                    isProcessing = false;
+                },
+            },
+        );
+    }
 </script>
 
 <svelte:head>
@@ -509,6 +533,41 @@
 
             <!-- Status Action Buttons -->
             <div class="flex flex-wrap gap-2">
+                <!-- Resend Notifications -->
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    icon="fa-solid fa-user"
+                    disabled={isProcessing}
+                    onclick={() => resendNotifications('customer')}
+                >
+                    {#snippet children()}Ke Customer{/snippet}
+                </Button>
+
+                {#if order.order_status === 'pending' || order.order_status === 'confirmed'}
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        icon="fa-solid fa-kitchen-set"
+                        disabled={isProcessing}
+                        onclick={() => resendNotifications('chef')}
+                    >
+                        {#snippet children()}Ke Chef{/snippet}
+                    </Button>
+                {/if}
+
+                {#if order.order_status !== 'delivered' && order.order_status !== 'cancelled'}
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        icon="fa-brands fa-telegram"
+                        disabled={isProcessing}
+                        onclick={() => resendNotifications('admin')}
+                    >
+                        {#snippet children()}Ke PIC / Admin{/snippet}
+                    </Button>
+                {/if}
+
                 {#if order.order_status === "pending"}
                     <Button
                         variant="primary"

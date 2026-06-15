@@ -204,6 +204,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
         Route::post('/orders/{order}/ship', [OrderController::class, 'ship'])->name('orders.ship');
         Route::post('/orders/{order}/deliver', [OrderController::class, 'deliver'])->name('orders.deliver');
+        Route::post('/orders/{order}/resend-notifications/{target}', [OrderController::class, 'resendNotifications'])->name('orders.resend-notifications');
         Route::patch('/orders/{order}/pickup-point', [OrderController::class, 'updatePickUpPoint'])->name('orders.update-pickup-point');
         Route::post('/order-items/{order_item}/reassign-chef', [OrderController::class, 'reassignItemChef'])->name('orders.reassign-chef');
 

@@ -1141,4 +1141,107 @@ class OrderService
 
         return $count;
     }
+
+    /**
+     * Resend order notifications based on target.
+     */
+    public function resendOrderNotifications(Order $order, string $target): void
+    {
+        $order->loadMissing(['customer', 'dropPoint', 'pickUpPoint', 'items.chef']);
+
+        if ($target === 'customer') {
+            // 1. WhatsApp to customer based on current status
+            $waMessage = null;
+            switch ($order->order_status) {
+                case OrderStatus::PENDING:
+                    $waMessage = "Halo {$order->customer->name},\n\n"
+                        ."Pesanan Anda dengan nomor *{$order->number}* telah berhasil dibuat dan sedang menunggu konfirmasi pembayaran/admin.\n\n"
+                        .'Total Tagihan: Rp '.number_format($order->total_amount, 0, ',', '.')."\n\n"
+                        .'Terima kasih telah memesan!';
+                    break;
+                case OrderStatus::CONFIRMED:
+                    $waMessage = "Halo {$order->customer->name},\n\n"
+                        ."Pesanan Anda dengan nomor *{$order->number}* telah dikonfirmasi dan sedang diproses oleh dapur.\n\n"
+                        .'Terima kasih telah memesan!';
+                    break;
+                case OrderStatus::AT_PICKUP_POINT:
+                    if ($order->pickUpPoint) {
+                        $waMessage = "Halo {$order->customer->name},\n\n"
+                            ."Kabar baik! Pesanan Anda dengan nomor *{$order->number}* telah tiba di titik transit kami (*{$order->pickUpPoint->name}*).\n\n"
+                            .'Tim kami akan segera mengirimkannya ke alamat Anda. Mohon ditunggu ya!';
+                    }
+                    break;
+                case OrderStatus::ON_DELIVERY:
+                    $waMessage = "Halo {$order->customer->name},\n\n"
+                        ."Pesanan Anda dengan nomor *{$order->number}* sedang dalam perjalanan menuju alamat Anda!\n\n"
+                        .'Mohon standby untuk menerima pesanan Anda ya. Terima kasih.';
+                    break;
+                case OrderStatus::ARRIVED:
+                    $waMessage = "Halo {$order->customer->name},\n\n"
+                        ."Pesanan Anda dengan nomor *{$order->number}* telah TIBA di tujuan!\n\n"
+                        .'Silakan periksa pesanan Anda dan jangan lupa konfirmasi penerimaan di aplikasi. Selamat menikmati!';
+                    break;
+                case OrderStatus::DELIVERED:
+                    $waMessage = "Halo {$order->customer->name},\n\n"
+                        ."Pesanan Anda dengan nomor *{$order->number}* telah BERHASIL dikirim dan diselesaikan!\n\n"
+                        .'Terima kasih telah berbelanja bersama kami. Selamat menikmati hidangan Anda!';
+                    break;
+                case OrderStatus::CANCELLED:
+                    $waMessage = "Halo {$order->customer->name},\n\n"
+                        ."Mohon maaf, pesanan Anda dengan nomor *{$order->number}* telah dibatalkan oleh Admin.\n\n"
+                        .'Alasan: '.($order->cancellation_note ?: 'Tidak disebutkan');
+                    break;
+            }
+
+            if ($waMessage) {
+                dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $waMessage));
+            }
+
+            // Also resend status change email notification to customer
+            if ($order->order_status !== OrderStatus::PENDING) {
+                $order->customer->notify(new OrderStatusChangedNotification($order, $order->order_status->value));
+            } else {
+                // If pending, send the initial placed order mail
+                Mail::to($order->customer->email)->send(new OrderPlacedMail($order));
+            }
+        } elseif ($target === 'chef') {
+            // 2. Resend assignment notification to all chefs of items in this order
+            $chefs = $order->items->map(fn ($item) => $item->chef)->filter()->unique('id');
+            if ($chefs->isEmpty()) {
+                throw new \Exception('Tidak ada chef yang ditugaskan pada pesanan ini.');
+            }
+            foreach ($chefs as $chef) {
+                $chef->notify(new ChefOrderAssignedNotification($order));
+            }
+        } elseif ($target === 'admin') {
+            // 3. Telegram to admin based on current status
+            $tgMessage = null;
+            if ($order->order_status === OrderStatus::PENDING) {
+                $tgMessage = "<b>PESANAN BARU MASUK! (Kirim Ulang)</b>\n\n"
+                    ."Order: <b>{$order->number}</b>\n"
+                    ."Customer: {$order->customer->name}\n"
+                    .'Total: Rp '.number_format($order->total_amount, 0, ',', '.')."\n"
+                    .'Harap segera cek dashboard admin.';
+            } elseif ($order->order_status === OrderStatus::SHIPPED) {
+                $dpName = $order->dropPoint ? $order->dropPoint->name : 'Custom Address';
+                $tgMessage = "<b>PESANAN MENUJU PICKUP POINT (Kirim Ulang)</b>\n\n"
+                    ."Order: <b>{$order->number}</b>\n"
+                    ."Chef telah selesai memasak dan pesanan sedang dikirim ke <b>{$dpName}</b>.\n"
+                    .'Harap PIC bersiap untuk menerima pesanan.';
+            } else {
+                $statusLabel = $order->order_status->label();
+                $tgMessage = "<b>UPDATE PESANAN (Kirim Ulang)</b>\n\n"
+                    ."Order: <b>{$order->number}</b>\n"
+                    ."Customer: {$order->customer->name}\n"
+                    .'Status Saat Ini: <b>'.strtoupper($statusLabel)."</b>\n"
+                    .'Total: Rp '.number_format($order->total_amount, 0, ',', '.').'.';
+            }
+
+            if ($tgMessage) {
+                dispatch(new SendTelegramNotificationJob($tgMessage));
+            }
+        } else {
+            throw new \InvalidArgumentException("Target notifikasi '{$target}' tidak valid.");
+        }
+    }
 }
