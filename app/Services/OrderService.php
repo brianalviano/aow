@@ -198,7 +198,7 @@ class OrderService
                 }
 
                 DB::afterCommit(function () use ($order) {
-                    $message = "Halo {$order->customer->name},\n\nPesanan Anda dengan nomor *{$order->number}* telah dikonfirmasi dan sedang diproses oleh dapur.\n\nTerima kasih telah memesan!";
+                    $message = $this->buildConfirmedWhatsAppMessage($order);
                     dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
                 });
 
@@ -992,6 +992,43 @@ class OrderService
     }
 
     /**
+     * Build the WhatsApp confirmation message for customer.
+     */
+    private function buildConfirmedWhatsAppMessage(Order $order): string
+    {
+        $order->loadMissing(['customer', 'items.product', 'dropPoint', 'pickUpPoint', 'customerAddress']);
+
+        $customerName = $order->customer?->name ?? 'Pelanggan';
+        $orderNumber = $order->number;
+        $deliveryDate = $order->delivery_date ? $order->delivery_date->translatedFormat('d M Y') : '-';
+        $deliveryTime = $order->delivery_time ? $order->delivery_time->format('H:i') : '-';
+
+        $transitPoint = '-';
+        if ($order->pickUpPoint) {
+            $transitPoint = 'Pickup Point: '.$order->pickUpPoint->name;
+        } elseif ($order->dropPoint) {
+            $transitPoint = 'Drop Point: '.$order->dropPoint->name;
+        } elseif ($order->customerAddress) {
+            $transitPoint = 'Alamat Customer: '.$order->customerAddress->address;
+        }
+
+        $menuList = '';
+        foreach ($order->items as $item) {
+            $menuList .= "\n- ".($item->product?->name ?? 'Menu').' x'.$item->quantity;
+        }
+
+        return "*PESANAN DIKONFIRMASI* 🎉\n\n"
+            ."Halo *{$customerName}*,\n"
+            ."Nomor order *#{$orderNumber}* telah dikonfirmasi dan sedang diproses oleh dapur kami. 🧑‍🍳🍳\n\n"
+            ."*Detail Pesanan:*\n"
+            ."📅 Tanggal Kirim: {$deliveryDate}\n"
+            ."⏰ Waktu/Jam: {$deliveryTime} WIB\n"
+            ."📍 Titik Transit: {$transitPoint}\n"
+            ."🍔 Menu:{$menuList}\n\n"
+            .'Terima kasih telah memesan di Aowenak! Kami akan mengirimkan update berikutnya ketika pesanan Anda siap dikirim. 🚀';
+    }
+
+    /**
      * Notify customer about chef status updates for their items.
      */
     private function notifyCustomerAboutChefStatus(Collection $items, ChefStatus $newStatus): void
@@ -1160,9 +1197,7 @@ class OrderService
                         .'Terima kasih telah memesan!';
                     break;
                 case OrderStatus::CONFIRMED:
-                    $waMessage = "Halo {$order->customer->name},\n\n"
-                        ."Pesanan Anda dengan nomor *{$order->number}* telah dikonfirmasi dan sedang diproses oleh dapur.\n\n"
-                        .'Terima kasih telah memesan!';
+                    $waMessage = $this->buildConfirmedWhatsAppMessage($order);
                     break;
                 case OrderStatus::AT_PICKUP_POINT:
                     if ($order->pickUpPoint) {
