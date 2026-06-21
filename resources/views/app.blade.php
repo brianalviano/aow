@@ -7,6 +7,19 @@
         <meta content="{{ csrf_token() }}" name="csrf-token">
         <meta content="light" name="color-scheme" />
 
+        <!-- Prevent theme flashing -->
+        <script>
+            (function() {
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            })();
+        </script>
+
         <!-- Favicon -->
         <link href="/assets/favicon/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
         <link href="/assets/favicon/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
@@ -44,6 +57,15 @@
             html,
             body {
                 print-color-adjust: exact;
+            }
+
+            @media screen {
+                html.dark body {
+                    background-color: #0a0a0a !important;
+                }
+                html:not(.dark) body {
+                    background-color: #f8f7fa !important;
+                }
             }
         </style>
 
