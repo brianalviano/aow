@@ -36,9 +36,10 @@ return [
     ],
 
     'midtrans' => [
-        'is_production' => $midtransIsProd = (env('APP_ENV') === 'production'),
-        'client_key' => $midtransIsProd ? env('MIDTRANS_PROD_CLIENT_KEY') : env('MIDTRANS_DEV_CLIENT_KEY'),
-        'server_key' => $midtransIsProd ? env('MIDTRANS_PROD_SERVER_KEY') : env('MIDTRANS_DEV_SERVER_KEY'),
+        // Disabled - Currently using static QRIS
+        'is_production' => false,
+        'client_key' => null,
+        'server_key' => null,
     ],
 
     'biteship' => [

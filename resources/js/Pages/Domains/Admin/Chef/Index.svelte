@@ -23,6 +23,7 @@
         total_transferred: number;
         outstanding_balance: number;
         created_at: string;
+        region?: string | null;
     }
 
     let chefs = $derived(
@@ -33,7 +34,7 @@
     );
 
     let filters = $derived(
-        $page.props.filters as { search?: string } | undefined,
+        $page.props.filters as { search?: string; region?: string } | undefined,
     );
 
     let searchQuery = $state(untrack(() => filters?.search || ""));
@@ -79,8 +80,10 @@
             params.set("search", searchQuery);
         }
 
+        const basePath = filters?.region ? `/admin/chefs/region/${filters.region}` : '/admin/chefs';
+
         router.get(
-            "/admin/chefs?" + params.toString(),
+            basePath + "?" + params.toString(),
             {},
             { preserveState: true, preserveScroll: true },
         );
@@ -95,6 +98,17 @@
             handleSearch();
         }
     });
+
+    function getRegionLabel(regionSlug: string | null | undefined): string {
+        switch (regionSlug) {
+            case "sby_timur": return "Dapur SBY Timur";
+            case "sby_barat": return "Dapur SBY Barat";
+            case "sby_utara": return "Dapur SBY Utara";
+            case "sby_selatan": return "Dapur SBY Selatan";
+            case "sby_pusat": return "Dapur SBY Pusat";
+            default: return "";
+        }
+    }
 
     function formatCurrency(amount: number): string {
         return new Intl.NumberFormat("id-ID", {
@@ -115,7 +129,7 @@
     >
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                Chef Mitra
+                Chef Mitra{#if filters?.region} - {getRegionLabel(filters.region)}{/if}
             </h1>
             <p class="mt-2 text-gray-600 dark:text-gray-400">
                 Kelola daftar chef mitra dan assignment produk
@@ -194,6 +208,15 @@
                                                 <i class="fa-solid fa-shop mr-1"
                                                 ></i>
                                                 {item.business_name}
+                                            </div>
+                                        {/if}
+                                        {#if item.region}
+                                            <div
+                                                class="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-semibold flex items-center gap-1"
+                                            >
+                                                <i class="fa-solid fa-location-dot text-indigo-500"
+                                                ></i>
+                                                {getRegionLabel(item.region)}
                                             </div>
                                         {/if}
                                     </td>

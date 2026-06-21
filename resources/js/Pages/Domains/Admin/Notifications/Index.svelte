@@ -97,7 +97,7 @@
         params.set("page", String(pageNumber));
         params.set("limit", String(limit));
         router.get(
-            "/notifications?" + params.toString(),
+            "/admin/notifications?" + params.toString(),
             {},
             { preserveState: true, preserveScroll: true },
         );
@@ -144,7 +144,7 @@
                 const params = new URLSearchParams();
                 if (filters.status) params.set("status", filters.status);
                 router.get(
-                    "/notifications?" + params.toString(),
+                    "/admin/notifications?" + params.toString(),
                     {},
                     { preserveState: true, preserveScroll: true },
                 );

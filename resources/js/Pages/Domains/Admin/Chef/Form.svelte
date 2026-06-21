@@ -5,6 +5,7 @@
     import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
     import TextArea from "@/Lib/Admin/Components/Ui/TextArea.svelte";
     import Checkbox from "@/Lib/Admin/Components/Ui/Checkbox.svelte";
+    import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
     import { name as getSettingName } from "@/Lib/Admin/Utils/settings";
     import { untrack } from "svelte";
 
@@ -30,6 +31,7 @@
         is_active: boolean;
         order_types: ("instant" | "preorder")[];
         products?: Product[];
+        region?: string | null;
     }
 
     let chef = $derived(
@@ -63,6 +65,7 @@
             is_active: chef?.is_active ?? true,
             order_types: chef?.order_types ?? ["instant"],
             product_ids: initialProductIds,
+            region: chef?.region ?? "",
         })),
     );
 
@@ -166,7 +169,6 @@
                                 error={$form.errors.name}
                                 required
                             />
-                            +
                             <TextInput
                                 id="business_name"
                                 name="business_name"
@@ -174,6 +176,22 @@
                                 placeholder="Nama usaha/toko chef"
                                 bind:value={$form.business_name}
                                 error={$form.errors.business_name}
+                            />
+
+                            <Select
+                                id="region"
+                                name="region"
+                                label="Wilayah Dapur"
+                                options={[
+                                    { value: "", label: "Pilih Wilayah Dapur (Opsional)" },
+                                    { value: "sby_timur", label: "Dapur SBY Timur" },
+                                    { value: "sby_barat", label: "Dapur SBY Barat" },
+                                    { value: "sby_utara", label: "Dapur SBY Utara" },
+                                    { value: "sby_selatan", label: "Dapur SBY Selatan" },
+                                    { value: "sby_pusat", label: "Dapur SBY Pusat" },
+                                ]}
+                                bind:value={$form.region}
+                                error={$form.errors.region}
                             />
 
                             <TextInput

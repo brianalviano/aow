@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DTOs\Chef;
 
 use App\Enums\ChefOrderType;
+use App\Enums\ChefRegion;
 use Illuminate\Validation\Rule as ValidationRule;
 use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
@@ -83,6 +84,9 @@ class ChefData extends Data
 
         #[Rule('nullable', 'array')]
         public readonly array $productIds = [],
+
+        #[Rule('nullable', 'string')]
+        public readonly ?string $region = null,
     ) {}
 
     /**
@@ -91,7 +95,7 @@ class ChefData extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(ValidationContext $context): array
+    public static function rules(?ValidationContext $context = null): array
     {
         $chefId = request()->route('chef')?->id ?? request()->route('chef');
 
@@ -106,6 +110,7 @@ class ChefData extends Data
             ],
             'order_types.*' => ['string', ValidationRule::in(ChefOrderType::values())],
             'product_ids.*' => ['uuid', 'exists:products,id'],
+            'region' => ['nullable', 'string', ValidationRule::in(ChefRegion::values())],
         ];
     }
 }

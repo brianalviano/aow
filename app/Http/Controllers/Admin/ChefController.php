@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use App\DTOs\Chef\{ChefData, ChefTransferData};
+use App\DTOs\Chef\ChefData;
+use App\DTOs\Chef\ChefTransferData;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\{ChefResource, ChefTransferResource};
-use App\Models\{Chef, Product};
+use App\Http\Resources\ChefResource;
+use App\Models\Chef;
+use App\Models\Product;
 use App\Services\ChefService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 use Throwable;
 
 /**
@@ -29,17 +32,18 @@ class ChefController extends Controller
     /**
      * Display a listing of chefs.
      */
-    public function index(Request $request): Response
+    public function index(Request $request, ?string $region = null): Response
     {
         $search = $request->query('search');
-        $limit  = (int) $request->query('limit', 15);
+        $limit = (int) $request->query('limit', 15);
 
-        $chefs = $this->chefService->getPaginated($limit, $search);
+        $chefs = $this->chefService->getPaginated($limit, $search, $region);
 
         return Inertia::render('Domains/Admin/Chef/Index', [
-            'chefs'   => ChefResource::collection($chefs),
+            'chefs' => ChefResource::collection($chefs),
             'filters' => [
                 'search' => $search,
+                'region' => $region,
             ],
         ]);
     }
@@ -69,14 +73,14 @@ class ChefController extends Controller
 
             Inertia::flash('toast', [
                 'message' => 'Chef berhasil ditambahkan',
-                'type'    => 'success',
+                'type' => 'success',
             ]);
 
             return redirect()->route('admin.chefs.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menambahkan Chef: ' . $e->getMessage(),
-                'type'    => 'error',
+                'message' => 'Gagal menambahkan Chef: '.$e->getMessage(),
+                'type' => 'error',
             ]);
 
             return back()->withInput();
@@ -112,7 +116,7 @@ class ChefController extends Controller
             ->get(['id', 'name']);
 
         return Inertia::render('Domains/Admin/Chef/Form', [
-            'chef'     => new ChefResource($chef),
+            'chef' => new ChefResource($chef),
             'products' => $products,
         ]);
     }
@@ -127,14 +131,14 @@ class ChefController extends Controller
 
             Inertia::flash('toast', [
                 'message' => 'Chef berhasil diperbarui',
-                'type'    => 'success',
+                'type' => 'success',
             ]);
 
             return redirect()->route('admin.chefs.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui Chef: ' . $e->getMessage(),
-                'type'    => 'error',
+                'message' => 'Gagal memperbarui Chef: '.$e->getMessage(),
+                'type' => 'error',
             ]);
 
             return back()->withInput();
@@ -151,14 +155,14 @@ class ChefController extends Controller
 
             Inertia::flash('toast', [
                 'message' => 'Chef berhasil dihapus',
-                'type'    => 'success',
+                'type' => 'success',
             ]);
 
             return redirect()->route('admin.chefs.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus Chef: ' . $e->getMessage(),
-                'type'    => 'error',
+                'message' => 'Gagal menghapus Chef: '.$e->getMessage(),
+                'type' => 'error',
             ]);
 
             return back();
@@ -175,14 +179,14 @@ class ChefController extends Controller
 
             Inertia::flash('toast', [
                 'message' => 'Transfer berhasil dicatat',
-                'type'    => 'success',
+                'type' => 'success',
             ]);
 
             return redirect()->route('admin.chefs.show', $chef);
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal mencatat transfer: ' . $e->getMessage(),
-                'type'    => 'error',
+                'message' => 'Gagal mencatat transfer: '.$e->getMessage(),
+                'type' => 'error',
             ]);
 
             return back()->withInput();

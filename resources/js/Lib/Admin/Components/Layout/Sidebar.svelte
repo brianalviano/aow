@@ -141,12 +141,13 @@
         profileDropdownOpen = false;
         notifDropdownOpen = false;
 
-        if (expandedMenus.has(menuId)) {
-            expandedMenus.delete(menuId);
+        const next = new Set(expandedMenus);
+        if (next.has(menuId)) {
+            next.delete(menuId);
         } else {
-            expandedMenus.add(menuId);
+            next.add(menuId);
         }
-        expandedMenus = expandedMenus;
+        expandedMenus = next;
     }
 
     function toggleTheme() {

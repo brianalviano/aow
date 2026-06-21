@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\ChefOrderType;
-
+use App\Enums\ChefRegion;
+use Illuminate\Database\Eloquent\Casts\AsEnumArrayObject;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\{BelongsToMany, HasMany};
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -45,6 +47,7 @@ class Chef extends Authenticatable
         'password',
         'is_active',
         'order_types',
+        'region',
     ];
 
     /**
@@ -65,12 +68,13 @@ class Chef extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password'       => 'hashed',
+            'password' => 'hashed',
             'fee_percentage' => 'float',
-            'latitude'       => 'float',
-            'longitude'      => 'float',
-            'is_active'      => 'boolean',
-            'order_types'    => \Illuminate\Database\Eloquent\Casts\AsEnumArrayObject::class . ':' . ChefOrderType::class,
+            'latitude' => 'float',
+            'longitude' => 'float',
+            'is_active' => 'boolean',
+            'order_types' => AsEnumArrayObject::class.':'.ChefOrderType::class,
+            'region' => ChefRegion::class,
         ];
     }
 

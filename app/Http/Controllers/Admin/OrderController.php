@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\DTOs\Order\OrderFilterDTO;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Models\Chef;
@@ -59,6 +61,85 @@ class OrderController extends Controller
             'dropPoints' => DropPoint::where('is_active', true)->get(['id', 'name']),
             'chefs' => Chef::where('is_active', true)->get(['id', 'name']),
             'pickUpPoints' => PickUpPoint::where('is_active', true)->get(['id', 'name', 'address', 'latitude', 'longitude']),
+        ]);
+    }
+
+    /**
+     * Display a summary of orders per menu per drop point on a given delivery date.
+     */
+    public function resume(Request $request): Response
+    {
+        $deliveryDate = $request->query('delivery_date', now()->toDateString());
+
+        // Query orders on delivery_date
+        $orders = Order::query()
+            ->with([
+                'items.product',
+                'items.options.productOption',
+                'items.options.productOptionItem',
+                'dropPoint',
+            ])
+            ->where('delivery_date', $deliveryDate)
+            ->where('order_status', '!=', OrderStatus::CANCELLED->value)
+            ->where(function ($q) {
+                $q->where('payment_status', PaymentStatus::PAID->value)
+                    ->orWhereHas('paymentMethod', fn ($pq) => $pq->where('category', 'cash'));
+            })
+            ->get();
+
+        $resumeData = [];
+
+        foreach ($orders as $order) {
+            $dropPointName = $order->dropPoint ? $order->dropPoint->name : 'Alamat Kustom / Lainnya';
+            $dropPointId = $order->dropPoint ? $order->dropPoint->id : 'custom';
+
+            if (! isset($resumeData[$dropPointId])) {
+                $resumeData[$dropPointId] = [
+                    'drop_point_name' => $dropPointName,
+                    'items' => [],
+                ];
+            }
+
+            foreach ($order->items as $item) {
+                // Format options label
+                $optionsParts = [];
+                foreach ($item->options as $opt) {
+                    if ($opt->productOption && $opt->productOptionItem) {
+                        $optionsParts[] = $opt->productOption->name.': '.$opt->productOptionItem->name;
+                    }
+                }
+                sort($optionsParts);
+                $optionsLabel = implode(', ', $optionsParts);
+                $productId = $item->product_id;
+                $productName = $item->product ? $item->product->name : 'Produk Tidak Dikenal';
+
+                // Group by product_id + options_label
+                $groupKey = $productId.'_'.md5($optionsLabel);
+
+                if (! isset($resumeData[$dropPointId]['items'][$groupKey])) {
+                    $resumeData[$dropPointId]['items'][$groupKey] = [
+                        'product_name' => $productName,
+                        'options_label' => $optionsLabel ?: null,
+                        'quantity' => 0,
+                    ];
+                }
+
+                $resumeData[$dropPointId]['items'][$groupKey]['quantity'] += $item->quantity;
+            }
+        }
+
+        // Convert the inner items grouping back to simple sequential array
+        foreach ($resumeData as $dropPointId => $data) {
+            $resumeData[$dropPointId]['items'] = array_values($data['items']);
+        }
+
+        $resumeData = array_values($resumeData);
+
+        return Inertia::render('Domains/Admin/Order/Resume', [
+            'resumeData' => $resumeData,
+            'filters' => [
+                'delivery_date' => $deliveryDate,
+            ],
         ]);
     }
 

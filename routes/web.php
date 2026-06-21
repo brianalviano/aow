@@ -199,6 +199,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/payments', [OrderController::class, 'payments'])->name('orders.payments');
         Route::get('/orders/processing', [OrderController::class, 'processing'])->name('orders.processing');
+        Route::get('/orders/resume', [OrderController::class, 'resume'])->name('orders.resume');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
         Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
@@ -288,6 +289,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('/food-requests/{foodRequest}', [AdminFoodRequestController::class, 'update'])->name('food-requests.update');
 
         // Chefs
+        Route::get('/chefs/region/{region}', [ChefController::class, 'index'])->name('chefs.region');
         Route::get('/chefs', [ChefController::class, 'index'])->name('chefs.index');
         Route::get('/chefs/create', [ChefController::class, 'create'])->name('chefs.create');
         Route::post('/chefs', [ChefController::class, 'store'])->name('chefs.store');
@@ -319,10 +321,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('notifications.stats');
         Route::get('/notifications/list', [NotificationController::class, 'list'])
             ->name('notifications.list');
-        Route::patch('/notifications/{notification}', [NotificationController::class, 'mark'])
-            ->name('notifications.mark');
         Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAll'])
             ->name('notifications.mark_all');
+        Route::patch('/notifications/{notification}', [NotificationController::class, 'mark'])
+            ->name('notifications.mark');
     });
 });
 

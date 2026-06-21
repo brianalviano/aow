@@ -5,15 +5,33 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Customer;
 
 use App\DTOs\Checkout\ProcessOrderData;
-use App\Enums\PaymentMethodType;
-use App\Http\Controllers\Controller;
+use App\DTOs\Setting\OrderSettingsDTO;
 use App\Enums\DropPointCategory;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentMethodType;
+use App\Enums\PaymentStatus;
+use App\Enums\RoleName;
+use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\PaymentMethod;
-use App\Services\{CheckoutService, OrderService, MidtransService};
+use App\Models\User;
+use App\Notifications\PaymentProofUploadedAdminNotification;
+use App\Notifications\PaymentProofUploadedCustomerNotification;
+use App\Services\CheckoutService;
+use App\Services\MidtransService;
+use App\Services\OrderService;
 use App\Traits\FileHelperTrait;
-use Illuminate\Http\{RedirectResponse, Request};
-use Illuminate\Support\Facades\{Auth, DB, Log};
-use Inertia\{Inertia, Response};
+use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
+use Inertia\Inertia;
+use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 class PaymentController extends Controller
@@ -23,8 +41,8 @@ class PaymentController extends Controller
     /**
      * Create a new PaymentController instance.
      *
-     * @param CheckoutService $checkoutService Service for handling checkout logic.
-     * @param OrderService $orderService Service for handling order logic.
+     * @param  CheckoutService  $checkoutService  Service for handling checkout logic.
+     * @param  OrderService  $orderService  Service for handling order logic.
      */
     public function __construct(
         private readonly CheckoutService $checkoutService,
@@ -34,8 +52,6 @@ class PaymentController extends Controller
 
     /**
      * Display the payment summary page.
-     *
-     * @return Response|RedirectResponse
      */
     public function index(): Response|RedirectResponse
     {
@@ -50,16 +66,17 @@ class PaymentController extends Controller
 
         $orderType = session('checkout_order_type', 'preorder');
         if ($orderType === 'instant') {
-            $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+            $settings = OrderSettingsDTO::load();
             $instantStartTime = $settings->instantOrderStartTime;
             $instantEndTime = $settings->instantOrderEndTime;
 
             $currentTime = now()->format('H:i');
             if ($currentTime < $instantStartTime || $currentTime > $instantEndTime) {
                 Inertia::flash('toast', [
-                    'message' => "Waktu Instant delivery telah habis. Silakan pilih tipe pesanan Pre-order.",
-                    'type' => 'error'
+                    'message' => 'Waktu Instant delivery telah habis. Silakan pilih tipe pesanan Pre-order.',
+                    'type' => 'error',
                 ]);
+
                 return redirect()->route('customer.order-type.index', ['drop_point_id' => $dropPointData['id'] ?? null]);
             }
         }
@@ -84,11 +101,8 @@ class PaymentController extends Controller
 
     /**
      * Display the payment page for an order.
-     *
-     * @param \App\Models\Order $order
-     * @return Response|RedirectResponse
      */
-    public function show(\Illuminate\Http\Request $request, \App\Models\Order $order): Response|RedirectResponse
+    public function show(Request $request, Order $order): Response|RedirectResponse
     {
         return Inertia::render('Domains/Customer/Pay/Index', [
             'order' => $order->load(['paymentMethod.paymentGuide', 'dropPoint', 'customerAddress']),
@@ -100,21 +114,23 @@ class PaymentController extends Controller
     /**
      * Update payment method for an unpaid order.
      */
-    public function updateMethod(Request $request, \App\Models\Order $order): RedirectResponse
+    public function updateMethod(Request $request, Order $order): RedirectResponse
     {
-        if ($order->payment_status !== \App\Enums\PaymentStatus::PENDING) {
+        if ($order->payment_status !== PaymentStatus::PENDING) {
             Inertia::flash('toast', [
                 'message' => 'Status pembayaran sudah tidak dalam status tertunda.',
-                'type' => 'error'
+                'type' => 'error',
             ]);
+
             return back();
         }
 
-        if ($order->order_status !== \App\Enums\OrderStatus::PENDING) {
+        if ($order->order_status !== OrderStatus::PENDING) {
             Inertia::flash('toast', [
                 'message' => 'Pesanan sudah dalam proses dan tidak dapat diubah.',
-                'type' => 'error'
+                'type' => 'error',
             ]);
+
             return back();
         }
 
@@ -128,7 +144,7 @@ class PaymentController extends Controller
             DB::transaction(function () use ($order, $newPaymentMethod) {
                 // Re-calculate service fee and total amount
                 $subtotal = $order->total_amount - $order->delivery_fee - $order->admin_fee - $order->service_fee - $order->tax_amount;
-                
+
                 $newServiceFee = (int) round($subtotal * (float) $newPaymentMethod->service_fee_rate / 100) + (int) $newPaymentMethod->service_fee_fixed;
                 $newTotalAmount = $subtotal + $order->delivery_fee + $order->admin_fee + $newServiceFee + $order->tax_amount;
 
@@ -140,7 +156,7 @@ class PaymentController extends Controller
                     'payment_proof' => null,   // Reset proof if switching
                 ]);
 
-                if ($newPaymentMethod->type === \App\Enums\PaymentMethodType::GATEWAY) {
+                if ($newPaymentMethod->type === PaymentMethodType::GATEWAY) {
                     $midtransResponse = $this->midtransService->charge($order, $newPaymentMethod);
                     $order->update([
                         'payment_details' => (array) $midtransResponse,
@@ -161,7 +177,7 @@ class PaymentController extends Controller
             ]);
 
             Inertia::flash('toast', [
-                'message' => 'Gagal mengubah metode pembayaran: ' . $e->getMessage(),
+                'message' => 'Gagal mengubah metode pembayaran: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -177,14 +193,15 @@ class PaymentController extends Controller
         return PaymentMethod::where('is_active', true)
             ->with(['paymentGuide'])
             ->get()
-            ->groupBy(fn($method) => $method->category?->label() ?? 'Lainnya');
+            ->groupBy(fn ($method) => $method->category?->label() ?? 'Lainnya');
     }
 
     /**
      * Process the payment and create order.
      *
-     * @param \Illuminate\Http\Request $request Handled validation.
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Request  $request  Handled validation.
+     * @return RedirectResponse
+     *
      * @throws Throwable
      */
     public function processPayment(Request $request)
@@ -199,22 +216,23 @@ class PaymentController extends Controller
 
         $orderType = session('checkout_order_type', 'preorder');
         if ($orderType === 'instant') {
-            $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+            $settings = OrderSettingsDTO::load();
             $instantStartTime = $settings->instantOrderStartTime;
             $instantEndTime = $settings->instantOrderEndTime;
 
             $currentTime = now()->format('H:i');
             if ($currentTime < $instantStartTime || $currentTime > $instantEndTime) {
                 Inertia::flash('toast', [
-                    'message' => "Waktu Instant delivery telah habis. Silakan pilih tipe pesanan Pre-order.",
-                    'type' => 'error'
+                    'message' => 'Waktu Instant delivery telah habis. Silakan pilih tipe pesanan Pre-order.',
+                    'type' => 'error',
                 ]);
+
                 return redirect()->route('customer.order-type.index', ['drop_point_id' => $dropPoint['id'] ?? null]);
             }
         } elseif ($orderType === 'preorder') {
             $deliveryDate = session('checkout_delivery_date');
             if ($deliveryDate) {
-                $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+                $settings = OrderSettingsDTO::load();
                 $cutoffTime = $settings->orderCutoffTime;
                 $minDaysAhead = $settings->orderMinDaysAhead;
 
@@ -226,11 +244,12 @@ class PaymentController extends Controller
                     $minDate->addDay();
                 }
 
-                if (\Carbon\Carbon::parse($deliveryDate)->startOfDay()->lessThan($minDate)) {
+                if (Carbon::parse($deliveryDate)->startOfDay()->lessThan($minDate)) {
                     Inertia::flash('toast', [
                         'message' => 'Tanggal pengiriman tidak valid (melewati batas waktu cut-off). Silakan atur ulang tanggal pengiriman Anda.',
-                        'type' => 'error'
+                        'type' => 'error',
                     ]);
+
                     return back();
                 }
             }
@@ -256,7 +275,7 @@ class PaymentController extends Controller
             return redirect()->route('customer.payment.show', ['order' => $order->id, 'from' => 'checkout']);
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memproses pesanan: ' . $e->getMessage(),
+                'message' => 'Gagal memproses pesanan: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -267,14 +286,12 @@ class PaymentController extends Controller
     /**
      * Upload payment proof for manual transfer.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Order $order
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
-    public function uploadProof(\Illuminate\Http\Request $request, \App\Models\Order $order)
+    public function uploadProof(Request $request, Order $order)
     {
         $request->validate([
-            'proof' => 'required|image|max:2048',
+            'proof' => 'required|image|max:10240',
         ]);
 
         try {
@@ -288,34 +305,34 @@ class PaymentController extends Controller
 
             // Notify customer
             if ($order->customer) {
-                $order->customer->notify(new \App\Notifications\PaymentProofUploadedCustomerNotification($order));
+                $order->customer->notify(new PaymentProofUploadedCustomerNotification($order));
             }
 
             // Notify admins
-            $admins = \App\Models\User::whereHas('role', function ($query) {
-                $query->whereIn('name', [\App\Enums\RoleName::SuperAdmin->value, \App\Enums\RoleName::Admin->value]);
+            $admins = User::whereHas('role', function ($query) {
+                $query->whereIn('name', [RoleName::SuperAdmin->value, RoleName::Admin->value]);
             })->get();
 
-            \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\PaymentProofUploadedAdminNotification($order));
+            Notification::send($admins, new PaymentProofUploadedAdminNotification($order));
 
             return redirect()->route('customer.payment.show', [
                 'order' => $order->id,
-                'from' => $request->query('from')
+                'from' => $request->query('from'),
             ]);
         } catch (Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Upload payment proof failed', [
+            Log::error('Upload payment proof failed', [
                 'order_id' => $order->id,
                 'error' => $e->getMessage(),
             ]);
 
             Inertia::flash('toast', [
-                'message' => 'Gagal mengunggah bukti pembayaran: ' . $e->getMessage(),
+                'message' => 'Gagal mengunggah bukti pembayaran: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
             return redirect()->route('customer.payment.show', [
                 'order' => $order->id,
-                'from' => $request->query('from')
+                'from' => $request->query('from'),
             ]);
         }
     }
@@ -323,18 +340,18 @@ class PaymentController extends Controller
     /**
      * Download QRIS image via backend to bypass CORS and force download.
      *
-     * @param \App\Models\Order $order
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
+     * @return StreamedResponse|RedirectResponse
      */
-    public function downloadQris(\App\Models\Order $order)
+    public function downloadQris(Order $order)
     {
         $details = $order->payment_details;
 
-        if (!$details || !isset($details['actions'])) {
+        if (! $details || ! isset($details['actions'])) {
             Inertia::flash('toast', [
                 'message' => 'Data QRIS tidak ditemukan.',
                 'type' => 'error',
             ]);
+
             return redirect()->route('customer.payment.show', ['order' => $order->id]);
         }
 
@@ -346,16 +363,17 @@ class PaymentController extends Controller
             }
         }
 
-        if (!$qrisUrl) {
+        if (! $qrisUrl) {
             Inertia::flash('toast', [
                 'message' => 'URL QRIS tidak ditemukan.',
                 'type' => 'error',
             ]);
+
             return redirect()->route('customer.payment.show', ['order' => $order->id]);
         }
 
         try {
-            $response = \Illuminate\Support\Facades\Http::get($qrisUrl);
+            $response = Http::get($qrisUrl);
 
             if ($response->successful()) {
                 $imageContent = $response->body();
@@ -363,7 +381,7 @@ class PaymentController extends Controller
 
                 // Sanitize filename to ensure no slashes or backslashes are present
                 $safeOrderNumber = str_replace('/', '-', $order->number);
-                $filename = 'QRIS-' . $safeOrderNumber . '.png';
+                $filename = 'QRIS-'.$safeOrderNumber.'.png';
 
                 return response()->streamDownload(function () use ($imageContent) {
                     echo $imageContent;
@@ -373,8 +391,8 @@ class PaymentController extends Controller
             }
 
             throw new \Exception('Failed to fetch image from Midtrans.');
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Download QRIS failed', [
+        } catch (Throwable $e) {
+            Log::error('Download QRIS failed', [
                 'order_id' => $order->id,
                 'error' => $e->getMessage(),
             ]);
@@ -383,6 +401,7 @@ class PaymentController extends Controller
                 'message' => 'Gagal mengunduh QRIS, silakan coba lagi.',
                 'type' => 'error',
             ]);
+
             return redirect()->route('customer.payment.show', ['order' => $order->id]);
         }
     }

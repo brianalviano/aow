@@ -26,6 +26,7 @@
         product: Product;
         quantity: number;
         price: number;
+        final_price: number;
         subtotal: number;
         note?: string;
         options: OrderItemOption[];
@@ -56,6 +57,8 @@
             longitude?: number;
             note?: string;
         };
+        school_class?: string;
+        service_fee?: number;
         payment_method?: { name: string; category: string };
         delivery_date: string;
         delivery_time: string;
@@ -554,6 +557,14 @@
 
             <!-- Status Action Buttons -->
             <div class="flex flex-wrap gap-2">
+                <Button
+                    variant="info"
+                    icon="fa-solid fa-print"
+                    onclick={() => window.print()}
+                >
+                    {#snippet children()}Print Struk{/snippet}
+                </Button>
+
                 {#if order.order_status === "pending"}
                     <Button
                         variant="primary"
@@ -1907,3 +1918,207 @@
     items={mediaViewerItems}
     initialIndex={mediaViewerInitialIndex}
 />
+
+<!-- Print container for 80mm roll receipt printing -->
+<div class="hidden print:block print:w-[80mm] print:text-black print:bg-white print:p-2 print:text-xs print:font-mono">
+    <!-- Checker Dapur -->
+    <div class="space-y-2">
+        <div class="text-center font-bold text-sm uppercase border-b border-dashed border-black pb-2">
+            {name($page.props.settings) || "AOWENAK"}
+            <div class="text-[10px] font-normal mt-0.5">CHECKER DAPUR</div>
+        </div>
+        <div class="space-y-1 mt-2 text-[10px] leading-tight">
+            <div><strong>No. Pesanan:</strong> #{order.number}</div>
+            <div><strong>Tgl Kirim:</strong> {order.delivery_date ? new Date(order.delivery_date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-"} {order.delivery_time ? `@ ${order.delivery_time}` : ''}</div>
+            <div><strong>Tipe:</strong> {order.shipping_method === 'instant' ? 'Instant Delivery' : 'Pre-order'}</div>
+            <div><strong>Pelanggan:</strong> {order.customer?.name || '-'}</div>
+            <div><strong>Drop Point:</strong> {order.drop_point ? order.drop_point.name : (order.customer_address?.address || 'Ambil Sendiri')}</div>
+            {#if order.school_class}
+                <div><strong>Kelas:</strong> {order.school_class}</div>
+            {/if}
+            {#if order.note}
+                <div class="border border-black p-1 mt-1 bg-gray-50">
+                    <strong>Catatan Order:</strong> {order.note}
+                </div>
+            {/if}
+        </div>
+        
+        <div class="border-t border-dashed border-black my-2"></div>
+        
+        <table class="w-full text-left text-[10px] leading-tight">
+            <thead>
+                <tr class="border-b border-black">
+                    <th class="py-1 w-8">Qty</th>
+                    <th class="py-1">Item Menu & Pilihan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each order.items as item}
+                    <tr class="align-top border-b border-dotted border-gray-300">
+                        <td class="py-1.5 font-bold text-sm">{item.quantity}x</td>
+                        <td class="py-1.5">
+                            <div class="font-bold text-sm">{item.product?.name}</div>
+                            {#if item.options && item.options.length > 0}
+                                <div class="text-[9px] text-gray-800 pl-2">
+                                    - {item.options.map(o => `${o.product_option?.name}: ${o.product_option_item?.name}`).join(', ')}
+                                </div>
+                            {/if}
+                            {#if item.note}
+                                <div class="text-[9px] italic text-gray-600 pl-2 mt-0.5">
+                                    * Catatan: {item.note}
+                                </div>
+                            {/if}
+                        </td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+        
+        <div class="border-t border-dashed border-black pt-2 text-center text-[9px]">
+            Dicetak: {new Date().toLocaleString('id-ID')}
+        </div>
+    </div>
+    
+    <div class="page-break my-6 border-t-2 border-dashed border-black"></div>
+    
+    <!-- Customer Copy -->
+    <div class="space-y-2 mt-4">
+        <div class="text-center font-bold text-sm uppercase">
+            {name($page.props.settings) || "AOWENAK"}
+            <div class="text-[9px] font-normal normal-case mt-1 leading-tight">
+                {$page.props.settings?.address || ''}<br/>
+                Telp/WA: {$page.props.settings?.whatsapp || $page.props.settings?.phone || ''}
+            </div>
+            <div class="text-[10px] font-bold border-t border-b border-dashed border-black py-1 mt-2">
+                STRUK PEMBAYARAN CUSTOMER
+            </div>
+        </div>
+        
+        <div class="space-y-1 mt-2 text-[9px] leading-tight">
+            <div><strong>No. Pesanan:</strong> #{order.number}</div>
+            <div><strong>Tanggal:</strong> {new Date(order.created_at).toLocaleString('id-ID')}</div>
+            <div><strong>Kirim Pada:</strong> {order.delivery_date ? new Date(order.delivery_date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : "-"} {order.delivery_time ? `@ ${order.delivery_time}` : ''}</div>
+            <div><strong>Pelanggan:</strong> {order.customer?.name || '-'} ({order.customer?.phone || '-'})</div>
+            <div><strong>Drop Point:</strong> {order.drop_point ? order.drop_point.name : (order.customer_address?.address || 'Ambil Sendiri')}</div>
+            {#if order.school_class}
+                <div><strong>Kelas:</strong> {order.school_class}</div>
+            {/if}
+        </div>
+        
+        <div class="border-t border-dashed border-black my-2"></div>
+        
+        <table class="w-full text-left text-[9px] leading-tight">
+            <thead>
+                <tr class="border-b border-black">
+                    <th class="py-1">Menu & Pilihan</th>
+                    <th class="py-1 text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each order.items as item}
+                    <tr class="align-top border-b border-dotted border-gray-300">
+                        <td class="py-1">
+                            <div class="font-bold">{item.product?.name}</div>
+                            {#if item.options && item.options.length > 0}
+                                <div class="text-[8px] text-gray-700 pl-2">
+                                    {item.options.map(o => `${o.product_option?.name}: ${o.product_option_item?.name}`).join(', ')}
+                                </div>
+                            {/if}
+                            <div class="text-[8px] text-gray-500">
+                                {item.quantity} x {formatCurrency(item.final_price)}
+                            </div>
+                        </td>
+                        <td class="py-1 text-right align-bottom font-medium">
+                            {formatCurrency(item.subtotal)}
+                        </td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+        
+        <div class="border-t border-dashed border-black my-2"></div>
+        
+        <div class="space-y-1 text-[9px] leading-tight">
+            <div class="flex justify-between">
+                <span>Total Item:</span>
+                <span>{formatCurrency(order.items.reduce((acc, i) => acc + (i.subtotal || 0), 0))}</span>
+            </div>
+            {#if order.discount_amount > 0}
+                <div class="flex justify-between">
+                    <span>Diskon:</span>
+                    <span>-{formatCurrency(order.discount_amount)}</span>
+                </div>
+            {/if}
+            {#if order.delivery_fee > 0}
+                <div class="flex justify-between">
+                    <span>Ongkos Kirim:</span>
+                    <span>{formatCurrency(order.delivery_fee)}</span>
+                </div>
+            {/if}
+            {#if order.admin_fee > 0}
+                <div class="flex justify-between">
+                    <span>Biaya Admin:</span>
+                    <span>{formatCurrency(order.admin_fee)}</span>
+                </div>
+            {/if}
+            {#if order.service_fee && order.service_fee > 0}
+                <div class="flex justify-between">
+                    <span>Biaya Layanan:</span>
+                    <span>{formatCurrency(order.service_fee || 0)}</span>
+                </div>
+            {/if}
+            {#if order.tax_amount > 0}
+                <div class="flex justify-between">
+                    <span>Pajak:</span>
+                    <span>{formatCurrency(order.tax_amount)}</span>
+                </div>
+            {/if}
+            <div class="flex justify-between font-bold text-sm border-t border-dotted border-black pt-1 mt-1">
+                <span>TOTAL BAYAR:</span>
+                <span>{formatCurrency(order.total_amount)}</span>
+            </div>
+        </div>
+        
+        <div class="border-t border-dashed border-black my-2"></div>
+        
+        <div class="text-center text-[9px] space-y-1">
+            <div>Metode: {order.payment_method?.name || '-'}</div>
+            <div class="font-bold">STATUS: {order.payment_status === 'paid' ? 'LUNAS' : 'BELUM BAYAR'}</div>
+            <div class="pt-2 italic">Terima kasih atas pesanan Anda!</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        :global(body *) {
+            visibility: hidden;
+        }
+        :global(main), :global(.content-area), :global(body) {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+        }
+        .print\:block, .print\:block * {
+            visibility: visible;
+        }
+        .print\:block {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 80mm;
+            display: block !important;
+            padding: 10px;
+            color: #000 !important;
+            background: #fff !important;
+        }
+        .page-break {
+            page-break-after: always;
+            break-after: page;
+        }
+        @page {
+            size: 80mm auto;
+            margin: 0;
+        }
+    }
+</style>

@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\DTOs\Chef\{ChefData, ChefTransferData};
-use App\Models\{Chef, ChefTransfer, OrderItem};
-use App\Traits\{FileHelperTrait, RetryableTransactionsTrait};
+use App\DTOs\Chef\ChefData;
+use App\DTOs\Chef\ChefTransferData;
+use App\Models\Chef;
+use App\Models\ChefTransfer;
+use App\Models\OrderItem;
+use App\Traits\FileHelperTrait;
+use App\Traits\RetryableTransactionsTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\{DB, Log};
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Service for Chef business logic.
@@ -18,18 +23,21 @@ use Illuminate\Support\Facades\{DB, Log};
  */
 class ChefService
 {
-    use RetryableTransactionsTrait, FileHelperTrait;
+    use FileHelperTrait, RetryableTransactionsTrait;
 
     /**
-     * Get paginated chefs with optional search.
+     * Get paginated chefs with optional search and region.
      *
-     * @param int $perPage Jumlah item per halaman
-     * @param string|null $search Kata kunci pencarian (nama/email/phone)
-     * @return LengthAwarePaginator
+     * @param  int  $perPage  Jumlah item per halaman
+     * @param  string|null  $search  Kata kunci pencarian (nama/email/phone)
+     * @param  string|null  $region  Wilayah dapur (enum value)
      */
-    public function getPaginated(int $perPage = 15, ?string $search = null): LengthAwarePaginator
+    public function getPaginated(int $perPage = 15, ?string $search = null, ?string $region = null): LengthAwarePaginator
     {
         $paginator = Chef::query()
+            ->when($region, function ($query, $region) {
+                $query->where('region', $region);
+            })
             ->when($search, function ($query, $search) {
                 $query->where('name', 'ilike', "%{$search}%")
                     ->orWhere('email', 'ilike', "%{$search}%")
@@ -57,14 +65,14 @@ class ChefService
         // Enrich with calculated fields (net_sales, outstanding_balance, etc)
         $paginator->getCollection()->transform(function ($chef) {
             $feePercentage = (float) $chef->fee_percentage;
-            $totalSales    = (int) $chef->total_sales;
+            $totalSales = (int) $chef->total_sales;
 
-            $totalFeeAmount   = (int) round($totalSales * $feePercentage / 100);
-            $netSales         = $totalSales - $totalFeeAmount;
+            $totalFeeAmount = (int) round($totalSales * $feePercentage / 100);
+            $netSales = $totalSales - $totalFeeAmount;
             $totalTransferred = (int) $chef->total_transferred;
 
-            $chef->total_fee_amount    = $totalFeeAmount;
-            $chef->net_sales           = $netSales;
+            $chef->total_fee_amount = $totalFeeAmount;
+            $chef->net_sales = $netSales;
             $chef->outstanding_balance = $netSales - $totalTransferred;
 
             return $chef;
@@ -76,8 +84,7 @@ class ChefService
     /**
      * Create a new chef and sync assigned products.
      *
-     * @param ChefData $data Validated chef data
-     * @return Chef
+     * @param  ChefData  $data  Validated chef data
      *
      * @throws \Throwable
      */
@@ -87,24 +94,25 @@ class ChefService
             try {
                 return DB::transaction(function () use ($data) {
                     $chef = Chef::create([
-                        'name'           => $data->name,
-                        'business_name'  => $data->businessName,
-                        'email'          => $data->email,
-                        'password'       => $data->password,
-                        'phone'          => $data->phone,
-                        'bank_name'      => $data->bankName,
+                        'name' => $data->name,
+                        'business_name' => $data->businessName,
+                        'email' => $data->email,
+                        'password' => $data->password,
+                        'phone' => $data->phone,
+                        'bank_name' => $data->bankName,
                         'account_number' => $data->accountNumber,
-                        'account_name'   => $data->accountName,
-                        'note'           => $data->note,
+                        'account_name' => $data->accountName,
+                        'note' => $data->note,
                         'fee_percentage' => $data->feePercentage,
-                        'address'        => $data->address,
-                        'longitude'      => $data->longitude,
-                        'latitude'       => $data->latitude,
-                        'is_active'      => $data->isActive,
-                        'order_types'    => $data->orderTypes,
+                        'address' => $data->address,
+                        'longitude' => $data->longitude,
+                        'latitude' => $data->latitude,
+                        'is_active' => $data->isActive,
+                        'order_types' => $data->orderTypes,
+                        'region' => $data->region,
                     ]);
 
-                    if (!empty($data->productIds)) {
+                    if (! empty($data->productIds)) {
                         $chef->products()->sync($data->productIds);
                     }
 
@@ -113,8 +121,8 @@ class ChefService
             } catch (\Throwable $e) {
                 Log::error('Failed to create chef', [
                     'error' => $e->getMessage(),
-                    'data'  => [
-                        'name'  => $data->name,
+                    'data' => [
+                        'name' => $data->name,
                         'email' => $data->email,
                     ],
                     'trace' => $e->getTraceAsString(),
@@ -127,9 +135,8 @@ class ChefService
     /**
      * Update an existing chef and sync assigned products.
      *
-     * @param Chef $chef Chef model to update
-     * @param ChefData $data Validated chef data
-     * @return Chef
+     * @param  Chef  $chef  Chef model to update
+     * @param  ChefData  $data  Validated chef data
      *
      * @throws \Throwable
      */
@@ -139,20 +146,21 @@ class ChefService
             try {
                 return DB::transaction(function () use ($chef, $data) {
                     $updateData = [
-                        'name'           => $data->name,
-                        'business_name'  => $data->businessName,
-                        'email'          => $data->email,
-                        'phone'          => $data->phone,
-                        'bank_name'      => $data->bankName,
+                        'name' => $data->name,
+                        'business_name' => $data->businessName,
+                        'email' => $data->email,
+                        'phone' => $data->phone,
+                        'bank_name' => $data->bankName,
                         'account_number' => $data->accountNumber,
-                        'account_name'   => $data->accountName,
-                        'note'           => $data->note,
+                        'account_name' => $data->accountName,
+                        'note' => $data->note,
                         'fee_percentage' => $data->feePercentage,
-                        'address'        => $data->address,
-                        'longitude'      => $data->longitude,
-                        'latitude'       => $data->latitude,
-                        'is_active'      => $data->isActive,
-                        'order_types'    => $data->orderTypes,
+                        'address' => $data->address,
+                        'longitude' => $data->longitude,
+                        'latitude' => $data->latitude,
+                        'is_active' => $data->isActive,
+                        'order_types' => $data->orderTypes,
+                        'region' => $data->region,
                     ];
 
                     if ($data->password !== null) {
@@ -166,10 +174,10 @@ class ChefService
                 });
             } catch (\Throwable $e) {
                 Log::error('Failed to update chef', [
-                    'error'   => $e->getMessage(),
+                    'error' => $e->getMessage(),
                     'chef_id' => $chef->id,
-                    'data'    => [
-                        'name'  => $data->name,
+                    'data' => [
+                        'name' => $data->name,
                         'email' => $data->email,
                     ],
                     'trace' => $e->getTraceAsString(),
@@ -182,8 +190,7 @@ class ChefService
     /**
      * Soft-delete a chef.
      *
-     * @param Chef $chef Chef model to delete
-     * @return bool|null
+     * @param  Chef  $chef  Chef model to delete
      *
      * @throws \Throwable
      */
@@ -198,9 +205,9 @@ class ChefService
                 });
             } catch (\Throwable $e) {
                 Log::error('Failed to delete chef', [
-                    'error'   => $e->getMessage(),
+                    'error' => $e->getMessage(),
                     'chef_id' => $chef->id,
-                    'trace'   => $e->getTraceAsString(),
+                    'trace' => $e->getTraceAsString(),
                 ]);
                 throw $e;
             }
@@ -213,9 +220,8 @@ class ChefService
      * Fee is computed from the chef's current `fee_percentage` and snapshot-ed
      * at the time of transfer for audit trail.
      *
-     * @param Chef $chef Target chef
-     * @param ChefTransferData $data Validated transfer data
-     * @return ChefTransfer
+     * @param  Chef  $chef  Target chef
+     * @param  ChefTransferData  $data  Validated transfer data
      *
      * @throws \Throwable
      */
@@ -225,28 +231,28 @@ class ChefService
             try {
                 return DB::transaction(function () use ($chef, $data) {
                     $feePercentage = $chef->fee_percentage;
-                    $grossAmount   = $data->grossAmount;
-                    $feeAmount     = (int) round($grossAmount * $feePercentage / 100);
-                    $netAmount     = $grossAmount - $feeAmount;
+                    $grossAmount = $data->grossAmount;
+                    $feeAmount = (int) round($grossAmount * $feePercentage / 100);
+                    $netAmount = $grossAmount - $feeAmount;
 
                     $proofPath = $this->handleFileInput($data->transferProof, null, 'chef_transfers');
 
                     return $chef->transfers()->create([
-                        'amount'         => $netAmount,
+                        'amount' => $netAmount,
                         'fee_percentage' => $feePercentage,
-                        'fee_amount'     => $feeAmount,
-                        'gross_amount'   => $grossAmount,
-                        'note'           => $data->note,
+                        'fee_amount' => $feeAmount,
+                        'gross_amount' => $grossAmount,
+                        'note' => $data->note,
                         'transfer_proof' => $proofPath,
                         'transferred_at' => $data->transferredAt,
                     ]);
                 });
             } catch (\Throwable $e) {
                 Log::error('Failed to create chef transfer', [
-                    'error'   => $e->getMessage(),
+                    'error' => $e->getMessage(),
                     'chef_id' => $chef->id,
-                    'data'    => [
-                        'gross_amount'   => $data->grossAmount,
+                    'data' => [
+                        'gross_amount' => $data->grossAmount,
                         'transferred_at' => $data->transferredAt,
                     ],
                     'trace' => $e->getTraceAsString(),
@@ -263,7 +269,7 @@ class ChefService
      * total_transferred, and outstanding_balance based on delivered/paid orders
      * linked through the chef's assigned products.
      *
-     * @param Chef $chef Chef model to enrich
+     * @param  Chef  $chef  Chef model to enrich
      * @return Chef Chef model with dynamically set attributes
      */
     public function enrichWithSalesData(Chef $chef): Chef
@@ -280,15 +286,15 @@ class ChefService
             })
             ->sum('subtotal');
 
-        $feePercentage    = $chef->fee_percentage;
-        $totalFeeAmount   = (int) round($totalSales * $feePercentage / 100);
-        $netSales         = $totalSales - $totalFeeAmount;
+        $feePercentage = $chef->fee_percentage;
+        $totalFeeAmount = (int) round($totalSales * $feePercentage / 100);
+        $netSales = $totalSales - $totalFeeAmount;
         $totalTransferred = (int) $chef->transfers()->sum('amount');
 
-        $chef->total_sales         = $totalSales;
-        $chef->total_fee_amount    = $totalFeeAmount;
-        $chef->net_sales           = $netSales;
-        $chef->total_transferred   = $totalTransferred;
+        $chef->total_sales = $totalSales;
+        $chef->total_fee_amount = $totalFeeAmount;
+        $chef->net_sales = $netSales;
+        $chef->total_transferred = $totalTransferred;
         $chef->outstanding_balance = $netSales - $totalTransferred;
 
         return $chef;
