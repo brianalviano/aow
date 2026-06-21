@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import type { Snippet } from "svelte";
 
     interface NavLink {
@@ -19,6 +20,13 @@
     }
 
     let { children, navSections = [], tocItems = [] }: Props = $props();
+
+    onMount(() => {
+        document.body.classList.add("docs-page");
+        return () => {
+            document.body.classList.remove("docs-page");
+        };
+    });
 
     // ── scroll-spy ──────────────────────────────────────────────────────────
     let activeId = $state<string>("");
@@ -198,7 +206,7 @@
 </div>
 
 <style>
-    :global(body) {
+    :global(body.docs-page) {
         background-color: #0d0f14;
         background-image: radial-gradient(circle, #1f2433 1px, transparent 1px);
         background-size: 28px 28px;
@@ -206,22 +214,18 @@
         color: #d4d8e8;
     }
 
-    :global(::-webkit-scrollbar) {
+    :global(body.docs-page ::-webkit-scrollbar) {
         width: 6px;
     }
-    :global(::-webkit-scrollbar-track) {
+    :global(body.docs-page ::-webkit-scrollbar-track) {
         background: #0d0f14;
     }
-    :global(::-webkit-scrollbar-thumb) {
+    :global(body.docs-page ::-webkit-scrollbar-thumb) {
         background: #1f2433;
         border-radius: 4px;
     }
-    :global(::-webkit-scrollbar-thumb:hover) {
+    :global(body.docs-page ::-webkit-scrollbar-thumb:hover) {
         background: #e8c547;
-    }
-
-    :global(html) {
-        scroll-behavior: smooth;
     }
 
     .nav-link-active::before {
@@ -235,30 +239,30 @@
         border-radius: 2px;
     }
 
-    :global(.doc-section) {
+    :global(body.docs-page .doc-section) {
         opacity: 0;
         transform: translateY(18px);
         animation: fadeUp 0.5s ease forwards;
     }
-    :global(.doc-section:nth-child(1)) {
+    :global(body.docs-page .doc-section:nth-child(1)) {
         animation-delay: 0.05s;
     }
-    :global(.doc-section:nth-child(2)) {
+    :global(body.docs-page .doc-section:nth-child(2)) {
         animation-delay: 0.1s;
     }
-    :global(.doc-section:nth-child(3)) {
+    :global(body.docs-page .doc-section:nth-child(3)) {
         animation-delay: 0.15s;
     }
-    :global(.doc-section:nth-child(4)) {
+    :global(body.docs-page .doc-section:nth-child(4)) {
         animation-delay: 0.2s;
     }
-    :global(.doc-section:nth-child(5)) {
+    :global(body.docs-page .doc-section:nth-child(5)) {
         animation-delay: 0.25s;
     }
-    :global(.doc-section:nth-child(6)) {
+    :global(body.docs-page .doc-section:nth-child(6)) {
         animation-delay: 0.3s;
     }
-    :global(.doc-section:nth-child(7)) {
+    :global(body.docs-page .doc-section:nth-child(7)) {
         animation-delay: 0.35s;
     }
 
@@ -269,7 +273,7 @@
         }
     }
 
-    :global(code:not(pre code)) {
+    :global(body.docs-page code:not(pre code)) {
         font-family: "Fira Code", monospace;
         font-size: 0.78em;
         background: #1f2433;
@@ -278,24 +282,24 @@
         border-radius: 4px;
     }
 
-    :global(pre) {
+    :global(body.docs-page pre) {
         font-family: "Fira Code", monospace;
         font-size: 0.78rem;
         line-height: 1.7;
         overflow-x: auto;
     }
 
-    :global(table) {
+    :global(body.docs-page table) {
         border-collapse: collapse;
         width: 100%;
     }
-    :global(thead tr) {
+    :global(body.docs-page thead tr) {
         border-bottom: 1px solid #1f2433;
     }
-    :global(tbody tr) {
+    :global(body.docs-page tbody tr) {
         border-bottom: 1px solid #1a1d28;
     }
-    :global(tbody tr:last-child) {
+    :global(body.docs-page tbody tr:last-child) {
         border-bottom: none;
     }
 
