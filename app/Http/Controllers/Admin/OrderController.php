@@ -171,6 +171,27 @@ class OrderController extends Controller
     }
 
     /**
+     * Print the specified order receipt.
+     */
+    public function printReceipt(Order $order)
+    {
+        $order->load([
+            'items.product',
+            'items.options.productOption',
+            'items.options.productOptionItem',
+            'customer',
+            'dropPoint',
+            'customerAddress',
+            'paymentMethod',
+        ]);
+
+        return view('admin.orders.print', [
+            'order' => $order,
+            'settings' => \App\Models\CompanyProfile::first(),
+        ]);
+    }
+
+    /**
      * Cancel a pending order (admin action).
      *
      * @throws Throwable
