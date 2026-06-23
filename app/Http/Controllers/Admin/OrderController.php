@@ -10,6 +10,7 @@ use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Models\Chef;
+use App\Models\CompanyProfile;
 use App\Models\DropPoint;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -45,6 +46,7 @@ class OrderController extends Controller
             'status_counts' => [
                 'all' => Order::count(),
                 'unpaid' => Order::where('payment_status', 'pending')
+                    ->where('order_status', '!=', 'cancelled')
                     ->whereDoesntHave('paymentMethod', fn ($q) => $q->where('category', 'cash'))
                     ->count(),
                 'process' => Order::where(function ($q) {
@@ -187,7 +189,7 @@ class OrderController extends Controller
 
         return view('admin.orders.print', [
             'order' => $order,
-            'settings' => \App\Models\CompanyProfile::first(),
+            'settings' => CompanyProfile::first(),
         ]);
     }
 

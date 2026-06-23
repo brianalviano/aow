@@ -470,6 +470,7 @@ class OrderService
             switch ($dto->status) {
                 case 'unpaid':
                     $query->where('payment_status', 'pending')
+                        ->where('order_status', '!=', 'cancelled')
                         ->where(function ($q) {
                             $q->whereDoesntHave('paymentMethod', function ($pq) {
                                 $pq->where('category', 'cash');
@@ -553,6 +554,7 @@ class OrderService
         return Order::query()
             ->with(['customer', 'paymentMethod', 'items.product'])
             ->where('payment_status', 'pending')
+            ->where('order_status', '!=', 'cancelled')
             ->whereDoesntHave('paymentMethod', fn ($q) => $q->where('category', 'cash'))
             ->orderBy('payment_expired_at', 'asc')
             ->orderBy('created_at', 'asc')
@@ -673,6 +675,7 @@ class OrderService
             switch ($dto->status) {
                 case 'unpaid':
                     $query->where('payment_status', 'pending')
+                        ->where('order_status', '!=', 'cancelled')
                         ->where(function ($q) {
                             $q->whereDoesntHave('paymentMethod', function ($pq) {
                                 $pq->where('category', 'cash');

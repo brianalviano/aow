@@ -134,6 +134,7 @@ class HandleInertiaRequests extends Middleware
                         'link' => route('admin.orders.payments'),
                         'badge' => Order::query()
                             ->where('payment_status', 'pending')
+                            ->where('order_status', '!=', 'cancelled')
                             ->whereDoesntHave('paymentMethod', fn ($q) => $q->where('category', 'cash'))
                             ->count(),
                     ],
