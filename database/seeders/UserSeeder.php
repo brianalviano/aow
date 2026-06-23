@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\{User, Role};
 use App\Enums\RoleName;
-use Illuminate\Notifications\DatabaseNotification;
-use Illuminate\Support\Facades\{DB, Hash};
-use Illuminate\Support\Str;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -34,18 +34,19 @@ class UserSeeder extends Seeder
                         'name' => $defaults[$roleName]['name'],
                         'email' => $defaults[$roleName]['email'],
                     ];
+
                     continue;
                 }
                 $local = strtolower(str_replace(' ', '.', $roleName));
                 $userRecords[] = [
                     'role' => $roleName,
                     'name' => $roleName,
-                    'email' => $local . '@gmail.com',
+                    'email' => $local.'@gmail.com',
                 ];
             }
 
             $userRoleNames = array_values(array_unique(array_map(
-                static fn(array $u): string => $u['role'],
+                static fn (array $u): string => $u['role'],
                 $userRecords
             )));
 
@@ -57,7 +58,7 @@ class UserSeeder extends Seeder
 
             foreach ($userRecords as $u) {
                 $roleName = $u['role'];
-                if (!isset($roleIdsByName[$roleName])) {
+                if (! isset($roleIdsByName[$roleName])) {
                     continue;
                 }
 
@@ -89,7 +90,7 @@ class UserSeeder extends Seeder
                         'data' => [
                             'priority' => 'medium',
                             'title' => 'Selamat datang',
-                            'message' => 'Hai ' . (string) $user->name . ', akun kamu telah dibuat.',
+                            'message' => 'Hai '.(string) $user->name.', akun kamu telah dibuat.',
                             'url' => '/notifications',
                         ],
                         'read_at' => null,

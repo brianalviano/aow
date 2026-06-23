@@ -17,10 +17,6 @@ class BiteshipController extends Controller
 {
     /**
      * Handle incoming webhook from Biteship.
-     * 
-     * @param Request $request
-     * @param OrderService $orderService
-     * @return JsonResponse
      */
     public function handle(Request $request, OrderService $orderService): JsonResponse
     {
@@ -29,7 +25,7 @@ class BiteshipController extends Controller
         $biteshipOrderId = $request->input('order_id');
         $status = $request->input('status');
 
-        if (!$biteshipOrderId) {
+        if (! $biteshipOrderId) {
             return response()->json(['message' => 'Missing order_id'], 400);
         }
 

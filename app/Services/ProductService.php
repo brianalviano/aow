@@ -8,6 +8,7 @@ use App\DTOs\Product\ProductData;
 use App\Models\Product;
 use App\Traits\FileHelperTrait;
 use App\Traits\RetryableTransactionsTrait;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Log;
  */
 class ProductService
 {
-    use RetryableTransactionsTrait, FileHelperTrait;
+    use FileHelperTrait, RetryableTransactionsTrait;
 
     /**
      * Get paginated products.
@@ -39,8 +40,6 @@ class ProductService
     /**
      * Store a newly created product.
      *
-     * @param ProductData $data
-     * @return Product
      * @throws \Throwable
      */
     public function createProduct(ProductData $data): Product
@@ -109,9 +108,6 @@ class ProductService
     /**
      * Update the specified product.
      *
-     * @param Product $product
-     * @param ProductData $data
-     * @return Product
      * @throws \Throwable
      */
     public function updateProduct(Product $product, ProductData $data): Product
@@ -187,10 +183,10 @@ class ProductService
 
                         // Delete removed items
                         foreach ($existingItems as $existingItemId => $existingItem) {
-                            if (!in_array($existingItemId, $keepItemIds)) {
+                            if (! in_array($existingItemId, $keepItemIds)) {
                                 try {
                                     $existingItem->delete();
-                                } catch (\Illuminate\Database\QueryException $e) {
+                                } catch (QueryException $e) {
                                     if ($e->getCode() === '23503') {
                                         throw new \RuntimeException(
                                             "Gagal menghapus item opsi '{$existingItem->name}' karena sudah digunakan dalam riwayat pesanan."
@@ -204,11 +200,11 @@ class ProductService
 
                     // Delete removed options
                     foreach ($existingOptions as $existingOptionId => $existingOption) {
-                        if (!in_array($existingOptionId, $keepOptionIds)) {
+                        if (! in_array($existingOptionId, $keepOptionIds)) {
                             try {
                                 $existingOption->items()->delete();
                                 $existingOption->delete();
-                            } catch (\Illuminate\Database\QueryException $e) {
+                            } catch (QueryException $e) {
                                 if ($e->getCode() === '23503') {
                                     throw new \RuntimeException(
                                         "Gagal menghapus opsi '{$existingOption->name}' karena sudah digunakan dalam riwayat pesanan."
@@ -254,8 +250,6 @@ class ProductService
     /**
      * Delete the specified product.
      *
-     * @param Product $product
-     * @return bool|null
      * @throws \Throwable
      */
     public function deleteProduct(Product $product): ?bool
@@ -266,6 +260,7 @@ class ProductService
                     if ($product->image) {
                         $this->deleteFile($product->image);
                     }
+
                     return $product->delete();
                 });
             } catch (\Throwable $e) {

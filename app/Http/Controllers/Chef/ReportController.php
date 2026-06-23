@@ -8,10 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Models\ChefTransfer;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Carbon;
 
 /**
  * Controller for managing chef report and income transfers.
@@ -20,8 +20,6 @@ class ReportController extends Controller
 {
     /**
      * Display a report of income and transfers for the chef.
-     *
-     * @return \Inertia\Response
      */
     public function index(Request $request): Response
     {
@@ -91,7 +89,7 @@ class ReportController extends Controller
                 'date_range' => $dateRange,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-            ]
+            ],
         ]);
     }
 }

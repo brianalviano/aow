@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
  */
 class PaymentMethodService
 {
-    use RetryableTransactionsTrait, FileHelperTrait;
+    use FileHelperTrait, RetryableTransactionsTrait;
 
     /**
      * Get paginated payment methods.
@@ -139,6 +139,7 @@ class PaymentMethodService
                     if ($paymentMethod->qr_image) {
                         $this->deleteFile($paymentMethod->qr_image);
                     }
+
                     return $paymentMethod->delete();
                 });
             } catch (\Throwable $e) {

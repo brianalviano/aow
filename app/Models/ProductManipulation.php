@@ -40,8 +40,6 @@ class ProductManipulation extends Model
 
     /**
      * Get the product associated with this manipulation setting.
-     *
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {

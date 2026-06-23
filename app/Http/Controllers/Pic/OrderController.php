@@ -16,18 +16,12 @@ use Inertia\Inertia;
  */
 class OrderController extends Controller
 {
-    /**
-     * @param PicOrderService $service
-     */
     public function __construct(
         private readonly PicOrderService $service,
     ) {}
 
     /**
      * PIC approves that order has arrived at the pickup point.
-     *
-     * @param Order $order
-     * @return RedirectResponse
      */
     public function approve(Order $order): RedirectResponse
     {
@@ -39,6 +33,7 @@ class OrderController extends Controller
                 'type' => 'error',
                 'message' => 'Pesanan ini bukan milik pickup point Anda.',
             ]);
+
             return redirect()->back();
         }
 
@@ -52,7 +47,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'Gagal mengkonfirmasi pesanan: ' . $e->getMessage(),
+                'message' => 'Gagal mengkonfirmasi pesanan: '.$e->getMessage(),
             ]);
         }
 
@@ -61,9 +56,6 @@ class OrderController extends Controller
 
     /**
      * PIC sends order to customer (instant: via Biteship, pre-order: manual).
-     *
-     * @param Order $order
-     * @return RedirectResponse
      */
     public function send(Order $order): RedirectResponse
     {
@@ -74,6 +66,7 @@ class OrderController extends Controller
                 'type' => 'error',
                 'message' => 'Pesanan ini bukan milik pickup point Anda.',
             ]);
+
             return redirect()->back();
         }
 
@@ -91,7 +84,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'Gagal mengirim pesanan: ' . $e->getMessage(),
+                'message' => 'Gagal mengirim pesanan: '.$e->getMessage(),
             ]);
         }
 
@@ -100,9 +93,6 @@ class OrderController extends Controller
 
     /**
      * PIC marks pre-order as delivered/completed.
-     *
-     * @param Order $order
-     * @return RedirectResponse
      */
     public function complete(Order $order): RedirectResponse
     {
@@ -113,6 +103,7 @@ class OrderController extends Controller
                 'type' => 'error',
                 'message' => 'Pesanan ini bukan milik pickup point Anda.',
             ]);
+
             return redirect()->back();
         }
 
@@ -126,7 +117,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'Gagal menandai pesanan selesai: ' . $e->getMessage(),
+                'message' => 'Gagal menandai pesanan selesai: '.$e->getMessage(),
             ]);
         }
 

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\DTOs\Checkout\ProcessOrderData;
-use App\Models\{Chef, CustomerAddress, DropPoint, OrderSetting};
+use App\DTOs\Setting\OrderSettingsDTO;
+use App\Models\Chef;
+use App\Models\CustomerAddress;
+use App\Models\DropPoint;
+use App\Models\PaymentMethod;
 use App\Traits\RetryableTransactionsTrait;
-use Illuminate\Support\Facades\{Auth, DB, Log};
-use Throwable;
 
 /**
  * Service for handling checkout business logic.
@@ -23,7 +24,7 @@ class CheckoutService
     /**
      * Create a new CheckoutService instance.
      *
-     * @param BiteshipService $biteshipService Service for fetching shipping rates.
+     * @param  BiteshipService  $biteshipService  Service for fetching shipping rates.
      */
     public function __construct(
         private readonly BiteshipService $biteshipService,
@@ -35,10 +36,10 @@ class CheckoutService
      * Untuk custom address, ongkir dihitung dinamis per-chef via Biteship.
      * Untuk drop point, ongkir tetap flat fee seperti sebelumnya.
      *
-     * @param array $cart The current items in the cart.
-     * @param string|null $dropPointId The selected drop point ID.
-     * @param string|null $addressId The selected custom address ID.
-     * @param string|null $paymentMethodId The selected payment method ID.
+     * @param  array  $cart  The current items in the cart.
+     * @param  string|null  $dropPointId  The selected drop point ID.
+     * @param  string|null  $addressId  The selected custom address ID.
+     * @param  string|null  $paymentMethodId  The selected payment method ID.
      * @return array Calculated fees including delivery, admin, tax, and per-chef shipping breakdown.
      */
     public function calculateFees(
@@ -47,7 +48,7 @@ class CheckoutService
         ?string $addressId = null,
         ?string $paymentMethodId = null,
     ): array {
-        $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+        $settings = OrderSettingsDTO::load();
         $subtotal = collect($cart)->sum('totalPrice');
         $dropPoint = $dropPointId ? DropPoint::find($dropPointId) : null;
         $address = $addressId ? CustomerAddress::find($addressId) : null;
@@ -59,6 +60,7 @@ class CheckoutService
         // Get unique chefs from cart
         $uniqueChefIds = collect($cart)->map(function ($item) {
             $chefs = data_get($item, 'product.chefs', []);
+
             return collect($chefs)->pluck('id');
         })->flatten()->unique()->filter();
 
@@ -80,7 +82,7 @@ class CheckoutService
 
                 foreach ($uniqueChefIds as $chefId) {
                     $chef = $chefs->get($chefId);
-                    if (!$chef || !$chef->latitude || !$chef->longitude) {
+                    if (! $chef || ! $chef->latitude || ! $chef->longitude) {
                         continue;
                     }
 
@@ -144,7 +146,7 @@ class CheckoutService
         // Logic for Payment Method Service Fee
         $serviceFee = 0;
         if ($paymentMethodId) {
-            $paymentMethod = \App\Models\PaymentMethod::find($paymentMethodId);
+            $paymentMethod = PaymentMethod::find($paymentMethodId);
             if ($paymentMethod) {
                 $serviceFee = (int) round($subtotal * (float) $paymentMethod->service_fee_rate / 100) + (int) $paymentMethod->service_fee_fixed;
             }

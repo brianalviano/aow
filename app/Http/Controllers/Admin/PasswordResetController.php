@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DTOs\Auth\{ForgotPasswordData, ResetPasswordData};
+use App\DTOs\Auth\ForgotPasswordData;
+use App\DTOs\Auth\ResetPasswordData;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
+use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
-use App\Models\User;
 
 class PasswordResetController extends Controller
 {
@@ -24,11 +25,12 @@ class PasswordResetController extends Controller
         $exists = User::query()
             ->whereRaw('LOWER(email) = ?', [$email])
             ->exists();
-        if (!$exists) {
+        if (! $exists) {
             Inertia::flash('toast', [
                 'message' => 'Email tidak terdaftar',
                 'type' => 'error',
             ]);
+
             return back()->withErrors(['email' => 'Email tidak terdaftar']);
         }
         $status = Password::sendResetLink(['email' => $dto->email]);
@@ -38,6 +40,7 @@ class PasswordResetController extends Controller
                 'message' => trans($status),
                 'type' => 'success',
             ]);
+
             return back();
         }
 
@@ -45,6 +48,7 @@ class PasswordResetController extends Controller
             'message' => trans($status),
             'type' => 'error',
         ]);
+
         return back()->withErrors(['email' => trans($status)]);
     }
 
@@ -72,12 +76,14 @@ class PasswordResetController extends Controller
                 'message' => trans($status),
                 'type' => 'success',
             ]);
+
             return redirect()->route('admin.login');
         }
         Inertia::flash('toast', [
             'message' => trans($status),
             'type' => 'error',
         ]);
+
         return back()->withErrors(['email' => trans($status)]);
     }
 }

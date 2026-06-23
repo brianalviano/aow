@@ -7,7 +7,8 @@ namespace App\Http\Controllers\Pic;
 use App\Http\Controllers\Controller;
 use App\Services\PicOrderService;
 use Illuminate\Support\Facades\Auth;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Dashboard controller for PIC (Pickup Point Officer).
@@ -18,9 +19,6 @@ class DashboardController extends Controller
 {
     /**
      * Display PIC dashboard with orders across all statuses.
-     *
-     * @param PicOrderService $service
-     * @return Response
      */
     public function index(PicOrderService $service): Response
     {

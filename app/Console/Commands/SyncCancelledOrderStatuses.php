@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Enums\{ChefStatus, OrderStatus};
-use App\Models\{Order, OrderItem, OrderShipping};
+use App\Enums\ChefStatus;
+use App\Enums\OrderStatus;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\OrderShipping;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -41,7 +44,7 @@ class SyncCancelledOrderStatuses extends Command
         $query = Order::query()
             ->where('order_status', OrderStatus::CANCELLED)
             ->where(function ($query) {
-                $query->whereHas('items', fn($itemQuery) => $itemQuery->where('chef_status', '!=', ChefStatus::CANCELLED->value))
+                $query->whereHas('items', fn ($itemQuery) => $itemQuery->where('chef_status', '!=', ChefStatus::CANCELLED->value))
                     ->orWhereHas('shippings', function ($shippingQuery) {
                         $shippingQuery->whereNull('biteship_status')
                             ->orWhere('biteship_status', '!=', 'cancelled');
@@ -50,11 +53,11 @@ class SyncCancelledOrderStatuses extends Command
 
         $orderCount = (clone $query)->count();
         $itemCount = OrderItem::query()
-            ->whereHas('order', fn($orderQuery) => $orderQuery->where('order_status', OrderStatus::CANCELLED))
+            ->whereHas('order', fn ($orderQuery) => $orderQuery->where('order_status', OrderStatus::CANCELLED))
             ->where('chef_status', '!=', ChefStatus::CANCELLED->value)
             ->count();
         $shippingCount = OrderShipping::query()
-            ->whereHas('order', fn($orderQuery) => $orderQuery->where('order_status', OrderStatus::CANCELLED))
+            ->whereHas('order', fn ($orderQuery) => $orderQuery->where('order_status', OrderStatus::CANCELLED))
             ->where(function ($shippingQuery) {
                 $shippingQuery->whereNull('biteship_status')
                     ->orWhere('biteship_status', '!=', 'cancelled');

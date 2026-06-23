@@ -60,6 +60,7 @@ class PaymentGuideService
             try {
                 return DB::transaction(function () use ($paymentGuide, $data) {
                     $paymentGuide->update($data);
+
                     return $paymentGuide->refresh();
                 });
             } catch (\Throwable $e) {

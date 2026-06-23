@@ -8,10 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DropPointResource;
 use App\Http\Resources\ProductCategoryResource;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\TestimonialResource;
 use App\Models\DropPoint;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Services\QuotaService;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -81,7 +83,7 @@ class ProductController extends Controller
                 $query->orderBy('sort_order')->with(['items' => function ($query) {
                     $query->orderBy('sort_order');
                 }]);
-            }
+            },
         ])
             ->where('is_active', true)
             ->whereHas('chefs', function ($query) use ($orderType) {
@@ -111,9 +113,10 @@ class ProductController extends Controller
     /**
      * Get paginated testimonials for a product.
      */
-    public function testimonials(Product $product): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function testimonials(Product $product): AnonymousResourceCollection
     {
         $merged = $product->getManipulatedTestimonials(50); // Get up to 50 merged items
-        return \App\Http\Resources\TestimonialResource::collection($merged);
+
+        return TestimonialResource::collection($merged);
     }
 }

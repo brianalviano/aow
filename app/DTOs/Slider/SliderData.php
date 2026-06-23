@@ -43,7 +43,7 @@ class SliderData extends Data
         $self = new self(name: '');
 
         return [
-            'photo' => $self->getFileValidationRules(!$isUpdate, [
+            'photo' => $self->getFileValidationRules(! $isUpdate, [
                 'allowed_types' => ['image/jpeg', 'image/png', 'image/webp'],
                 'max_size' => 2 * 1024 * 1024, // 2MB
             ]),

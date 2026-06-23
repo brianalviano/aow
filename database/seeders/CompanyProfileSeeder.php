@@ -13,15 +13,15 @@ class CompanyProfileSeeder extends Seeder
     public function run(): void
     {
         CompanyProfile::updateOrCreate([
-            'name'      => 'AOWenak',
+            'name' => 'AOWenak',
         ], [
-            'email'     => 'aowenak.official@gmail.com',
-            'phone'     => '081330704059',
-            'whatsapp'  => '6281330704059',
-            'address'   => 'Jl. Medokan Asri Utara IX No.25, Medokan Ayu, Kec. Rungkut, Surabaya, Jawa Timur 60295',
+            'email' => 'aowenak.official@gmail.com',
+            'phone' => '081330704059',
+            'whatsapp' => '6281330704059',
+            'address' => 'Jl. Medokan Asri Utara IX No.25, Medokan Ayu, Kec. Rungkut, Surabaya, Jawa Timur 60295',
             'instagram' => 'https://instagram.com/aow.enak',
-            'facebook'  => null,
-            'tiktok'    => 'https://tiktok.com/@aow.enak',
+            'facebook' => null,
+            'tiktok' => 'https://tiktok.com/@aow.enak',
         ]);
     }
 }

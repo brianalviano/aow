@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Chef;
 
+use App\DTOs\Order\OrderFilterDTO;
 use App\Http\Controllers\Controller;
-use App\Models\OrderItem;
+use App\Services\OrderService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Http\RedirectResponse;
 
 /**
  * Controller for managing chef orders.
@@ -19,15 +20,11 @@ class OrderController extends Controller
 {
     /**
      * Display a listing of orders assigned to the chef.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Services\OrderService $service
-     * @return \Inertia\Response
      */
-    public function index(Request $request, \App\Services\OrderService $service): Response
+    public function index(Request $request, OrderService $service): Response
     {
         $chef = Auth::guard('chef')->user();
-        $dto = \App\DTOs\Order\OrderFilterDTO::from($request->all());
+        $dto = OrderFilterDTO::from($request->all());
 
         $items = $service->getFilteredOrderItemsForChef(
             $chef->id,
@@ -36,7 +33,7 @@ class OrderController extends Controller
         )->withQueryString();
 
         return Inertia::render('Domains/Chef/Orders/Index', [
-            'items'   => $items,
+            'items' => $items,
             'filters' => $request->only(['search', 'date_range', 'start_date', 'end_date', 'status']),
         ]);
     }
@@ -44,7 +41,7 @@ class OrderController extends Controller
     /**
      * Approve selected order items.
      */
-    public function approve(Request $request, \App\Services\OrderService $orderService): RedirectResponse
+    public function approve(Request $request, OrderService $orderService): RedirectResponse
     {
         $request->validate([
             'item_ids' => ['required', 'array'],
@@ -63,7 +60,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'Gagal menerima item: ' . $e->getMessage(),
+                'message' => 'Gagal menerima item: '.$e->getMessage(),
             ]);
 
             return redirect()->back();
@@ -73,7 +70,7 @@ class OrderController extends Controller
     /**
      * Reject selected order items (cancels the entire order).
      */
-    public function reject(Request $request, \App\Services\OrderService $orderService): RedirectResponse
+    public function reject(Request $request, OrderService $orderService): RedirectResponse
     {
         $request->validate([
             'item_ids' => ['required', 'array'],
@@ -97,7 +94,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'Gagal menolak item: ' . $e->getMessage(),
+                'message' => 'Gagal menolak item: '.$e->getMessage(),
             ]);
 
             return redirect()->back();
@@ -107,7 +104,7 @@ class OrderController extends Controller
     /**
      * Mark selected order items as shipped.
      */
-    public function ship(Request $request, \App\Services\OrderService $orderService): RedirectResponse
+    public function ship(Request $request, OrderService $orderService): RedirectResponse
     {
         $request->validate([
             'item_ids' => ['required', 'array'],
@@ -126,7 +123,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'Gagal menandai item sebagai dikirim: ' . $e->getMessage(),
+                'message' => 'Gagal menandai item sebagai dikirim: '.$e->getMessage(),
             ]);
 
             return redirect()->back();

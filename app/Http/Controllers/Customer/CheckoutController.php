@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Customer;
 
+use App\DTOs\Setting\OrderSettingsDTO;
 use App\Http\Controllers\Controller;
 use App\Services\CheckoutService;
 use App\Services\QuotaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CheckoutController extends Controller
 {
     /**
      * Create a new CheckoutController instance.
      *
-     * @param CheckoutService $checkoutService Service for handling checkout logic.
+     * @param  CheckoutService  $checkoutService  Service for handling checkout logic.
      */
     public function __construct(
         private readonly CheckoutService $checkoutService,
@@ -25,8 +27,6 @@ class CheckoutController extends Controller
 
     /**
      * Display the checkout page with cart data from session.
-     *
-     * @return Response|RedirectResponse
      */
     public function index(): Response|RedirectResponse
     {
@@ -39,7 +39,7 @@ class CheckoutController extends Controller
         }
 
         $fees = $this->checkoutService->calculateFees($cart, $dropPointData['id'] ?? null, $addressData['id'] ?? null);
-        
+
         // Force preorder as instant is temporarily disabled
         $orderType = 'preorder';
         $deliveryDate = session('checkout_delivery_date');
@@ -84,8 +84,8 @@ class CheckoutController extends Controller
                 'admin_fee_type' => $fees['adminFeeType'],
                 'admin_fee_value' => $fees['adminFeeValue'],
                 'tax_enabled' => $fees['taxEnabled'],
-                'order_cutoff_time' => \App\DTOs\Setting\OrderSettingsDTO::load()->orderCutoffTime,
-                'order_min_days_ahead' => \App\DTOs\Setting\OrderSettingsDTO::load()->orderMinDaysAhead,
+                'order_cutoff_time' => OrderSettingsDTO::load()->orderCutoffTime,
+                'order_min_days_ahead' => OrderSettingsDTO::load()->orderMinDaysAhead,
             ],
             'quotaProgress' => $quotaProgress,
         ]);
@@ -94,8 +94,7 @@ class CheckoutController extends Controller
     /**
      * Store checkout data in session and redirect to checkout page.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
@@ -131,8 +130,7 @@ class CheckoutController extends Controller
     /**
      * Update checkout data in session without redirecting.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(Request $request)
     {
@@ -163,12 +161,10 @@ class CheckoutController extends Controller
 
     /**
      * Get the minimum delivery date for pre-orders.
-     *
-     * @return string
      */
     private function getMinDeliveryDate(): string
     {
-        $settings = \App\DTOs\Setting\OrderSettingsDTO::load();
+        $settings = OrderSettingsDTO::load();
         $cutoffTime = $settings->orderCutoffTime ?: '20:00';
         $minDays = max(1, $settings->orderMinDaysAhead);
 

@@ -58,7 +58,7 @@ class UserData extends Data
                 'string',
                 'max:255',
                 $userId
-                    ? 'unique:users,username,' . $userId
+                    ? 'unique:users,username,'.$userId
                     : 'unique:users,username',
             ],
             'email' => [
@@ -67,7 +67,7 @@ class UserData extends Data
                 'email',
                 'max:255',
                 $userId
-                    ? 'unique:users,email,' . $userId
+                    ? 'unique:users,email,'.$userId
                     : 'unique:users,email',
             ],
             'password' => [

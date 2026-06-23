@@ -78,7 +78,7 @@ class PickUpPointController extends Controller
             return redirect()->route('admin.pick-up-points.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membuat Pick Up Point: ' . $e->getMessage(),
+                'message' => 'Gagal membuat Pick Up Point: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -122,7 +122,7 @@ class PickUpPointController extends Controller
             return redirect()->route('admin.pick-up-points.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui Pick Up Point: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui Pick Up Point: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -146,7 +146,7 @@ class PickUpPointController extends Controller
             return redirect()->route('admin.pick-up-points.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus Pick Up Point: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus Pick Up Point: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 

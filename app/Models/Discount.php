@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use App\Enums\{DiscountScope, DiscountType};
+use App\Enums\DiscountScope;
+use App\Enums\DiscountType;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

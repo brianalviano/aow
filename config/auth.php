@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\Chef;
+use App\Models\Customer;
+use App\Models\PickUpPointOfficer;
+use App\Models\User;
+
 return [
 
     /*
@@ -77,22 +82,22 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => env('AUTH_MODEL', User::class),
         ],
 
         'customers' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Customer::class,
+            'model' => Customer::class,
         ],
 
         'chefs' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Chef::class,
+            'model' => Chef::class,
         ],
 
         'pickup_officers' => [
             'driver' => 'eloquent',
-            'model' => App\Models\PickUpPointOfficer::class,
+            'model' => PickUpPointOfficer::class,
         ],
     ],
 

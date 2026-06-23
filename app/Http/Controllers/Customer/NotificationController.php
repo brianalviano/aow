@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,12 +16,10 @@ class NotificationController extends Controller
 {
     /**
      * Display the notification list.
-     *
-     * @return Response
      */
     public function index(): Response
     {
-        /** @var \App\Models\Customer $user */
+        /** @var Customer $user */
         $user = Auth::guard('customer')->user();
 
         $notifications = $user->notifications()->paginate(15);
@@ -32,13 +31,10 @@ class NotificationController extends Controller
 
     /**
      * Mark a specific notification or all notifications as read.
-     *
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function markAsRead(Request $request): RedirectResponse
     {
-        /** @var \App\Models\Customer $user */
+        /** @var Customer $user */
         $user = Auth::guard('customer')->user();
 
         if ($request->has('id')) {

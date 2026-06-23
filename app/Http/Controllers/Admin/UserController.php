@@ -6,8 +6,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\DTOs\User\UserData;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\{RoleResource, UserResource};
-use App\Models\{Role, User};
+use App\Http\Resources\RoleResource;
+use App\Http\Resources\UserResource;
+use App\Models\Role;
+use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -76,7 +78,7 @@ class UserController extends Controller
             return redirect()->route('admin.users.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membuat User: ' . $e->getMessage(),
+                'message' => 'Gagal membuat User: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -116,7 +118,7 @@ class UserController extends Controller
             return redirect()->route('admin.users.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui User: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui User: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -136,6 +138,7 @@ class UserController extends Controller
                     'message' => 'Anda tidak dapat menghapus akun Anda sendiri',
                     'type' => 'error',
                 ]);
+
                 return back();
             }
 
@@ -149,7 +152,7 @@ class UserController extends Controller
             return redirect()->route('admin.users.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus User: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus User: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 

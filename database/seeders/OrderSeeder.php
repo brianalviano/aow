@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\DTOs\Checkout\ProcessOrderData;
-use App\Models\{Customer, DropPoint, Order, OrderItem, OrderItemOption, OrderSetting, PaymentMethod, Product};
-use App\Services\{DailySummaryService, OrderService};
+use App\Models\Customer;
+use App\Models\DropPoint;
+use App\Models\Order;
+use App\Models\OrderSetting;
+use App\Models\PaymentMethod;
+use App\Models\Product;
+use App\Services\DailySummaryService;
+use App\Services\OrderService;
 use Carbon\Carbon;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\{DB, Mail, Notification};
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 
 class OrderSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @param DailySummaryService $summaryService
-     * @param OrderService $orderService
      */
     public function run(DailySummaryService $summaryService, OrderService $orderService): void
     {
@@ -35,6 +40,7 @@ class OrderSeeder extends Seeder
 
         if ($customers->isEmpty() || $dropPoints->isEmpty() || $paymentMethods->isEmpty() || $products->isEmpty()) {
             $this->command->warn('Missing required related data (Customers, DropPoints, PaymentMethods, or Products). Skipping OrderSeeder.');
+
             return;
         }
 
@@ -44,7 +50,7 @@ class OrderSeeder extends Seeder
             $createdAt = Carbon::now()->subDays(rand(0, 30))->subHours(rand(0, 23))->subMinutes(rand(0, 59));
             $dates[$createdAt->toDateString()] = $createdAt->copy()->startOfDay();
 
-            DB::transaction(function () use ($faker, $customers, $dropPoints, $paymentMethods, $products, $settings, $createdAt, $orderService) {
+            DB::transaction(function () use ($faker, $customers, $dropPoints, $paymentMethods, $products, $createdAt, $orderService) {
                 $customer = $customers->random();
                 $dropPoint = $dropPoints->random();
                 $paymentMethod = $paymentMethods->random();
@@ -142,7 +148,7 @@ class OrderSeeder extends Seeder
      */
     private function generateOrderNumber(Carbon $date): string
     {
-        $prefix = "ORD/" . $date->format('mY') . "/";
+        $prefix = 'ORD/'.$date->format('mY').'/';
 
         $lastOrder = Order::where('number', 'like', "{$prefix}%")
             ->orderBy('number', 'desc')
@@ -155,6 +161,6 @@ class OrderSeeder extends Seeder
             $sequence = $lastSequence + 1;
         }
 
-        return $prefix . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
+        return $prefix.str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
     }
 }

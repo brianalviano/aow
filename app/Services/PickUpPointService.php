@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\DTOs\PickUpPoint\PickUpPointData;
 use App\Models\PickUpPoint;
+use App\Models\PickUpPointOfficer;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +34,7 @@ class PickUpPointService
 
     /**
      * Create a new pick up point.
-     * 
+     *
      * @throws Throwable
      */
     public function createPickUpPoint(PickUpPointData $data): PickUpPoint
@@ -49,8 +50,8 @@ class PickUpPointService
                     'is_active' => $data->isActive,
                 ]);
 
-                if (!empty($data->officerIds)) {
-                    \App\Models\PickUpPointOfficer::whereIn('id', $data->officerIds)
+                if (! empty($data->officerIds)) {
+                    PickUpPointOfficer::whereIn('id', $data->officerIds)
                         ->update(['pick_up_point_id' => $pickUpPoint->id]);
                 }
 
@@ -68,7 +69,7 @@ class PickUpPointService
 
     /**
      * Update an existing pick up point.
-     * 
+     *
      * @throws Throwable
      */
     public function updatePickUpPoint(PickUpPoint $pickUpPoint, PickUpPointData $data): PickUpPoint
@@ -86,15 +87,15 @@ class PickUpPointService
 
                 // Sync officers
                 // 1. Remove assignments for officers no longer selected
-                \App\Models\PickUpPointOfficer::where('pick_up_point_id', $pickUpPoint->id)
-                    ->when(!empty($data->officerIds), function ($query) use ($data) {
+                PickUpPointOfficer::where('pick_up_point_id', $pickUpPoint->id)
+                    ->when(! empty($data->officerIds), function ($query) use ($data) {
                         $query->whereNotIn('id', $data->officerIds);
                     })
                     ->update(['pick_up_point_id' => null]);
 
                 // 2. Add assignments for newly selected officers
-                if (!empty($data->officerIds)) {
-                    \App\Models\PickUpPointOfficer::whereIn('id', $data->officerIds)
+                if (! empty($data->officerIds)) {
+                    PickUpPointOfficer::whereIn('id', $data->officerIds)
                         ->update(['pick_up_point_id' => $pickUpPoint->id]);
                 }
 
@@ -113,7 +114,7 @@ class PickUpPointService
 
     /**
      * Delete a pick up point.
-     * 
+     *
      * @throws Throwable
      */
     public function deletePickUpPoint(PickUpPoint $pickUpPoint): bool

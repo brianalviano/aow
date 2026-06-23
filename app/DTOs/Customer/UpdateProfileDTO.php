@@ -29,7 +29,7 @@ class UpdateProfileDTO extends Data
 
         public readonly string $phone,
 
-        public readonly ?string $username = null,
+        public readonly ?string $username,
 
         public readonly string $email,
 
@@ -45,7 +45,7 @@ class UpdateProfileDTO extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(ValidationContext|null $context = null): array
+    public static function rules(?ValidationContext $context = null): array
     {
         $customerId = auth('customer')->id();
 

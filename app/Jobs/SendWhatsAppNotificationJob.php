@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Models\OrderSetting;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
-use App\Models\OrderSetting;
 
 class SendWhatsAppNotificationJob implements ShouldQueue
 {
@@ -20,8 +20,7 @@ class SendWhatsAppNotificationJob implements ShouldQueue
     public function __construct(
         public readonly string $phoneNumber,
         public readonly string $message,
-    ) {
-    }
+    ) {}
 
     /**
      * Calculate the number of seconds to wait before retrying the job.
@@ -53,13 +52,13 @@ class SendWhatsAppNotificationJob implements ShouldQueue
             ]);
 
             if ($response->failed()) {
-                throw new \Exception('Fonnte API HTTP error -> ' . $response->body());
+                throw new \Exception('Fonnte API HTTP error -> '.$response->body());
             }
 
             // Fonnte returns 200 OK even on some failures (e.g. invalid token), so we check 'status'
             $data = $response->json();
             if (isset($data['status']) && $data['status'] === false) {
-                 throw new \Exception('Fonnte API business logic error -> ' . json_encode($data));
+                throw new \Exception('Fonnte API business logic error -> '.json_encode($data));
             }
         } catch (Throwable $e) {
             Log::error('SendWhatsAppNotificationJob failed', [

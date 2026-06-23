@@ -29,6 +29,6 @@ class DiscountScope extends Model
 
     public function scope(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\DiscountScope::class);
+        return $this->belongsTo(DiscountScope::class);
     }
 }

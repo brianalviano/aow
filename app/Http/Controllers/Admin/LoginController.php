@@ -3,18 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class LoginController extends Controller
 {
     /**
      * Show the login form.
-     * 
-     * @return \Inertia\Response
-     * 
+     *
+     * @return Response
      */
     public function show()
     {
@@ -27,13 +28,11 @@ class LoginController extends Controller
 
     /**
      * Handle an authentication attempt.
-     * 
-     * @param Request $request The request.
-     * 
-     * @return \Illuminate\Http\RedirectResponse
-     * 
+     *
+     * @param  Request  $request  The request.
+     * @return RedirectResponse
+     *
      * @throws ValidationException
-     * 
      */
     public function authenticate(Request $request)
     {
@@ -52,6 +51,7 @@ class LoginController extends Controller
                 $user = Auth::getProvider()->retrieveByCredentials($fields);
                 if ($user) {
                     Auth::login($user, $remember);
+
                     return true;
                 }
             }
@@ -66,6 +66,7 @@ class LoginController extends Controller
                     'message' => 'Berhasil login',
                     'type' => 'success',
                 ]);
+
                 return redirect()->route('admin.dashboard');
             }
         }
@@ -76,6 +77,7 @@ class LoginController extends Controller
                 'message' => 'Berhasil login',
                 'type' => 'success',
             ]);
+
             return redirect()->route('dashboard');
         }
 
@@ -86,6 +88,7 @@ class LoginController extends Controller
                 'message' => 'Berhasil login',
                 'type' => 'success',
             ]);
+
             return redirect()->route('dashboard');
         }
 
@@ -105,21 +108,20 @@ class LoginController extends Controller
             return '';
         }
         if (str_starts_with($digits, '62')) {
-            return '0' . substr($digits, 2);
+            return '0'.substr($digits, 2);
         }
         if (str_starts_with($digits, '0')) {
             return $digits;
         }
-        return '0' . $digits;
+
+        return '0'.$digits;
     }
 
     /**
      * Log the user out of the application.
-     * 
-     * @param Request $request The request.
-     * 
-     * @return \Illuminate\Http\RedirectResponse
-     * 
+     *
+     * @param  Request  $request  The request.
+     * @return RedirectResponse
      */
     public function logout(Request $request)
     {
@@ -132,6 +134,7 @@ class LoginController extends Controller
             'message' => 'Berhasil logout',
             'type' => 'success',
         ]);
+
         return redirect()->route('admin.login');
     }
 }

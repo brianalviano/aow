@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Order, Customer, OrderItem};
+use App\Models\Customer;
+use App\Models\Order;
+use App\Models\OrderItem;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -15,8 +17,6 @@ class DashboardController extends Controller
 {
     /**
      * Display the dashboard.
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -62,7 +62,7 @@ class DashboardController extends Controller
             ->latest()
             ->limit(5)
             ->get()
-            ->map(fn($order) => [
+            ->map(fn ($order) => [
                 'id' => $order->id,
                 'number' => $order->number,
                 'customer' => [
@@ -84,7 +84,7 @@ class DashboardController extends Controller
             ->orderByDesc('total_sold')
             ->limit(5)
             ->get()
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'id' => $item->product_id,
                 'name' => $item->product?->name ?? 'Unknown',
                 'total_sold' => (int) $item->total_sold,

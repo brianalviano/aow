@@ -7,7 +7,8 @@ namespace App\Http\Controllers\Admin;
 use App\DTOs\PaymentMethod\PaymentMethodData;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PaymentMethodResource;
-use App\Models\{PaymentGuide, PaymentMethod};
+use App\Models\PaymentGuide;
+use App\Models\PaymentMethod;
 use App\Services\PaymentMethodService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,7 +69,7 @@ class PaymentMethodController extends Controller
             return redirect()->route('admin.payment-methods.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membuat Metode Pembayaran: ' . $e->getMessage(),
+                'message' => 'Gagal membuat Metode Pembayaran: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -103,7 +104,7 @@ class PaymentMethodController extends Controller
             return redirect()->route('admin.payment-methods.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui Metode Pembayaran: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui Metode Pembayaran: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -127,7 +128,7 @@ class PaymentMethodController extends Controller
             return redirect()->route('admin.payment-methods.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus Metode Pembayaran: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus Metode Pembayaran: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 

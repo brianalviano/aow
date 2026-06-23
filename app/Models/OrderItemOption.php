@@ -30,8 +30,6 @@ class OrderItemOption extends Model
 
     /**
      * Get the order item that this option belongs to.
-     *
-     * @return BelongsTo
      */
     public function orderItem(): BelongsTo
     {
@@ -40,8 +38,6 @@ class OrderItemOption extends Model
 
     /**
      * Get the product option associated with this order item option.
-     *
-     * @return BelongsTo
      */
     public function productOption(): BelongsTo
     {
@@ -50,8 +46,6 @@ class OrderItemOption extends Model
 
     /**
      * Get the specific product option item chosen.
-     *
-     * @return BelongsTo
      */
     public function productOptionItem(): BelongsTo
     {

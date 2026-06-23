@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Models\{CompanyProfile, Order};
+use App\Models\CompanyProfile;
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailables\{Content, Envelope};
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -23,7 +25,7 @@ class OrderPlacedMail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      *
-     * @param Order $order The newly created order.
+     * @param  Order  $order  The newly created order.
      */
     public function __construct(
         public readonly Order $order

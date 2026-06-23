@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Slider extends Model
 {
-    use HasFactory, HasUuids, FileHelperTrait;
+    use FileHelperTrait, HasFactory, HasUuids;
 
     /**
      * The attributes that are mass assignable.
@@ -28,9 +28,6 @@ class Slider extends Model
 
     /**
      * Get the photo URL.
-     *
-     * @param string|null $value
-     * @return string|null
      */
     public function getPhotoAttribute(?string $value): ?string
     {

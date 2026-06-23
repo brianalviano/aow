@@ -6,7 +6,6 @@ namespace Database\Seeders;
 
 use App\Models\Slider;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Storage;
 
 class SliderSeeder extends Seeder
 {

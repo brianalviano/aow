@@ -15,9 +15,6 @@ class CustomerProfileService
     /**
      * Update customer profile.
      *
-     * @param Customer $customer
-     * @param UpdateProfileDTO $dto
-     * @return bool
      * @throws \Throwable
      */
     public function updateProfile(Customer $customer, UpdateProfileDTO $dto): bool
@@ -32,14 +29,14 @@ class CustomerProfileService
                 $lockedCustomer->email = $dto->email;
                 $lockedCustomer->school_class = $dto->school_class;
 
-                if (!empty($dto->password)) {
+                if (! empty($dto->password)) {
                     $lockedCustomer->password = Hash::make($dto->password);
                 }
 
                 return $lockedCustomer->save();
             }, 3); // 3 retries for deadlocks
         } catch (\Throwable $e) {
-            Log::error('Gagal memperbarui profil: ' . $e->getMessage(), [
+            Log::error('Gagal memperbarui profil: '.$e->getMessage(), [
                 'customer_id' => $customer->id,
                 'dto' => (array) $dto,
                 'trace' => $e->getTraceAsString(),

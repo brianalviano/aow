@@ -81,6 +81,7 @@
 </head>
 <body>
 
+    @if(!request('type') || request('type') === 'all' || request('type') === 'checker')
     <!-- SECTION 1: CHECKER DAPUR -->
     <div class="space-y-2">
         <div class="text-center font-bold text-lg uppercase border-b-dashed pb-2">
@@ -139,9 +140,13 @@
             Dicetak: {{ \Carbon\Carbon::now()->timezone('Asia/Jakarta')->format('d/m/Y H.i.s') }}
         </div>
     </div>
+    @endif
     
+    @if(!request('type') || request('type') === 'all')
     <div class="page-break my-4 border-t-dashed"></div>
+    @endif
     
+    @if(!request('type') || request('type') === 'all' || request('type') === 'invoice')
     <!-- SECTION 2: CUSTOMER INVOICE -->
     <div class="space-y-2 pt-2">
         <div class="text-center font-bold text-sm uppercase">
@@ -248,6 +253,7 @@
             <div class="pt-2 italic">Terima kasih atas pesanan Anda!</div>
         </div>
     </div>
+    @endif
 
     <script>
         window.onload = function() {

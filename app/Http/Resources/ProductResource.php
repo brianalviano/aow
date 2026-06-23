@@ -37,6 +37,7 @@ class ProductResource extends JsonResource
                 if (request()->is('admin/*') || request()->routeIs('admin.*')) {
                     return $this->chefs;
                 }
+
                 return $this->chefs->take(1);
             })),
             'product_category' => new ProductCategoryResource($this->whenLoaded('productCategory')),

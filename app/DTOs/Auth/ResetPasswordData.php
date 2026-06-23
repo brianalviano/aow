@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\DTOs\Auth;
 
-use Spatie\LaravelData\{Attributes\Validation\Rule, Data};
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
 
 /**
  * DTO for password reset request.

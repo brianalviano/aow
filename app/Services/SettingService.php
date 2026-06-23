@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\DTOs\Setting\OrderSettingsDTO;
 use App\DTOs\Setting\SettingData;
 use App\Models\CompanyProfile;
 use App\Models\OrderSetting;
 use App\Traits\RetryableTransactionsTrait;
-use Illuminate\Support\Facades\{DB, Cache, Log};
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class SettingService
@@ -19,7 +22,7 @@ class SettingService
             try {
                 DB::transaction(function () use ($data) {
                     // 1. Update Company Profile
-                    $cp = CompanyProfile::query()->first() ?? new CompanyProfile();
+                    $cp = CompanyProfile::query()->first() ?? new CompanyProfile;
                     $cp->fill($data->companyProfile);
                     $cp->save();
 
@@ -34,7 +37,7 @@ class SettingService
                     }
 
                     // Flush cache
-                    \App\DTOs\Setting\OrderSettingsDTO::clearCache();
+                    OrderSettingsDTO::clearCache();
                     Cache::forget('settings:shared');
                     Cache::forget('settings:geofence-center');
                 }, 5);

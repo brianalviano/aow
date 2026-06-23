@@ -37,17 +37,15 @@ class GenerateDailySummary extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param  DailySummaryService $service
-     * @return int
      */
     public function handle(DailySummaryService $service): int
     {
         $rawDate = $this->option('date');
-        $date    = $rawDate ? Carbon::createFromFormat('Y-m-d', $rawDate) : Carbon::today();
+        $date = $rawDate ? Carbon::createFromFormat('Y-m-d', $rawDate) : Carbon::today();
 
-        if (!$date) {
-            $this->error("Format tanggal tidak valid. Gunakan format Y-m-d (contoh: 2025-01-15).");
+        if (! $date) {
+            $this->error('Format tanggal tidak valid. Gunakan format Y-m-d (contoh: 2025-01-15).');
+
             return Command::FAILURE;
         }
 
@@ -60,10 +58,12 @@ class GenerateDailySummary extends Command
             $productCount = $service->generateProductSummaryForDate($date);
             $this->info("  ✓ ProductSummary : {$productCount} produk diproses.");
 
-            $this->info("Selesai.");
+            $this->info('Selesai.');
+
             return Command::SUCCESS;
         } catch (Throwable $e) {
             $this->error("Gagal membuat ringkasan harian: {$e->getMessage()}");
+
             return Command::FAILURE;
         }
     }

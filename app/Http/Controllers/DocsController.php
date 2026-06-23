@@ -11,7 +11,7 @@ class DocsController extends Controller
     {
         return Inertia::render('Docs/Index', [
             'orderFlow' => $this->orderFlow(),
-            'roles'     => $this->roles(),
+            'roles' => $this->roles(),
             'userGuide' => $this->userGuide(),
         ]);
     }
@@ -25,51 +25,51 @@ class DocsController extends Controller
         return [
             [
                 'status' => 'PENDING',
-                'actor'  => 'Customer',
-                'color'  => 'blue',
-                'desc'   => 'Pesanan dibuat. Customer mengisi alamat/drop point, memilih produk, serta menentukan tanggal & jam pengiriman. Akun dibuat otomatis dan info dikirim via Email.',
+                'actor' => 'Customer',
+                'color' => 'blue',
+                'desc' => 'Pesanan dibuat. Customer mengisi alamat/drop point, memilih produk, serta menentukan tanggal & jam pengiriman. Akun dibuat otomatis dan info dikirim via Email.',
             ],
             [
                 'status' => 'CONFIRMED',
-                'actor'  => 'Admin',
-                'color'  => 'yellow',
-                'desc'   => 'Admin memverifikasi bukti bayar manual (BCA) dengan mutasi bank/deposit. Jika valid, pesanan dikirim ke Chef via Telegram/Email/App.',
+                'actor' => 'Admin',
+                'color' => 'yellow',
+                'desc' => 'Admin memverifikasi bukti bayar manual (BCA) dengan mutasi bank/deposit. Jika valid, pesanan dikirim ke Chef via Telegram/Email/App.',
             ],
             [
                 'status' => 'ACCEPTED',
-                'actor'  => 'Chef',
-                'color'  => 'orange',
-                'desc'   => 'Chef mnyetujui pesanan. Jika ditolak, Admin akan memindahkan (reassign) pesanan ke Chef lain.',
+                'actor' => 'Chef',
+                'color' => 'orange',
+                'desc' => 'Chef mnyetujui pesanan. Jika ditolak, Admin akan memindahkan (reassign) pesanan ke Chef lain.',
             ],
             [
                 'status' => 'SHIPPED',
-                'actor'  => 'Chef',
-                'color'  => 'orange',
-                'desc'   => 'Chef menyelesaikan masakan dan mengirimkannya ke Pickup Point. Admin & PIC mendapatkan notifikasi kedatangan.',
+                'actor' => 'Chef',
+                'color' => 'orange',
+                'desc' => 'Chef menyelesaikan masakan dan mengirimkannya ke Pickup Point. Admin & PIC mendapatkan notifikasi kedatangan.',
             ],
             [
                 'status' => 'AT_PICKUP_POINT',
-                'actor'  => 'PIC',
-                'color'  => 'purple',
-                'desc'   => 'PIC menerima kiriman Chef. Jika pesanan berasal dari beberapa Chef, PIC menunggu hingga lengkap sebelum mengirim ke Customer.',
+                'actor' => 'PIC',
+                'color' => 'purple',
+                'desc' => 'PIC menerima kiriman Chef. Jika pesanan berasal dari beberapa Chef, PIC menunggu hingga lengkap sebelum mengirim ke Customer.',
             ],
             [
                 'status' => 'ON_DELIVERY',
-                'actor'  => 'PIC',
-                'color'  => 'indigo',
-                'desc'   => 'PIC mengirim pesanan ke Customer. Status berubah menjadi "Dikirim" dan Customer mendapat notifikasi WA/Telegram/Email.',
+                'actor' => 'PIC',
+                'color' => 'indigo',
+                'desc' => 'PIC mengirim pesanan ke Customer. Status berubah menjadi "Dikirim" dan Customer mendapat notifikasi WA/Telegram/Email.',
             ],
             [
                 'status' => 'ARRIVED',
-                'actor'  => 'PIC',
-                'color'  => 'info',
-                'desc'   => 'PIC sampai di lokasi, menyerahakan pesanan, dan upload bukti foto. Customer mendapat notifikasi bukti serah terima.',
+                'actor' => 'PIC',
+                'color' => 'info',
+                'desc' => 'PIC sampai di lokasi, menyerahakan pesanan, dan upload bukti foto. Customer mendapat notifikasi bukti serah terima.',
             ],
             [
                 'status' => 'DELIVERED',
-                'actor'  => 'Customer / System',
-                'color'  => 'green',
-                'desc'   => 'Customer menyelesaikan pesanan atau sistem menutup otomatis setelah 6 jam. Saldo Chef bertambah dan testimoni dapat diberikan.',
+                'actor' => 'Customer / System',
+                'color' => 'green',
+                'desc' => 'Customer menyelesaikan pesanan atau sistem menutup otomatis setelah 6 jam. Saldo Chef bertambah dan testimoni dapat diberikan.',
             ],
         ];
     }
@@ -95,15 +95,15 @@ class DocsController extends Controller
     private function customerRole(): array
     {
         return [
-            'id'       => 'customer',
-            'name'     => 'Customer',
-            'color'    => 'blue',
-            'desc'     => 'Pengguna akhir yang melakukan pemesanan. Akun dibuat otomatis saat checkout pertama kali.',
+            'id' => 'customer',
+            'name' => 'Customer',
+            'color' => 'blue',
+            'desc' => 'Pengguna akhir yang melakukan pemesanan. Akun dibuat otomatis saat checkout pertama kali.',
             'sections' => [
                 [
-                    'id'    => 'cust-profile',
+                    'id' => 'cust-profile',
                     'title' => 'Akses & Akun',
-                    'desc'  => 'Customer masuk ke halaman utama, memilih drop point atau alamat manual (titik lokasi), lalu memilih produk.',
+                    'desc' => 'Customer masuk ke halaman utama, memilih drop point atau alamat manual (titik lokasi), lalu memilih produk.',
                     'routes' => [
                         ['method' => 'GET',     'path' => '/',                       'desc' => 'Landing page & Product selection'],
                         ['method' => 'EMAIL',   'path' => 'Auto-Generated',          'desc' => 'Info akun dikirim otomatis ke email setelah checkout'],
@@ -111,9 +111,9 @@ class DocsController extends Controller
                     ],
                 ],
                 [
-                    'id'    => 'cust-checkout',
+                    'id' => 'cust-checkout',
                     'title' => 'Checkout & Pembayaran',
-                    'desc'  => 'Mengisi tanggal, jam pengiriman, catatan, dan data pribadi.',
+                    'desc' => 'Mengisi tanggal, jam pengiriman, catatan, dan data pribadi.',
                     'routes' => [
                         ['method' => 'GET',  'path' => '/checkout',                'desc' => 'Halaman ringkasan belanja & input jadwal'],
                         ['method' => 'POST', 'path' => '/payment/{order}/proof',   'desc' => 'Bayar ke BCA & Upload bukti transfer'],
@@ -126,9 +126,9 @@ class DocsController extends Controller
                     ],
                 ],
                 [
-                    'id'    => 'cust-tracking',
+                    'id' => 'cust-tracking',
                     'title' => 'Penerimaan & Testimoni',
-                    'desc'  => 'Menerima notifikasi di setiap tahap (WA/Telegram/Email).',
+                    'desc' => 'Menerima notifikasi di setiap tahap (WA/Telegram/Email).',
                     'routes' => [
                         ['method' => 'GET',  'path' => '/orders/{order}',          'desc' => 'Detail pesanan, bukti foto, dan status real-time'],
                         ['method' => 'POST', 'path' => '/orders/{order}/complete', 'desc' => 'Selesaikan pesanan secara manual'],
@@ -150,15 +150,15 @@ class DocsController extends Controller
     private function chefRole(): array
     {
         return [
-            'id'       => 'chef',
-            'name'     => 'Chef',
-            'color'    => 'orange',
-            'desc'     => 'Mitra dapur yang menerima pesanan setelah Admin Approve pembayaran.',
+            'id' => 'chef',
+            'name' => 'Chef',
+            'color' => 'orange',
+            'desc' => 'Mitra dapur yang menerima pesanan setelah Admin Approve pembayaran.',
             'sections' => [
                 [
-                    'id'    => 'chef-ops',
+                    'id' => 'chef-ops',
                     'title' => 'Pekerjaan Dapur',
-                    'desc'  => 'Mendapat notifikasi via Telegram, Email, dan App untuk Approval.',
+                    'desc' => 'Mendapat notifikasi via Telegram, Email, dan App untuk Approval.',
                     'routes' => [
                         ['method' => 'POST', 'path' => '/chef/orders/approve',  'desc' => 'Terima pesanan untuk mulai masak'],
                         ['method' => 'POST', 'path' => '/chef/orders/reject',   'desc' => 'Tolak pesanan (Alasan wajib, dikembalikan ke Admin)'],
@@ -172,9 +172,9 @@ class DocsController extends Controller
                     ],
                 ],
                 [
-                    'id'    => 'chef-finance',
+                    'id' => 'chef-finance',
                     'title' => 'Status & Pendapatan',
-                    'desc'  => 'Semua pihak terkait mendapat notifikasi saat pesanan selesai.',
+                    'desc' => 'Semua pihak terkait mendapat notifikasi saat pesanan selesai.',
                     'notes' => [
                         'Penolakan Chef akan memicu Admin untuk reassign ke Chef lain.',
                         'Saldo bertambah saat Customer/Sistem mengkonfirmasi Selesai.',
@@ -191,15 +191,15 @@ class DocsController extends Controller
     private function picRole(): array
     {
         return [
-            'id'       => 'pic',
-            'name'     => 'PIC Pickup Point',
-            'color'    => 'green',
-            'desc'     => 'Petugas hub yang bertugas mengumpulkan masakan dari berbagai Chef dan mendistribusikannya.',
+            'id' => 'pic',
+            'name' => 'PIC Pickup Point',
+            'color' => 'green',
+            'desc' => 'Petugas hub yang bertugas mengumpulkan masakan dari berbagai Chef dan mendistribusikannya.',
             'sections' => [
                 [
-                    'id'    => 'pic-ops',
+                    'id' => 'pic-ops',
                     'title' => 'Penerimaan & Pengiriman',
-                    'desc'  => 'PIC mendapat notifikasi (Email/Telegram/App) saat Chef mengirim masakan.',
+                    'desc' => 'PIC mendapat notifikasi (Email/Telegram/App) saat Chef mengirim masakan.',
                     'routes' => [
                         ['method' => 'POST', 'path' => '/pic/orders/{order}/approve',  'desc' => 'Terima masakan dari Chef (Wajib lengkap jika >1 Chef)'],
                         ['method' => 'POST', 'path' => '/pic/orders/{order}/send',     'desc' => 'Kirim ke Customer (Notif WA/Telegram/Email dikirim)'],
@@ -226,15 +226,15 @@ class DocsController extends Controller
     private function adminRole(): array
     {
         return [
-            'id'       => 'admin',
-            'name'     => 'Admin',
-            'color'    => 'purple',
-            'desc'     => 'Pengelola platform yang memverifikasi transaksi dan koordinasi antar mitra.',
+            'id' => 'admin',
+            'name' => 'Admin',
+            'color' => 'purple',
+            'desc' => 'Pengelola platform yang memverifikasi transaksi dan koordinasi antar mitra.',
             'sections' => [
                 [
-                    'id'    => 'admin-orders',
+                    'id' => 'admin-orders',
                     'title' => 'Verifikasi Pembayaran',
-                    'desc'  => 'Admin wajib mengecek mutasi bank/deposit sebelum melakukan Approve.',
+                    'desc' => 'Admin wajib mengecek mutasi bank/deposit sebelum melakukan Approve.',
                     'routes' => [
                         ['method' => 'POST',  'path' => '/admin/orders/{order}/confirm',      'desc' => 'Approve Pembayaran & Notif Chef (Telegram/Email)'],
                         ['method' => 'POST',  'path' => '/admin/orders/{order}/cancel',       'desc' => 'Reject Pembayaran (Wajib isi alasan penolakan untuk Customer)'],
@@ -245,9 +245,9 @@ class DocsController extends Controller
                     ],
                 ],
                 [
-                    'id'    => 'admin-catalog',
+                    'id' => 'admin-catalog',
                     'title' => 'Manajemen Katalog & Mitra',
-                    'desc'  => 'Mengatur produk, kategori, data Chef, dan lokasi operasional.',
+                    'desc' => 'Mengatur produk, kategori, data Chef, dan lokasi operasional.',
                     'routes' => [
                         ['method' => 'POST',   'path' => '/admin/products',              'desc' => 'Kelola menu & harga'],
                         ['method' => 'POST',   'path' => '/admin/chefs',                 'desc' => 'Onboarding Chef baru'],
@@ -256,9 +256,9 @@ class DocsController extends Controller
                     ],
                 ],
                 [
-                    'id'    => 'admin-settings',
+                    'id' => 'admin-settings',
                     'title' => 'Konfigurasi Sistem',
-                    'desc'  => 'Pengaturan global yang mempengaruhi seluruh perilaku aplikasi.',
+                    'desc' => 'Pengaturan global yang mempengaruhi seluruh perilaku aplikasi.',
                     'routes' => [
                         ['method' => 'PUT', 'path' => '/admin/settings', 'desc' => 'Update cutoff time & window pemesanan'],
                         ['method' => 'GET', 'path' => '/admin/reports',  'desc' => 'Analitik penjualan & profitabilitas'],

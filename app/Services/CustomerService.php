@@ -11,10 +11,6 @@ class CustomerService
 {
     /**
      * Get paginated customers with optional search.
-     *
-     * @param int $perPage
-     * @param string|null $search
-     * @return LengthAwarePaginator
      */
     public function getPaginated(int $perPage = 15, ?string $search = null): LengthAwarePaginator
     {

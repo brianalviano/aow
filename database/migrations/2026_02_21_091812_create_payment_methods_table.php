@@ -1,6 +1,7 @@
 <?php
 
-use App\Enums\{PaymentMethodCategory, PaymentMethodType};
+use App\Enums\PaymentMethodCategory;
+use App\Enums\PaymentMethodType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

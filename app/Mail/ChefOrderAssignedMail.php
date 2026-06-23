@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Models\{Chef, Order};
+use App\Models\Chef;
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailables\{Content, Envelope};
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -19,9 +21,9 @@ class ChefOrderAssignedMail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     /**
-     * @param Order $order       Pesanan yang ditugaskan.
-     * @param Chef  $chef        Chef yang menerima tugas.
-     * @param string $companyName Nama perusahaan.
+     * @param  Order  $order  Pesanan yang ditugaskan.
+     * @param  Chef  $chef  Chef yang menerima tugas.
+     * @param  string  $companyName  Nama perusahaan.
      */
     public function __construct(
         public readonly Order $order,

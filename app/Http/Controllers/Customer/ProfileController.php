@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Customer;
 
-use App\Http\Controllers\Controller;
 use App\DTOs\Customer\UpdateProfileDTO;
+use App\Http\Controllers\Controller;
 use App\Services\CustomerProfileService;
 use Illuminate\Http\RedirectResponse;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ProfileController extends Controller
 {

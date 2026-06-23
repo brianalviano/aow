@@ -22,16 +22,16 @@ class ChefTransferResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'              => $this->id,
-            'chef_id'         => $this->chef_id,
-            'amount'          => $this->amount,
-            'fee_percentage'  => $this->fee_percentage,
-            'fee_amount'      => $this->fee_amount,
-            'gross_amount'    => $this->gross_amount,
-            'note'            => $this->note,
-            'transfer_proof'  => $this->transfer_proof,
-            'transferred_at'  => $this->transferred_at,
-            'created_at'      => $this->created_at,
+            'id' => $this->id,
+            'chef_id' => $this->chef_id,
+            'amount' => $this->amount,
+            'fee_percentage' => $this->fee_percentage,
+            'fee_amount' => $this->fee_amount,
+            'gross_amount' => $this->gross_amount,
+            'note' => $this->note,
+            'transfer_proof' => $this->transfer_proof,
+            'transferred_at' => $this->transferred_at,
+            'created_at' => $this->created_at,
         ];
     }
 }

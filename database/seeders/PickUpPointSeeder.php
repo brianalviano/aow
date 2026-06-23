@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Class PickUpPointSeeder
- * 
+ *
  * Seeds the database with initial pick up points.
  */
 class PickUpPointSeeder extends Seeder

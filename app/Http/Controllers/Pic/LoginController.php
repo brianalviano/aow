@@ -4,30 +4,27 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Pic;
 
-use App\Http\Controllers\Controller;
 use App\DTOs\Pic\LoginPicDTO;
+use App\Http\Controllers\Controller;
 use App\Services\PicAuthService;
-use Illuminate\Http\{RedirectResponse, Request};
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Controller for PIC (Pickup Point Officer) authentication.
  */
 class LoginController extends Controller
 {
-    /**
-     * @param PicAuthService $authService
-     */
     public function __construct(
         private readonly PicAuthService $authService,
     ) {}
 
     /**
      * Show the login form.
-     *
-     * @return Response|RedirectResponse
      */
     public function show(): Response|RedirectResponse
     {
@@ -41,8 +38,6 @@ class LoginController extends Controller
     /**
      * Handle an authentication attempt.
      *
-     * @param LoginPicDTO $dto
-     * @return RedirectResponse
      * @throws ValidationException
      */
     public function login(LoginPicDTO $dto): RedirectResponse
@@ -70,9 +65,6 @@ class LoginController extends Controller
 
     /**
      * Log the PIC out of the application.
-     *
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function logout(Request $request): RedirectResponse
     {

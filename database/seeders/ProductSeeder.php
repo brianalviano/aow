@@ -422,8 +422,9 @@ class ProductSeeder extends Seeder
         foreach ($products as $categoryName => $categoryProducts) {
             $category = ProductCategory::where('name', $categoryName)->first();
 
-            if (!$category) {
+            if (! $category) {
                 Log::warning("ProductCategory '{$categoryName}' not found. Skipping its products.");
+
                 continue;
             }
 
@@ -447,8 +448,8 @@ class ProductSeeder extends Seeder
                         $createdProduct->update(['image' => $product['image']]);
                     }
                 } catch (\Throwable $e) {
-                    Log::error('Failed to seed product: ' . $product['name'], [
-                        'error' => $e->getMessage()
+                    Log::error('Failed to seed product: '.$product['name'], [
+                        'error' => $e->getMessage(),
                     ]);
                 }
             }

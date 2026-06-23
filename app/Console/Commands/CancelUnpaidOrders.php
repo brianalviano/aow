@@ -28,9 +28,6 @@ class CancelUnpaidOrders extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param OrderService $orderService
-     * @return int
      */
     public function handle(OrderService $orderService): int
     {

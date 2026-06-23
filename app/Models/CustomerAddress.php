@@ -47,8 +47,6 @@ class CustomerAddress extends Model
 
     /**
      * The customer that owns the address.
-     *
-     * @return BelongsTo
      */
     public function customer(): BelongsTo
     {

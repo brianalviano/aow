@@ -52,8 +52,8 @@ class ProductCategorySeeder extends Seeder
 
                 $productCategoryService->createProductCategory($dto);
             } catch (\Throwable $e) {
-                Log::error('Failed to seed product category: ' . $category['name'], [
-                    'error' => $e->getMessage()
+                Log::error('Failed to seed product category: '.$category['name'], [
+                    'error' => $e->getMessage(),
                 ]);
             }
         }

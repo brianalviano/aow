@@ -21,8 +21,8 @@ trait RetryableTransactionsTrait
      * Retry dilakukan maksimal $maxAttempts, dengan backoff + jitter menggunakan usleep.
      * Hanya error yang teridentifikasi sebagai retryable yang diulang.
      *
-     * @param callable $fn Unit kerja yang akan dijalankan.
-     * @param int $maxAttempts Jumlah percobaan maksimal.
+     * @param  callable  $fn  Unit kerja yang akan dijalankan.
+     * @param  int  $maxAttempts  Jumlah percobaan maksimal.
      * @return mixed Hasil eksekusi fungsi.
      *
      * @throws QueryException Bila tetap gagal atau error tidak dapat di-retry.
@@ -33,7 +33,7 @@ trait RetryableTransactionsTrait
             try {
                 return $fn();
             } catch (QueryException $e) {
-                if ($attempt >= $maxAttempts || !$this->isRetryable($e)) {
+                if ($attempt >= $maxAttempts || ! $this->isRetryable($e)) {
                     $info = $e->errorInfo ?? [];
                     $sqlstate = $info[0] ?? null;
                     $driverCode = $info[1] ?? null;
@@ -53,13 +53,14 @@ trait RetryableTransactionsTrait
                 usleep($delay);
             }
         }
+
         return null;
     }
 
     /**
      * Deteksi apakah QueryException dapat di-retry (deadlock/serialization/timeouts).
      *
-     * @param QueryException $e Exception database.
+     * @param  QueryException  $e  Exception database.
      * @return bool True bila dapat di-retry.
      */
     private function isRetryable(QueryException $e): bool
@@ -77,6 +78,7 @@ trait RetryableTransactionsTrait
         if (str_contains($msg, 'deadlock') || str_contains($msg, 'serialization') || str_contains($msg, 'lock wait timeout')) {
             return true;
         }
+
         return false;
     }
 }

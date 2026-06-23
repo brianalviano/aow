@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\{DailySummary, DropPoint, Order, ProductSummary};
+use App\Models\DailySummary;
+use App\Models\DropPoint;
+use App\Models\Order;
+use App\Models\ProductSummary;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\{DB, Log};
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
@@ -26,17 +30,18 @@ class DailySummaryService
      * Queries are scoped to orders whose `created_at` date matches $date. Each drop point
      * gets its own summary row (upserted to avoid duplicates on re-run).
      *
-     * @param  Carbon $date The date to generate summaries for.
-     * @return int          Number of drop points processed.
+     * @param  Carbon  $date  The date to generate summaries for.
+     * @return int Number of drop points processed.
+     *
      * @throws Throwable
      */
     public function generateForDate(Carbon $date): int
     {
         try {
             return DB::transaction(function () use ($date) {
-                $dateStr    = $date->toDateString();
+                $dateStr = $date->toDateString();
                 $dropPoints = DropPoint::all();
-                $processed  = 0;
+                $processed = 0;
 
                 foreach ($dropPoints as $dropPoint) {
                     $base = Order::query()
@@ -46,11 +51,11 @@ class DailySummaryService
                     $totalOrders = (clone $base)->count();
 
                     // Completed orders contribute to revenue
-                    $revenueBase      = (clone $base)->where('order_status', 'delivered');
-                    $totalRevenue     = (int) $revenueBase->sum('total_amount');
+                    $revenueBase = (clone $base)->where('order_status', 'delivered');
+                    $totalRevenue = (int) $revenueBase->sum('total_amount');
                     $totalDeliveryFee = (int) $revenueBase->sum('delivery_fee');
-                    $totalAdminFee    = (int) $revenueBase->sum('admin_fee');
-                    $totalDiscount    = (int) $revenueBase->sum('discount_amount');
+                    $totalAdminFee = (int) $revenueBase->sum('admin_fee');
+                    $totalDiscount = (int) $revenueBase->sum('discount_amount');
 
                     $totalItems = (int) DB::table('order_items')
                         ->join('orders', 'orders.id', '=', 'order_items.order_id')
@@ -70,14 +75,14 @@ class DailySummaryService
                     DailySummary::updateOrCreate(
                         ['drop_point_id' => $dropPoint->id, 'date' => $dateStr],
                         [
-                            'total_orders'       => $totalOrders,
-                            'total_items'        => $totalItems,
-                            'total_revenue'      => $totalRevenue,
-                            'total_pending'      => $totalPending,
-                            'total_cancelled'    => $totalCancelled,
+                            'total_orders' => $totalOrders,
+                            'total_items' => $totalItems,
+                            'total_revenue' => $totalRevenue,
+                            'total_pending' => $totalPending,
+                            'total_cancelled' => $totalCancelled,
                             'total_delivery_fee' => $totalDeliveryFee,
-                            'total_admin_fee'    => $totalAdminFee,
-                            'total_discount'     => $totalDiscount,
+                            'total_admin_fee' => $totalAdminFee,
+                            'total_discount' => $totalDiscount,
                         ]
                     );
 
@@ -88,7 +93,7 @@ class DailySummaryService
             });
         } catch (Throwable $e) {
             Log::error('DailySummaryService - Gagal membuat ringkasan harian', [
-                'date'  => $date->toDateString(),
+                'date' => $date->toDateString(),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -104,8 +109,9 @@ class DailySummaryService
      * from order_items belonging to delivered orders on $date. Only products that
      * actually had sales on that day will have a row created.
      *
-     * @param  Carbon $date The date to generate product summaries for.
-     * @return int          Number of distinct products processed.
+     * @param  Carbon  $date  The date to generate product summaries for.
+     * @return int Number of distinct products processed.
+     *
      * @throws Throwable
      */
     public function generateProductSummaryForDate(Carbon $date): int
@@ -127,7 +133,7 @@ class DailySummaryService
                     ProductSummary::updateOrCreate(
                         ['product_id' => $row->product_id, 'date' => $dateStr],
                         [
-                            'total_sold'    => (int) $row->total_sold,
+                            'total_sold' => (int) $row->total_sold,
                             'total_revenue' => (int) $row->total_revenue,
                         ]
                     );
@@ -137,7 +143,7 @@ class DailySummaryService
             });
         } catch (Throwable $e) {
             Log::error('DailySummaryService - Gagal membuat ringkasan produk harian', [
-                'date'  => $date->toDateString(),
+                'date' => $date->toDateString(),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

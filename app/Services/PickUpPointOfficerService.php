@@ -39,7 +39,7 @@ class PickUpPointOfficerService
 
     /**
      * Create a new Pick Up Point Officer.
-     * 
+     *
      * @throws Throwable
      */
     public function createPickUpPointOfficer(PickUpPointOfficerData $data): PickUpPointOfficer
@@ -67,7 +67,7 @@ class PickUpPointOfficerService
 
     /**
      * Update an existing Pick Up Point Officer.
-     * 
+     *
      * @throws Throwable
      */
     public function updatePickUpPointOfficer(PickUpPointOfficer $officer, PickUpPointOfficerData $data): PickUpPointOfficer
@@ -82,7 +82,7 @@ class PickUpPointOfficerService
                     'is_active' => $data->isActive,
                 ];
 
-                if (!empty($data->password)) {
+                if (! empty($data->password)) {
                     $updateData['password'] = Hash::make($data->password);
                 }
 
@@ -103,7 +103,7 @@ class PickUpPointOfficerService
 
     /**
      * Delete a Pick Up Point Officer.
-     * 
+     *
      * @throws Throwable
      */
     public function deletePickUpPointOfficer(PickUpPointOfficer $officer): bool

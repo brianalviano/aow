@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\DTOs\PaymentMethod;
 
-use App\Enums\{PaymentMethodCategory, PaymentMethodType};
+use App\Enums\PaymentMethodCategory;
+use App\Enums\PaymentMethodType;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule as ValidationRule;
 use Spatie\LaravelData\Attributes\Validation\Rule;
@@ -70,7 +71,7 @@ class PaymentMethodData extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(ValidationContext|null $context = null): array
+    public static function rules(?ValidationContext $context = null): array
     {
         return [
             'category' => ['nullable', ValidationRule::enum(PaymentMethodCategory::class)],

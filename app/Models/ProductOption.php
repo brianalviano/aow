@@ -46,8 +46,6 @@ class ProductOption extends Model
 
     /**
      * Get the product that owns this option.
-     *
-     * @return BelongsTo
      */
     public function product(): BelongsTo
     {
@@ -56,8 +54,6 @@ class ProductOption extends Model
 
     /**
      * Get the items available for this product option.
-     *
-     * @return HasMany
      */
     public function items(): HasMany
     {

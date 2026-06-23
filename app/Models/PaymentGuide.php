@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PaymentGuide extends Model
@@ -23,7 +24,7 @@ class PaymentGuide extends Model
     /**
      * Get payment methods using this guide.
      */
-    public function paymentMethods(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function paymentMethods(): HasMany
     {
         return $this->hasMany(PaymentMethod::class);
     }

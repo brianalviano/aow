@@ -34,8 +34,6 @@ class ProductCategoryService
     /**
      * Store a newly created product category.
      *
-     * @param ProductCategoryData $data
-     * @return ProductCategory
      * @throws \Throwable
      */
     public function createProductCategory(ProductCategoryData $data): ProductCategory
@@ -67,9 +65,6 @@ class ProductCategoryService
     /**
      * Update the specified product category.
      *
-     * @param ProductCategory $productCategory
-     * @param ProductCategoryData $data
-     * @return ProductCategory
      * @throws \Throwable
      */
     public function updateProductCategory(ProductCategory $productCategory, ProductCategoryData $data): ProductCategory
@@ -104,8 +99,6 @@ class ProductCategoryService
     /**
      * Delete the specified product category.
      *
-     * @param ProductCategory $productCategory
-     * @return bool|null
      * @throws \Throwable
      */
     public function deleteProductCategory(ProductCategory $productCategory): ?bool

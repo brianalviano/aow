@@ -21,7 +21,7 @@ enum ChefOrderType: string
     public function label(): string
     {
         return match ($this) {
-            self::INSTANT  => 'Instant',
+            self::INSTANT => 'Instant',
             self::PREORDER => 'Pre-Order',
         };
     }
@@ -33,6 +33,6 @@ enum ChefOrderType: string
      */
     public static function values(): array
     {
-        return array_map(static fn(self $c): string => $c->value, self::cases());
+        return array_map(static fn (self $c): string => $c->value, self::cases());
     }
 }

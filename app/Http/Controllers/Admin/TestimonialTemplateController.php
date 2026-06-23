@@ -9,7 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Models\TestimonialTemplate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 use Throwable;
 
 /**
@@ -66,7 +67,7 @@ class TestimonialTemplateController extends Controller
             return redirect()->route('admin.testimonial-templates.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membuat Template: ' . $e->getMessage(),
+                'message' => 'Gagal membuat Template: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -100,7 +101,7 @@ class TestimonialTemplateController extends Controller
             return redirect()->route('admin.testimonial-templates.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui Template: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui Template: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -124,7 +125,7 @@ class TestimonialTemplateController extends Controller
             return redirect()->route('admin.testimonial-templates.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus Template: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus Template: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 

@@ -8,7 +8,6 @@ use App\Models\PickUpPoint;
 use App\Models\PickUpPointOfficer;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class PickUpPointOfficerSeeder extends Seeder
 {
@@ -35,7 +34,7 @@ class PickUpPointOfficerSeeder extends Seeder
                 'phone' => '081987654321',
                 'email' => 'andi@aow.com',
                 'password' => Hash::make('12345678'),
-            ]
+            ],
         ];
 
         foreach ($officers as $index => $officerData) {

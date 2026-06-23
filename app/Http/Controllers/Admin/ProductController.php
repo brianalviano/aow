@@ -76,7 +76,7 @@ class ProductController extends Controller
             return redirect()->route('admin.products.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membuat Product: ' . $e->getMessage(),
+                'message' => 'Gagal membuat Product: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -115,7 +115,7 @@ class ProductController extends Controller
             return redirect()->route('admin.products.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui Product: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui Product: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -139,7 +139,7 @@ class ProductController extends Controller
             return redirect()->route('admin.products.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus Product: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus Product: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 

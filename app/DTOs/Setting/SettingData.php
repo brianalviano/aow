@@ -29,7 +29,7 @@ class SettingData extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(ValidationContext|null $context = null): array
+    public static function rules(?ValidationContext $context = null): array
     {
         return [
             // Company Profile
@@ -84,8 +84,7 @@ class SettingData extends Data
      * This factory method is retained because the DTO structure (nested arrays)
      * differs from the flat form input structure.
      *
-     * @param array<string, mixed> $validated Validated request data
-     * @return self
+     * @param  array<string, mixed>  $validated  Validated request data
      */
     public static function fromValidated(array $validated): self
     {

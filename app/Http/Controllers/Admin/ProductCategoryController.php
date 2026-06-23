@@ -66,7 +66,7 @@ class ProductCategoryController extends Controller
             return redirect()->route('admin.product-categories.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membuat Product Category: ' . $e->getMessage(),
+                'message' => 'Gagal membuat Product Category: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -100,7 +100,7 @@ class ProductCategoryController extends Controller
             return redirect()->route('admin.product-categories.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui Product Category: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui Product Category: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -124,7 +124,7 @@ class ProductCategoryController extends Controller
             return redirect()->route('admin.product-categories.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus Product Category: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus Product Category: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Models\OrderSetting;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
-use App\Models\OrderSetting;
 
 class SendTelegramNotificationJob implements ShouldQueue
 {
@@ -19,8 +19,7 @@ class SendTelegramNotificationJob implements ShouldQueue
 
     public function __construct(
         public readonly string $message,
-    ) {
-    }
+    ) {}
 
     /**
      * Calculate the number of seconds to wait before retrying the job.
@@ -53,7 +52,7 @@ class SendTelegramNotificationJob implements ShouldQueue
             ]);
 
             if ($response->failed()) {
-                throw new \Exception('Telegram API error -> ' . $response->body());
+                throw new \Exception('Telegram API error -> '.$response->body());
             }
         } catch (Throwable $e) {
             Log::error('SendTelegramNotificationJob failed', [

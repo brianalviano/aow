@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ChefStatus;
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class OrderItem extends Model
 {
@@ -37,7 +40,7 @@ class OrderItem extends Model
     protected function casts(): array
     {
         return [
-            'chef_status' => \App\Enums\ChefStatus::class,
+            'chef_status' => ChefStatus::class,
             'chef_confirmed_at' => 'datetime',
         ];
     }
@@ -64,8 +67,6 @@ class OrderItem extends Model
 
     /**
      * Get the options selected for this order item.
-     *
-     * @return HasMany
      */
     public function options(): HasMany
     {
@@ -74,24 +75,20 @@ class OrderItem extends Model
 
     /**
      * Get the testimonial for this order item.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function testimonial(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function testimonial(): HasOne
     {
         return $this->hasOne(Testimonial::class);
     }
 
     /**
      * Determine if the customer can give a testimonial for this item.
-     *
-     * @return bool
      */
     public function canBeTestimonialed(): bool
     {
         $order = $this->order;
 
-        if ($order->order_status !== \App\Enums\OrderStatus::DELIVERED || !$order->delivered_at) {
+        if ($order->order_status !== OrderStatus::DELIVERED || ! $order->delivered_at) {
             return false;
         }
 

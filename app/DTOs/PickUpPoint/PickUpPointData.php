@@ -52,7 +52,7 @@ class PickUpPointData extends Data
      *
      * @return array<string, array<int, mixed>>
      */
-    public static function rules(ValidationContext|null $context = null): array
+    public static function rules(?ValidationContext $context = null): array
     {
         return [
             'officer_ids.*' => ['exists:pick_up_point_officers,id'],

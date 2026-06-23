@@ -7,11 +7,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class PickUpPoint
- * 
+ *
  * Represents a physical location where chefs place finished food orders.
  */
 class PickUpPoint extends Model
@@ -48,30 +49,26 @@ class PickUpPoint extends Model
     /**
      * Relasi ke officers (PIC).
      */
-    public function officers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function officers(): HasMany
     {
         return $this->hasMany(PickUpPointOfficer::class);
     }
 
     /**
      * Find the nearest active pickup point to the given coordinates.
-     *
-     * @param float $latitude
-     * @param float $longitude
-     * @return self|null
      */
     public static function findNearest(float $latitude, float $longitude): ?self
     {
         return self::query()
             ->where('is_active', true)
-            ->selectRaw("
+            ->selectRaw('
                 *,
                 (6371 * acos(
                     cos(radians(?)) * cos(radians(latitude)) *
                     cos(radians(longitude) - radians(?)) +
                     sin(radians(?)) * sin(radians(latitude))
                 )) AS distance_km
-            ", [$latitude, $longitude, $latitude])
+            ', [$latitude, $longitude, $latitude])
             ->orderBy('distance_km')
             ->first();
     }

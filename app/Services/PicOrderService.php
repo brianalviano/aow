@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Enums\{ChefStatus, OrderStatus};
-use App\Models\{Order, OrderItem, OrderShipping, PickUpPoint, PickUpPointOfficer};
+use App\Enums\ChefStatus;
+use App\Enums\OrderStatus;
 use App\Jobs\SendWhatsAppNotificationJob;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\OrderShipping;
+use App\Models\PickUpPoint;
+use App\Models\PickUpPointOfficer;
 use App\Traits\RetryableTransactionsTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\{DB, Log};
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
@@ -24,7 +30,7 @@ class PicOrderService
     use RetryableTransactionsTrait;
 
     /**
-     * @param BiteshipService $biteshipService Service for creating courier orders.
+     * @param  BiteshipService  $biteshipService  Service for creating courier orders.
      */
     public function __construct(
         private readonly BiteshipService $biteshipService,
@@ -32,9 +38,6 @@ class PicOrderService
 
     /**
      * Get orders headed to this pickup point (chef has shipped, not yet arrived).
-     *
-     * @param string $pickUpPointId
-     * @return LengthAwarePaginator
      */
     public function getIncomingOrders(string $pickUpPointId): LengthAwarePaginator
     {
@@ -49,9 +52,6 @@ class PicOrderService
 
     /**
      * Get orders that are at the pickup point, ready for PIC to send out.
-     *
-     * @param string $pickUpPointId
-     * @return LengthAwarePaginator
      */
     public function getAtPickupOrders(string $pickUpPointId): LengthAwarePaginator
     {
@@ -66,9 +66,6 @@ class PicOrderService
 
     /**
      * Get orders currently being delivered by PIC (on their way to customer).
-     *
-     * @param string $pickUpPointId
-     * @return LengthAwarePaginator
      */
     public function getOnDeliveryOrders(string $pickUpPointId): LengthAwarePaginator
     {
@@ -83,9 +80,6 @@ class PicOrderService
 
     /**
      * Get completed orders for this pickup point.
-     *
-     * @param string $pickUpPointId
-     * @return LengthAwarePaginator
      */
     public function getCompletedOrders(string $pickUpPointId): LengthAwarePaginator
     {
@@ -103,9 +97,6 @@ class PicOrderService
      *
      * Updates all chef item statuses to DELIVERED and order status to AT_PICKUP_POINT.
      *
-     * @param Order $order
-     * @param PickUpPointOfficer $officer
-     * @return Order
      * @throws Throwable
      */
     public function approveArrival(Order $order, PickUpPointOfficer $officer): Order
@@ -133,8 +124,8 @@ class PicOrderService
                 DB::afterCommit(function () use ($order) {
                     $order->load(['customer', 'pickUpPoint']);
                     $message = "Halo {$order->customer->name},\n\n"
-                        . "Kabar baik! Pesanan Anda dengan nomor *{$order->number}* telah tiba di titik transit kami (*{$order->pickUpPoint->name}*).\n\n"
-                        . "Tim kami akan segera mengirimkannya ke alamat Anda. Mohon ditunggu ya!";
+                        ."Kabar baik! Pesanan Anda dengan nomor *{$order->number}* telah tiba di titik transit kami (*{$order->pickUpPoint->name}*).\n\n"
+                        .'Tim kami akan segera mengirimkannya ke alamat Anda. Mohon ditunggu ya!';
                     dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
                 });
 
@@ -157,9 +148,6 @@ class PicOrderService
      * Pre-order: Updates status to ON_DELIVERY (PIC delivers manually to drop point).
      * Instant: Creates Biteship order from pickup point to customer address.
      *
-     * @param Order $order
-     * @param PickUpPointOfficer $officer
-     * @return Order
      * @throws Throwable
      */
     public function sendToCustomer(Order $order, PickUpPointOfficer $officer): Order
@@ -173,7 +161,7 @@ class PicOrderService
                     $pickUpPoint = $order->pickUpPoint;
                     $customerAddress = $order->customerAddress;
 
-                    if (!$pickUpPoint || !$customerAddress) {
+                    if (! $pickUpPoint || ! $customerAddress) {
                         throw new \RuntimeException('Pickup point atau alamat customer tidak ditemukan.');
                     }
 
@@ -205,7 +193,7 @@ class PicOrderService
                             'courier_type' => $result['courier_type'] ?? null,
                         ]);
                     } else {
-                        throw new \RuntimeException('Gagal memesan kurir: ' . ($result['error'] ?? 'Unknown error'));
+                        throw new \RuntimeException('Gagal memesan kurir: '.($result['error'] ?? 'Unknown error'));
                     }
                 }
 
@@ -222,8 +210,8 @@ class PicOrderService
                 DB::afterCommit(function () use ($order) {
                     $order->load('customer');
                     $message = "Halo {$order->customer->name},\n\n"
-                        . "Pesanan Anda dengan nomor *{$order->number}* sedang dalam perjalanan menuju alamat Anda!\n\n"
-                        . "Mohon standby untuk menerima pesanan Anda ya. Terima kasih.";
+                        ."Pesanan Anda dengan nomor *{$order->number}* sedang dalam perjalanan menuju alamat Anda!\n\n"
+                        .'Mohon standby untuk menerima pesanan Anda ya. Terima kasih.';
                     dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
                 });
 
@@ -246,9 +234,6 @@ class PicOrderService
      * Only applicable for pre-orders (manual delivery by PIC).
      * Instant orders are completed via Biteship webhook.
      *
-     * @param Order $order
-     * @param PickUpPointOfficer $officer
-     * @return Order
      * @throws Throwable
      */
     public function markDelivered(Order $order, PickUpPointOfficer $officer): Order
@@ -268,8 +253,8 @@ class PicOrderService
                 DB::afterCommit(function () use ($order) {
                     $order->load('customer');
                     $message = "Halo {$order->customer->name},\n\n"
-                        . "Pesanan Anda dengan nomor *{$order->number}* telah BERHASIL dikirim dan diselesaikan!\n\n"
-                        . "Terima kasih telah berbelanja bersama kami. Selamat menikmati hidangan Anda!";
+                        ."Pesanan Anda dengan nomor *{$order->number}* telah BERHASIL dikirim dan diselesaikan!\n\n"
+                        .'Terima kasih telah berbelanja bersama kami. Selamat menikmati hidangan Anda!';
                     dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
                 });
 
@@ -288,23 +273,19 @@ class PicOrderService
 
     /**
      * Find the nearest active pickup point to the given coordinates using Haversine formula.
-     *
-     * @param float $latitude
-     * @param float $longitude
-     * @return PickUpPoint|null
      */
     public static function findNearestPickUpPoint(float $latitude, float $longitude): ?PickUpPoint
     {
         return PickUpPoint::query()
             ->where('is_active', true)
-            ->selectRaw("
+            ->selectRaw('
                 *,
                 (6371 * acos(
                     cos(radians(?)) * cos(radians(latitude)) *
                     cos(radians(longitude) - radians(?)) +
                     sin(radians(?)) * sin(radians(latitude))
                 )) AS distance_km
-            ", [$latitude, $longitude, $latitude])
+            ', [$latitude, $longitude, $latitude])
             ->orderBy('distance_km')
             ->first();
     }

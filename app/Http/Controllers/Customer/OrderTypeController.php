@@ -49,7 +49,7 @@ class OrderTypeController extends Controller
         if ($request->order_type === 'instant') {
             return back()->with('toast', [
                 'message' => 'Maaf, layanan Instant Delivery belum tersedia saat ini.',
-                'type' => 'error'
+                'type' => 'error',
             ]);
         }
 
@@ -73,6 +73,7 @@ class OrderTypeController extends Controller
 
         if (session('checkout_redirect_after_selection')) {
             session()->forget('checkout_redirect_after_selection');
+
             return redirect()->route('customer.checkout');
         }
 

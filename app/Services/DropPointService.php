@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
  */
 class DropPointService
 {
-    use RetryableTransactionsTrait, FileHelperTrait;
+    use FileHelperTrait, RetryableTransactionsTrait;
 
     /**
      * Get paginated drop points.
@@ -151,6 +151,7 @@ class DropPointService
                     if ($dropPoint->photo) {
                         $this->deleteFile($dropPoint->photo);
                     }
+
                     return $dropPoint->delete();
                 });
             } catch (\Throwable $e) {

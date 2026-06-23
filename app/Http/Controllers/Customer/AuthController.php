@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Customer;
 
+use App\DTOs\Customer\LoginCustomerDTO;
+use App\DTOs\Customer\RegisterCustomerDTO;
 use App\Http\Controllers\Controller;
-use App\DTOs\Customer\{LoginCustomerDTO, RegisterCustomerDTO};
 use App\Services\CustomerAuthService;
-use Illuminate\Http\{RedirectResponse, Request};
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AuthController extends Controller
 {
@@ -20,8 +23,6 @@ class AuthController extends Controller
 
     /**
      * Show the login form.
-     *
-     * @return \Inertia\Response|\Illuminate\Http\RedirectResponse
      */
     public function showLogin(): Response|RedirectResponse
     {
@@ -35,8 +36,6 @@ class AuthController extends Controller
     /**
      * Handle an authentication attempt.
      *
-     * @param LoginCustomerDTO $dto
-     * @return RedirectResponse
      * @throws ValidationException
      */
     public function login(LoginCustomerDTO $dto): RedirectResponse
@@ -64,8 +63,6 @@ class AuthController extends Controller
 
     /**
      * Show the registration form.
-     *
-     * @return \Inertia\Response|\Illuminate\Http\RedirectResponse
      */
     public function showRegister(): Response|RedirectResponse
     {
@@ -79,8 +76,6 @@ class AuthController extends Controller
     /**
      * Handle a registration request.
      *
-     * @param RegisterCustomerDTO $dto
-     * @return RedirectResponse
      * @throws \Throwable
      */
     public function register(RegisterCustomerDTO $dto): RedirectResponse
@@ -102,9 +97,6 @@ class AuthController extends Controller
 
     /**
      * Log the customer out of the application.
-     *
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function logout(Request $request): RedirectResponse
     {

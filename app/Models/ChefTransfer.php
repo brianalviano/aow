@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ChefTransfer extends Model
 {
-    use HasFactory, HasUuids, FileHelperTrait;
+    use FileHelperTrait, HasFactory, HasUuids;
 
     /**
      * The attributes that are mass assignable.
@@ -45,8 +45,8 @@ class ChefTransfer extends Model
     protected function casts(): array
     {
         return [
-            'fee_percentage'  => 'float',
-            'transferred_at'  => 'datetime',
+            'fee_percentage' => 'float',
+            'transferred_at' => 'datetime',
         ];
     }
 
@@ -60,9 +60,6 @@ class ChefTransfer extends Model
 
     /**
      * Get the transfer proof file URL.
-     *
-     * @param string|null $value
-     * @return string|null
      */
     protected function getTransferProofAttribute(?string $value): ?string
     {

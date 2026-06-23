@@ -66,7 +66,7 @@ class SliderController extends Controller
             return redirect()->route('admin.sliders.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membuat Slider: ' . $e->getMessage(),
+                'message' => 'Gagal membuat Slider: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -100,7 +100,7 @@ class SliderController extends Controller
             return redirect()->route('admin.sliders.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui Slider: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui Slider: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -124,7 +124,7 @@ class SliderController extends Controller
             return redirect()->route('admin.sliders.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus Slider: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus Slider: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 

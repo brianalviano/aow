@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 use App\Mail\PaymentProofUploadedCustomerMail;
-use App\Models\{CompanyProfile, Order};
+use App\Models\CompanyProfile;
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -22,7 +23,7 @@ class PaymentProofUploadedCustomerNotification extends Notification implements S
     {
         $channels = ['database'];
 
-        if (!empty($notifiable->email)) {
+        if (! empty($notifiable->email)) {
             $channels[] = 'mail';
         }
 
@@ -40,11 +41,11 @@ class PaymentProofUploadedCustomerNotification extends Notification implements S
     public function toDatabase(object $notifiable): array
     {
         return [
-            'order_id'     => $this->order->id,
+            'order_id' => $this->order->id,
             'order_number' => $this->order->number,
-            'status'       => 'payment_proof_uploaded',
-            'message'      => "Bukti pembayaran pesanan #{$this->order->number} berhasil diunggah dan sedang menunggu verifikasi admin.",
-            'url'          => '/orders/' . $this->order->id,
+            'status' => 'payment_proof_uploaded',
+            'message' => "Bukti pembayaran pesanan #{$this->order->number} berhasil diunggah dan sedang menunggu verifikasi admin.",
+            'url' => '/orders/'.$this->order->id,
         ];
     }
 }

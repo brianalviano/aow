@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SliderResource;
-use App\Models\DropPoint;
+use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Slider;
 use Illuminate\Support\Facades\Auth;
@@ -17,8 +17,6 @@ class HomeController extends Controller
 {
     /**
      * Display the customer home page.
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -26,7 +24,7 @@ class HomeController extends Controller
         $unreadNotificationsCount = 0;
 
         if (Auth::guard('customer')->check()) {
-            /** @var \App\Models\Customer $user */
+            /** @var Customer $user */
             $user = Auth::guard('customer')->user();
             $unreadNotificationsCount = $user->unreadNotifications()->count();
 
@@ -35,12 +33,11 @@ class HomeController extends Controller
                 ->count();
         }
 
-
         $sliders = Slider::orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Domains/Customer/Home/Index', [
-            'sliders'                  => SliderResource::collection($sliders),
-            'activeOrdersCount'        => $activeOrdersCount,
+            'sliders' => SliderResource::collection($sliders),
+            'activeOrdersCount' => $activeOrdersCount,
             'unreadNotificationsCount' => $unreadNotificationsCount,
         ]);
     }

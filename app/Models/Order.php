@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
-use App\Enums\{OrderStatus, PaymentStatus, ShippingMethod};
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Enums\ChefStatus;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
+use App\Enums\ShippingMethod;
 use App\Traits\FileHelperTrait;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes, FileHelperTrait;
+    use FileHelperTrait, HasFactory, HasUuids, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -78,10 +82,8 @@ class Order extends Model
 
     /**
      * Get the items associated with this order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function items(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
@@ -93,8 +95,6 @@ class Order extends Model
 
     /**
      * Get the pickup point assigned to this order.
-     *
-     * @return BelongsTo
      */
     public function pickUpPoint(): BelongsTo
     {
@@ -114,34 +114,34 @@ class Order extends Model
      */
     public function isInstant(): bool
     {
-        return $this->customer_address_id !== null && $this->drop_point_id === null && (!$this->delivery_date || $this->delivery_date->isToday());
+        return $this->customer_address_id !== null && $this->drop_point_id === null && (! $this->delivery_date || $this->delivery_date->isToday());
     }
 
     /**
      * Determine if admin can still change the pickup point for this order.
      *
-     * Allowed only when the order is PENDING or CONFIRMED, 
+     * Allowed only when the order is PENDING or CONFIRMED,
      * AND no items have been shipped by chefs yet.
      */
     public function canChangePickUpPoint(): bool
     {
-        if (!in_array($this->order_status, [OrderStatus::PENDING, OrderStatus::CONFIRMED])) {
+        if (! in_array($this->order_status, [OrderStatus::PENDING, OrderStatus::CONFIRMED])) {
             return false;
         }
 
-        if (!$this->items->count()) {
+        if (! $this->items->count()) {
             return true;
         }
 
         // Return true only if NO items have been shipped or delivered to hub
         $anyShipped = $this->items->contains(
-            fn($item) => in_array($item->chef_status, [
-                \App\Enums\ChefStatus::SHIPPED,
-                \App\Enums\ChefStatus::DELIVERED,
+            fn ($item) => in_array($item->chef_status, [
+                ChefStatus::SHIPPED,
+                ChefStatus::DELIVERED,
             ])
         );
 
-        return !$anyShipped;
+        return ! $anyShipped;
     }
 
     public function customer(): BelongsTo
@@ -151,8 +151,6 @@ class Order extends Model
 
     /**
      * Get the customer address associated with this order.
-     *
-     * @return BelongsTo
      */
     public function customerAddress(): BelongsTo
     {
@@ -176,21 +174,14 @@ class Order extends Model
 
     /**
      * Get the per-chef shipping records for this order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function shippings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function shippings(): HasMany
     {
         return $this->hasMany(OrderShipping::class);
     }
 
-
-
     /**
      * Get the payment proof URL.
-     *
-     * @param string|null $value
-     * @return string|null
      */
     protected function getPaymentProofAttribute(?string $value): ?string
     {
@@ -199,9 +190,6 @@ class Order extends Model
 
     /**
      * Get the delivery photo URL.
-     *
-     * @param string|null $value
-     * @return string|null
      */
     protected function getDeliveryPhotoAttribute(?string $value): ?string
     {
@@ -210,42 +198,42 @@ class Order extends Model
 
     /**
      * Get aggregate chef status for the order.
-     * 
+     *
      * @return string (pending|accepted|rejected|cancelled|partial)
      */
     public function getChefStatusSummaryAttribute(): string
     {
-        if (!$this->items->count()) {
+        if (! $this->items->count()) {
             return 'pending';
         }
 
         $statuses = $this->items->pluck('chef_status')->unique();
 
-        if ($statuses->count() === 1 && $statuses->first() === \App\Enums\ChefStatus::CANCELLED) {
+        if ($statuses->count() === 1 && $statuses->first() === ChefStatus::CANCELLED) {
             return 'cancelled';
         }
 
-        if ($statuses->contains(\App\Enums\ChefStatus::CANCELLED)) {
+        if ($statuses->contains(ChefStatus::CANCELLED)) {
             return 'cancelled_partial';
         }
 
-        if ($statuses->contains(\App\Enums\ChefStatus::REJECTED)) {
+        if ($statuses->contains(ChefStatus::REJECTED)) {
             return $statuses->count() > 1 ? 'rejected_partial' : 'rejected';
         }
 
-        if ($statuses->contains(\App\Enums\ChefStatus::PENDING) || $statuses->contains(null)) {
-            $hasProcessed = $statuses->contains(\App\Enums\ChefStatus::ACCEPTED)
-                || $statuses->contains(\App\Enums\ChefStatus::SHIPPED)
-                || $statuses->contains(\App\Enums\ChefStatus::DELIVERED);
+        if ($statuses->contains(ChefStatus::PENDING) || $statuses->contains(null)) {
+            $hasProcessed = $statuses->contains(ChefStatus::ACCEPTED)
+                || $statuses->contains(ChefStatus::SHIPPED)
+                || $statuses->contains(ChefStatus::DELIVERED);
 
             return $hasProcessed ? 'partial' : 'pending';
         }
 
-        if ($statuses->count() === 1 && $statuses->first() === \App\Enums\ChefStatus::DELIVERED) {
+        if ($statuses->count() === 1 && $statuses->first() === ChefStatus::DELIVERED) {
             return 'delivered';
         }
 
-        if ($statuses->contains(\App\Enums\ChefStatus::SHIPPED)) {
+        if ($statuses->contains(ChefStatus::SHIPPED)) {
             return 'shipped';
         }
 

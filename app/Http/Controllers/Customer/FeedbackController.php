@@ -6,11 +6,12 @@ namespace App\Http\Controllers\Customer;
 
 use App\DTOs\Customer\FeedbackDTO;
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Services\FeedbackService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Inertia\{Inertia, Response};
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Controller for handling customer feedback.
@@ -23,8 +24,6 @@ class FeedbackController extends Controller
 
     /**
      * Display the feedback form.
-     *
-     * @return Response
      */
     public function index(): Response
     {
@@ -34,12 +33,11 @@ class FeedbackController extends Controller
     /**
      * Store a new feedback.
      *
-     * @param StoreFeedbackRequest $request
-     * @return RedirectResponse
+     * @param  StoreFeedbackRequest  $request
      */
     public function store(FeedbackDTO $dto): RedirectResponse
     {
-        /** @var \App\Models\Customer $user */
+        /** @var Customer $user */
         $user = Auth::guard('customer')->user();
 
         // Set customerId from authenticated user since it's not sent by the form

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\API\Midtrans;
 
 use App\Http\Controllers\Controller;
 use App\Services\MidtransService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -20,8 +21,6 @@ class NotificationController extends Controller
 
     /**
      * MidtransNotificationController constructor.
-     *
-     * @param MidtransService $midtransService
      */
     public function __construct(MidtransService $midtransService)
     {
@@ -31,8 +30,7 @@ class NotificationController extends Controller
     /**
      * Handle the incoming Midtrans notification.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function handle(Request $request)
     {

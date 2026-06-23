@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Models\{CompanyProfile, Customer};
+use App\Models\CompanyProfile;
+use App\Models\Customer;
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailables\{Content, Envelope};
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -23,8 +25,8 @@ class CustomerWelcomeMail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      *
-     * @param Customer $customer The newly created customer.
-     * @param string $password The plain-text password.
+     * @param  Customer  $customer  The newly created customer.
+     * @param  string  $password  The plain-text password.
      */
     public function __construct(
         public readonly Customer $customer,

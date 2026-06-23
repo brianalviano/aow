@@ -4,30 +4,27 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Chef;
 
-use App\Http\Controllers\Controller;
 use App\DTOs\Chef\LoginChefDTO;
+use App\Http\Controllers\Controller;
 use App\Services\ChefAuthService;
-use Illuminate\Http\{RedirectResponse, Request};
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Controller for chef authentication.
  */
 class LoginController extends Controller
 {
-    /**
-     * @param ChefAuthService $authService
-     */
     public function __construct(
         private readonly ChefAuthService $authService,
     ) {}
 
     /**
      * Show the login form.
-     *
-     * @return \Inertia\Response|\Illuminate\Http\RedirectResponse
      */
     public function show(): Response|RedirectResponse
     {
@@ -41,8 +38,6 @@ class LoginController extends Controller
     /**
      * Handle an authentication attempt.
      *
-     * @param LoginChefDTO $dto
-     * @return RedirectResponse
      * @throws ValidationException
      */
     public function login(LoginChefDTO $dto): RedirectResponse
@@ -70,9 +65,6 @@ class LoginController extends Controller
 
     /**
      * Log the chef out of the application.
-     *
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function logout(Request $request): RedirectResponse
     {

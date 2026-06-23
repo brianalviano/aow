@@ -7,7 +7,9 @@ namespace App\Services;
 use App\DTOs\User\UserData;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\{DB, Hash, Log};
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
@@ -17,11 +19,6 @@ class UserService
 {
     /**
      * Get paginated users with optional search and role filtering.
-     *
-     * @param int $limit
-     * @param string|null $search
-     * @param string|null $roleId
-     * @return LengthAwarePaginator
      */
     public function getPaginated(int $limit = 15, ?string $search = null, ?string $roleId = null): LengthAwarePaginator
     {
@@ -45,8 +42,6 @@ class UserService
     /**
      * Create a new administrative user.
      *
-     * @param UserData $data
-     * @return User
      * @throws Throwable
      */
     public function createUser(UserData $data): User
@@ -65,7 +60,7 @@ class UserService
                 return $user;
             });
         } catch (Throwable $e) {
-            Log::error('Gagal membuat User: ' . $e->getMessage(), [
+            Log::error('Gagal membuat User: '.$e->getMessage(), [
                 'data' => [
                     'name' => $data->name,
                     'username' => $data->username,
@@ -81,9 +76,6 @@ class UserService
     /**
      * Update an existing administrative user.
      *
-     * @param User $user
-     * @param UserData $data
-     * @return User
      * @throws Throwable
      */
     public function updateUser(User $user, UserData $data): User
@@ -107,7 +99,7 @@ class UserService
                 return $user;
             });
         } catch (Throwable $e) {
-            Log::error('Gagal memperbarui User: ' . $e->getMessage(), [
+            Log::error('Gagal memperbarui User: '.$e->getMessage(), [
                 'user_id' => $user->id,
                 'data' => [
                     'name' => $data->name,
@@ -124,8 +116,6 @@ class UserService
     /**
      * Delete an administrative user.
      *
-     * @param User $user
-     * @return bool
      * @throws Throwable
      */
     public function deleteUser(User $user): bool
@@ -135,7 +125,7 @@ class UserService
                 return (bool) $user->delete();
             });
         } catch (Throwable $e) {
-            Log::error('Gagal menghapus User: ' . $e->getMessage(), [
+            Log::error('Gagal menghapus User: '.$e->getMessage(), [
                 'user_id' => $user->id,
                 'trace' => $e->getTraceAsString(),
             ]);

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * Resource for PaymentMethod model.
  *
- * @property \App\Models\PaymentMethod $resource
+ * @property PaymentMethod $resource
  */
 class PaymentMethodResource extends JsonResource
 {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DTOs\Setting;
 
 use App\Models\OrderSetting;
+use App\Services\SettingService;
 use Illuminate\Support\Facades\Cache;
 use Spatie\LaravelData\Data;
 
@@ -14,7 +15,7 @@ use Spatie\LaravelData\Data;
  * Loaded from the order_settings table and cached indefinitely.
  * The cache is busted manually when settings are updated.
  *
- * @see \App\Services\SettingService::update()
+ * @see SettingService::update()
  */
 class OrderSettingsDTO extends Data
 {
@@ -55,8 +56,6 @@ class OrderSettingsDTO extends Data
 
     /**
      * Load order settings from cache (or DB on cache miss).
-     *
-     * @return self
      */
     public static function load(): self
     {

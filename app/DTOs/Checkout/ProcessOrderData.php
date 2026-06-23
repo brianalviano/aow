@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\DTOs\Checkout;
 
 use App\Enums\DropPointCategory;
-use Illuminate\Http\UploadedFile;
 use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
@@ -83,11 +82,10 @@ class ProcessOrderData extends Data
      * This factory is necessary because cart, dropPoint, and address come
      * from the session, not the HTTP request body.
      *
-     * @param array<string, mixed> $validated Validated request data
-     * @param array $cart Cart data from session
-     * @param array|null $dropPoint Drop point data from session
-     * @param array|null $address Custom address data from session
-     * @return self
+     * @param  array<string, mixed>  $validated  Validated request data
+     * @param  array  $cart  Cart data from session
+     * @param  array|null  $dropPoint  Drop point data from session
+     * @param  array|null  $address  Custom address data from session
      */
     public static function fromCheckout(
         array $validated,

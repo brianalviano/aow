@@ -58,7 +58,7 @@ class PickUpPointOfficerData extends Data
                 'email',
                 'max:255',
                 $officerId
-                    ? 'unique:pick_up_point_officers,email,' . $officerId
+                    ? 'unique:pick_up_point_officers,email,'.$officerId
                     : 'unique:pick_up_point_officers,email',
             ],
         ];

@@ -1,6 +1,8 @@
 <?php
 
-use App\Enums\{OrderStatus, PaymentStatus, ShippingMethod};
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
+use App\Enums\ShippingMethod;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

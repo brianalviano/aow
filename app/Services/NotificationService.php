@@ -4,24 +4,23 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Contracts\Auth\Authenticatable;
 
 class NotificationService
 {
     /**
      * Get notification statistics for a user.
      *
-     * @param Authenticatable|null $user
      * @return array{total:int,unread:int,read:int}
      */
     public function getStatsForUser(?Authenticatable $user): array
     {
-        if (!$user) {
+        if (! $user) {
             return ['total' => 0, 'unread' => 0, 'read' => 0];
         }
 
@@ -39,10 +38,7 @@ class NotificationService
     /**
      * Paginate notifications for a user with optional status filter.
      *
-     * @param Authenticatable|null $user
-     * @param int $perPage
-     * @param string|null $status unread|read|null
-     * @return LengthAwarePaginator
+     * @param  string|null  $status  unread|read|null
      */
     public function paginateForUser(?Authenticatable $user, int $perPage = 10, ?string $status = null): LengthAwarePaginator
     {
@@ -74,9 +70,6 @@ class NotificationService
     /**
      * Mark a notification as read for the given user.
      *
-     * @param Authenticatable|null $user
-     * @param string $notificationId
-     * @return void
      * @throws \Throwable
      */
     public function markAsRead(?Authenticatable $user, string $notificationId): void
@@ -106,8 +99,6 @@ class NotificationService
     /**
      * Mark all notifications as read for the given user.
      *
-     * @param Authenticatable|null $user
-     * @return void
      * @throws \Throwable
      */
     public function markAllAsRead(?Authenticatable $user): void

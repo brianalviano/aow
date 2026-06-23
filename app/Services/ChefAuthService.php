@@ -14,9 +14,6 @@ class ChefAuthService
 {
     /**
      * Attempt to login a chef.
-     *
-     * @param LoginChefDTO $dto
-     * @return bool
      */
     public function login(LoginChefDTO $dto): bool
     {
@@ -29,6 +26,7 @@ class ChefAuthService
                 $user = Auth::guard('chef')->getProvider()->retrieveByCredentials($fields);
                 if ($user) {
                     Auth::guard('chef')->login($user, $remember);
+
                     return true;
                 }
             }
@@ -54,9 +52,6 @@ class ChefAuthService
 
     /**
      * Normalize phone number to start with '0'.
-     *
-     * @param string $input
-     * @return string
      */
     private function normalizePhone(string $input): string
     {
@@ -65,11 +60,12 @@ class ChefAuthService
             return '';
         }
         if (str_starts_with($digits, '62')) {
-            return '0' . substr($digits, 2);
+            return '0'.substr($digits, 2);
         }
         if (str_starts_with($digits, '0')) {
             return $digits;
         }
-        return '0' . $digits;
+
+        return '0'.$digits;
     }
 }

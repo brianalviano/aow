@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Customer;
 
-use App\DTOs\Auth\{ForgotPasswordData, ResetPasswordData};
+use App\DTOs\Auth\ForgotPasswordData;
+use App\DTOs\Auth\ResetPasswordData;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
+use App\Models\Customer;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
-use App\Models\Customer;
 
 class PasswordResetController extends Controller
 {
@@ -25,11 +26,12 @@ class PasswordResetController extends Controller
             ->whereRaw('LOWER(email) = ?', [$email])
             ->exists();
 
-        if (!$exists) {
+        if (! $exists) {
             Inertia::flash('toast', [
                 'message' => 'Email tidak terdaftar',
                 'type' => 'error',
             ]);
+
             return back()->withErrors(['email' => 'Email tidak terdaftar']);
         }
 
@@ -40,6 +42,7 @@ class PasswordResetController extends Controller
                 'message' => trans($status),
                 'type' => 'success',
             ]);
+
             return back();
         }
 
@@ -47,6 +50,7 @@ class PasswordResetController extends Controller
             'message' => trans($status),
             'type' => 'error',
         ]);
+
         return back()->withErrors(['email' => trans($status)]);
     }
 
@@ -65,7 +69,7 @@ class PasswordResetController extends Controller
                 'email' => $dto->email,
                 'password' => $dto->password,
                 'password_confirmation' => $dto->passwordConfirmation,
-                'token' => $dto->token
+                'token' => $dto->token,
             ],
             function ($user, string $password) {
                 $user->password = bcrypt($password);
@@ -80,6 +84,7 @@ class PasswordResetController extends Controller
                 'message' => trans($status),
                 'type' => 'success',
             ]);
+
             return redirect()->route('customer.login');
         }
 
@@ -87,6 +92,7 @@ class PasswordResetController extends Controller
             'message' => trans($status),
             'type' => 'error',
         ]);
+
         return back()->withErrors(['email' => trans($status)]);
     }
 }

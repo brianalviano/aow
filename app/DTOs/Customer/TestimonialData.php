@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\DTOs\Customer;
 
 use App\Traits\FileHelperTrait;
-use Spatie\LaravelData\{Attributes\Validation\Rule, Data};
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**
@@ -50,10 +51,10 @@ class TestimonialData extends Data
     {
         return [
             'rating.required' => 'Rating wajib diisi.',
-            'rating.in'       => 'Rating tidak valid.',
-            'content.max'     => 'Konten testimoni maksimal 1000 karakter.',
-            'photo.image'     => 'Format foto harus berupa gambar.',
-            'photo.max'       => 'Ukuran foto maksimal 2MB.',
+            'rating.in' => 'Rating tidak valid.',
+            'content.max' => 'Konten testimoni maksimal 1000 karakter.',
+            'photo.image' => 'Format foto harus berupa gambar.',
+            'photo.max' => 'Ukuran foto maksimal 2MB.',
         ];
     }
 }

@@ -5,25 +5,24 @@ declare(strict_types=1);
 namespace App\Exports;
 
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\{
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    WithTitle,
-    ShouldAutoSize
-};
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Style\{Alignment, Fill};
 
 /**
  * Exports product sales aggregation data to an Excel spreadsheet.
  *
  * Columns: Produk, Kategori, Total Terjual (qty), Total Pendapatan (Rp).
  *
- * @param Collection $products Collection of stdClass rows from OrderItem aggregation query.
+ * @param  Collection  $products  Collection of stdClass rows from OrderItem aggregation query.
  */
-class ProductsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle, ShouldAutoSize
+class ProductsExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     public function __construct(private readonly Collection $products) {}
 
@@ -51,7 +50,7 @@ class ProductsExport implements FromCollection, WithHeadings, WithMapping, WithS
     }
 
     /**
-     * @param  object $product stdClass with product_name, category_name, total_sold, total_revenue
+     * @param  object  $product  stdClass with product_name, category_name, total_sold, total_revenue
      * @return array<mixed>
      */
     public function map($product): array
@@ -71,8 +70,8 @@ class ProductsExport implements FromCollection, WithHeadings, WithMapping, WithS
     {
         return [
             1 => [
-                'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1E3A5F']],
+                'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1E3A5F']],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             ],
         ];

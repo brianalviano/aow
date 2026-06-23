@@ -6,7 +6,8 @@ namespace App\Services;
 
 use App\DTOs\Customer\FeedbackDTO;
 use App\Models\Feedback;
-use Illuminate\Support\Facades\{DB, Log};
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
@@ -17,8 +18,6 @@ class FeedbackService
     /**
      * Store a new feedback in the database.
      *
-     * @param FeedbackDTO $dto
-     * @return Feedback
      * @throws Throwable
      */
     public function store(FeedbackDTO $dto): Feedback
@@ -27,9 +26,9 @@ class FeedbackService
             return DB::transaction(function () use ($dto) {
                 $feedback = Feedback::create([
                     'customer_id' => $dto->customerId,
-                    'type'        => $dto->type,
-                    'content'     => $dto->content,
-                    'is_read'     => false,
+                    'type' => $dto->type,
+                    'content' => $dto->content,
+                    'is_read' => false,
                 ]);
 
                 return $feedback;
@@ -37,12 +36,12 @@ class FeedbackService
         } catch (Throwable $e) {
             Log::error('Failed to store feedback', [
                 'customer_id' => $dto->customerId,
-                'payload'     => [
-                    'type'    => $dto->type,
+                'payload' => [
+                    'type' => $dto->type,
                     'content' => $dto->content,
                 ],
-                'error'       => $e->getMessage(),
-                'trace'       => $e->getTraceAsString(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             throw $e;

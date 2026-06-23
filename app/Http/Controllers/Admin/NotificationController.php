@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NotificationResource;
 use App\Services\NotificationService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
@@ -17,10 +18,6 @@ class NotificationController extends Controller
 {
     /**
      * Tampilkan halaman daftar notifikasi dengan filter status dan pagination.
-     *
-     * @param Request $request
-     * @param NotificationService $service
-     * @return Response
      */
     public function index(Request $request, NotificationService $service): Response
     {
@@ -48,9 +45,7 @@ class NotificationController extends Controller
     /**
      * Ambil statistik notifikasi untuk user saat ini.
      *
-     * @param Request $request
-     * @param NotificationService $service
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function stats(Request $request, NotificationService $service)
     {
@@ -64,9 +59,7 @@ class NotificationController extends Controller
     /**
      * Ambil daftar notifikasi terbaru (ringkas) untuk dropdown/preview.
      *
-     * @param Request $request
-     * @param NotificationService $service
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function list(Request $request, NotificationService $service)
     {
@@ -83,27 +76,26 @@ class NotificationController extends Controller
     /**
      * Tandai satu notifikasi sebagai telah dibaca.
      *
-     * @param string $notificationId
-     * @param NotificationService $service
-     * @return \Illuminate\Http\Response
+     * @return HttpResponse
      */
     public function mark(string $notificationId, NotificationService $service)
     {
         $user = Auth::user();
         $service->markAsRead($user, $notificationId);
+
         return response()->noContent();
     }
 
     /**
      * Tandai seluruh notifikasi sebagai telah dibaca.
      *
-     * @param NotificationService $service
-     * @return \Illuminate\Http\Response
+     * @return HttpResponse
      */
     public function markAll(NotificationService $service)
     {
         $user = Auth::user();
         $service->markAllAsRead($user);
+
         return response()->noContent();
     }
 }

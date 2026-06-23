@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DropPointResource;
-use App\Models\{DropPoint, Order};
+use App\Models\Customer;
+use App\Models\DropPoint;
+use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,7 +28,7 @@ class DropPointController extends Controller
         $unreadNotificationsCount = 0;
 
         if (Auth::guard('customer')->check()) {
-            /** @var \App\Models\Customer $user */
+            /** @var Customer $user */
             $user = Auth::guard('customer')->user();
             $unreadNotificationsCount = $user->unreadNotifications()->count();
 
@@ -36,9 +38,9 @@ class DropPointController extends Controller
         }
 
         return Inertia::render('Domains/Customer/DropPoint/List', [
-            'totalDropPoints'          => $activeDropPoints->count(),
-            'dropPoints'               => DropPointResource::collection($activeDropPoints)->resolve(),
-            'activeOrdersCount'        => $activeOrdersCount,
+            'totalDropPoints' => $activeDropPoints->count(),
+            'dropPoints' => DropPointResource::collection($activeDropPoints)->resolve(),
+            'activeOrdersCount' => $activeOrdersCount,
             'unreadNotificationsCount' => $unreadNotificationsCount,
         ]);
     }

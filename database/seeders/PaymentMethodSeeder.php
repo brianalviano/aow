@@ -2,6 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\PaymentMethodCategory;
+use App\Enums\PaymentMethodType;
+use App\Models\PaymentGuide;
 use App\Models\PaymentMethod;
 use Illuminate\Database\Seeder;
 
@@ -12,9 +15,9 @@ class PaymentMethodSeeder extends Seeder
      */
     public function run(): void
     {
-        $manualGuideId = \App\Models\PaymentGuide::where('name', 'Transfer Bank (Manual)')->first()?->id;
-        $eWalletGuideId = \App\Models\PaymentGuide::where('name', 'E-Wallet (OVO/ShopeePay)')->first()?->id;
-        $qrisGuideId = \App\Models\PaymentGuide::where('name', 'QRIS')->first()?->id;
+        $manualGuideId = PaymentGuide::where('name', 'Transfer Bank (Manual)')->first()?->id;
+        $eWalletGuideId = PaymentGuide::where('name', 'E-Wallet (OVO/ShopeePay)')->first()?->id;
+        $qrisGuideId = PaymentGuide::where('name', 'QRIS')->first()?->id;
 
         $methods = [
             // [
@@ -26,8 +29,8 @@ class PaymentMethodSeeder extends Seeder
             // ],
             [
                 'name' => 'Transfer Bank BCA',
-                'category' => \App\Enums\PaymentMethodCategory::BANK_TRANSFER,
-                'type' => \App\Enums\PaymentMethodType::MANUAL,
+                'category' => PaymentMethodCategory::BANK_TRANSFER,
+                'type' => PaymentMethodType::MANUAL,
                 'is_active' => true,
                 'account_number' => '6750953733',
                 'account_name' => 'NUNING RAHMAWATI SE',
@@ -36,8 +39,8 @@ class PaymentMethodSeeder extends Seeder
             ],
             [
                 'name' => 'QRIS',
-                'category' => \App\Enums\PaymentMethodCategory::E_WALLET,
-                'type' => \App\Enums\PaymentMethodType::MANUAL,
+                'category' => PaymentMethodCategory::E_WALLET,
+                'type' => PaymentMethodType::MANUAL,
                 'is_active' => true,
                 'code' => 'bca_qris',
                 'payment_guide_id' => $qrisGuideId,

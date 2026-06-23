@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\DTOs\Report\ReportFilterData;
-use App\Exports\{OrdersExport, ProductsExport};
+use App\Exports\OrdersExport;
+use App\Exports\ProductsExport;
 use App\Http\Controllers\Controller;
-use App\Models\{CompanyProfile, DropPoint};
+use App\Models\CompanyProfile;
+use App\Models\DropPoint;
 use App\Services\ReportService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response as HttpResponse;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -31,16 +34,15 @@ class ReportController extends Controller
     /**
      * Display the reports overview page with filtered data.
      *
-     * @param  ReportRequest $request
-     * @return Response
+     * @param  ReportRequest  $request
      */
     public function index(ReportFilterData $dto): Response
     {
         $filters = [
-            'date_from'     => $dto->dateFrom,
-            'date_to'       => $dto->dateTo,
+            'date_from' => $dto->dateFrom,
+            'date_to' => $dto->dateTo,
             'drop_point_id' => $dto->dropPointId,
-            'per_page'      => 15,
+            'per_page' => 15,
         ];
 
         $type = $dto->type ?? 'orders';
@@ -50,14 +52,14 @@ class ReportController extends Controller
             : $this->reportService->getSalesReport($filters);
 
         $dropPoints = $this->reportService->getDropPoints()
-            ->map(fn(DropPoint $dp) => ['value' => $dp->id, 'label' => $dp->name])
+            ->map(fn (DropPoint $dp) => ['value' => $dp->id, 'label' => $dp->name])
             ->prepend(['value' => '', 'label' => 'Semua Drop Point'])
             ->values();
 
         return Inertia::render('Domains/Admin/Report/Index', [
-            'type'        => $type,
-            'filters'     => $filters,
-            'report'      => $reportData,
+            'type' => $type,
+            'filters' => $filters,
+            'report' => $reportData,
             'drop_points' => $dropPoints,
         ]);
     }
@@ -65,71 +67,69 @@ class ReportController extends Controller
     /**
      * Export the report as a downloadable PDF.
      *
-     * @param  ReportRequest $request
-     * @return HttpResponse
+     * @param  ReportRequest  $request
      */
     public function exportPdf(ReportFilterData $dto): HttpResponse
     {
         $filters = [
-            'date_from'     => $dto->dateFrom,
-            'date_to'       => $dto->dateTo,
+            'date_from' => $dto->dateFrom,
+            'date_to' => $dto->dateTo,
             'drop_point_id' => $dto->dropPointId,
         ];
 
-        $type     = $dto->type ?? 'orders';
+        $type = $dto->type ?? 'orders';
         $settings = CompanyProfile::query()->first();
         $dropPoint = $filters['drop_point_id'] ? DropPoint::find($filters['drop_point_id']) : null;
 
         if ($type === 'products') {
             $products = $this->reportService->getProductsForExport($filters);
-            $summary  = [
-                'total_sold'    => (int) $products->sum('total_sold'),
+            $summary = [
+                'total_sold' => (int) $products->sum('total_sold'),
                 'total_revenue' => (int) $products->sum('total_revenue'),
             ];
 
             $pdf = Pdf::loadView('exports.products-report', [
-                'products'      => $products,
-                'summary'       => $summary,
-                'settings'      => $settings,
-                'dateFrom'      => $filters['date_from'],
-                'dateTo'        => $filters['date_to'],
+                'products' => $products,
+                'summary' => $summary,
+                'settings' => $settings,
+                'dateFrom' => $filters['date_from'],
+                'dateTo' => $filters['date_to'],
                 'dropPointName' => $dropPoint?->name,
             ])->setPaper('a4', 'landscape');
 
-            return $pdf->download('laporan-produk-' . now()->format('Ymd-His') . '.pdf');
+            return $pdf->download('laporan-produk-'.now()->format('Ymd-His').'.pdf');
         }
 
         $orders = $this->reportService->getOrdersForExport($filters);
         $summary = [
-            'total_orders'    => $orders->count(),
-            'total_revenue'   => (int) $orders->where('order_status', 'delivered')->sum('total_amount'),
+            'total_orders' => $orders->count(),
+            'total_revenue' => (int) $orders->where('order_status', 'delivered')->sum('total_amount'),
             'total_cancelled' => $orders->where('order_status', 'cancelled')->count(),
-            'total_pending'   => $orders->whereIn('order_status', ['pending', 'confirmed', 'shipped'])->count(),
+            'total_pending' => $orders->whereIn('order_status', ['pending', 'confirmed', 'shipped'])->count(),
         ];
 
         $pdf = Pdf::loadView('exports.orders-report', [
-            'orders'        => $orders,
-            'summary'       => $summary,
-            'settings'      => $settings,
-            'dateFrom'      => $filters['date_from'],
-            'dateTo'        => $filters['date_to'],
+            'orders' => $orders,
+            'summary' => $summary,
+            'settings' => $settings,
+            'dateFrom' => $filters['date_from'],
+            'dateTo' => $filters['date_to'],
             'dropPointName' => $dropPoint?->name,
         ])->setPaper('a4', 'landscape');
 
-        return $pdf->download('laporan-pesanan-' . now()->format('Ymd-His') . '.pdf');
+        return $pdf->download('laporan-pesanan-'.now()->format('Ymd-His').'.pdf');
     }
 
     /**
      * Export the report as a downloadable Excel (.xlsx) file.
      *
-     * @param  ReportRequest $request
-     * @return BinaryFileResponse
+     * @param  ReportRequest  $request
      */
     public function exportExcel(ReportFilterData $dto): BinaryFileResponse
     {
         $filters = [
-            'date_from'     => $dto->dateFrom,
-            'date_to'       => $dto->dateTo,
+            'date_from' => $dto->dateFrom,
+            'date_to' => $dto->dateTo,
             'drop_point_id' => $dto->dropPointId,
         ];
 
@@ -140,7 +140,7 @@ class ReportController extends Controller
 
             return Excel::download(
                 new ProductsExport($products),
-                'laporan-produk-' . now()->format('Ymd-His') . '.xlsx'
+                'laporan-produk-'.now()->format('Ymd-His').'.xlsx'
             );
         }
 
@@ -148,7 +148,7 @@ class ReportController extends Controller
 
         return Excel::download(
             new OrdersExport($orders),
-            'laporan-pesanan-' . now()->format('Ymd-His') . '.xlsx'
+            'laporan-pesanan-'.now()->format('Ymd-His').'.xlsx'
         );
     }
 }

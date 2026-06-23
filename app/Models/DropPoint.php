@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Enums\DropPointCategory;
 use App\Traits\FileHelperTrait;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DropPoint extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes, FileHelperTrait;
+    use FileHelperTrait, HasFactory, HasUuids, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -44,7 +45,7 @@ class DropPoint extends Model
             'latitude' => 'float',
             'longitude' => 'float',
             'is_active' => 'boolean',
-            'category' => \App\Enums\DropPointCategory::class,
+            'category' => DropPointCategory::class,
             'min_po_qty' => 'integer',
             'min_po_amount' => 'integer',
         ];
@@ -52,9 +53,6 @@ class DropPoint extends Model
 
     /**
      * Get the photo URL.
-     *
-     * @param string|null $value
-     * @return string|null
      */
     protected function getPhotoAttribute(?string $value): ?string
     {
@@ -63,23 +61,19 @@ class DropPoint extends Model
 
     /**
      * Find the nearest active drop point to the given coordinates.
-     *
-     * @param float $latitude
-     * @param float $longitude
-     * @return self|null
      */
     public static function findNearest(float $latitude, float $longitude): ?self
     {
         return self::query()
             ->where('is_active', true)
-            ->selectRaw("
+            ->selectRaw('
                 *,
                 (6371 * acos(
                     cos(radians(?)) * cos(radians(latitude)) *
                     cos(radians(longitude) - radians(?)) +
                     sin(radians(?)) * sin(radians(latitude))
                 )) AS distance_km
-            ", [$latitude, $longitude, $latitude])
+            ', [$latitude, $longitude, $latitude])
             ->orderBy('distance_km')
             ->first();
     }

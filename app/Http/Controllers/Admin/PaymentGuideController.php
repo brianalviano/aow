@@ -10,7 +10,8 @@ use App\Models\PaymentGuide;
 use App\Services\PaymentGuideService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\{Inertia, Response};
+use Inertia\Inertia;
+use Inertia\Response;
 use Throwable;
 
 class PaymentGuideController extends Controller
@@ -61,7 +62,7 @@ class PaymentGuideController extends Controller
             return redirect()->route('admin.payment-guides.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal membuat Panduan Pembayaran: ' . $e->getMessage(),
+                'message' => 'Gagal membuat Panduan Pembayaran: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -95,7 +96,7 @@ class PaymentGuideController extends Controller
             return redirect()->route('admin.payment-guides.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal memperbarui Panduan Pembayaran: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui Panduan Pembayaran: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -119,7 +120,7 @@ class PaymentGuideController extends Controller
             return redirect()->route('admin.payment-guides.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menghapus Panduan Pembayaran: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus Panduan Pembayaran: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 

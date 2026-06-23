@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\DTOs\Setting\SettingData;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\SettingResource;
 use App\Models\CompanyProfile;
 use App\Models\OrderSetting;
@@ -39,12 +39,14 @@ class SettingController extends Controller
                 'message' => 'Pengaturan berhasil disimpan',
                 'type' => 'success',
             ]);
+
             return redirect()->route('admin.settings.index');
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal menyimpan pengaturan: ' . $e->getMessage(),
+                'message' => 'Gagal menyimpan pengaturan: '.$e->getMessage(),
                 'type' => 'error',
             ]);
+
             return back();
         }
     }

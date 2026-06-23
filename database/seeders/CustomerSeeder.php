@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\Customer;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\{DB, Hash, Log};
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class CustomerSeeder extends Seeder
 {
@@ -63,12 +65,12 @@ class CustomerSeeder extends Seeder
                     Customer::query()->updateOrCreate(
                         ['phone' => $phone],
                         [
-                            'name' => $firstName . ' ' . $lastName,
-                            'username' => strtolower($firstName) . $faker->randomNumber(3, true),
+                            'name' => $firstName.' '.$lastName,
+                            'username' => strtolower($firstName).$faker->randomNumber(3, true),
                             'email' => $email,
                             'password' => $password,
                             'address' => $faker->address(),
-                            'school_class' => $faker->randomElement(['X', 'XI', 'XII']) . ' ' .
+                            'school_class' => $faker->randomElement(['X', 'XI', 'XII']).' '.
                                 $faker->randomElement(['RPL', 'TKJ', 'Multimedia', 'Akuntansi']),
                             'is_active' => $faker->boolean(90),
                         ]
@@ -76,8 +78,8 @@ class CustomerSeeder extends Seeder
                 }
             });
         } catch (\Throwable $e) {
-            Log::error('CustomerSeeder failed: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+            Log::error('CustomerSeeder failed: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }

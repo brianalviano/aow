@@ -12,8 +12,6 @@ class PrivacyPolicyController extends Controller
 {
     /**
      * Display the privacy policy page.
-     *
-     * @return Response
      */
     public function index(): Response
     {

@@ -23,7 +23,7 @@ class ProductOptionData extends Data
 {
     public function __construct(
         #[Rule('nullable', 'uuid')]
-        public readonly ?string $id = null,
+        public readonly ?string $id,
 
         #[Rule('required', 'string', 'max:255')]
         public readonly string $name,

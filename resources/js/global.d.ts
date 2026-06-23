@@ -14,4 +14,11 @@ declare global {
     interface Window {
         tt?: any;
     }
+    interface Navigator {
+        bluetooth?: any;
+    }
+    type BluetoothDevice = any;
+    type BluetoothRemoteGATTCharacteristic = any;
 }
+
+declare module '@point-of-sale/receipt-printer-encoder';

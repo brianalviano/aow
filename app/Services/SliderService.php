@@ -33,8 +33,6 @@ class SliderService
     /**
      * Store a newly created slider.
      *
-     * @param SliderData $data
-     * @return Slider
      * @throws \Throwable
      */
     public function createSlider(SliderData $data): Slider
@@ -42,7 +40,7 @@ class SliderService
         return $this->runWithRetry(function () use ($data) {
             try {
                 return DB::transaction(function () use ($data) {
-                    $slider = new Slider();
+                    $slider = new Slider;
                     $photoPath = $slider->handleFileInput($data->photo, null, 'sliders');
 
                     return Slider::create([
@@ -66,9 +64,6 @@ class SliderService
     /**
      * Update the specified slider.
      *
-     * @param Slider $slider
-     * @param SliderData $data
-     * @return Slider
      * @throws \Throwable
      */
     public function updateSlider(Slider $slider, SliderData $data): Slider
@@ -102,8 +97,6 @@ class SliderService
     /**
      * Delete the specified slider.
      *
-     * @param Slider $slider
-     * @return bool|null
      * @throws \Throwable
      */
     public function deleteSlider(Slider $slider): ?bool
@@ -112,6 +105,7 @@ class SliderService
             try {
                 return DB::transaction(function () use ($slider) {
                     $slider->deleteFile($slider->getRawOriginal('photo'));
+
                     return $slider->delete();
                 });
             } catch (\Throwable $e) {

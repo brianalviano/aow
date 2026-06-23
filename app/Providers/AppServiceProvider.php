@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\{Auth, Vite, Gate, URL};
-use Inertia\Inertia;
-use App\Models\User;
 use App\Enums\RoleName;
+use App\Models\User;
+use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,8 +31,6 @@ class AppServiceProvider extends ServiceProvider
      *
      * Menginisialisasi konfigurasi aplikasi pada saat bootstrapping.
      * Memisahkan setiap konfigurasi ke dalam metode privat agar mudah dirawat.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -43,20 +45,18 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Konfigurasi URL reset password untuk berbagai guard.
      * Memastikan Admin dan Customer mendapatkan link reset yang sesuai.
-     *
-     * @return void
      */
     private function configurePasswordResets(): void
     {
-        \Illuminate\Auth\Notifications\ResetPassword::createUrlUsing(function ($user, string $token) {
+        ResetPassword::createUrlUsing(function ($user, string $token) {
             if ($user instanceof User) {
-                return url(config('app.url') . route('admin.password.reset', [
+                return url(config('app.url').route('admin.password.reset', [
                     'token' => $token,
                     'email' => $user->getEmailForPasswordReset(),
                 ], false));
             }
 
-            return url(config('app.url') . route('password.reset', [
+            return url(config('app.url').route('password.reset', [
                 'token' => $token,
                 'email' => $user->getEmailForPasswordReset(),
             ], false));
@@ -66,8 +66,6 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Konfigurasi HTTPS pada environment non-local untuk memastikan
      * URL dan request dianggap aman.
-     *
-     * @return void
      */
     private function configureHttps(): void
     {
@@ -80,8 +78,6 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Konfigurasi prefetch untuk Vite agar optimalkan pengambilan aset.
      * Sesuaikan concurrency jika diperlukan berdasarkan kapasitas server.
-     *
-     * @return void
      */
     private function configureVitePrefetch(): void
     {
@@ -91,8 +87,6 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Aktifkan enkripsi riwayat (history) untuk Inertia
      * guna meningkatkan keamanan navigasi client-side.
-     *
-     * @return void
      */
     private function configureInertia(): void
     {
@@ -102,8 +96,6 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Atur perilaku redirect jika user sudah terautentikasi,
      * mengarahkan ke portal dashboard.
-     *
-     * @return void
      */
     private function registerAuthRedirect(): void
     {
@@ -121,8 +113,6 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Daftarkan Gates untuk otorisasi aplikasi.
      * Termasuk gate 'admin-only' untuk membatasi akses fitur Admin.
-     *
-     * @return void
      */
     private function registerAuthorizationGates(): void
     {

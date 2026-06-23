@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\DTOs\Setting\OrderSettingsDTO;
 use App\Models\Order;
 use App\Models\PaymentMethod;
+use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\CoreApi;
+use Midtrans\Notification;
 use Throwable;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Service for interacting with Midtrans Core API (VT-Direct).
@@ -34,7 +36,7 @@ class MidtransService
         Config::$isSanitized = true;
         Config::$is3ds = true;
 
-        if (!Config::$isProduction) {
+        if (! Config::$isProduction) {
             Config::$curlOptions = [
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_SSL_VERIFYPEER => 0,
@@ -46,9 +48,8 @@ class MidtransService
     /**
      * Charge an order via Midtrans Core API.
      *
-     * @param Order $order
-     * @param PaymentMethod $paymentMethod
      * @return object Midtrans response
+     *
      * @throws Throwable
      */
     public function charge(Order $order, PaymentMethod $paymentMethod): object
@@ -79,7 +80,7 @@ class MidtransService
         ];
 
         // Expiry duration from settings (default 60 minutes)
-        $expiryDuration = \App\DTOs\Setting\OrderSettingsDTO::load()->paymentExpiredDuration;
+        $expiryDuration = OrderSettingsDTO::load()->paymentExpiredDuration;
         $params['expiry'] = [
             'unit' => 'minute',
             'duration' => $expiryDuration,
@@ -182,13 +183,12 @@ class MidtransService
     /**
      * Handle Midtrans notification and update order status.
      *
-     * @return array
      * @throws Throwable
      */
     public function handleNotification(): array
     {
         try {
-            $notification = new \Midtrans\Notification();
+            $notification = new Notification;
 
             $orderId = (string) $notification->order_id;
             $statusCode = (string) $notification->status_code;
@@ -197,7 +197,7 @@ class MidtransService
             $serverKey = config('services.midtrans.server_key');
 
             // Security check: Validate signature key
-            $calculatedHash = hash('sha512', $orderId . $statusCode . $grossAmount . $serverKey);
+            $calculatedHash = hash('sha512', $orderId.$statusCode.$grossAmount.$serverKey);
 
             if ($calculatedHash !== $signatureKey) {
                 Log::warning('Midtrans Webhook: Invalid Signature', [
@@ -213,8 +213,8 @@ class MidtransService
 
             $order = Order::where('number', $orderId)->first();
 
-            if (!$order) {
-                throw new \Exception('Order not found: ' . $orderId);
+            if (! $order) {
+                throw new \Exception('Order not found: '.$orderId);
             }
 
             $paymentStatus = 'pending';
@@ -222,14 +222,14 @@ class MidtransService
             if ($transactionStatus == 'capture') {
                 if ($fraudStatus == 'challenge') {
                     $paymentStatus = 'challenge';
-                } else if ($fraudStatus == 'accept') {
+                } elseif ($fraudStatus == 'accept') {
                     $paymentStatus = 'paid';
                 }
-            } else if ($transactionStatus == 'settlement') {
+            } elseif ($transactionStatus == 'settlement') {
                 $paymentStatus = 'paid';
-            } else if ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
+            } elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
                 $paymentStatus = 'failed';
-            } else if ($transactionStatus == 'pending') {
+            } elseif ($transactionStatus == 'pending') {
                 $paymentStatus = 'pending';
             }
 
@@ -273,7 +273,7 @@ class MidtransService
                 'payment_type' => 'echannel',
                 'echannel' => [
                     'bill_info1' => 'Payment For:',
-                    'bill_info2' => 'Order ' . uniqid(),
+                    'bill_info2' => 'Order '.uniqid(),
                 ],
             ];
         }
@@ -289,6 +289,6 @@ class MidtransService
             ];
         }
 
-        throw new \Exception('Metode pembayaran Midtrans tidak didukung: ' . $code);
+        throw new \Exception('Metode pembayaran Midtrans tidak didukung: '.$code);
     }
 }

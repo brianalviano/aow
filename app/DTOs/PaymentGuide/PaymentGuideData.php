@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\DTOs\PaymentGuide;
 
-use Spatie\LaravelData\{Attributes\Validation\Rule, Data};
+use Spatie\LaravelData\Attributes\Validation\Rule;
+use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 /**

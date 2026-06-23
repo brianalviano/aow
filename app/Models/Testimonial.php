@@ -3,15 +3,15 @@
 namespace App\Models;
 
 use App\Enums\TestimonialRating;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use App\Traits\FileHelperTrait;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Testimonial extends Model
 {
-    use HasUuids, HasFactory, FileHelperTrait;
+    use FileHelperTrait, HasFactory, HasUuids;
 
     protected $fillable = [
         'customer_id',
@@ -48,9 +48,6 @@ class Testimonial extends Model
 
     /**
      * Get the photo URL.
-     *
-     * @param string|null $value
-     * @return string|null
      */
     protected function getPhotoAttribute(?string $value): ?string
     {

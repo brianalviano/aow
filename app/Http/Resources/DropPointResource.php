@@ -11,6 +11,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class DropPointResource extends JsonResource
 {
     use FileHelperTrait;
+
     /**
      * Transform the resource into an array.
      *

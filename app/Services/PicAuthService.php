@@ -16,9 +16,6 @@ class PicAuthService
 {
     /**
      * Attempt to login a PIC officer.
-     *
-     * @param LoginPicDTO $dto
-     * @return bool
      */
     public function login(LoginPicDTO $dto): bool
     {
@@ -31,6 +28,7 @@ class PicAuthService
                 $user = Auth::guard('pickup_officer')->getProvider()->retrieveByCredentials($fields);
                 if ($user) {
                     Auth::guard('pickup_officer')->login($user, $remember);
+
                     return true;
                 }
             }
@@ -56,9 +54,6 @@ class PicAuthService
 
     /**
      * Normalize phone number to start with '0'.
-     *
-     * @param string $input
-     * @return string
      */
     private function normalizePhone(string $input): string
     {
@@ -67,11 +62,12 @@ class PicAuthService
             return '';
         }
         if (str_starts_with($digits, '62')) {
-            return '0' . substr($digits, 2);
+            return '0'.substr($digits, 2);
         }
         if (str_starts_with($digits, '0')) {
             return $digits;
         }
-        return '0' . $digits;
+
+        return '0'.$digits;
     }
 }

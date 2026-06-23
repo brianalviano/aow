@@ -7,6 +7,7 @@
     import MediaViewer from "@/Lib/Admin/Components/Ui/MediaViewer.svelte";
     import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
+    import OrderPrintModal from "./OrderPrintModal.svelte";
 
     interface Product {
         id: string;
@@ -153,6 +154,7 @@
 
     let isProcessing = $state(false);
     let cancelModalOpen = $state(false);
+    let printModalOpen = $state(false);
     let cancelNote = $state("");
     let deliverModalOpen = $state(false);
     let deliveryPhotoFile = $state<File | null>(null);
@@ -560,7 +562,7 @@
                 <Button
                     variant="info"
                     icon="fa-solid fa-print"
-                    onclick={() => window.open(`/admin/orders/${order.id}/print`, '_blank')}
+                    onclick={() => (printModalOpen = true)}
                 >
                     {#snippet children()}Print Struk{/snippet}
                 </Button>
@@ -1917,5 +1919,11 @@
     bind:isOpen={isMediaViewerOpen}
     items={mediaViewerItems}
     initialIndex={mediaViewerInitialIndex}
+/>
+
+<OrderPrintModal
+    order={order}
+    open={printModalOpen}
+    onClose={() => (printModalOpen = false)}
 />
 

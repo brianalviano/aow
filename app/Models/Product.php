@@ -2,16 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Enums\OrderStatus;
 use App\Traits\FileHelperTrait;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasManyThrough, HasOne};
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Product extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes, FileHelperTrait;
+    use FileHelperTrait, HasFactory, HasUuids, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -48,8 +54,6 @@ class Product extends Model
 
     /**
      * Get the options available for this product.
-     *
-     * @return HasMany
      */
     public function productOptions(): HasMany
     {
@@ -66,8 +70,6 @@ class Product extends Model
 
     /**
      * Get the order items for this product.
-     *
-     * @return HasMany
      */
     public function orderItems(): HasMany
     {
@@ -76,8 +78,6 @@ class Product extends Model
 
     /**
      * Get the manipulation settings for this product.
-     *
-     * @return HasOne
      */
     public function manipulation(): HasOne
     {
@@ -86,8 +86,6 @@ class Product extends Model
 
     /**
      * Get the testimonials for this product.
-     *
-     * @return HasManyThrough
      */
     public function testimonials(): HasManyThrough
     {
@@ -103,17 +101,15 @@ class Product extends Model
 
     /**
      * Get the total sales for this product.
-     *
-     * @return int
      */
     public function getTotalSalesAttribute(): int
     {
         $realSales = (int) $this->orderItems()
             ->whereHas('order', function ($query) {
                 $query->whereIn('order_status', [
-                    \App\Enums\OrderStatus::CONFIRMED->value,
-                    \App\Enums\OrderStatus::SHIPPED->value,
-                    \App\Enums\OrderStatus::DELIVERED->value,
+                    OrderStatus::CONFIRMED->value,
+                    OrderStatus::SHIPPED->value,
+                    OrderStatus::DELIVERED->value,
                 ]);
             })
             ->sum('quantity');
@@ -125,8 +121,6 @@ class Product extends Model
 
     /**
      * Get the average rating for this product.
-     *
-     * @return float
      */
     public function getAverageRatingAttribute(): float
     {
@@ -158,8 +152,6 @@ class Product extends Model
 
     /**
      * Get the testimonials count for this product.
-     *
-     * @return int
      */
     public function getTestimonialsCountAttribute(): int
     {
@@ -172,8 +164,7 @@ class Product extends Model
     /**
      * Get merged real and fake testimonials.
      *
-     * @param int $limit
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function getManipulatedTestimonials(int $limit = 10)
     {
@@ -181,7 +172,7 @@ class Product extends Model
             ->with('customer')
             ->latest()
             ->get()
-            ->map(fn($t) => [
+            ->map(fn ($t) => [
                 'id' => $t->id,
                 'customer_name' => $t->customer?->name ?? 'User',
                 'rating' => $t->rating,
@@ -198,8 +189,8 @@ class Product extends Model
                 ->inRandomOrder()
                 ->limit($fakeCount)
                 ->get()
-                ->map(fn($t, $index) => [
-                    'id' => 'fake-' . $t->id . '-' . $index,
+                ->map(fn ($t, $index) => [
+                    'id' => 'fake-'.$t->id.'-'.$index,
                     'customer_name' => $t->customer_name,
                     'rating' => $t->rating,
                     'content' => $t->content,
@@ -217,9 +208,6 @@ class Product extends Model
 
     /**
      * Get the image URL.
-     *
-     * @param string|null $value
-     * @return string|null
      */
     protected function getImageAttribute(?string $value): ?string
     {

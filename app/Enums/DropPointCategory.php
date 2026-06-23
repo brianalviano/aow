@@ -23,8 +23,6 @@ enum DropPointCategory: string
 
     /**
      * Get the human-readable label for the category.
-     *
-     * @return string
      */
     public function label(): string
     {
@@ -70,7 +68,7 @@ enum DropPointCategory: string
      */
     public static function values(): array
     {
-        return array_map(static fn(self $c): string => $c->value, self::cases());
+        return array_map(static fn (self $c): string => $c->value, self::cases());
     }
 
     /**
@@ -81,7 +79,7 @@ enum DropPointCategory: string
     public static function options(): array
     {
         return array_map(
-            fn(self $category) => [
+            fn (self $category) => [
                 'value' => $category->value,
                 'label' => $category->label(),
             ],

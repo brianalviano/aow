@@ -2,10 +2,10 @@
 
 namespace App\Traits;
 
+use Buglinjo\LaravelWebp\Facades\Webp;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Buglinjo\LaravelWebp\Facades\Webp;
 
 /**
  * Trait for handling both file URLs and file uploads
@@ -67,14 +67,11 @@ trait FileHelperTrait
     /**
      * Handle file input - can be URL string or uploaded file
      *
-     * @param string|UploadedFile|null $file
-     * @param string|null $existingFile
-     * @param string $folder
-     * @return string|null
+     * @param  string|UploadedFile|null  $file
      */
     public function handleFileInput($file, ?string $existingFile = null, string $folder = 'files'): ?string
     {
-        if (!$file) {
+        if (! $file) {
             return $existingFile;
         }
 
@@ -98,16 +95,11 @@ trait FileHelperTrait
 
     /**
      * Handle file upload and storage
-     *
-     * @param UploadedFile $file
-     * @param string|null $existingFile
-     * @param string $folder
-     * @return string
      */
     protected function handleFileUpload(UploadedFile $file, ?string $existingFile = null, string $folder = 'files'): string
     {
         // Delete existing file if it exists and is not a URL
-        if ($existingFile && !$this->isValidUrl($existingFile)) {
+        if ($existingFile && ! $this->isValidUrl($existingFile)) {
             $this->deleteFile($existingFile);
         }
 
@@ -116,36 +108,34 @@ trait FileHelperTrait
 
         if ($isImage) {
             // For images: compress to WebP
-            $filename = time() . '_' . Str::random(10) . '.webp';
+            $filename = time().'_'.Str::random(10).'.webp';
 
             // Get full storage path
-            $storagePath = storage_path('app/public/' . $folder);
+            $storagePath = storage_path('app/public/'.$folder);
 
             // Create directory if it doesn't exist
-            if (!file_exists($storagePath)) {
+            if (! file_exists($storagePath)) {
                 mkdir($storagePath, 0755, true);
             }
 
-            $fullPath = $storagePath . '/' . $filename;
+            $fullPath = $storagePath.'/'.$filename;
 
             // Convert and compress image to WebP format
             Webp::make($file)
                 ->save($fullPath);
 
-            return '/storage/' . $folder . '/' . $filename;
+            return '/storage/'.$folder.'/'.$filename;
         } else {
             // For non-image files: store normally
-            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+            $filename = time().'_'.Str::random(10).'.'.$file->getClientOriginalExtension();
             $path = $file->storeAs($folder, $filename, 'public');
+
             return Storage::url($path);
         }
     }
 
     /**
      * Delete file from storage
-     *
-     * @param string $filePath
-     * @return bool
      */
     public function deleteFile(string $filePath): bool
     {
@@ -165,14 +155,10 @@ trait FileHelperTrait
 
     /**
      * Get full file URL
-     *
-     * @param string|null $filePath
-     * @param string|null $default
-     * @return string|null
      */
     public function getFileUrl(?string $filePath, ?string $default = null): ?string
     {
-        if (!$filePath) {
+        if (! $filePath) {
             return $default;
         }
 
@@ -192,9 +178,6 @@ trait FileHelperTrait
 
     /**
      * Check if string is a valid URL
-     *
-     * @param string $url
-     * @return bool
      */
     protected function isValidUrl(string $url): bool
     {
@@ -203,21 +186,16 @@ trait FileHelperTrait
 
     /**
      * Check if uploaded file is an image
-     *
-     * @param UploadedFile $file
-     * @return bool
      */
     protected function isImageFile(UploadedFile $file): bool
     {
         $imageMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/svg+xml'];
+
         return in_array($file->getMimeType(), $imageMimeTypes);
     }
 
     /**
      * Check if file is safe (not in dangerous extensions list)
-     *
-     * @param UploadedFile $file
-     * @return bool
      */
     protected function isSafeFile(UploadedFile $file): bool
     {
@@ -233,9 +211,6 @@ trait FileHelperTrait
 
     /**
      * Validate file against whitelist
-     *
-     * @param UploadedFile $file
-     * @return bool
      */
     protected function isWhitelistedFile(UploadedFile $file): bool
     {
@@ -243,13 +218,13 @@ trait FileHelperTrait
         $extension = strtolower($file->getClientOriginalExtension());
 
         // Check if mime type exists in whitelist
-        if (!isset($this->safeFileTypes[$mimeType])) {
+        if (! isset($this->safeFileTypes[$mimeType])) {
             return false;
         }
 
         // Check if extension matches the mime type
         $allowedExtensions = $this->safeFileTypes[$mimeType];
-        if (!in_array($extension, $allowedExtensions)) {
+        if (! in_array($extension, $allowedExtensions)) {
             return false;
         }
 
@@ -258,8 +233,6 @@ trait FileHelperTrait
 
     /**
      * Get allowed file types for validation
-     *
-     * @return array
      */
     public function getAllowedMimeTypes(): array
     {
@@ -268,8 +241,6 @@ trait FileHelperTrait
 
     /**
      * Get allowed extensions for validation
-     *
-     * @return array
      */
     public function getAllowedExtensions(): array
     {
@@ -277,30 +248,31 @@ trait FileHelperTrait
         foreach ($this->safeFileTypes as $exts) {
             $extensions = array_merge($extensions, $exts);
         }
+
         return array_unique($extensions);
     }
 
     /**
      * Validate file
      *
-     * @param UploadedFile $file
-     * @param array $options - ['max_size' => 10MB, 'allowed_types' => [], 'max_dimensions' => [2048, 2048], 'skip_whitelist' => false]
-     * @return array
+     * @param  array  $options  - ['max_size' => 10MB, 'allowed_types' => [], 'max_dimensions' => [2048, 2048], 'skip_whitelist' => false]
      */
     public function validateFile(UploadedFile $file, array $options = []): array
     {
         $errors = [];
 
         // SECURITY: Always check for dangerous files first
-        if (!$this->isSafeFile($file)) {
+        if (! $this->isSafeFile($file)) {
             $errors[] = 'File type is not allowed for security reasons';
+
             return $errors; // Return immediately for dangerous files
         }
 
         // SECURITY: Check whitelist by default (unless explicitly skipped)
         $skipWhitelist = $options['skip_whitelist'] ?? false;
-        if (!$skipWhitelist && !$this->isWhitelistedFile($file)) {
-            $errors[] = 'File type is not in the allowed list. Allowed: ' . implode(', ', $this->getAllowedExtensions());
+        if (! $skipWhitelist && ! $this->isWhitelistedFile($file)) {
+            $errors[] = 'File type is not in the allowed list. Allowed: '.implode(', ', $this->getAllowedExtensions());
+
             return $errors;
         }
 
@@ -314,8 +286,8 @@ trait FileHelperTrait
         }
 
         // Check file type if specified (additional custom validation)
-        if (isset($options['allowed_types']) && !empty($options['allowed_types'])) {
-            if (!in_array($file->getMimeType(), $options['allowed_types'])) {
+        if (isset($options['allowed_types']) && ! empty($options['allowed_types'])) {
+            if (! in_array($file->getMimeType(), $options['allowed_types'])) {
                 $errors[] = 'File type not allowed';
             }
         }
@@ -341,9 +313,7 @@ trait FileHelperTrait
     /**
      * Get validation rules for file input
      *
-     * @param bool $required
-     * @param array $options - Validation options to pass to validateFile
-     * @return array
+     * @param  array  $options  - Validation options to pass to validateFile
      */
     public function getFileValidationRules(bool $required = false, array $options = []): array
     {
@@ -359,20 +329,20 @@ trait FileHelperTrait
         $rules[] = function ($attribute, $value, $fail) use ($options) {
             if (is_string($value)) {
                 // If it's a string, it should be a valid URL
-                if (!$this->isValidUrl($value)) {
+                if (! $this->isValidUrl($value)) {
                     // Unless it's an existing file path
-                    if (!str_starts_with($value, '/storage/') && !Storage::disk('public')->exists($value)) {
-                        $fail('The ' . $attribute . ' must be a valid URL or uploaded file.');
+                    if (! str_starts_with($value, '/storage/') && ! Storage::disk('public')->exists($value)) {
+                        $fail('The '.$attribute.' must be a valid URL or uploaded file.');
                     }
                 }
             } elseif ($value instanceof UploadedFile) {
                 // Validate uploaded file
                 $errors = $this->validateFile($value, $options);
-                if (!empty($errors)) {
-                    $fail('The ' . $attribute . ' ' . implode(', ', $errors));
+                if (! empty($errors)) {
+                    $fail('The '.$attribute.' '.implode(', ', $errors));
                 }
             } else {
-                $fail('The ' . $attribute . ' must be a valid URL or uploaded file.');
+                $fail('The '.$attribute.' must be a valid URL or uploaded file.');
             }
         };
 
