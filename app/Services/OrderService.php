@@ -62,8 +62,8 @@ class OrderService
     {
         try {
             return DB::transaction(function () use ($order, $deliveryPhotoPath) {
-                // Ensure the order is currently arrived or shipped before marking as delivered
-                if (! in_array($order->order_status, [OrderStatus::ARRIVED, OrderStatus::SHIPPED])) {
+                // Ensure the order is in a valid state to be completed
+                if (in_array($order->order_status, [OrderStatus::DELIVERED, OrderStatus::CANCELLED])) {
                     throw new \Exception("Pesanan tidak dapat diselesaikan karena status saat ini adalah {$order->order_status->value}.");
                 }
 

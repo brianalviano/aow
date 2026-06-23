@@ -280,6 +280,36 @@ class OrderController extends Controller
     }
 
     /**
+     * Mark an order as delivered/completed (admin action).
+     *
+     * @throws Throwable
+     */
+    public function deliver(Request $request, Order $order, OrderService $service): RedirectResponse
+    {
+        $request->validate([
+            'delivery_photo' => ['required', 'image', 'max:5120'], // Max 5MB
+        ]);
+
+        try {
+            $service->completeOrder($order, $request->file('delivery_photo'));
+
+            Inertia::flash('toast', [
+                'message' => 'Pesanan berhasil diselesaikan.',
+                'type' => 'success',
+            ]);
+
+            return redirect()->back();
+        } catch (Throwable $e) {
+            Inertia::flash('toast', [
+                'message' => 'Gagal menyelesaikan pesanan: '.$e->getMessage(),
+                'type' => 'error',
+            ]);
+
+            return redirect()->back();
+        }
+    }
+
+    /**
      * Approve a customer testimonial.
      */
     public function approveTestimonial(Testimonial $testimonial): RedirectResponse
