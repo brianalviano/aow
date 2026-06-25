@@ -91,7 +91,9 @@ class ReportService
                     products.name AS product_name,
                     product_categories.name AS category_name,
                     SUM(order_items.quantity)   AS total_sold,
-                    SUM(order_items.subtotal)   AS total_revenue
+                    SUM(order_items.subtotal)   AS total_revenue,
+                    SUM(order_items.quantity * COALESCE(order_items.cost_price, 0)) AS total_cost,
+                    SUM(order_items.subtotal) - SUM(order_items.quantity * COALESCE(order_items.cost_price, 0)) AS total_profit
                 ')
                 ->groupBy('order_items.product_id', 'products.name', 'product_categories.name')
                 ->orderByDesc('total_sold');
@@ -99,6 +101,8 @@ class ReportService
             $productTotals = (clone $query)->get();
             $totalSold = (int) $productTotals->sum('total_sold');
             $totalRevenue = (int) $productTotals->sum('total_revenue');
+            $totalCost = (int) $productTotals->sum('total_cost');
+            $totalProfit = (int) $productTotals->sum('total_profit');
 
             $products = $query->paginate($filters['per_page'] ?? 15)
                 ->appends(array_filter([
@@ -111,6 +115,8 @@ class ReportService
             $summary = [
                 'total_sold' => $totalSold,
                 'total_revenue' => $totalRevenue,
+                'total_cost' => $totalCost,
+                'total_profit' => $totalProfit,
             ];
 
             return compact('summary', 'products');
@@ -179,7 +185,9 @@ class ReportService
                     products.name AS product_name,
                     product_categories.name AS category_name,
                     SUM(order_items.quantity) AS total_sold,
-                    SUM(order_items.subtotal) AS total_revenue
+                    SUM(order_items.subtotal) AS total_revenue,
+                    SUM(order_items.quantity * COALESCE(order_items.cost_price, 0)) AS total_cost,
+                    SUM(order_items.subtotal) - SUM(order_items.quantity * COALESCE(order_items.cost_price, 0)) AS total_profit
                 ')
                 ->groupBy('order_items.product_id', 'products.name', 'product_categories.name')
                 ->orderByDesc('total_sold')
@@ -214,9 +222,18 @@ class ReportService
     {
         $all = (clone $query)->get();
 
+        $deliveredOrderIds = $all->where('order_status', 'delivered')->pluck('id');
+        $totalCost = (int) OrderItem::whereIn('order_id', $deliveredOrderIds)
+            ->selectRaw('SUM(quantity * COALESCE(cost_price, 0)) as total_cost')
+            ->value('total_cost');
+
+        $totalRevenue = (int) $all->where('order_status', 'delivered')->sum('total_amount');
+
         return [
             'total_orders' => $all->count(),
-            'total_revenue' => (int) $all->where('order_status', 'delivered')->sum('total_amount'),
+            'total_revenue' => $totalRevenue,
+            'total_cost' => $totalCost,
+            'total_profit' => $totalRevenue - $totalCost,
             'total_cancelled' => $all->where('order_status', 'cancelled')->count(),
             'total_pending' => $all->whereIn('order_status', ['pending', 'confirmed', 'shipped'])->count(),
         ];

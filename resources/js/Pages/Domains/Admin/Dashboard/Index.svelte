@@ -147,12 +147,18 @@
     </div>
 
     <!-- Statistics Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard
             label="Total Revenue"
             value={formatCurrency(stats.total_revenue)}
-            icon="fa-solid fa-money-bill-trend-up"
+            icon="fa-solid fa-circle-dollar-to-slot"
             color="indigo"
+        />
+        <StatCard
+            label="Total Profit"
+            value={formatCurrency(stats.total_profit)}
+            icon="fa-solid fa-money-bill-trend-up"
+            color="teal"
         />
         <StatCard
             label="Total Orders"

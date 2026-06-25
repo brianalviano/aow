@@ -28,6 +28,7 @@ class OrderItem extends Model
         'discount_id',
         'quantity',
         'price',
+        'cost_price',
         'discount_amount',
         'final_price',
         'subtotal',

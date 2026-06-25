@@ -42,6 +42,9 @@ class ProductData extends Data
         #[Rule('required', 'integer', 'min:0')]
         public readonly int $price = 0,
 
+        #[Rule('required', 'integer', 'min:0')]
+        public readonly int $costPrice = 0,
+
         #[Rule('nullable', 'image', 'max:2048')]
         public readonly ?UploadedFile $image = null,
 

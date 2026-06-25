@@ -48,6 +48,7 @@
         whatsapp_notify_order_created: boolean;
         whatsapp_notify_order_confirmed: boolean;
         whatsapp_notify_order_delivered: boolean;
+        whatsapp_order_placed_remark: string | null;
 
         tax_enabled: boolean;
         tax_percentage: string | null;
@@ -106,6 +107,8 @@
                 settings?.whatsapp_notify_order_confirmed ?? false,
             whatsapp_notify_order_delivered:
                 settings?.whatsapp_notify_order_delivered ?? false,
+            whatsapp_order_placed_remark:
+                settings?.whatsapp_order_placed_remark ?? "",
 
             tax_enabled: settings?.tax_enabled ?? false,
             tax_percentage: settings?.tax_percentage?.toString() ?? "12",
@@ -561,6 +564,21 @@
                                         }
                                         label="Saat Order Dikirim"
                                     />
+                                </div>
+
+                                <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                    <TextArea
+                                        id="whatsapp_order_placed_remark"
+                                        name="whatsapp_order_placed_remark"
+                                        label="Catatan Konfirmasi Pesanan Baru (WA)"
+                                        placeholder="Tulis pesan catatan konfirmasi di sini..."
+                                        bind:value={$form.whatsapp_order_placed_remark}
+                                        error={$form.errors.whatsapp_order_placed_remark}
+                                        rows={4}
+                                    />
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        Catatan tambahan ini akan dikirim otomatis ke WhatsApp customer setelah mereka melakukan checkout pesanan.
+                                    </p>
                                 </div>
                             {/if}
                         </div>

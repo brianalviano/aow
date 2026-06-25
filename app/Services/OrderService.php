@@ -12,6 +12,7 @@ use App\Enums\PaymentMethodType;
 use App\Enums\PaymentStatus;
 use App\Jobs\SendTelegramNotificationJob;
 use App\Jobs\SendWhatsAppNotificationJob;
+use App\DTOs\Setting\OrderSettingsDTO;
 use App\Mail\CustomerWelcomeMail;
 use App\Mail\OrderPlacedMail;
 use App\Models\Chef;
@@ -855,6 +856,7 @@ class OrderService
                             'product_id' => $product->id,
                             'quantity' => $item['quantity'],
                             'price' => $item['basePrice'],
+                            'cost_price' => $product?->cost_price ?? 0,
                             'subtotal' => $item['totalPrice'],
                             'note' => $item['notes'] ?? null,
                             'chef_id' => $chef?->id,
@@ -943,6 +945,22 @@ class OrderService
                             .'Total: Rp '.number_format($order->total_amount, 0, ',', '.')."\n"
                             .'Harap segera cek dashboard admin.';
                         dispatch(new SendTelegramNotificationJob($message));
+
+                        // 2. Notify Customer via WhatsApp (if enabled)
+                        $settings = OrderSettingsDTO::load();
+                        if ($settings->whatsappEnabled && $settings->whatsappNotifyOrderCreated && $order->customer?->phone) {
+                            $remark = $settings->whatsappOrderPlacedRemark ?: '';
+                            $waMessage = "Halo *{$order->customer->name}*,\n\n"
+                                ."Terima kasih, pesanan Anda dengan nomor *#{$order->number}* berhasil dibuat.\n\n"
+                                .($remark ? $remark."\n\n" : "")
+                                ."*Ringkasan Pembayaran:*\n"
+                                ."Subtotal: Rp ".number_format($order->items->sum('subtotal'), 0, ',', '.')."\n"
+                                .($order->delivery_fee > 0 ? "Ongkos Kirim: Rp ".number_format($order->delivery_fee, 0, ',', '.')."\n" : "")
+                                .($order->admin_fee > 0 ? "Biaya Layanan: Rp ".number_format($order->admin_fee, 0, ',', '.')."\n" : "")
+                                ."Total Pembayaran: *Rp ".number_format($order->total_amount, 0, ',', '.')."*\n\n"
+                                ."Silakan cek detail pesanan Anda di dashboard customer.";
+                            dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $waMessage));
+                        }
                     });
 
                     session()->forget(['checkout_cart', 'checkout_drop_point', 'checkout_address']);

@@ -35,11 +35,14 @@
         category_name: string | null;
         total_sold: number;
         total_revenue: number;
+        total_profit: number;
     }
 
     interface SalesSummary {
         total_orders: number;
         total_revenue: number;
+        total_cost: number;
+        total_profit: number;
         total_cancelled: number;
         total_pending: number;
     }
@@ -47,6 +50,8 @@
     interface ProductSummary {
         total_sold: number;
         total_revenue: number;
+        total_cost: number;
+        total_profit: number;
     }
 
     interface PaginatedOrders {
@@ -367,7 +372,7 @@
     <!-- ─── ORDERS REPORT ────────────────────────────────────────────────────── -->
     {#if reportType === "orders" && salesSummary}
         <!-- Summary cards -->
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-5">
             <StatCard
                 label="Total Pesanan"
                 value={formatNumber(salesSummary.total_orders)}
@@ -379,6 +384,12 @@
                 value={formatCurrency(salesSummary.total_revenue)}
                 icon="fa-solid fa-circle-dollar-to-slot"
                 color="green"
+            />
+            <StatCard
+                label="Keuntungan (Laba)"
+                value={formatCurrency(salesSummary.total_profit)}
+                icon="fa-solid fa-money-bill-trend-up"
+                color="teal"
             />
             <StatCard
                 label="Dalam Proses"
@@ -506,7 +517,7 @@
     <!-- ─── PRODUCTS REPORT ──────────────────────────────────────────────────── -->
     {#if reportType === "products" && productSummary}
         <!-- Summary cards -->
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-2">
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <StatCard
                 label="Total Terjual (qty)"
                 value={formatNumber(productSummary.total_sold)}
@@ -518,6 +529,12 @@
                 value={formatCurrency(productSummary.total_revenue)}
                 icon="fa-solid fa-chart-line"
                 color="green"
+            />
+            <StatCard
+                label="Total Keuntungan"
+                value={formatCurrency(productSummary.total_profit)}
+                icon="fa-solid fa-money-bill-trend-up"
+                color="teal"
             />
         </div>
 
@@ -533,6 +550,7 @@
                                 <th>Kategori</th>
                                 <th class="text-right">Terjual (qty)</th>
                                 <th class="text-right">Pendapatan</th>
+                                <th class="text-right">Keuntungan (Laba)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -575,6 +593,13 @@
                                         >
                                             {formatCurrency(
                                                 product.total_revenue,
+                                            )}
+                                        </td>
+                                        <td
+                                            class="text-right font-semibold text-emerald-600 dark:text-emerald-400"
+                                        >
+                                            {formatCurrency(
+                                                product.total_profit,
                                             )}
                                         </td>
                                     </tr>

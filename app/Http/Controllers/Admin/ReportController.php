@@ -10,6 +10,7 @@ use App\Exports\ProductsExport;
 use App\Http\Controllers\Controller;
 use App\Models\CompanyProfile;
 use App\Models\DropPoint;
+use App\Models\OrderItem;
 use App\Services\ReportService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response as HttpResponse;
@@ -86,6 +87,8 @@ class ReportController extends Controller
             $summary = [
                 'total_sold' => (int) $products->sum('total_sold'),
                 'total_revenue' => (int) $products->sum('total_revenue'),
+                'total_cost' => (int) $products->sum('total_cost'),
+                'total_profit' => (int) $products->sum('total_profit'),
             ];
 
             $pdf = Pdf::loadView('exports.products-report', [
@@ -101,9 +104,16 @@ class ReportController extends Controller
         }
 
         $orders = $this->reportService->getOrdersForExport($filters);
+        $deliveredOrderIds = $orders->where('order_status', 'delivered')->pluck('id');
+        $totalCost = (int) OrderItem::whereIn('order_id', $deliveredOrderIds)
+            ->selectRaw('SUM(quantity * COALESCE(cost_price, 0)) as total_cost')
+            ->value('total_cost');
+        $totalRevenue = (int) $orders->where('order_status', 'delivered')->sum('total_amount');
         $summary = [
             'total_orders' => $orders->count(),
-            'total_revenue' => (int) $orders->where('order_status', 'delivered')->sum('total_amount'),
+            'total_revenue' => $totalRevenue,
+            'total_cost' => $totalCost,
+            'total_profit' => $totalRevenue - $totalCost,
             'total_cancelled' => $orders->where('order_status', 'cancelled')->count(),
             'total_pending' => $orders->whereIn('order_status', ['pending', 'confirmed', 'shipped'])->count(),
         ];

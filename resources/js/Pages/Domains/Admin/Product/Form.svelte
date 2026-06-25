@@ -37,6 +37,7 @@
         name: string;
         description: string;
         price: number;
+        cost_price: number;
         image: string;
         image_url: string;
         stock_limit: number | null;
@@ -77,6 +78,7 @@
         name: "",
         description: "",
         price: 0,
+        cost_price: 0,
         stock_limit: null as number | null,
         is_active: true,
         sort_order: 0,
@@ -96,6 +98,7 @@
             name: product?.name ?? DEFAULT_FORM_STATE.name,
             description: product?.description ?? DEFAULT_FORM_STATE.description,
             price: product?.price ?? DEFAULT_FORM_STATE.price,
+            cost_price: product?.cost_price ?? DEFAULT_FORM_STATE.cost_price,
             stock_limit: product?.stock_limit ?? DEFAULT_FORM_STATE.stock_limit,
             is_active: product?.is_active ?? DEFAULT_FORM_STATE.is_active,
             sort_order: product?.sort_order ?? DEFAULT_FORM_STATE.sort_order,
@@ -290,7 +293,7 @@
                         <TextInput
                             id="price"
                             name="price"
-                            label="Harga (Rp)"
+                            label="Harga Jual (Rp)"
                             type="number"
                             placeholder="0"
                             value={$form.price.toString()}
@@ -313,6 +316,37 @@
                                 }
                             }}
                             error={$form.errors.price}
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <TextInput
+                            id="cost_price"
+                            name="cost_price"
+                            label="Harga Beli (Rp)"
+                            type="number"
+                            placeholder="0"
+                            value={$form.cost_price.toString()}
+                            oninput={(e) => {
+                                if (
+                                    e &&
+                                    typeof e === "object" &&
+                                    "numericValue" in e &&
+                                    e.numericValue !== null
+                                ) {
+                                    $form.cost_price = e.numericValue;
+                                } else if (
+                                    e &&
+                                    typeof e === "object" &&
+                                    "target" in e
+                                ) {
+                                    $form.cost_price = Number(
+                                        (e.target as HTMLInputElement).value,
+                                    );
+                                }
+                            }}
+                            error={$form.errors.cost_price}
                             required
                         />
                     </div>

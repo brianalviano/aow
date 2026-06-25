@@ -23,9 +23,16 @@ class DashboardController extends Controller
         $now = Carbon::now();
         $sixMonthsAgo = $now->copy()->subMonths(5)->startOfMonth();
 
+        $paidOrderIds = Order::where('payment_status', 'paid')->pluck('id');
+        $totalCost = (int) OrderItem::whereIn('order_id', $paidOrderIds)
+            ->selectRaw('SUM(quantity * COALESCE(cost_price, 0)) as total_cost')
+            ->value('total_cost');
+        $totalRevenue = (int) Order::where('payment_status', 'paid')->sum('total_amount');
+
         // 1. Summary Statistics
         $stats = [
-            'total_revenue' => (int) Order::where('payment_status', 'paid')->sum('total_amount'),
+            'total_revenue' => $totalRevenue,
+            'total_profit' => $totalRevenue - $totalCost,
             'total_orders' => Order::count(),
             'total_customers' => Customer::count(),
             'today_orders' => Order::whereDate('created_at', $now->toDateString())->count(),

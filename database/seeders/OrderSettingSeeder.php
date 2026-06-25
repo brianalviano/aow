@@ -153,6 +153,11 @@ class OrderSettingSeeder extends Seeder
                 'value' => 'true',
                 'description' => 'Kirim notif WA ke customer saat order dikirim/delivered',
             ],
+            [
+                'key' => 'whatsapp_order_placed_remark',
+                'value' => 'MOHON DITUNGGU KONFIRMASI PESANAN ANDA, KAMI ADA MINIMUM ORDER UTK SUBSIDI ONGKIR. AJAK TEMAN ANDA UTK ORDER AGAR KUOTA MINIMAL TERCAPAI. KAMI TUNGGU MAX WKT ORDER JAM 17.00 WIB',
+                'description' => 'Catatan remark konfirmasi untuk dikirimkan pada pesan WhatsApp saat pesanan baru selesai dibuat.',
+            ],
             // -------------------------------------------------------
             // Konfigurasi Pajak
             // -------------------------------------------------------

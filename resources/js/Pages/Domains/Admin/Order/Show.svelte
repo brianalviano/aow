@@ -121,11 +121,13 @@
         chefs = [],
         pickUpPoints = [],
         canChangePickUpPoint = false,
+        free_courier_min_order = 0,
     }: {
         order: Order;
         chefs: Chef[];
         pickUpPoints: PickUpPointOption[];
         canChangePickUpPoint: boolean;
+        free_courier_min_order: number;
     } = $props();
     let order = $derived(orderProp);
 
@@ -591,6 +593,31 @@
             </div>
         </div>
     </header>
+
+    {#if order.order_status === "pending"}
+        {@const orderSubtotal = order.items.reduce((sum, item) => sum + item.subtotal, 0)}
+        {@const meetsMinOrder = orderSubtotal >= free_courier_min_order}
+        <div class="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 {meetsMinOrder ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-950/50 dark:bg-emerald-950/20 dark:text-emerald-300' : 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-950/50 dark:bg-amber-950/20 dark:text-amber-300'}">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full {meetsMinOrder ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30' : 'bg-amber-100 text-amber-600 dark:bg-amber-900/30'}">
+                    <i class="fa-solid {meetsMinOrder ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold">
+                        {meetsMinOrder ? 'Memenuhi Batas Minimum Order Subsidi Ongkir' : 'Tidak Memenuhi Batas Minimum Order Subsidi Ongkir'}
+                    </h4>
+                    <p class="text-xs opacity-90 mt-1">
+                        Subtotal order: <strong>Rp {new Intl.NumberFormat("id-ID").format(orderSubtotal)}</strong> (Minimal subsidi ongkir: <strong>Rp {new Intl.NumberFormat("id-ID").format(free_courier_min_order)}</strong>).
+                    </p>
+                </div>
+            </div>
+            {#if !meetsMinOrder}
+                <div class="text-xs font-semibold bg-amber-100 px-3 py-1.5 rounded-lg dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                    Saran: Batalkan pesanan dengan remark "Minimum order tidak tercapai".
+                </div>
+            {/if}
+        </div>
+    {/if}
 
     {#if order.chef_status_summary === "cancelled" || order.chef_status_summary === "cancelled_partial"}
         <div

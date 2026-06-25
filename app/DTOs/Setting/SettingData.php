@@ -71,6 +71,7 @@ class SettingData extends Data
             'whatsapp_notify_order_created' => ['nullable', 'boolean'],
             'whatsapp_notify_order_confirmed' => ['nullable', 'boolean'],
             'whatsapp_notify_order_delivered' => ['nullable', 'boolean'],
+            'whatsapp_order_placed_remark' => ['nullable', 'string'],
 
             'tax_enabled' => ['nullable', 'boolean'],
             'tax_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -135,6 +136,7 @@ class SettingData extends Data
                     ? ($validated['whatsapp_notify_order_confirmed'] ? 'true' : 'false') : 'false',
                 'whatsapp_notify_order_delivered' => isset($validated['whatsapp_notify_order_delivered'])
                     ? ($validated['whatsapp_notify_order_delivered'] ? 'true' : 'false') : 'false',
+                'whatsapp_order_placed_remark' => $validated['whatsapp_order_placed_remark'] ?? '',
 
                 'tax_enabled' => isset($validated['tax_enabled'])
                     ? ($validated['tax_enabled'] ? 'true' : 'false') : 'false',

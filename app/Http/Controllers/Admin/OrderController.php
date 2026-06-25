@@ -18,6 +18,7 @@ use App\Models\PickUpPoint;
 use App\Models\Testimonial;
 use App\Services\OrderService;
 use App\Traits\FileHelperTrait;
+use App\DTOs\Setting\OrderSettingsDTO;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -169,6 +170,7 @@ class OrderController extends Controller
             'chefs' => Chef::where('is_active', true)->get(['id', 'name']),
             'pickUpPoints' => PickUpPoint::where('is_active', true)->get(['id', 'name', 'address', 'latitude', 'longitude']),
             'canChangePickUpPoint' => $order->canChangePickUpPoint(),
+            'free_courier_min_order' => OrderSettingsDTO::load()->freeCourierMinOrder,
         ]);
     }
 

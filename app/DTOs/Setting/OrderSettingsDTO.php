@@ -49,6 +49,7 @@ class OrderSettingsDTO extends Data
         public readonly bool $whatsappNotifyOrderCreated,
         public readonly bool $whatsappNotifyOrderConfirmed,
         public readonly bool $whatsappNotifyOrderDelivered,
+        public readonly ?string $whatsappOrderPlacedRemark,
 
         public readonly bool $taxEnabled,
         public readonly int $taxPercentage,
@@ -92,6 +93,7 @@ class OrderSettingsDTO extends Data
                 whatsappNotifyOrderCreated: ($settings['whatsapp_notify_order_created'] ?? 'false') === 'true',
                 whatsappNotifyOrderConfirmed: ($settings['whatsapp_notify_order_confirmed'] ?? 'false') === 'true',
                 whatsappNotifyOrderDelivered: ($settings['whatsapp_notify_order_delivered'] ?? 'false') === 'true',
+                whatsappOrderPlacedRemark: $settings['whatsapp_order_placed_remark'] ?? '',
 
                 taxEnabled: ($settings['tax_enabled'] ?? 'false') === 'true',
                 taxPercentage: (int) ($settings['tax_percentage'] ?? 0),
