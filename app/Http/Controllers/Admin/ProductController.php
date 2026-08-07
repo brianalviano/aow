@@ -174,6 +174,7 @@ class ProductController extends Controller
             'product' => new ProductResource($product),
             'summary' => $report['summary'],
             'chefBreakdown' => $report['chef_breakdown'],
+            'variantBreakdown' => $report['variant_breakdown'],
             'items' => $report['items'],
             'filters' => $filters,
             'chefs' => $chefs,

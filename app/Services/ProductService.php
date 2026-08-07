@@ -289,8 +289,8 @@ class ProductService
                 'order.customer:id,name,email',
                 'order.dropPoint:id,name',
                 'chef:id,name,business_name',
-                'options.productOption:id,name',
-                'options.productOptionItem:id,name',
+                'options.productOption',
+                'options.productOptionItem',
             ])
             ->where('product_id', $product->id)
             ->whereHas('order', function ($q) use ($filters) {
@@ -317,11 +317,14 @@ class ProductService
         $totalOrders = $allItems->pluck('order_id')->unique()->count();
         $totalQuantity = (int) $allItems->sum('quantity');
         $totalRevenue = (int) $allItems->sum('subtotal');
+        $avgQtyPerOrder = $totalOrders > 0 ? round($totalQuantity / $totalOrders, 1) : 0;
 
-        // Chef breakdown
+        // Chef breakdown with percentage
         $chefBreakdown = $allItems->groupBy(fn ($item) => $item->chef_id ?? 'no_chef')
-            ->map(function ($items, $chefId) {
+            ->map(function ($items, $chefId) use ($totalRevenue) {
                 $chef = $items->first()?->chef;
+                $chefRevenue = (int) $items->sum('subtotal');
+                $percentage = $totalRevenue > 0 ? round(($chefRevenue / $totalRevenue) * 100, 1) : 0;
 
                 return [
                     'chef_id' => $chefId === 'no_chef' ? null : $chefId,
@@ -329,12 +332,47 @@ class ProductService
                     'business_name' => $chef?->business_name,
                     'total_orders' => $items->pluck('order_id')->unique()->count(),
                     'total_quantity' => (int) $items->sum('quantity'),
-                    'total_revenue' => (int) $items->sum('subtotal'),
+                    'total_revenue' => $chefRevenue,
+                    'percentage' => $percentage,
                 ];
             })
             ->values()
             ->sortByDesc('total_quantity')
             ->values();
+
+        // Variant / Ukuran Kemasan breakdown with percentage
+        $variantBreakdownMap = [];
+        foreach ($allItems as $item) {
+            $optionsParts = [];
+            foreach ($item->options as $opt) {
+                if ($opt->productOption && $opt->productOptionItem) {
+                    $optionsParts[] = $opt->productOption->name.': '.$opt->productOptionItem->name;
+                }
+            }
+            sort($optionsParts);
+            $variantLabel = ! empty($optionsParts) ? implode(', ', $optionsParts) : 'Kemasan Reguler / Standar';
+
+            if (! isset($variantBreakdownMap[$variantLabel])) {
+                $variantBreakdownMap[$variantLabel] = [
+                    'variant_name' => $variantLabel,
+                    'total_orders' => 0,
+                    'total_quantity' => 0,
+                    'total_revenue' => 0,
+                ];
+            }
+
+            $variantBreakdownMap[$variantLabel]['total_orders'] += 1;
+            $variantBreakdownMap[$variantLabel]['total_quantity'] += $item->quantity;
+            $variantBreakdownMap[$variantLabel]['total_revenue'] += $item->subtotal;
+        }
+
+        $variantBreakdown = array_map(function ($vb) use ($totalQuantity) {
+            $vb['percentage'] = $totalQuantity > 0 ? round(($vb['total_quantity'] / $totalQuantity) * 100, 1) : 0;
+
+            return $vb;
+        }, array_values($variantBreakdownMap));
+
+        usort($variantBreakdown, fn ($a, $b) => $b['total_quantity'] <=> $a['total_quantity']);
 
         $paginatedItems = $query->orderByDesc('created_at')->paginate($filters['per_page'] ?? 15);
 
@@ -343,8 +381,10 @@ class ProductService
                 'total_orders' => $totalOrders,
                 'total_quantity' => $totalQuantity,
                 'total_revenue' => $totalRevenue,
+                'avg_qty_per_order' => $avgQtyPerOrder,
             ],
             'chef_breakdown' => $chefBreakdown,
+            'variant_breakdown' => $variantBreakdown,
             'items' => $paginatedItems,
         ];
     }
