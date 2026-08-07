@@ -101,11 +101,11 @@ class Product extends Model
     }
 
     /**
-     * Get the total sales for this product.
+     * Get the real sales count (excluding fake sales count).
      */
-    public function getTotalSalesAttribute(): int
+    public function getRealSalesAttribute(): int
     {
-        $realSales = (int) $this->orderItems()
+        return (int) $this->orderItems()
             ->whereHas('order', function ($query) {
                 $query->whereIn('order_status', [
                     OrderStatus::CONFIRMED->value,
@@ -114,10 +114,16 @@ class Product extends Model
                 ]);
             })
             ->sum('quantity');
+    }
 
+    /**
+     * Get the total sales for this product (real + fake).
+     */
+    public function getTotalSalesAttribute(): int
+    {
         $fakeSales = $this->manipulation?->is_active ? $this->manipulation->fake_sales_count : 0;
 
-        return $realSales + $fakeSales;
+        return $this->real_sales + $fakeSales;
     }
 
     /**

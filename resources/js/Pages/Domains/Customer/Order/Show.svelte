@@ -95,10 +95,28 @@
 
         if (orderStatus === "shipped") {
             return {
-                text: isCash ? "Dikirim (COD)" : "Dikirim",
+                text: isCash ? "Dikirim (COD)" : "Dikirim ke Pickup",
                 classes:
                     "bg-purple-900/20 text-purple-400 border border-purple-800",
                 icon: "fa-solid fa-truck-fast",
+            };
+        }
+
+        if (orderStatus === "at_pickup_point") {
+            return {
+                text: "Di Pickup Point",
+                classes:
+                    "bg-purple-900/20 text-purple-400 border border-purple-800",
+                icon: "fa-solid fa-location-dot",
+            };
+        }
+
+        if (orderStatus === "on_delivery") {
+            return {
+                text: "Sedang Dikirim",
+                classes:
+                    "bg-blue-900/20 text-blue-400 border border-blue-800",
+                icon: "fa-solid fa-motorcycle",
             };
         }
 

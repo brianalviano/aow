@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\Product\ProductData;
+use App\Models\Chef;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Traits\FileHelperTrait;
 use App\Traits\RetryableTransactionsTrait;
@@ -25,7 +27,7 @@ class ProductService
     public function getPaginated(int $perPage = 10, ?string $search = null, ?string $categoryId = null)
     {
         return Product::query()
-            ->with(['productCategory'])
+            ->with(['productCategory', 'manipulation'])
             ->when($search, function ($query, $search) {
                 $query->where('name', 'ilike', "%{$search}%");
             })
@@ -274,5 +276,76 @@ class ProductService
                 throw $e;
             }
         });
+    }
+
+    /**
+     * Get detailed transaction report for a specific product.
+     */
+    public function getProductTransactions(Product $product, array $filters = []): array
+    {
+        $query = OrderItem::query()
+            ->with([
+                'order:id,number,order_status,payment_status,delivery_date,created_at,customer_id,drop_point_id',
+                'order.customer:id,name,email',
+                'order.dropPoint:id,name',
+                'chef:id,name,business_name',
+                'options.productOption:id,name',
+                'options.productOptionItem:id,name',
+            ])
+            ->where('product_id', $product->id)
+            ->whereHas('order', function ($q) use ($filters) {
+                $q->whereNull('deleted_at');
+                if (! empty($filters['date_from'])) {
+                    $q->whereDate('created_at', '>=', $filters['date_from']);
+                }
+                if (! empty($filters['date_to'])) {
+                    $q->whereDate('created_at', '<=', $filters['date_to']);
+                }
+                if (! empty($filters['drop_point_id'])) {
+                    $q->where('drop_point_id', $filters['drop_point_id']);
+                }
+                if (! empty($filters['status'])) {
+                    $q->where('order_status', $filters['status']);
+                }
+            })
+            ->when($filters['chef_id'] ?? null, function ($q, $chefId) {
+                $q->where('chef_id', $chefId);
+            });
+
+        // Calculate summary
+        $allItems = (clone $query)->get();
+        $totalOrders = $allItems->pluck('order_id')->unique()->count();
+        $totalQuantity = (int) $allItems->sum('quantity');
+        $totalRevenue = (int) $allItems->sum('subtotal');
+
+        // Chef breakdown
+        $chefBreakdown = $allItems->groupBy(fn ($item) => $item->chef_id ?? 'no_chef')
+            ->map(function ($items, $chefId) {
+                $chef = $items->first()?->chef;
+
+                return [
+                    'chef_id' => $chefId === 'no_chef' ? null : $chefId,
+                    'chef_name' => $chef?->name ?? 'Belum Diassign',
+                    'business_name' => $chef?->business_name,
+                    'total_orders' => $items->pluck('order_id')->unique()->count(),
+                    'total_quantity' => (int) $items->sum('quantity'),
+                    'total_revenue' => (int) $items->sum('subtotal'),
+                ];
+            })
+            ->values()
+            ->sortByDesc('total_quantity')
+            ->values();
+
+        $paginatedItems = $query->orderByDesc('created_at')->paginate($filters['per_page'] ?? 15);
+
+        return [
+            'summary' => [
+                'total_orders' => $totalOrders,
+                'total_quantity' => $totalQuantity,
+                'total_revenue' => $totalRevenue,
+            ],
+            'chef_breakdown' => $chefBreakdown,
+            'items' => $paginatedItems,
+        ];
     }
 }

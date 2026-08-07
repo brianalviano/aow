@@ -31,6 +31,12 @@
         updated_at: string;
         options_count?: number;
         product_category?: ProductCategory;
+        total_sales?: number;
+        real_sales?: number;
+        manipulation?: {
+            fake_sales_count?: number;
+            is_active?: boolean;
+        };
     }
 
     let products = $derived(
@@ -203,11 +209,12 @@
                     <thead>
                         <tr>
                             <th class="w-16">Gambar</th>
-                            <th>Nama Baru</th>
+                            <th>Nama Produk</th>
                             <th>Kategori</th>
                             <th>Harga</th>
                             <th>Opsi</th>
                             <th>Stok Limit</th>
+                            <th>Total Pesanan</th>
                             <th>Status</th>
                             <th class="w-32 text-center">Aksi</th>
                         </tr>
@@ -269,6 +276,21 @@
                                         </div>
                                     </td>
                                     <td>
+                                        <div
+                                            class="text-sm font-semibold text-indigo-600 dark:text-indigo-400"
+                                        >
+                                            {item.real_sales ?? item.total_sales ?? 0} porsi
+                                        </div>
+                                        {#if item.manipulation?.is_active && (item.manipulation?.fake_sales_count ?? 0) > 0}
+                                            <div
+                                                class="text-[11px] text-amber-600 dark:text-amber-400 font-medium"
+                                                title="Penjualan buatan yang ditampilkan ke customer"
+                                            >
+                                                (+{item.manipulation.fake_sales_count} manipulasi)
+                                            </div>
+                                        {/if}
+                                    </td>
+                                    <td>
                                         {#if item.is_active}
                                             <Badge
                                                 size="sm"
@@ -297,6 +319,15 @@
                                             class="flex gap-2 items-center justify-center"
                                         >
                                             <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                icon="fa-solid fa-chart-line"
+                                                href={`/admin/products/${item.id}/transactions`}
+                                                title="Lihat Transaksi Produk"
+                                            >
+                                                Transaksi
+                                            </Button>
+                                            <Button
                                                 variant="warning"
                                                 size="sm"
                                                 icon="fa-solid fa-edit"
@@ -320,7 +351,7 @@
                         {:else}
                             <tr>
                                 <td
-                                    colspan="7"
+                                    colspan="9"
                                     class="py-6 text-sm text-center text-gray-500 dark:text-gray-400"
                                 >
                                     Tidak ada data

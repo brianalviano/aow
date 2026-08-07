@@ -93,7 +93,13 @@
             case "confirmed":
                 return { variant: "info", label: "Dikonfirmasi" };
             case "shipped":
-                return { variant: "primary", label: "Dikirim" };
+                return { variant: "primary", label: "Dikirim ke Pickup" };
+            case "at_pickup_point":
+                return { variant: "purple", label: "Di Pickup Point" };
+            case "on_delivery":
+                return { variant: "primary", label: "Sedang Dikirim" };
+            case "arrived":
+                return { variant: "info", label: "Tiba di Tujuan" };
             case "delivered":
                 return { variant: "success", label: "Selesai" };
             case "cancelled":
@@ -102,7 +108,6 @@
                 return { variant: "secondary", label: status };
         }
     }
-
     function getPaymentBadge(status: string): {
         variant: BadgeVariant;
         label: string;
@@ -146,8 +151,8 @@
         </div>
     </div>
 
-    <!-- Statistics Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+    <!-- Statistics Stats (Max 3 per row for better readability) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <StatCard
             label="Total Revenue"
             value={formatCurrency(stats.total_revenue)}
