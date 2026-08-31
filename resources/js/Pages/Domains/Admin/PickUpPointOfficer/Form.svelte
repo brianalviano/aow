@@ -25,12 +25,12 @@
     }
 
     let officer = $derived(
-        ($page.props.officer as { data: PickUpPointOfficer } | null)?.data ??
+        (page.props.officer as { data: PickUpPointOfficer } | null)?.data ??
             null,
     );
 
     let pickUpPoints = $derived(
-        ($page.props.pickUpPoints as PickUpPoint[] | null) ?? [],
+        (page.props.pickUpPoints as PickUpPoint[] | null) ?? [],
     );
 
     let isEditMode = $derived(!!officer);
@@ -78,20 +78,20 @@
         e.preventDefault();
 
         // Convert empty string to null for optional UUID
-        if ($form.pick_up_point_id === "") {
-            $form.pick_up_point_id = null;
+        if (form.pick_up_point_id === "") {
+            form.pick_up_point_id = null;
         }
 
         if (isEditMode && officer) {
-            $form.post(`/admin/pick-up-point-officers/${officer.id}`, {
+            form.post(`/admin/pick-up-point-officers/${officer.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
-                    $form.password = "";
-                    $form.password_confirmation = "";
+                    form.password = "";
+                    form.password_confirmation = "";
                 },
             });
         } else {
-            $form.post("/admin/pick-up-point-officers", {
+            form.post("/admin/pick-up-point-officers", {
                 preserveScroll: true,
             });
         }
@@ -101,7 +101,7 @@
 <svelte:head>
     <title
         >{isEditMode ? "Edit" : "Tambah"} Pick Up Point Officer | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
 </svelte:head>
@@ -129,8 +129,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="officer-form"
             >
@@ -153,8 +153,8 @@
                                 name="name"
                                 label="Nama Lengkap"
                                 placeholder="Masukkan nama..."
-                                bind:value={$form.name}
-                                error={$form.errors.name}
+                                bind:value={form.name}
+                                error={form.errors.name}
                                 required
                             />
 
@@ -164,8 +164,8 @@
                                 type="email"
                                 label="Alamat Email"
                                 placeholder="admin@email.com"
-                                bind:value={$form.email}
-                                error={$form.errors.email}
+                                bind:value={form.email}
+                                error={form.errors.email}
                                 required
                             />
 
@@ -174,8 +174,8 @@
                                 name="phone"
                                 label="Nomor WhatsApp"
                                 placeholder="08123456789"
-                                bind:value={$form.phone}
-                                error={$form.errors.phone}
+                                bind:value={form.phone}
+                                error={form.errors.phone}
                                 required
                             />
 
@@ -184,12 +184,12 @@
                                 name="pick_up_point_id"
                                 label="Assign ke Pick Up Point"
                                 options={pickUpPointOptions}
-                                value={$form.pick_up_point_id || ""}
+                                value={form.pick_up_point_id || ""}
                                 onchange={(val: string | number) => {
-                                    $form.pick_up_point_id =
+                                    form.pick_up_point_id =
                                         val === "" ? null : (val as string);
                                 }}
-                                error={$form.errors.pick_up_point_id}
+                                error={form.errors.pick_up_point_id}
                             />
 
                             <div class="flex items-center pt-2">
@@ -197,8 +197,8 @@
                                     id="is_active"
                                     name="is_active"
                                     label="Aktif"
-                                    bind:checked={$form.is_active}
-                                    error={$form.errors.is_active}
+                                    bind:checked={form.is_active}
+                                    error={form.errors.is_active}
                                 />
                                 <span
                                     class="ml-2 text-sm text-gray-500 dark:text-gray-400"
@@ -230,8 +230,8 @@
                                 type="password"
                                 label="Kata Sandi"
                                 placeholder="Minimal 8 karakter"
-                                bind:value={$form.password}
-                                error={$form.errors.password}
+                                bind:value={form.password}
+                                error={form.errors.password}
                                 required={!isEditMode}
                             />
 
@@ -241,10 +241,10 @@
                                 type="password"
                                 label="Konfirmasi Kata Sandi"
                                 placeholder="Ketik ulang kata sandi"
-                                bind:value={$form.password_confirmation}
-                                error={$form.errors.password_confirmation}
+                                bind:value={form.password_confirmation}
+                                error={form.errors.password_confirmation}
                                 required={!isEditMode &&
-                                    $form.password.length > 0}
+                                    form.password.length > 0}
                             />
                         </div>
                     {/snippet}

@@ -15,21 +15,21 @@
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/login", {
+        form.post("/login", {
             preserveScroll: true,
             preserveState: (page: {
                 props: { errors?: Record<string, string[]> };
             }) => Object.keys(page.props.errors ?? {}).length > 0,
             replace: false,
             onError: () => {
-                $form.reset("password");
+                form.reset("password");
             },
         });
     }
 </script>
 
 <svelte:head>
-    <title>Masuk | {appName($page.props.settings)}</title>
+    <title>Masuk | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div>
@@ -68,10 +68,10 @@
                     type="text"
                     autofocus={true}
                     required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.login}
+                    disabled={form.processing}
+                    bind:value={form.login}
                     placeholder="Cth: 0812xxxxxx"
-                    error={$form.errors.login}
+                    error={form.errors.login}
                 />
 
                 <!-- Password field -->
@@ -86,7 +86,7 @@
                         <Link
                             href="/forgot-password"
                             class="text-xs font-medium text-[#FFD700] hover:text-yellow-300 transition"
-                            tabindex={$form.processing ? -1 : 0}
+                            tabindex={form.processing ? -1 : 0}
                         >
                             Lupa Sandi?
                         </Link>
@@ -97,10 +97,10 @@
                         type="password"
                         autocomplete="current-password"
                         required={true}
-                        disabled={$form.processing}
-                        bind:value={$form.password}
+                        disabled={form.processing}
+                        bind:value={form.password}
                         placeholder="••••••••"
-                        error={$form.errors.password}
+                        error={form.errors.password}
                     />
                 </div>
 
@@ -110,8 +110,8 @@
                         id="remember"
                         name="remember"
                         label="Ingat saya"
-                        disabled={$form.processing}
-                        bind:checked={$form.remember}
+                        disabled={form.processing}
+                        bind:checked={form.remember}
                     />
                 </div>
 
@@ -121,8 +121,8 @@
                         variant="primary"
                         size="normal"
                         fullWidth={true}
-                        disabled={$form.processing}
-                        loading={$form.processing}
+                        disabled={form.processing}
+                        loading={form.processing}
                         icon="fa-solid fa-right-to-bracket"
                     >
                         Masuk
@@ -145,7 +145,7 @@
         <div class="mt-auto pt-8 text-center pb-4">
             <p class="text-xs font-medium text-slate-500">
                 © {currentYear}
-                {appName($page.props.settings)}
+                {appName(page.props.settings)}
             </p>
         </div>
     </main>

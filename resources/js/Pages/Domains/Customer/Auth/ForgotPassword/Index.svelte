@@ -12,7 +12,7 @@
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/forgot-password", {
+        form.post("/forgot-password", {
             preserveScroll: true,
             preserveState: (page: {
                 props: { errors?: Record<string, string[]> };
@@ -23,7 +23,7 @@
 </script>
 
 <svelte:head>
-    <title>Lupa Kata Sandi | {appName($page.props.settings)}</title>
+    <title>Lupa Kata Sandi | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div>
@@ -59,13 +59,13 @@
                 type="email"
                 autofocus={true}
                 required={true}
-                disabled={$form.processing}
-                bind:value={$form.email}
+                disabled={form.processing}
+                bind:value={form.email}
                 placeholder="Cth: user@example.com"
-                error={$form.errors.email}
+                error={form.errors.email}
             />
 
-            {#if $form.recentlySuccessful}
+            {#if form.recentlySuccessful}
                 <div
                     class="p-4 bg-green-900/20 border border-green-800 rounded-xl"
                     role="status"
@@ -82,8 +82,8 @@
                     variant="primary"
                     size="normal"
                     fullWidth={true}
-                    disabled={$form.processing}
-                    loading={$form.processing}
+                    disabled={form.processing}
+                    loading={form.processing}
                     icon="fa-solid fa-paper-plane"
                 >
                     Kirim Tautan Reset
@@ -105,7 +105,7 @@
         <div class="mt-auto pt-8 text-center pb-4">
             <p class="text-xs font-medium text-slate-500">
                 © {currentYear}
-                {appName($page.props.settings)}
+                {appName(page.props.settings)}
             </p>
         </div>
     </main>

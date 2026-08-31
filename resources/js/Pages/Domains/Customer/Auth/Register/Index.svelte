@@ -19,21 +19,21 @@
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/register", {
+        form.post("/register", {
             preserveScroll: true,
             preserveState: (page: {
                 props: { errors?: Record<string, string[]> };
             }) => Object.keys(page.props.errors ?? {}).length > 0,
             replace: false,
             onError: () => {
-                $form.reset("password", "password_confirmation");
+                form.reset("password", "password_confirmation");
             },
         });
     }
 </script>
 
 <svelte:head>
-    <title>Daftar Akun | {appName($page.props.settings)}</title>
+    <title>Daftar Akun | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div
@@ -76,10 +76,10 @@
                     type="text"
                     required={true}
                     autofocus={true}
-                    disabled={$form.processing}
-                    bind:value={$form.name}
+                    disabled={form.processing}
+                    bind:value={form.name}
                     placeholder="Cth: Rino Nathanael"
-                    error={$form.errors.name}
+                    error={form.errors.name}
                 />
 
                 <TextInput
@@ -88,10 +88,10 @@
                     label="Email"
                     type="email"
                     required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.email}
+                    disabled={form.processing}
+                    bind:value={form.email}
                     placeholder="rino@example.com"
-                    error={$form.errors.email}
+                    error={form.errors.email}
                 />
 
                 <TextInput
@@ -100,10 +100,10 @@
                     label="Nomor Telepon/WA"
                     type="text"
                     required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.phone}
+                    disabled={form.processing}
+                    bind:value={form.phone}
                     placeholder="Cth: 08123456789"
-                    error={$form.errors.phone}
+                    error={form.errors.phone}
                 />
 
                 <TextInput
@@ -111,10 +111,10 @@
                     name="school_class"
                     label="Kelas"
                     type="text"
-                    disabled={$form.processing}
-                    bind:value={$form.school_class}
+                    disabled={form.processing}
+                    bind:value={form.school_class}
                     placeholder="Cth: 12 IPA 1"
-                    error={$form.errors.school_class}
+                    error={form.errors.school_class}
                 />
 
                 <TextInput
@@ -122,10 +122,10 @@
                     name="address"
                     label="Alamat"
                     type="text"
-                    disabled={$form.processing}
-                    bind:value={$form.address}
+                    disabled={form.processing}
+                    bind:value={form.address}
                     placeholder="Cth: Jl. Merdeka No. 123"
-                    error={$form.errors.address}
+                    error={form.errors.address}
                 />
 
                 <TextInput
@@ -134,10 +134,10 @@
                     label="Kata Sandi"
                     type="password"
                     required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.password}
+                    disabled={form.processing}
+                    bind:value={form.password}
                     placeholder="••••••••"
-                    error={$form.errors.password}
+                    error={form.errors.password}
                 />
 
                 <TextInput
@@ -146,10 +146,10 @@
                     label="Konfirmasi Kata Sandi"
                     type="password"
                     required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.password_confirmation}
+                    disabled={form.processing}
+                    bind:value={form.password_confirmation}
                     placeholder="••••••••"
-                    error={$form.errors.password_confirmation}
+                    error={form.errors.password_confirmation}
                 />
 
                 <Button
@@ -157,8 +157,8 @@
                     variant="primary"
                     size="normal"
                     fullWidth={true}
-                    disabled={$form.processing}
-                    loading={$form.processing}
+                    disabled={form.processing}
+                    loading={form.processing}
                     icon="fa-solid fa-user-plus"
                 >
                     Daftar Sekarang
@@ -180,7 +180,7 @@
         <div class="mt-auto pt-8 text-center pb-4">
             <p class="text-xs font-medium text-slate-500">
                 © {currentYear}
-                {appName($page.props.settings)}
+                {appName(page.props.settings)}
             </p>
         </div>
     </main>

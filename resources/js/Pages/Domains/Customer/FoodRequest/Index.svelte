@@ -59,7 +59,7 @@
 </script>
 
 <svelte:head>
-    <title>Request Makanan Baru | {name($page.props.settings)}</title>
+    <title>Request Makanan Baru | {name(page.props.settings)}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-slate-950 flex flex-col">
@@ -104,17 +104,17 @@
                     <input
                         type="text"
                         id="name"
-                        bind:value={$form.name}
+                        bind:value={form.name}
                         placeholder="Contoh: Nasi Goreng Gila"
-                        class="w-full px-4 py-3 rounded-xl border text-slate-100 bg-slate-800 placeholder-slate-500 {$form
+                        class="w-full px-4 py-3 rounded-xl border text-slate-100 bg-slate-800 placeholder-slate-500 {form
                             .errors.name
                             ? 'border-red-500'
                             : 'border-slate-700'} focus:ring-2 focus:ring-[#FFD700]/20 focus:border-[#FFD700] outline-none transition-all text-sm"
                         required
                     />
-                    {#if $form.errors.name}
+                    {#if form.errors.name}
                         <p class="mt-1 text-xs text-red-500">
-                            {$form.errors.name}
+                            {form.errors.name}
                         </p>
                     {/if}
                 </div>
@@ -128,7 +128,7 @@
                     </label>
                     <textarea
                         id="notes"
-                        bind:value={$form.notes}
+                        bind:value={form.notes}
                         rows="3"
                         placeholder="Misal: Porsinya banyakin ya.."
                         class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-[#FFD700]/20 focus:border-[#FFD700] outline-none transition-all text-sm resize-none"
@@ -137,10 +137,10 @@
 
                 <button
                     type="submit"
-                    disabled={$form.processing}
+                    disabled={form.processing}
                     class="w-full bg-[#FFD700] hover:bg-[#FFC700] text-slate-900 font-bold py-3.5 rounded-xl transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                    {#if $form.processing}
+                    {#if form.processing}
                         <i class="fa-solid fa-spinner fa-spin"></i>
                         Mengirim...
                     {:else}

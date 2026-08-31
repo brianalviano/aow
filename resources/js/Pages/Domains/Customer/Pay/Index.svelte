@@ -119,7 +119,7 @@
 
     function submitProof(e: Event) {
         e.preventDefault();
-        $form.post(`/payment/${order.id}/proof${from ? `?from=${from}` : ""}`, {
+        form.post(`/payment/${order.id}/proof${from ? `?from=${from}` : ""}`, {
             preserveScroll: true,
         });
     }
@@ -159,7 +159,7 @@
 </script>
 
 <svelte:head>
-    <title>Status Pesanan | {getSettingName($page.props.settings)}</title>
+    <title>Status Pesanan | {getSettingName(page.props.settings)}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-slate-950 text-slate-100">
@@ -669,15 +669,15 @@
                                     variant="box"
                                     uploadText="Pilih atau seret gambar ke sini"
                                     uploadSubtext="Format: JPG, PNG. Maks: 10MB"
-                                    bind:value={$form.proof}
+                                    bind:value={form.proof}
                                 />
                             </div>
                             <button
                                 type="submit"
-                                disabled={$form.processing || !$form.proof}
+                                disabled={form.processing || !form.proof}
                                 class="w-full py-5 bg-[#FFD700] text-slate-900 font-black text-lg rounded-2xl shadow-xl shadow-[#FFD700]/20 hover:shadow-2xl hover:shadow-[#FFD700]/30 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                             >
-                                {#if $form.processing}
+                                {#if form.processing}
                                     <i class="fa-solid fa-spinner fa-spin mr-2"
                                     ></i> Mengunggah...
                                 {:else}

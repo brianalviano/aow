@@ -412,7 +412,7 @@
 </script>
 
 <svelte:head>
-    <title>Ringkasan Pesanan | {getSettingName($page.props.settings)}</title>
+    <title>Ringkasan Pesanan | {getSettingName(page.props.settings)}</title>
 </svelte:head>
 
 <div>

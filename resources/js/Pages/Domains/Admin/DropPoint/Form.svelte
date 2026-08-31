@@ -32,13 +32,13 @@
     }
 
     let dropPoint = $derived(
-        ($page.props.dropPoint as { data: DropPoint } | null)?.data ?? null,
+        (page.props.dropPoint as { data: DropPoint } | null)?.data ?? null,
     );
-    let tomtomApiKey = $derived($page.props.tomtomApiKey as string);
+    let tomtomApiKey = $derived(page.props.tomtomApiKey as string);
     let defaultCenter = $derived(
-        $page.props.defaultCenter as { lat: number; lng: number },
+        page.props.defaultCenter as { lat: number; lng: number },
     );
-    let categories = $derived($page.props.categories as any[]);
+    let categories = $derived(page.props.categories as any[]);
 
     let isEditMode = $derived(!!dropPoint);
 
@@ -122,8 +122,8 @@
 
     // Effect to update map when inputs change manually
     $effect(() => {
-        const lat = Number($form.latitude);
-        const lng = Number($form.longitude);
+        const lat = Number(form.latitude);
+        const lng = Number(form.longitude);
         if (!isNaN(lat) && !isNaN(lng) && map && marker) {
             const newCenter = [lng, lat];
             marker.setLngLat(newCenter);
@@ -136,9 +136,9 @@
             searchLocationResults = [];
             searchLocation.cancel();
 
-            $form.latitude = result.position.lat;
-            $form.longitude = result.position.lon;
-            $form.address = result.address.freeformAddress;
+            form.latitude = result.position.lat;
+            form.longitude = result.position.lon;
+            form.address = result.address.freeformAddress;
         }
     }
 
@@ -168,7 +168,7 @@
     function initMap() {
         if (!tomtomApiKey) return;
 
-        const center = [$form.longitude, $form.latitude];
+        const center = [form.longitude, form.latitude];
 
         map = (window as any).tt.map({
             key: tomtomApiKey,
@@ -186,8 +186,8 @@
         marker.on("dragend", () => {
             const lngLat = marker?.getLngLat();
             if (lngLat) {
-                $form.longitude = lngLat.lng;
-                $form.latitude = lngLat.lat;
+                form.longitude = lngLat.lng;
+                form.latitude = lngLat.lat;
             }
         });
 
@@ -196,8 +196,8 @@
             if (marker) {
                 marker.setLngLat(lngLat);
             }
-            $form.longitude = lngLat.lng;
-            $form.latitude = lngLat.lat;
+            form.longitude = lngLat.lng;
+            form.latitude = lngLat.lat;
         });
 
         mapLoaded = true;
@@ -211,16 +211,16 @@
         e.preventDefault();
 
         // Convert to standard numbers before submitting just in case
-        $form.latitude = Number($form.latitude);
-        $form.longitude = Number($form.longitude);
+        form.latitude = Number(form.latitude);
+        form.longitude = Number(form.longitude);
 
         if (isEditMode && dropPoint) {
-            $form.post(`/admin/drop-points/${dropPoint.id}`, {
+            form.post(`/admin/drop-points/${dropPoint.id}`, {
                 preserveScroll: true,
                 forceFormData: true,
             });
         } else {
-            $form.post("/admin/drop-points", {
+            form.post("/admin/drop-points", {
                 preserveScroll: true,
                 forceFormData: true,
             });
@@ -231,7 +231,7 @@
 <svelte:head>
     <title
         >{isEditMode ? "Edit" : "Tambah"} Drop Point | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
     <link
@@ -263,8 +263,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="drop-point-form"
             >
@@ -297,8 +297,8 @@
                                 name="photo"
                                 label="Foto Titik Jemput (Opsional)"
                                 accept="image/*"
-                                bind:value={$form.photo}
-                                error={$form.errors.photo}
+                                bind:value={form.photo}
+                                error={form.errors.photo}
                                 uploadText="Pilih atau seret foto ke sini"
                                 uploadSubtext="Batas maksimal 2MB. Format: JPG, PNG, WEBP."
                                 maxSize={2 * 1024 * 1024}
@@ -309,8 +309,8 @@
                                 name="name"
                                 label="Nama Lokasi / Cabang"
                                 placeholder="Contoh: Titik Jemput Utama Cabang 1"
-                                bind:value={$form.name}
-                                error={$form.errors.name}
+                                bind:value={form.name}
+                                error={form.errors.name}
                                 required
                             />
 
@@ -319,8 +319,8 @@
                                 name="category"
                                 label="Kategori"
                                 options={categories}
-                                bind:value={$form.category}
-                                error={$form.errors.category}
+                                bind:value={form.category}
+                                error={form.errors.category}
                                 required
                             />
 
@@ -330,9 +330,9 @@
                                     name="address"
                                     label="Alamat Lengkap"
                                     placeholder="Jelaskan detail alamat titik bangunan"
-                                    bind:value={$form.address}
+                                    bind:value={form.address}
                                     oninput={handleAddressInput}
-                                    error={$form.errors.address}
+                                    error={form.errors.address}
                                     rows={3}
                                     required
                                 />
@@ -376,8 +376,8 @@
                                 name="phone"
                                 label="Nomor Telepon Tempat (Opsional)"
                                 placeholder="Contoh: 021-1234567"
-                                bind:value={$form.phone}
-                                error={$form.errors.phone}
+                                bind:value={form.phone}
+                                error={form.errors.phone}
                             />
 
                             <TextInput
@@ -386,7 +386,7 @@
                                 label="Biaya Pengiriman (Rp)"
                                 type="number"
                                 placeholder="0"
-                                value={$form.delivery_fee.toString()}
+                                value={form.delivery_fee.toString()}
                                 oninput={(e) => {
                                     if (
                                         e &&
@@ -394,19 +394,19 @@
                                         "numericValue" in e &&
                                         e.numericValue !== null
                                     ) {
-                                        $form.delivery_fee = e.numericValue;
+                                        form.delivery_fee = e.numericValue;
                                     } else if (
                                         e &&
                                         typeof e === "object" &&
                                         "target" in e
                                     ) {
-                                        $form.delivery_fee = Number(
+                                        form.delivery_fee = Number(
                                             (e.target as HTMLInputElement)
                                                 .value,
                                         );
                                     }
                                 }}
-                                error={$form.errors.delivery_fee}
+                                error={form.errors.delivery_fee}
                                 required
                             />
                             <p class="text-xs text-gray-500 mt-1">
@@ -419,8 +419,8 @@
                                     id="is_active"
                                     name="is_active"
                                     label="Aktif"
-                                    bind:checked={$form.is_active}
-                                    error={$form.errors.is_active}
+                                    bind:checked={form.is_active}
+                                    error={form.errors.is_active}
                                 />
                                 <span
                                     class="ml-2 text-sm text-gray-500 dark:text-gray-400"
@@ -448,14 +448,14 @@
                                 label="Batas Minimal Kuantitas (Item/Pesanan)"
                                 type="number"
                                 placeholder="Contoh: 10"
-                                value={$form.min_po_qty?.toString() ?? ""}
+                                value={form.min_po_qty?.toString() ?? ""}
                                 oninput={(e) => {
                                     if (
                                         e &&
                                         typeof e === "object" &&
                                         "numericValue" in e
                                     ) {
-                                        $form.min_po_qty =
+                                        form.min_po_qty =
                                             e.numericValue === null
                                                 ? null
                                                 : Number(e.numericValue);
@@ -467,12 +467,12 @@
                                         const val = (
                                             e.target as HTMLInputElement
                                         ).value;
-                                        $form.min_po_qty = val
+                                        form.min_po_qty = val
                                             ? Number(val)
                                             : null;
                                     }
                                 }}
-                                error={$form.errors.min_po_qty}
+                                error={form.errors.min_po_qty}
                             />
 
                             <TextInput
@@ -481,14 +481,14 @@
                                 label="Batas Minimal Transaksi (Rp)"
                                 type="number"
                                 placeholder="Contoh: 100000"
-                                value={$form.min_po_amount?.toString() ?? ""}
+                                value={form.min_po_amount?.toString() ?? ""}
                                 oninput={(e) => {
                                     if (
                                         e &&
                                         typeof e === "object" &&
                                         "numericValue" in e
                                     ) {
-                                        $form.min_po_amount =
+                                        form.min_po_amount =
                                             e.numericValue === null
                                                 ? null
                                                 : Number(e.numericValue);
@@ -500,12 +500,12 @@
                                         const val = (
                                             e.target as HTMLInputElement
                                         ).value;
-                                        $form.min_po_amount = val
+                                        form.min_po_amount = val
                                             ? Number(val)
                                             : null;
                                     }
                                 }}
-                                error={$form.errors.min_po_amount}
+                                error={form.errors.min_po_amount}
                             />
                             <p class="text-xs text-gray-500 mt-1">
                                 Anda dapat mengisi salah satu atau keduanya.
@@ -523,8 +523,8 @@
                                 name="pic_name"
                                 label="Nama PIC"
                                 placeholder="Nama orang yang bertanggung jawab di titik ini"
-                                bind:value={$form.pic_name}
-                                error={$form.errors.pic_name}
+                                bind:value={form.pic_name}
+                                error={form.errors.pic_name}
                             />
 
                             <TextInput
@@ -532,8 +532,8 @@
                                 name="pic_phone"
                                 label="No Whatsapp PIC"
                                 placeholder="Contoh: 08123456789"
-                                bind:value={$form.pic_phone}
-                                error={$form.errors.pic_phone}
+                                bind:value={form.pic_phone}
+                                error={form.errors.pic_phone}
                             />
                         </div>
                     {/snippet}
@@ -561,20 +561,20 @@
                                     id="latitude"
                                     name="latitude"
                                     label="Latitude"
-                                    value={$form.latitude.toString()}
+                                    value={form.latitude.toString()}
                                     oninput={(e) => {
                                         if (
                                             e &&
                                             typeof e === "object" &&
                                             "target" in e
                                         ) {
-                                            $form.latitude = Number(
+                                            form.latitude = Number(
                                                 (e.target as HTMLInputElement)
                                                     .value,
                                             );
                                         }
                                     }}
-                                    error={$form.errors.latitude}
+                                    error={form.errors.latitude}
                                     required
                                 />
 
@@ -582,20 +582,20 @@
                                     id="longitude"
                                     name="longitude"
                                     label="Longitude"
-                                    value={$form.longitude.toString()}
+                                    value={form.longitude.toString()}
                                     oninput={(e) => {
                                         if (
                                             e &&
                                             typeof e === "object" &&
                                             "target" in e
                                         ) {
-                                            $form.longitude = Number(
+                                            form.longitude = Number(
                                                 (e.target as HTMLInputElement)
                                                     .value,
                                             );
                                         }
                                     }}
-                                    error={$form.errors.longitude}
+                                    error={form.errors.longitude}
                                     required
                                 />
                             </div>

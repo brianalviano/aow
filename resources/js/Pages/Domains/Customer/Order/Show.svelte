@@ -188,11 +188,11 @@
     });
 
     function submitItemTestimonial(itemId: string) {
-        $testimonialForm.post(`/order-items/${itemId}/testimonial`, {
+        testimonialForm.post(`/order-items/${itemId}/testimonial`, {
             preserveScroll: true,
             onSuccess: () => {
                 activeTestimonialItemId = null;
-                $testimonialForm.reset();
+                testimonialForm.reset();
             },
         });
     }
@@ -722,10 +722,10 @@
                                                                         <button
                                                                             type="button"
                                                                             onclick={() =>
-                                                                                ($testimonialForm.rating =
+                                                                                (testimonialForm.rating =
                                                                                     star)}
                                                                             class="w-7 h-7 rounded-md flex items-center justify-center border transition-all {parseInt(
-                                                                                $testimonialForm.rating,
+                                                                                testimonialForm.rating,
                                                                             ) >=
                                                                             parseInt(
                                                                                 star,
@@ -747,11 +747,11 @@
                                                                 id={`testimonial-content-${item.id}`}
                                                                 name="content"
                                                                 bind:value={
-                                                                    $testimonialForm.content
+                                                                    testimonialForm.content
                                                                 }
                                                                 placeholder="Bagaimana produk ini?"
                                                                 rows={2}
-                                                                error={$testimonialForm
+                                                                error={testimonialForm
                                                                     .errors
                                                                     .content}
                                                             />
@@ -759,9 +759,9 @@
                                                                 id={`testimonial-photo-${item.id}`}
                                                                 name="photo"
                                                                 bind:value={
-                                                                    $testimonialForm.photo
+                                                                    testimonialForm.photo
                                                                 }
-                                                                error={$testimonialForm
+                                                                error={testimonialForm
                                                                     .errors
                                                                     .photo}
                                                                 accept="image/*"
@@ -781,11 +781,11 @@
                                                                 >
                                                                 <button
                                                                     type="submit"
-                                                                    disabled={$testimonialForm.processing}
+                                                                    disabled={testimonialForm.processing}
                                                                     class="flex-2 py-2 px-4 bg-[#FFD700] hover:bg-[#FFC700] text-slate-900 text-xs font-bold rounded-lg transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
                                                                     style="flex: 2"
                                                                 >
-                                                                    {#if $testimonialForm.processing}
+                                                                    {#if testimonialForm.processing}
                                                                         <i
                                                                             class="fa-solid fa-spinner fa-spin"
                                                                         ></i>

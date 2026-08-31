@@ -9,7 +9,7 @@
     const form = useForm({ email: "" });
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/admin/forgot-password", {
+        form.post("/admin/forgot-password", {
             preserveScroll: true,
             preserveState: (p: {
                 props: { errors?: Record<string, string[]> };
@@ -20,7 +20,7 @@
 </script>
 
 <svelte:head>
-    <title>Lupa Kata Sandi | {name($page.props.settings)}</title>
+    <title>Lupa Kata Sandi | {name(page.props.settings)}</title>
 </svelte:head>
 
 <div class="relative h-screen overflow-hidden bg-slate-200 dark:bg-neutral-900">
@@ -53,12 +53,12 @@
                                 label="Email"
                                 type="email"
                                 required={true}
-                                disabled={$form.processing}
-                                bind:value={$form.email}
+                                disabled={form.processing}
+                                bind:value={form.email}
                                 placeholder="you@example.com"
-                                error={$form.errors.email}
+                                error={form.errors.email}
                             />
-                            {#if $form.recentlySuccessful}
+                            {#if form.recentlySuccessful}
                                 <div
                                     class="p-3 bg-green-50 rounded-lg border border-green-200 dark:bg-green-950/20 dark:border-green-900/30"
                                     role="status"
@@ -71,7 +71,7 @@
                                     </p>
                                 </div>
                             {/if}
-                            {#if $form.hasErrors && !$form.errors.email}
+                            {#if form.hasErrors && !form.errors.email}
                                 <div
                                     class="p-3 bg-red-50 rounded-lg border border-red-200 dark:bg-red-950/20 dark:border-red-900/30"
                                     role="alert"
@@ -89,8 +89,8 @@
                                     variant="primary"
                                     size="normal"
                                     fullWidth={true}
-                                    disabled={$form.processing}
-                                    loading={$form.processing}
+                                    disabled={form.processing}
+                                    loading={form.processing}
                                     icon="fa-solid fa-paper-plane"
                                 >
                                     Kirim Tautan
@@ -113,7 +113,7 @@
                         class="text-xs font-medium text-slate-700 dark:text-white"
                     >
                         © {currentYear}
-                        {name($page.props.settings)}
+                        {name(page.props.settings)}
                     </p>
                 </div>
             </div>

@@ -28,17 +28,17 @@
     }
 
     let pickUpPoint = $derived(
-        ($page.props.pickUpPoint as { data: PickUpPoint } | null)?.data ?? null,
+        (page.props.pickUpPoint as { data: PickUpPoint } | null)?.data ?? null,
     );
-    let tomtomApiKey = $derived($page.props.tomtomApiKey as string);
+    let tomtomApiKey = $derived(page.props.tomtomApiKey as string);
     let defaultCenter = $derived(
-        $page.props.defaultCenter as { lat: number; lng: number },
+        page.props.defaultCenter as { lat: number; lng: number },
     );
     let assignedOfficerIds = $derived(
-        ($page.props.assignedOfficerIds as string[]) ?? [],
+        (page.props.assignedOfficerIds as string[]) ?? [],
     );
     let officers = $derived(
-        ($page.props.officers as PickUpPointOfficer[]) ?? [],
+        (page.props.officers as PickUpPointOfficer[]) ?? [],
     );
 
     let isEditMode = $derived(!!pickUpPoint);
@@ -110,8 +110,8 @@
 
     // Effect to update map when inputs change manually
     $effect(() => {
-        const lat = Number($form.latitude);
-        const lng = Number($form.longitude);
+        const lat = Number(form.latitude);
+        const lng = Number(form.longitude);
         if (!isNaN(lat) && !isNaN(lng) && map && marker) {
             const newCenter = [lng, lat];
             marker.setLngLat(newCenter);
@@ -124,9 +124,9 @@
             searchLocationResults = [];
             searchLocation.cancel();
 
-            $form.latitude = result.position.lat;
-            $form.longitude = result.position.lon;
-            $form.address = result.address.freeformAddress;
+            form.latitude = result.position.lat;
+            form.longitude = result.position.lon;
+            form.address = result.address.freeformAddress;
         }
     }
 
@@ -153,7 +153,7 @@
     function initMap() {
         if (!tomtomApiKey) return;
 
-        const center = [$form.longitude, $form.latitude];
+        const center = [form.longitude, form.latitude];
 
         map = (window as any).tt.map({
             key: tomtomApiKey,
@@ -171,8 +171,8 @@
         marker.on("dragend", () => {
             const lngLat = marker?.getLngLat();
             if (lngLat) {
-                $form.longitude = lngLat.lng;
-                $form.latitude = lngLat.lat;
+                form.longitude = lngLat.lng;
+                form.latitude = lngLat.lat;
             }
         });
 
@@ -181,8 +181,8 @@
             if (marker) {
                 marker.setLngLat(lngLat);
             }
-            $form.longitude = lngLat.lng;
-            $form.latitude = lngLat.lat;
+            form.longitude = lngLat.lng;
+            form.latitude = lngLat.lat;
         });
 
         mapLoaded = true;
@@ -195,24 +195,24 @@
     function submitForm(e: SubmitEvent) {
         e.preventDefault();
 
-        $form.latitude = Number($form.latitude);
-        $form.longitude = Number($form.longitude);
+        form.latitude = Number(form.latitude);
+        form.longitude = Number(form.longitude);
 
         if (isEditMode && pickUpPoint) {
-            $form.post(`/admin/pick-up-points/${pickUpPoint.id}`, {
+            form.post(`/admin/pick-up-points/${pickUpPoint.id}`, {
                 preserveScroll: true,
             });
         } else {
-            $form.post("/admin/pick-up-points", {
+            form.post("/admin/pick-up-points", {
                 preserveScroll: true,
             });
         }
     }
     function toggleOfficer(id: string) {
-        if ($form.officer_ids.includes(id)) {
-            $form.officer_ids = $form.officer_ids.filter((i) => i !== id);
+        if (form.officer_ids.includes(id)) {
+            form.officer_ids = form.officer_ids.filter((i) => i !== id);
         } else {
-            $form.officer_ids = [...$form.officer_ids, id];
+            form.officer_ids = [...form.officer_ids, id];
         }
     }
 </script>
@@ -220,7 +220,7 @@
 <svelte:head>
     <title
         >{isEditMode ? "Edit" : "Tambah"} Pick Up Point | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
     <link
@@ -252,8 +252,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="pick-up-point-form"
             >
@@ -273,8 +273,8 @@
                                 name="name"
                                 label="Nama Lokasi"
                                 placeholder="Contoh: Lokasi Pusat"
-                                bind:value={$form.name}
-                                error={$form.errors.name}
+                                bind:value={form.name}
+                                error={form.errors.name}
                                 required
                             />
 
@@ -284,9 +284,9 @@
                                     name="address"
                                     label="Alamat Lengkap"
                                     placeholder="Jelaskan detail alamat bangunan"
-                                    bind:value={$form.address}
+                                    bind:value={form.address}
                                     oninput={handleAddressInput}
-                                    error={$form.errors.address}
+                                    error={form.errors.address}
                                     rows={3}
                                     required
                                 />
@@ -330,8 +330,8 @@
                                 name="description"
                                 label="Keterangan / Patokan Lokasi (Opsional)"
                                 placeholder="Contoh: Pagar hitam depan gang"
-                                bind:value={$form.description}
-                                error={$form.errors.description}
+                                bind:value={form.description}
+                                error={form.errors.description}
                                 rows={2}
                             />
 
@@ -340,8 +340,8 @@
                                     id="is_active"
                                     name="is_active"
                                     label="Aktif"
-                                    bind:checked={$form.is_active}
-                                    error={$form.errors.is_active}
+                                    bind:checked={form.is_active}
+                                    error={form.errors.is_active}
                                 />
                                 <span
                                     class="ml-2 text-sm text-gray-500 dark:text-gray-400"
@@ -370,7 +370,7 @@
                                                 <Checkbox
                                                     id={`officer-${pkOfficer.id}`}
                                                     name={`officer-${pkOfficer.id}`}
-                                                    checked={$form.officer_ids.includes(
+                                                    checked={form.officer_ids.includes(
                                                         pkOfficer.id,
                                                     )}
                                                     onchange={() =>
@@ -395,11 +395,11 @@
                                             </div>
                                         {/each}
                                     </div>
-                                    {#if $form.errors.officer_ids}
+                                    {#if form.errors.officer_ids}
                                         <p
                                             class="mt-1 text-sm text-red-600 dark:text-red-400"
                                         >
-                                            {$form.errors.officer_ids}
+                                            {form.errors.officer_ids}
                                         </p>
                                     {/if}
                                 </div>
@@ -441,20 +441,20 @@
                                     id="latitude"
                                     name="latitude"
                                     label="Latitude"
-                                    value={$form.latitude.toString()}
+                                    value={form.latitude.toString()}
                                     oninput={(e) => {
                                         if (
                                             e &&
                                             typeof e === "object" &&
                                             "target" in e
                                         ) {
-                                            $form.latitude = Number(
+                                            form.latitude = Number(
                                                 (e.target as HTMLInputElement)
                                                     .value,
                                             );
                                         }
                                     }}
-                                    error={$form.errors.latitude}
+                                    error={form.errors.latitude}
                                     required
                                 />
 
@@ -462,20 +462,20 @@
                                     id="longitude"
                                     name="longitude"
                                     label="Longitude"
-                                    value={$form.longitude.toString()}
+                                    value={form.longitude.toString()}
                                     oninput={(e) => {
                                         if (
                                             e &&
                                             typeof e === "object" &&
                                             "target" in e
                                         ) {
-                                            $form.longitude = Number(
+                                            form.longitude = Number(
                                                 (e.target as HTMLInputElement)
                                                     .value,
                                             );
                                         }
                                     }}
-                                    error={$form.errors.longitude}
+                                    error={form.errors.longitude}
                                     required
                                 />
                             </div>

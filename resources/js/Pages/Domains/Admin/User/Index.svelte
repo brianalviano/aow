@@ -27,13 +27,13 @@
     }
 
     let users = $derived(
-        $page.props.users as {
+        page.props.users as {
             data: User[];
             meta?: any;
         },
     );
 
-    let roles = $derived(($page.props.roles as { data: Role[] })?.data ?? []);
+    let roles = $derived((page.props.roles as { data: Role[] })?.data ?? []);
 
     let roleOptions = $derived([
         { value: "", label: "Semua Role" },
@@ -41,7 +41,7 @@
     ]);
 
     let filters = $derived(
-        $page.props.filters as
+        page.props.filters as
             | { search?: string; role_id?: string }
             | undefined,
     );
@@ -116,7 +116,7 @@
 </script>
 
 <svelte:head>
-    <title>User Admin | {getSettingName($page.props.settings)}</title>
+    <title>User Admin | {getSettingName(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">
@@ -250,7 +250,7 @@
                                             >
                                                 Edit
                                             </Button>
-                                            {#if item.id !== $page.props.auth.user.id}
+                                            {#if item.id !== page.props.auth.user.id}
                                                 <Button
                                                     variant="danger"
                                                     size="sm"

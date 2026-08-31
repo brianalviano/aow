@@ -13,7 +13,7 @@
 
     let { open, order, onClose }: Props = $props();
 
-    const companySettings = $derived(($page.props.settings as any) || {});
+    const companySettings = $derived((page.props.settings as any) || {});
 
     // State Variables
     let printMethod = $state<'bluetooth' | 'pdf'>('pdf');

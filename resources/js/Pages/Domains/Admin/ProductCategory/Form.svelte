@@ -17,7 +17,7 @@
     }
 
     let productCategory = $derived(
-        ($page.props.productCategory as { data: ProductCategory } | null)
+        (page.props.productCategory as { data: ProductCategory } | null)
             ?.data ?? null,
     );
 
@@ -48,11 +48,11 @@
         e.preventDefault();
 
         if (isEditMode && productCategory) {
-            $form.put(`/admin/product-categories/${productCategory.id}`, {
+            form.put(`/admin/product-categories/${productCategory.id}`, {
                 preserveScroll: true,
             });
         } else {
-            $form.post("/admin/product-categories", {
+            form.post("/admin/product-categories", {
                 preserveScroll: true,
             });
         }
@@ -62,7 +62,7 @@
 <svelte:head>
     <title
         >{isEditMode ? "Edit" : "Tambah"} Kategori Produk | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
 </svelte:head>
@@ -90,8 +90,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="product-category-form"
             >
@@ -110,8 +110,8 @@
                             name="name"
                             label="Nama Kategori"
                             placeholder="Contoh: Makanan, Minuman"
-                            bind:value={$form.name}
-                            error={$form.errors.name}
+                            bind:value={form.name}
+                            error={form.errors.name}
                             required
                         />
                     </div>
@@ -122,7 +122,7 @@
                             label="Urutan"
                             type="number"
                             placeholder="0"
-                            value={$form.sort_order.toString()}
+                            value={form.sort_order.toString()}
                             oninput={(e) => {
                                 if (
                                     e &&
@@ -130,18 +130,18 @@
                                     "numericValue" in e &&
                                     e.numericValue !== null
                                 ) {
-                                    $form.sort_order = e.numericValue;
+                                    form.sort_order = e.numericValue;
                                 } else if (
                                     e &&
                                     typeof e === "object" &&
                                     "target" in e
                                 ) {
-                                    $form.sort_order = Number(
+                                    form.sort_order = Number(
                                         (e.target as HTMLInputElement).value,
                                     );
                                 }
                             }}
-                            error={$form.errors.sort_order}
+                            error={form.errors.sort_order}
                             required
                         />
                         <p
@@ -156,8 +156,8 @@
                             id="is_active"
                             name="is_active"
                             label="Aktif"
-                            bind:checked={$form.is_active}
-                            error={$form.errors.is_active}
+                            bind:checked={form.is_active}
+                            error={form.errors.is_active}
                         />
                         <span
                             class="ml-2 text-sm text-gray-500 dark:text-gray-400"

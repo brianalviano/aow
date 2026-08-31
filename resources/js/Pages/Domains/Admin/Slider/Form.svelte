@@ -16,7 +16,7 @@
     }
 
     let slider = $derived(
-        ($page.props.slider as { data: Slider } | null)?.data ?? null,
+        (page.props.slider as { data: Slider } | null)?.data ?? null,
     );
 
     let isEditMode = $derived(!!slider);
@@ -44,12 +44,12 @@
         e.preventDefault();
 
         if (isEditMode && slider) {
-            $form.post(`/admin/sliders/${slider.id}`, {
+            form.post(`/admin/sliders/${slider.id}`, {
                 preserveScroll: true,
                 forceFormData: true,
             });
         } else {
-            $form.post("/admin/sliders", {
+            form.post("/admin/sliders", {
                 preserveScroll: true,
                 forceFormData: true,
             });
@@ -60,7 +60,7 @@
 <svelte:head>
     <title
         >{isEditMode ? "Edit" : "Tambah"} Slider | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
 </svelte:head>
@@ -88,8 +88,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="slider-form"
             >
@@ -121,8 +121,8 @@
                             name="photo"
                             label="Foto Slider"
                             accept="image/*"
-                            bind:value={$form.photo}
-                            error={$form.errors.photo}
+                            bind:value={form.photo}
+                            error={form.errors.photo}
                             uploadText="Pilih atau seret foto ke sini"
                             uploadSubtext="Batas maksimal 2MB. Format: JPG, PNG, WEBP."
                             maxSize={2 * 1024 * 1024}
@@ -136,8 +136,8 @@
                             name="name"
                             label="Nama Slider"
                             placeholder="Contoh: Promo Ramadhan, Diskon Akhir Tahun"
-                            bind:value={$form.name}
-                            error={$form.errors.name}
+                            bind:value={form.name}
+                            error={form.errors.name}
                             required
                         />
                     </div>

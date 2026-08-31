@@ -30,7 +30,7 @@
     }
 
     let orders = $derived(
-        $page.props.orders as {
+        page.props.orders as {
             data: Order[];
             meta?: any;
         },
@@ -166,7 +166,7 @@
 </script>
 
 <svelte:head>
-    <title>Approval Pembayaran | {name($page.props.settings)}</title>
+    <title>Approval Pembayaran | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

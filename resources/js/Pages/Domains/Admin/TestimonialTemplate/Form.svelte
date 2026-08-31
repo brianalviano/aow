@@ -16,7 +16,7 @@
     }
 
     let template = $derived(
-        ($page.props.template as TestimonialTemplate | null) ?? null,
+        (page.props.template as TestimonialTemplate | null) ?? null,
     );
 
     let isEditMode = $derived(!!template);
@@ -46,11 +46,11 @@
         e.preventDefault();
 
         if (isEditMode && template) {
-            $form.put(`/admin/testimonial-templates/${template.id}`, {
+            form.put(`/admin/testimonial-templates/${template.id}`, {
                 preserveScroll: true,
             });
         } else {
-            $form.post("/admin/testimonial-templates", {
+            form.post("/admin/testimonial-templates", {
                 preserveScroll: true,
             });
         }
@@ -60,7 +60,7 @@
 <svelte:head>
     <title
         >{isEditMode ? "Edit" : "Tambah"} Template Testimoni | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
 </svelte:head>
@@ -90,8 +90,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="testimonial-template-form"
             >
@@ -111,8 +111,8 @@
                                 name="customer_name"
                                 label="Nama Customer"
                                 placeholder="Contoh: Budi Sudarsono"
-                                bind:value={$form.customer_name}
-                                error={$form.errors.customer_name}
+                                bind:value={form.customer_name}
+                                error={form.errors.customer_name}
                                 required
                             />
 
@@ -131,12 +131,12 @@
                                     rows="5"
                                     class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:text-white"
                                     placeholder="Masukkan isi testimoni..."
-                                    bind:value={$form.content}
+                                    bind:value={form.content}
                                     required
                                 ></textarea>
-                                {#if $form.errors.content}
+                                {#if form.errors.content}
                                     <p class="text-xs text-red-500 mt-1">
-                                        {$form.errors.content}
+                                        {form.errors.content}
                                     </p>
                                 {/if}
                             </div>
@@ -158,7 +158,7 @@
                                     min={1}
                                     max={5}
                                     placeholder="5"
-                                    value={$form.rating.toString()}
+                                    value={form.rating.toString()}
                                     oninput={(e) => {
                                         if (
                                             e &&
@@ -166,19 +166,19 @@
                                             "numericValue" in e &&
                                             e.numericValue !== null
                                         ) {
-                                            $form.rating = e.numericValue;
+                                            form.rating = e.numericValue;
                                         } else if (
                                             e &&
                                             typeof e === "object" &&
                                             "target" in e
                                         ) {
-                                            $form.rating = Number(
+                                            form.rating = Number(
                                                 (e.target as HTMLInputElement)
                                                     .value,
                                             );
                                         }
                                     }}
-                                    error={$form.errors.rating}
+                                    error={form.errors.rating}
                                     required
                                 />
                             </div>
@@ -187,8 +187,8 @@
                                 id="is_active"
                                 name="is_active"
                                 label="Aktifkan Template"
-                                bind:checked={$form.is_active}
-                                error={$form.errors.is_active}
+                                bind:checked={form.is_active}
+                                error={form.errors.is_active}
                             />
                             <p class="text-xs text-gray-500 italic">
                                 Template yang aktif akan muncul secara acak pada

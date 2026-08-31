@@ -21,21 +21,21 @@
     );
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/admin/reset-password", {
+        form.post("/admin/reset-password", {
             preserveScroll: true,
             preserveState: (p: {
                 props: { errors?: Record<string, string[]> };
             }) => Object.keys(p.props.errors ?? {}).length > 0,
             replace: false,
             onError: () => {
-                $form.reset("password", "password_confirmation");
+                form.reset("password", "password_confirmation");
             },
         });
     }
 </script>
 
 <svelte:head>
-    <title>Atur Ulang Kata Sandi | {name($page.props.settings)}</title>
+    <title>Atur Ulang Kata Sandi | {name(page.props.settings)}</title>
 </svelte:head>
 
 <div class="relative h-screen overflow-hidden bg-slate-200 dark:bg-neutral-900">
@@ -72,10 +72,10 @@
                                 label="Email"
                                 type="email"
                                 required={true}
-                                disabled={$form.processing}
-                                bind:value={$form.email}
+                                disabled={form.processing}
+                                bind:value={form.email}
                                 placeholder="you@example.com"
-                                error={$form.errors.email}
+                                error={form.errors.email}
                             />
                             <TextInput
                                 id="password"
@@ -83,10 +83,10 @@
                                 label="Kata Sandi Baru"
                                 type="password"
                                 required={true}
-                                disabled={$form.processing}
-                                bind:value={$form.password}
+                                disabled={form.processing}
+                                bind:value={form.password}
                                 placeholder="Minimal 8 karakter"
-                                error={$form.errors.password}
+                                error={form.errors.password}
                             />
                             <TextInput
                                 id="password_confirmation"
@@ -94,12 +94,12 @@
                                 label="Konfirmasi Kata Sandi"
                                 type="password"
                                 required={true}
-                                disabled={$form.processing}
-                                bind:value={$form.password_confirmation}
+                                disabled={form.processing}
+                                bind:value={form.password_confirmation}
                                 placeholder="Ulangi kata sandi"
-                                error={$form.errors.password_confirmation}
+                                error={form.errors.password_confirmation}
                             />
-                            {#if $form.hasErrors && !$form.errors.email && !$form.errors.password}
+                            {#if form.hasErrors && !form.errors.email && !form.errors.password}
                                 <div
                                     class="p-3 bg-red-50 rounded-lg border border-red-200 dark:bg-red-950/20 dark:border-red-900/30"
                                     role="alert"
@@ -118,8 +118,8 @@
                                     variant="primary"
                                     size="normal"
                                     fullWidth={true}
-                                    disabled={$form.processing}
-                                    loading={$form.processing}
+                                    disabled={form.processing}
+                                    loading={form.processing}
                                     icon="fa-solid fa-key"
                                 >
                                     Simpan Kata Sandi
@@ -142,7 +142,7 @@
                         class="text-xs font-medium text-slate-700 dark:text-white"
                     >
                         © {currentYear}
-                        {name($page.props.settings)}
+                        {name(page.props.settings)}
                     </p>
                 </div>
             </div>

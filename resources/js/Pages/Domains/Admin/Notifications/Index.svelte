@@ -21,7 +21,7 @@
      * Sync initial props into notification store
      */
     $effect(() => {
-        const anyProps = $page.props as any;
+        const anyProps = page.props as any;
         const list: Notification[] = Array.isArray(anyProps?.notifications)
             ? (anyProps?.notifications as Notification[])
             : ((anyProps?.notifications?.data ?? []) as Notification[]);
@@ -34,7 +34,7 @@
     });
 
     let meta = $derived(
-        $page.props.meta as {
+        page.props.meta as {
             total: number;
             per_page: number;
             current_page: number;
@@ -61,7 +61,7 @@
     };
 
     let filters = $state<{ status: string }>({
-        status: (($page.props.filters as { status?: string })?.status ??
+        status: ((page.props.filters as { status?: string })?.status ??
             "") as string,
     });
 
@@ -105,7 +105,7 @@
 </script>
 
 <svelte:head>
-    <title>Notifikasi | {name($page.props.settings)}</title>
+    <title>Notifikasi | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

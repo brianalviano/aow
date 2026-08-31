@@ -76,23 +76,23 @@
 
     // ─── Props from Inertia ───────────────────────────────────────────────────
 
-    let reportType = $derived(($page.props.type as string) ?? "orders");
+    let reportType = $derived((page.props.type as string) ?? "orders");
     let filters = $derived(
-        ($page.props.filters as {
+        (page.props.filters as {
             date_from?: string | null;
             date_to?: string | null;
             drop_point_id?: string | null;
         }) ?? {},
     );
     let report = $derived(
-        $page.props.report as {
+        page.props.report as {
             summary: SalesSummary | ProductSummary;
             orders?: PaginatedOrders;
             products?: PaginatedProducts;
         },
     );
     let dropPoints = $derived(
-        ($page.props.drop_points as DropPointOption[]) ?? [],
+        (page.props.drop_points as DropPointOption[]) ?? [],
     );
 
     // ─── Local filter state ───────────────────────────────────────────────────
@@ -275,7 +275,7 @@
 </script>
 
 <svelte:head>
-    <title>Laporan | {name($page.props.settings)}</title>
+    <title>Laporan | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

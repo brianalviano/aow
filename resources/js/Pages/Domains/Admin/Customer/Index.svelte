@@ -22,14 +22,14 @@
     }
 
     let customers = $derived(
-        $page.props.customers as {
+        page.props.customers as {
             data: Customer[];
             meta?: any;
         },
     );
 
     let filters = $derived(
-        $page.props.filters as { search?: string } | undefined,
+        page.props.filters as { search?: string } | undefined,
     );
 
     let searchQuery = $state(untrack(() => filters?.search || ""));
@@ -74,7 +74,7 @@
 </script>
 
 <svelte:head>
-    <title>Customer | {name($page.props.settings)}</title>
+    <title>Customer | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

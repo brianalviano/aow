@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\DTOs\Order\OrderFilterDTO;
+use App\DTOs\Setting\OrderSettingsDTO;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
@@ -18,7 +19,6 @@ use App\Models\PickUpPoint;
 use App\Models\Testimonial;
 use App\Services\OrderService;
 use App\Traits\FileHelperTrait;
-use App\DTOs\Setting\OrderSettingsDTO;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

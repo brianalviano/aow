@@ -82,7 +82,7 @@
 </script>
 
 <svelte:head>
-    <title>Laporan | {appName($page.props.settings)}</title>
+    <title>Laporan | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div class="flex flex-col min-h-screen bg-slate-950 text-slate-100">

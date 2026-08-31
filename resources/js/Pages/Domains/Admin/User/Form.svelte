@@ -23,10 +23,10 @@
     }
 
     let user = $derived(
-        ($page.props.user as { data: User } | null)?.data ?? null,
+        (page.props.user as { data: User } | null)?.data ?? null,
     );
 
-    let roles = $derived(($page.props.roles as { data: Role[] })?.data ?? []);
+    let roles = $derived((page.props.roles as { data: Role[] })?.data ?? []);
 
     let roleOptions = $derived(
         roles.map((role) => ({
@@ -57,11 +57,11 @@
         e.preventDefault();
 
         if (isEditMode && user) {
-            $form.post(`/admin/users/${user.id}`, {
+            form.post(`/admin/users/${user.id}`, {
                 preserveScroll: true,
             });
         } else {
-            $form.post("/admin/users", {
+            form.post("/admin/users", {
                 preserveScroll: true,
             });
         }
@@ -71,7 +71,7 @@
 <svelte:head>
     <title
         >{isEditMode ? "Edit" : "Tambah"} User | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
 </svelte:head>
@@ -101,8 +101,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="user-form"
             >
@@ -122,8 +122,8 @@
                                 name="name"
                                 label="Nama Lengkap"
                                 placeholder="Masukkan nama lengkap"
-                                bind:value={$form.name}
-                                error={$form.errors.name}
+                                bind:value={form.name}
+                                error={form.errors.name}
                                 required
                             />
 
@@ -133,8 +133,8 @@
                                     name="username"
                                     label="Username"
                                     placeholder="Masukkan username"
-                                    bind:value={$form.username}
-                                    error={$form.errors.username}
+                                    bind:value={form.username}
+                                    error={form.errors.username}
                                     required
                                 />
 
@@ -144,8 +144,8 @@
                                     label="Email"
                                     type="email"
                                     placeholder="Masukkan alamat email"
-                                    bind:value={$form.email}
-                                    error={$form.errors.email}
+                                    bind:value={form.email}
+                                    error={form.errors.email}
                                     required
                                 />
                             </div>
@@ -159,8 +159,8 @@
                                         : "Password"}
                                     type="password"
                                     placeholder="Masukkan password"
-                                    bind:value={$form.password}
-                                    error={$form.errors.password}
+                                    bind:value={form.password}
+                                    error={form.errors.password}
                                     required={!isEditMode}
                                 />
 
@@ -169,8 +169,8 @@
                                     name="phone"
                                     label="No. Telepon (Opsional)"
                                     placeholder="Masukkan nomor telepon"
-                                    bind:value={$form.phone}
-                                    error={$form.errors.phone}
+                                    bind:value={form.phone}
+                                    error={form.errors.phone}
                                 />
                             </div>
                         </div>
@@ -187,8 +187,8 @@
                                 name="role_id"
                                 label="Role Access"
                                 options={roleOptions}
-                                bind:value={$form.role_id}
-                                error={$form.errors.role_id}
+                                bind:value={form.role_id}
+                                error={form.errors.role_id}
                                 required
                             />
                         </div>

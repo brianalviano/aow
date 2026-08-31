@@ -69,7 +69,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">
-                        {name($page.props.settings)}
+                        {name(page.props.settings)}
                     </h1>
                     <p class="text-xs text-white/80">
                         Layanan Pemesanan Makanan

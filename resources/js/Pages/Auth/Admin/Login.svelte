@@ -16,7 +16,7 @@
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form
+        form
             .transform(
                 (data: {
                     email: string;
@@ -34,14 +34,14 @@
                 }) => Object.keys(page.props.errors ?? {}).length > 0,
                 replace: false,
                 onError: (errors: Record<string, string[]>) => {
-                    $form.reset("password");
+                    form.reset("password");
                 },
             });
     }
 </script>
 
 <svelte:head>
-    <title>Login | {name($page.props.settings)}</title>
+    <title>Login | {name(page.props.settings)}</title>
 </svelte:head>
 
 <div class="relative h-screen overflow-hidden bg-slate-200 dark:bg-neutral-900">
@@ -83,10 +83,10 @@
                                     type="text"
                                     autofocus={true}
                                     required={true}
-                                    disabled={$form.processing}
-                                    bind:value={$form.login}
+                                    disabled={form.processing}
+                                    bind:value={form.login}
                                     placeholder="you@example.com / username / 08xxxxxxxxxx"
-                                    error={$form.errors.login}
+                                    error={form.errors.login}
                                 />
 
                                 <!-- Password field -->
@@ -103,7 +103,7 @@
                                         <Link
                                             href="/admin/forgot-password"
                                             class="rounded text-xs font-medium text-[#0060B2] transition hover:text-[#004d8f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0060B2]/50 dark:text-[#0060B2] dark:hover:text-[#00559e] dark:focus-visible:ring-[#0060B2]/50"
-                                            tabindex={$form.processing ? -1 : 0}
+                                            tabindex={form.processing ? -1 : 0}
                                         >
                                             Lupa Kata Sandi?
                                         </Link>
@@ -114,10 +114,10 @@
                                         type="password"
                                         autocomplete="current-password"
                                         required={true}
-                                        disabled={$form.processing}
-                                        bind:value={$form.password}
+                                        disabled={form.processing}
+                                        bind:value={form.password}
                                         placeholder="••••••••"
-                                        error={$form.errors.password}
+                                        error={form.errors.password}
                                     />
                                 </div>
 
@@ -126,8 +126,8 @@
                                     id="remember"
                                     name="remember"
                                     label="Ingat saya"
-                                    disabled={$form.processing}
-                                    bind:checked={$form.remember}
+                                    disabled={form.processing}
+                                    bind:checked={form.remember}
                                 />
                             </div>
 
@@ -137,8 +137,8 @@
                                     variant="primary"
                                     size="normal"
                                     fullWidth={true}
-                                    disabled={$form.processing}
-                                    loading={$form.processing}
+                                    disabled={form.processing}
+                                    loading={form.processing}
                                     icon="fa-solid fa-right-to-bracket"
                                 >
                                     Masuk
@@ -155,7 +155,7 @@
                         class="text-xs font-medium text-slate-700 dark:text-white"
                     >
                         © {currentYear}
-                        {name($page.props.settings)}
+                        {name(page.props.settings)}
                     </p>
                 </div>
             </div>

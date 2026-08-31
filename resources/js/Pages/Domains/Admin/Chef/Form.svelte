@@ -35,9 +35,9 @@
     }
 
     let chef = $derived(
-        ($page.props.chef as { data: Chef } | null)?.data ?? null,
+        (page.props.chef as { data: Chef } | null)?.data ?? null,
     );
-    let products = $derived(($page.props.products as Product[]) ?? []);
+    let products = $derived((page.props.products as Product[]) ?? []);
 
     let isEditMode = $derived(!!chef);
 
@@ -78,18 +78,18 @@
     );
 
     function toggleProduct(productId: string) {
-        const currentIds = [...$form.product_ids];
+        const currentIds = [...form.product_ids];
         const index = currentIds.indexOf(productId);
         if (index > -1) {
             currentIds.splice(index, 1);
         } else {
             currentIds.push(productId);
         }
-        $form.product_ids = currentIds;
+        form.product_ids = currentIds;
     }
 
     function isProductSelected(productId: string): boolean {
-        return $form.product_ids.includes(productId);
+        return form.product_ids.includes(productId);
     }
 
     function backToIndex() {
@@ -100,12 +100,12 @@
         e.preventDefault();
 
         if (isEditMode && chef) {
-            $form.post(`/admin/chefs/${chef.id}`, {
+            form.post(`/admin/chefs/${chef.id}`, {
                 preserveScroll: true,
                 forceFormData: true,
             });
         } else {
-            $form.post("/admin/chefs", {
+            form.post("/admin/chefs", {
                 preserveScroll: true,
                 forceFormData: true,
             });
@@ -116,7 +116,7 @@
 <svelte:head>
     <title
         >{isEditMode ? "Edit" : "Tambah"} Chef | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
 </svelte:head>
@@ -144,8 +144,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="chef-form"
             >
@@ -165,8 +165,8 @@
                                 name="name"
                                 label="Nama Chef"
                                 placeholder="Nama lengkap chef"
-                                bind:value={$form.name}
-                                error={$form.errors.name}
+                                bind:value={form.name}
+                                error={form.errors.name}
                                 required
                             />
                             <TextInput
@@ -174,8 +174,8 @@
                                 name="business_name"
                                 label="Nama Usaha"
                                 placeholder="Nama usaha/toko chef"
-                                bind:value={$form.business_name}
-                                error={$form.errors.business_name}
+                                bind:value={form.business_name}
+                                error={form.errors.business_name}
                             />
 
                             <Select
@@ -190,8 +190,8 @@
                                     { value: "sby_selatan", label: "Dapur SBY Selatan" },
                                     { value: "sby_pusat", label: "Dapur SBY Pusat" },
                                 ]}
-                                bind:value={$form.region}
-                                error={$form.errors.region}
+                                bind:value={form.region}
+                                error={form.errors.region}
                             />
 
                             <TextInput
@@ -200,8 +200,8 @@
                                 label="Email"
                                 type="email"
                                 placeholder="email@example.com"
-                                bind:value={$form.email}
-                                error={$form.errors.email}
+                                bind:value={form.email}
+                                error={form.errors.email}
                                 required
                             />
 
@@ -215,8 +215,8 @@
                                 placeholder={isEditMode
                                     ? "••••••••"
                                     : "Minimal 8 karakter"}
-                                bind:value={$form.password}
-                                error={$form.errors.password}
+                                bind:value={form.password}
+                                error={form.errors.password}
                                 required={!isEditMode}
                             />
 
@@ -225,8 +225,8 @@
                                 name="phone"
                                 label="Nomor Telepon"
                                 placeholder="081234567890"
-                                bind:value={$form.phone}
-                                error={$form.errors.phone}
+                                bind:value={form.phone}
+                                error={form.errors.phone}
                             />
 
                             <TextArea
@@ -234,8 +234,8 @@
                                 name="address"
                                 label="Alamat"
                                 placeholder="Alamat lengkap chef"
-                                bind:value={$form.address}
-                                error={$form.errors.address}
+                                bind:value={form.address}
+                                error={form.errors.address}
                                 rows={3}
                             />
 
@@ -245,22 +245,22 @@
                                 label="Persentase Fee Perusahaan (%)"
                                 type="number"
                                 placeholder="0"
-                                value={$form.fee_percentage.toString()}
+                                value={form.fee_percentage.toString()}
                                 oninput={(e: any) => {
                                     if (e && "numericValue" in e) {
-                                        $form.fee_percentage =
+                                        form.fee_percentage =
                                             e.numericValue !== null
                                                 ? e.numericValue
                                                 : 0;
                                     } else if (e && e.target) {
-                                        $form.fee_percentage =
+                                        form.fee_percentage =
                                             Number(
                                                 (e.target as HTMLInputElement)
                                                     .value,
                                             ) || 0;
                                     }
                                 }}
-                                error={$form.errors.fee_percentage}
+                                error={form.errors.fee_percentage}
                                 required
                             />
                             <p class="text-xs text-gray-500 -mt-2!">
@@ -283,18 +283,18 @@
                                         variant="card"
                                         label="Instant"
                                         sublabel="Bisa pesanan langsung"
-                                        checked={$form.order_types.includes(
+                                        checked={form.order_types.includes(
                                             "instant",
                                         )}
                                         onchange={() => {
                                             const types = [
-                                                ...$form.order_types,
+                                                ...form.order_types,
                                             ];
                                             const idx =
                                                 types.indexOf("instant");
                                             if (idx > -1) types.splice(idx, 1);
                                             else types.push("instant");
-                                            $form.order_types = types;
+                                            form.order_types = types;
                                         }}
                                     />
 
@@ -305,24 +305,24 @@
                                         variant="card"
                                         label="Pre-Order"
                                         sublabel="Hanya pesanan terjadwal"
-                                        checked={$form.order_types.includes(
+                                        checked={form.order_types.includes(
                                             "preorder",
                                         )}
                                         onchange={() => {
                                             const types = [
-                                                ...$form.order_types,
+                                                ...form.order_types,
                                             ];
                                             const idx =
                                                 types.indexOf("preorder");
                                             if (idx > -1) types.splice(idx, 1);
                                             else types.push("preorder");
-                                            $form.order_types = types;
+                                            form.order_types = types;
                                         }}
                                     />
                                 </div>
-                                {#if $form.errors.order_types}
+                                {#if form.errors.order_types}
                                     <p class="text-xs text-red-600 mt-1">
-                                        {$form.errors.order_types}
+                                        {form.errors.order_types}
                                     </p>
                                 {/if}
                             </div>
@@ -332,8 +332,8 @@
                                 name="note"
                                 label="Catatan (Opsional)"
                                 placeholder="Catatan internal..."
-                                bind:value={$form.note}
-                                error={$form.errors.note}
+                                bind:value={form.note}
+                                error={form.errors.note}
                                 rows={2}
                             />
 
@@ -342,8 +342,8 @@
                                     id="is_active"
                                     name="is_active"
                                     label="Aktif"
-                                    bind:checked={$form.is_active}
-                                    error={$form.errors.is_active}
+                                    bind:checked={form.is_active}
+                                    error={form.errors.is_active}
                                 />
                                 <span
                                     class="ml-2 text-sm text-gray-500 dark:text-gray-400"
@@ -363,8 +363,8 @@
                                 name="bank_name"
                                 label="Nama Bank"
                                 placeholder="Contoh: BCA, Mandiri, BRI"
-                                bind:value={$form.bank_name}
-                                error={$form.errors.bank_name}
+                                bind:value={form.bank_name}
+                                error={form.errors.bank_name}
                             />
 
                             <TextInput
@@ -372,8 +372,8 @@
                                 name="account_number"
                                 label="Nomor Rekening"
                                 placeholder="1234567890"
-                                bind:value={$form.account_number}
-                                error={$form.errors.account_number}
+                                bind:value={form.account_number}
+                                error={form.errors.account_number}
                             />
 
                             <TextInput
@@ -381,8 +381,8 @@
                                 name="account_name"
                                 label="Nama Pemegang Rekening"
                                 placeholder="Nama sesuai rekening"
-                                bind:value={$form.account_name}
-                                error={$form.errors.account_name}
+                                bind:value={form.account_name}
+                                error={form.errors.account_name}
                             />
                         </div>
                     {/snippet}
@@ -396,7 +396,7 @@
                             <p class="text-sm text-gray-600 dark:text-gray-400">
                                 Pilih produk yang di-assign ke chef ini.
                                 Terpilih: <strong
-                                    >{$form.product_ids.length}</strong
+                                    >{form.product_ids.length}</strong
                                 > produk.
                             </p>
 
@@ -445,9 +445,9 @@
                                 {/if}
                             </div>
 
-                            {#if $form.errors.product_ids}
+                            {#if form.errors.product_ids}
                                 <p class="text-xs text-red-600">
-                                    {$form.errors.product_ids}
+                                    {form.errors.product_ids}
                                 </p>
                             {/if}
                         </div>
@@ -466,7 +466,7 @@
                                     name="latitude"
                                     label="Latitude"
                                     placeholder="-6.200000"
-                                    value={$form.latitude?.toString() ?? ""}
+                                    value={form.latitude?.toString() ?? ""}
                                     oninput={(e) => {
                                         if (
                                             e &&
@@ -476,12 +476,12 @@
                                             const val = (
                                                 e.target as HTMLInputElement
                                             ).value;
-                                            $form.latitude = val
+                                            form.latitude = val
                                                 ? Number(val)
                                                 : null;
                                         }
                                     }}
-                                    error={$form.errors.latitude}
+                                    error={form.errors.latitude}
                                 />
 
                                 <TextInput
@@ -489,7 +489,7 @@
                                     name="longitude"
                                     label="Longitude"
                                     placeholder="106.816666"
-                                    value={$form.longitude?.toString() ?? ""}
+                                    value={form.longitude?.toString() ?? ""}
                                     oninput={(e) => {
                                         if (
                                             e &&
@@ -499,12 +499,12 @@
                                             const val = (
                                                 e.target as HTMLInputElement
                                             ).value;
-                                            $form.longitude = val
+                                            form.longitude = val
                                                 ? Number(val)
                                                 : null;
                                         }
                                     }}
-                                    error={$form.errors.longitude}
+                                    error={form.errors.longitude}
                                 />
                             </div>
                         </div>

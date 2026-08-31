@@ -40,14 +40,14 @@
     }
 
     let products = $derived(
-        $page.props.products as {
+        page.props.products as {
             data: Product[];
             meta?: any;
         },
     );
 
     let categories = $derived(
-        ($page.props.categories as { data: ProductCategory[] })?.data ?? [],
+        (page.props.categories as { data: ProductCategory[] })?.data ?? [],
     );
 
     let categoryOptions = $derived([
@@ -56,7 +56,7 @@
     ]);
 
     let filters = $derived(
-        $page.props.filters as
+        page.props.filters as
             | { search?: string; category_id?: string }
             | undefined,
     );
@@ -139,7 +139,7 @@
 </script>
 
 <svelte:head>
-    <title>Produk | {name($page.props.settings)}</title>
+    <title>Produk | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

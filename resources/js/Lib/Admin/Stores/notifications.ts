@@ -289,10 +289,7 @@ function createNotificationStore() {
         async refreshStats() {
             try {
                 // Check if user is authenticated before making request
-                let currentPageProps: any;
-                page.subscribe((pageData) => {
-                    currentPageProps = pageData.props;
-                })();
+                const currentPageProps: any = page.props;
 
                 if (
                     !currentPageProps?.auth?.user ||
@@ -395,10 +392,7 @@ function createNotificationStore() {
          */
         async init() {
             // Check if user is authenticated before fetching stats
-            let currentPageProps: any;
-            page.subscribe((pageData) => {
-                currentPageProps = pageData.props;
-            })();
+            const currentPageProps: any = page.props;
 
             // Only initialize if user is authenticated and not a customer
             if (
@@ -422,30 +416,21 @@ export const notificationStore = createNotificationStore();
 
 // Initialize on client side only if user is authenticated
 if (typeof window !== "undefined") {
-    // Wait for page props to be available before initializing
-    let unsubscribe: (() => void) | null = null;
-
     const checkAndInit = () => {
-        unsubscribe = page.subscribe((pageData) => {
-            if (
-                pageData.props?.auth?.user &&
-                pageData.props?.auth?.user?.role !== "customer"
-            ) {
-                notificationStore.init();
-                if (unsubscribe) {
-                    unsubscribe();
-                    unsubscribe = null;
-                }
-            }
-        });
+        const pageProps: any = page.props;
+        if (
+            pageProps?.auth?.user &&
+            pageProps?.auth?.user?.role !== "customer"
+        ) {
+            notificationStore.init();
+        }
     };
 
     // Check immediately if page is already loaded
     if (document.readyState === "complete") {
         checkAndInit();
     } else {
-        // Wait for page to load
-        window.addEventListener("load", checkAndInit);
+        window.addEventListener("load", checkAndInit, { once: true });
     }
 }
 

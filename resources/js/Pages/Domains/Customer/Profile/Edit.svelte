@@ -4,7 +4,7 @@
     import Button from "@/Lib/Admin/Components/Ui/Button.svelte";
     import { name as appName } from "@/Lib/Admin/Utils/settings";
 
-    const { customer } = $page.props as {
+    const { customer } = page.props as {
         customer: {
             name: string;
             email: string;
@@ -23,18 +23,18 @@
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.clearErrors();
-        $form.put("/profile", {
+        form.clearErrors();
+        form.put("/profile", {
             preserveScroll: true,
             onSuccess: () => {
-                $form.reset("password", "password_confirmation");
+                form.reset("password", "password_confirmation");
             },
         });
     }
 </script>
 
 <svelte:head>
-    <title>Ubah Profil | {appName($page.props.settings)}</title>
+    <title>Ubah Profil | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div
@@ -69,9 +69,9 @@
                     label="Username"
                     type="text"
                     required={false}
-                    disabled={$form.processing}
-                    bind:value={$form.username}
-                    error={$form.errors.username}
+                    disabled={form.processing}
+                    bind:value={form.username}
+                    error={form.errors.username}
                 />
 
                 <TextInput
@@ -80,9 +80,9 @@
                     label="Nama Lengkap"
                     type="text"
                     required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.name}
-                    error={$form.errors.name}
+                    disabled={form.processing}
+                    bind:value={form.name}
+                    error={form.errors.name}
                 />
 
                 <TextInput
@@ -91,9 +91,9 @@
                     label="Email"
                     type="email"
                     required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.email}
-                    error={$form.errors.email}
+                    disabled={form.processing}
+                    bind:value={form.email}
+                    error={form.errors.email}
                 />
             </div>
 
@@ -106,10 +106,10 @@
                     name="password"
                     label="Kata Sandi Baru"
                     type="password"
-                    disabled={$form.processing}
-                    bind:value={$form.password}
+                    disabled={form.processing}
+                    bind:value={form.password}
                     placeholder="Biarkan kosong jika tidak ingin mengubah"
-                    error={$form.errors.password}
+                    error={form.errors.password}
                 />
 
                 <TextInput
@@ -117,10 +117,10 @@
                     name="password_confirmation"
                     label="Konfirmasi Kata Sandi Baru"
                     type="password"
-                    disabled={$form.processing}
-                    bind:value={$form.password_confirmation}
+                    disabled={form.processing}
+                    bind:value={form.password_confirmation}
                     placeholder="Biarkan kosong jika tidak ingin mengubah"
-                    error={$form.errors.password_confirmation}
+                    error={form.errors.password_confirmation}
                 />
             </div>
 
@@ -129,8 +129,8 @@
                     type="submit"
                     variant="warning"
                     fullWidth={true}
-                    disabled={$form.processing || !$form.isDirty}
-                    loading={$form.processing}
+                    disabled={form.processing || !form.isDirty}
+                    loading={form.processing}
                     icon="fa-solid fa-save"
                 >
                     Simpan Perubahan

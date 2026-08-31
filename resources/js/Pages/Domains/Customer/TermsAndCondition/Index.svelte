@@ -7,11 +7,11 @@
     export let dropPointCategoriesStr: string = "";
 
     const displayUrl = appUrl.replace(/^https?:\/\//, "");
-    $: appName = name($page.props.settings);
+    $: appName = name(page.props.settings);
 </script>
 
 <svelte:head>
-    <title>Syarat & Ketentuan | {name($page.props.settings)}</title>
+    <title>Syarat & Ketentuan | {name(page.props.settings)}</title>
 </svelte:head>
 
 <div>
@@ -275,15 +275,15 @@
             <ul class="list-disc pl-6 mb-10 space-y-1 text-slate-300">
                 <li>
                     WhatsApp: <strong
-                        >{$page.props.settings?.whatsapp || "-"}</strong
+                        >{page.props.settings?.whatsapp || "-"}</strong
                     >
                 </li>
                 <li>
-                    Email: <strong>{$page.props.settings?.email || "-"}</strong>
+                    Email: <strong>{page.props.settings?.email || "-"}</strong>
                 </li>
                 <li>
                     Instagram: <strong
-                        >{$page.props.settings?.instagram || "-"}</strong
+                        >{page.props.settings?.instagram || "-"}</strong
                     >
                 </li>
             </ul>
@@ -291,7 +291,7 @@
             <hr class="border-slate-700 mt-10" />
             <p class="text-sm text-slate-500 mt-6 text-center">
                 © {new Date().getFullYear()}
-                {name($page.props.settings)}. Seluruh hak dilindungi.
+                {name(page.props.settings)}. Seluruh hak dilindungi.
             </p>
         </div>
     </main>

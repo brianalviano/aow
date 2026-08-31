@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Models\OrderSetting;
+use App\DTOs\Setting\OrderSettingsDTO;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Http;
@@ -32,14 +32,22 @@ class SendWhatsAppNotificationJob implements ShouldQueue
 
     public function handle(): void
     {
-        // Get settings, returning false early if it's disabled.
-        $enabled = OrderSetting::where('key', 'whatsapp_enabled')->value('value');
-        if ($enabled !== 'true') {
+        $settings = OrderSettingsDTO::load();
+        if (! $settings->whatsappEnabled) {
             return;
         }
 
-        $token = OrderSetting::where('key', 'whatsapp_access_token')->value('value');
+        $token = $settings->whatsappAccessToken;
         if (empty($token)) {
+            return;
+        }
+
+        $targetPhone = $this->sanitizePhoneNumber($this->phoneNumber);
+        if ($targetPhone === '') {
+            Log::warning('SendWhatsAppNotificationJob skipped: invalid or empty phone number', [
+                'raw_phone' => $this->phoneNumber,
+            ]);
+
             return;
         }
 
@@ -47,38 +55,75 @@ class SendWhatsAppNotificationJob implements ShouldQueue
             $response = Http::withHeaders([
                 'Authorization' => $token,
             ])->timeout(15)->post('https://api.fonnte.com/send', [
-                'target' => $this->phoneNumber,
+                'target' => $targetPhone,
                 'message' => $this->message,
             ]);
 
             if ($response->failed()) {
-                throw new \Exception('Fonnte API HTTP error -> '.$response->body());
+                $statusCode = $response->status();
+
+                // 4xx errors indicate client/configuration problems (unauthorized token, bad payload, etc.)
+                if ($statusCode >= 400 && $statusCode < 500) {
+                    Log::error('SendWhatsAppNotificationJob permanent HTTP failure from Fonnte (not retrying)', [
+                        'status' => $statusCode,
+                        'phone_number' => $targetPhone,
+                        'response' => $response->body(),
+                    ]);
+
+                    $this->fail(new \Exception("Fonnte API HTTP {$statusCode} error -> ".$response->body()));
+
+                    return;
+                }
+
+                // 5xx errors or network issues are transient and should trigger retry backoff
+                throw new \Exception("Fonnte API HTTP {$statusCode} server error -> ".$response->body());
             }
 
-            // Fonnte returns 200 OK even on some failures (e.g. invalid token), so we check 'status'
+            // Fonnte returns 200 OK even on some business failures (e.g. disconnected device, invalid token)
             $data = $response->json();
             if (isset($data['status']) && $data['status'] === false) {
-                throw new \Exception('Fonnte API business logic error -> '.json_encode($data));
+                $reason = (string) ($data['reason'] ?? 'Unknown Fonnte business error');
+
+                Log::warning('SendWhatsAppNotificationJob failed due to Fonnte business logic error (not retrying)', [
+                    'reason' => $reason,
+                    'phone_number' => $targetPhone,
+                    'fonnte_response' => $data,
+                ]);
+
+                // Permanent failure: mark job failed immediately without retrying disconnected device/token errors
+                $this->fail(new \Exception("Fonnte API error -> {$reason}"));
+
+                return;
             }
         } catch (Throwable $e) {
-            Log::error('SendWhatsAppNotificationJob failed', [
-                'job_id' => $this->job?->getJobId(),
-                'phone_number' => $this->phoneNumber,
-                'message' => $this->message,
-                'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+            if ($this->job?->hasFailed()) {
+                return;
+            }
+
+            Log::warning('SendWhatsAppNotificationJob transient failure, will retry', [
+                'attempt' => $this->attempts(),
+                'phone_number' => $targetPhone,
+                'error' => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }
 
     public function failed(Throwable $e): void
     {
-        Log::error('SendWhatsAppNotificationJob ultimately failed after retries', [
+        Log::error('SendWhatsAppNotificationJob permanently failed', [
             'job_id' => $this->job?->getJobId(),
             'phone_number' => $this->phoneNumber,
-            'message' => $this->message,
             'exception' => $e->getMessage(),
         ]);
+    }
+
+    /**
+     * Sanitize phone number to digits only.
+     */
+    private function sanitizePhoneNumber(string $phone): string
+    {
+        return preg_replace('/\D+/', '', $phone) ?? '';
     }
 }

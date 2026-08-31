@@ -45,7 +45,7 @@
         activeOrdersCount + unreadNotificationsCount,
     );
 
-    const APP_NAME = getAppName($page.props.settings);
+    const APP_NAME = getAppName(page.props.settings);
 
     let displayItems = $derived(sliders.data.length > 0 ? sliders.data : []);
 

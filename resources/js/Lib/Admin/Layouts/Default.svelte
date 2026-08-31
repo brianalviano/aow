@@ -12,12 +12,12 @@
     let { children }: Props = $props();
 
     let auth = $derived(
-        $page.props.auth as { user?: any; guard?: string | null } | undefined,
+        page.props.auth as { user?: any; guard?: string | null } | undefined,
     );
     let isAuthenticated = $derived(!!auth?.guard || !!auth?.user);
     let sidebarCollapsed = $state(false);
     $effect(() => {
-        const flash = ($page as any).flash;
+        const flash = (page as any).flash;
         const t = flash?.toast as
             | {
                   type: "success" | "error" | "warning" | "info";

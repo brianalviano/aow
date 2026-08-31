@@ -228,37 +228,39 @@
     /**
      * Click handler
      */
-    function handleClick(event: MouseEvent) {
-        if (disabled || loading) {
-            event.preventDefault();
-            event.stopPropagation();
-            return;
-        }
+    function handleClick(event?: MouseEvent) {
+        if (disabled || loading) return;
 
-        if (onclick) {
+        if (onclick && event) {
             onclick(event);
+        } else if (onclick) {
+            (onclick as any)();
         }
     }
 
     /**
      * Focus handler
      */
-    function handleFocus(event: FocusEvent) {
+    function handleFocus(event?: FocusEvent) {
         if (disabled || loading) return;
 
-        if (onfocus) {
+        if (onfocus && event) {
             onfocus(event);
+        } else if (onfocus) {
+            (onfocus as any)();
         }
     }
 
     /**
      * Blur handler
      */
-    function handleBlur(event: FocusEvent) {
+    function handleBlur(event?: FocusEvent) {
         if (disabled || loading) return;
 
-        if (onblur) {
+        if (onblur && event) {
             onblur(event);
+        } else if (onblur) {
+            (onblur as any)();
         }
     }
 
@@ -369,9 +371,9 @@
                     ? `${variant === 'icon' ? 'opacity-50 cursor-not-allowed pointer-events-none' : `${getDisabledClasses()} opacity-50 cursor-not-allowed pointer-events-none ${variant !== 'link' ? 'shadow-none transform-none' : ''}`}`
                     : ''} 
                 {className || ''}"
-                onclick={handleClick}
-                onfocus={handleFocus}
-                onblur={handleBlur}
+                onclick={() => handleClick()}
+                onfocus={() => handleFocus()}
+                onblur={() => handleBlur()}
             >
                 {#if buttonContent.iconLeft}
                     <span
@@ -483,9 +485,9 @@
                         ? `${variant === 'icon' ? 'opacity-50 cursor-not-allowed pointer-events-none' : `${getDisabledClasses()} opacity-50 cursor-not-allowed pointer-events-none ${variant !== 'link' ? 'shadow-none transform-none' : ''}`}`
                         : ''} 
                     {className || ''}"
-                    onclick={handleClick}
-                    onfocus={handleFocus}
-                    onblur={handleBlur}
+                    onclick={() => handleClick()}
+                    onfocus={() => handleFocus()}
+                    onblur={() => handleBlur()}
                 >
                     {#if buttonContent.iconLeft}
                         <span

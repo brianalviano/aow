@@ -7,29 +7,29 @@
     const currentYear = new Date().getFullYear();
 
     const form = useForm({
-        token: $page.props.token as string,
-        email: $page.props.email as string,
+        token: page.props.token as string,
+        email: page.props.email as string,
         password: "",
         passwordConfirmation: "",
     });
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/reset-password", {
+        form.post("/reset-password", {
             preserveScroll: true,
             preserveState: (page: {
                 props: { errors?: Record<string, string[]> };
             }) => Object.keys(page.props.errors ?? {}).length > 0,
             replace: false,
             onFinish: () => {
-                $form.reset("password", "passwordConfirmation");
+                form.reset("password", "passwordConfirmation");
             },
         });
     }
 </script>
 
 <svelte:head>
-    <title>Atur Ulang Kata Sandi | {appName($page.props.settings)}</title>
+    <title>Atur Ulang Kata Sandi | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div>
@@ -52,7 +52,7 @@
         </div>
 
         <form class="space-y-6 flex-1 flex flex-col" onsubmit={handleSubmit}>
-            <input type="hidden" name="token" value={$form.token} />
+            <input type="hidden" name="token" value={form.token} />
             
             <TextInput
                 id="email"
@@ -61,9 +61,9 @@
                 type="email"
                 readonly={true}
                 required={true}
-                disabled={$form.processing}
-                bind:value={$form.email}
-                error={$form.errors.email}
+                disabled={form.processing}
+                bind:value={form.email}
+                error={form.errors.email}
             />
 
             <TextInput
@@ -72,10 +72,10 @@
                 label="Kata Sandi Baru"
                 type="password"
                 required={true}
-                disabled={$form.processing}
-                bind:value={$form.password}
+                disabled={form.processing}
+                bind:value={form.password}
                 placeholder="••••••••"
-                error={$form.errors.password}
+                error={form.errors.password}
             />
 
             <TextInput
@@ -84,10 +84,10 @@
                 label="Konfirmasi Kata Sandi"
                 type="password"
                 required={true}
-                disabled={$form.processing}
-                bind:value={$form.passwordConfirmation}
+                disabled={form.processing}
+                bind:value={form.passwordConfirmation}
                 placeholder="••••••••"
-                error={$form.errors.passwordConfirmation}
+                error={form.errors.passwordConfirmation}
             />
 
             <div class="mt-4">
@@ -96,8 +96,8 @@
                     variant="primary"
                     size="normal"
                     fullWidth={true}
-                    disabled={$form.processing}
-                    loading={$form.processing}
+                    disabled={form.processing}
+                    loading={form.processing}
                     icon="fa-solid fa-key"
                 >
                     Simpan Kata Sandi
@@ -109,7 +109,7 @@
         <div class="mt-auto pt-8 text-center pb-4">
             <p class="text-xs font-medium text-slate-500">
                 © {currentYear}
-                {appName($page.props.settings)}
+                {appName(page.props.settings)}
             </p>
         </div>
     </main>

@@ -46,10 +46,10 @@
         chef_status_summary?: string;
     }
 
-    let orders = $derived($page.props.orders as { data: Order[]; meta?: any });
+    let orders = $derived(page.props.orders as { data: Order[]; meta?: any });
 
     let filters = $derived(
-        $page.props.filters as
+        page.props.filters as
             | {
                   drop_point_id?: string;
                   chef_id?: string;
@@ -59,9 +59,9 @@
             | undefined,
     );
 
-    let dropPoints = $derived(($page.props.dropPoints as DropPoint[]) ?? []);
+    let dropPoints = $derived((page.props.dropPoints as DropPoint[]) ?? []);
 
-    let chefs = $derived(($page.props.chefs as Chef[]) ?? []);
+    let chefs = $derived((page.props.chefs as Chef[]) ?? []);
 
     let meta = $derived(
         orders?.meta ?? {
@@ -419,7 +419,7 @@
 {/snippet}
 
 <svelte:head>
-    <title>Pesanan Diproses | {name($page.props.settings)}</title>
+    <title>Pesanan Diproses | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

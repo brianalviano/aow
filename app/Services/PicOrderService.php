@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\DTOs\Setting\OrderSettingsDTO;
 use App\Enums\ChefStatus;
 use App\Enums\OrderStatus;
 use App\Jobs\SendWhatsAppNotificationJob;
@@ -122,11 +123,14 @@ class PicOrderService
                 ]);
 
                 DB::afterCommit(function () use ($order) {
-                    $order->load(['customer', 'pickUpPoint']);
-                    $message = "Halo {$order->customer->name},\n\n"
-                        ."Kabar baik! Pesanan Anda dengan nomor *{$order->number}* telah tiba di titik transit kami (*{$order->pickUpPoint->name}*).\n\n"
-                        .'Tim kami akan segera mengirimkannya ke alamat Anda. Mohon ditunggu ya!';
-                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    $settings = OrderSettingsDTO::load();
+                    if ($settings->whatsappEnabled && ! empty($order->customer?->phone)) {
+                        $order->load(['customer', 'pickUpPoint']);
+                        $message = "Halo {$order->customer->name},\n\n"
+                            ."Kabar baik! Pesanan Anda dengan nomor *{$order->number}* telah tiba di titik transit kami (*{$order->pickUpPoint->name}*).\n\n"
+                            .'Tim kami akan segera mengirimkannya ke alamat Anda. Mohon ditunggu ya!';
+                        dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    }
                 });
 
                 return $order->fresh();
@@ -208,11 +212,14 @@ class PicOrderService
                 ]);
 
                 DB::afterCommit(function () use ($order) {
-                    $order->load('customer');
-                    $message = "Halo {$order->customer->name},\n\n"
-                        ."Pesanan Anda dengan nomor *{$order->number}* sedang dalam perjalanan menuju alamat Anda!\n\n"
-                        .'Mohon standby untuk menerima pesanan Anda ya. Terima kasih.';
-                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    $settings = OrderSettingsDTO::load();
+                    if ($settings->whatsappEnabled && ! empty($order->customer?->phone)) {
+                        $order->load('customer');
+                        $message = "Halo {$order->customer->name},\n\n"
+                            ."Pesanan Anda dengan nomor *{$order->number}* sedang dalam perjalanan menuju alamat Anda!\n\n"
+                            .'Mohon standby untuk menerima pesanan Anda ya. Terima kasih.';
+                        dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    }
                 });
 
                 return $order->fresh();
@@ -251,11 +258,14 @@ class PicOrderService
                 ]);
 
                 DB::afterCommit(function () use ($order) {
-                    $order->load('customer');
-                    $message = "Halo {$order->customer->name},\n\n"
-                        ."Pesanan Anda dengan nomor *{$order->number}* telah BERHASIL dikirim dan diselesaikan!\n\n"
-                        .'Terima kasih telah berbelanja bersama kami. Selamat menikmati hidangan Anda!';
-                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    $settings = OrderSettingsDTO::load();
+                    if ($settings->whatsappEnabled && ! empty($order->customer?->phone)) {
+                        $order->load('customer');
+                        $message = "Halo {$order->customer->name},\n\n"
+                            ."Pesanan Anda dengan nomor *{$order->number}* telah BERHASIL dikirim dan diselesaikan!\n\n"
+                            .'Terima kasih telah berbelanja bersama kami. Selamat menikmati hidangan Anda!';
+                        dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    }
                 });
 
                 return $order->fresh();

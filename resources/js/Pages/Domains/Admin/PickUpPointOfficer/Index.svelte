@@ -26,14 +26,14 @@
     }
 
     let officers = $derived(
-        $page.props.officers as {
+        page.props.officers as {
             data: PickUpPointOfficer[];
             meta?: any;
         },
     );
 
     let filters = $derived(
-        $page.props.filters as { search?: string } | undefined,
+        page.props.filters as { search?: string } | undefined,
     );
 
     let searchQuery = $state(untrack(() => filters?.search || ""));
@@ -99,7 +99,7 @@
 </script>
 
 <svelte:head>
-    <title>Pick Up Point Officer | {getSettingName($page.props.settings)}</title
+    <title>Pick Up Point Officer | {getSettingName(page.props.settings)}</title
     >
 </svelte:head>
 

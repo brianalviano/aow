@@ -19,7 +19,7 @@
         instantEndTime = "21:00",
     }: Props = $props();
 
-    const APP_NAME = name($page.props.settings);
+    const APP_NAME = name(page.props.settings);
 
     function selectOrderType(type: "instant" | "preorder") {
         router.post("/order-type", {

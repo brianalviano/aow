@@ -6,13 +6,13 @@ namespace App\Services;
 
 use App\DTOs\Checkout\ProcessOrderData;
 use App\DTOs\Order\OrderFilterDTO;
+use App\DTOs\Setting\OrderSettingsDTO;
 use App\Enums\ChefStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethodType;
 use App\Enums\PaymentStatus;
 use App\Jobs\SendTelegramNotificationJob;
 use App\Jobs\SendWhatsAppNotificationJob;
-use App\DTOs\Setting\OrderSettingsDTO;
 use App\Mail\CustomerWelcomeMail;
 use App\Mail\OrderPlacedMail;
 use App\Models\Chef;
@@ -139,8 +139,11 @@ class OrderService
                 $order->customer->notify(new OrderStatusChangedNotification($order, 'cancelled'));
 
                 DB::afterCommit(function () use ($order, $reason) {
-                    $message = "Halo {$order->customer->name},\n\nMohon maaf, pesanan Anda dengan nomor *{$order->number}* telah dibatalkan oleh Admin.\n\nAlasan: ".($reason ?: 'Tidak disebutkan');
-                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    $settings = OrderSettingsDTO::load();
+                    if ($settings->whatsappEnabled && ! empty($order->customer?->phone)) {
+                        $message = "Halo {$order->customer->name},\n\nMohon maaf, pesanan Anda dengan nomor *{$order->number}* telah dibatalkan oleh Admin.\n\nAlasan: ".($reason ?: 'Tidak disebutkan');
+                        dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    }
                 });
 
                 return $order->fresh();
@@ -199,8 +202,11 @@ class OrderService
                 }
 
                 DB::afterCommit(function () use ($order) {
-                    $message = $this->buildConfirmedWhatsAppMessage($order);
-                    dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    $settings = OrderSettingsDTO::load();
+                    if ($settings->whatsappEnabled && $settings->whatsappNotifyOrderConfirmed && ! empty($order->customer?->phone)) {
+                        $message = $this->buildConfirmedWhatsAppMessage($order);
+                        dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                    }
                 });
 
                 return $order->fresh();
@@ -952,13 +958,13 @@ class OrderService
                             $remark = $settings->whatsappOrderPlacedRemark ?: '';
                             $waMessage = "Halo *{$order->customer->name}*,\n\n"
                                 ."Terima kasih, pesanan Anda dengan nomor *#{$order->number}* berhasil dibuat.\n\n"
-                                .($remark ? $remark."\n\n" : "")
+                                .($remark ? $remark."\n\n" : '')
                                 ."*Ringkasan Pembayaran:*\n"
-                                ."Subtotal: Rp ".number_format($order->items->sum('subtotal'), 0, ',', '.')."\n"
-                                .($order->delivery_fee > 0 ? "Ongkos Kirim: Rp ".number_format($order->delivery_fee, 0, ',', '.')."\n" : "")
-                                .($order->admin_fee > 0 ? "Biaya Layanan: Rp ".number_format($order->admin_fee, 0, ',', '.')."\n" : "")
-                                ."Total Pembayaran: *Rp ".number_format($order->total_amount, 0, ',', '.')."*\n\n"
-                                ."Silakan cek detail pesanan Anda di dashboard customer.";
+                                .'Subtotal: Rp '.number_format($order->items->sum('subtotal'), 0, ',', '.')."\n"
+                                .($order->delivery_fee > 0 ? 'Ongkos Kirim: Rp '.number_format($order->delivery_fee, 0, ',', '.')."\n" : '')
+                                .($order->admin_fee > 0 ? 'Biaya Layanan: Rp '.number_format($order->admin_fee, 0, ',', '.')."\n" : '')
+                                .'Total Pembayaran: *Rp '.number_format($order->total_amount, 0, ',', '.')."*\n\n"
+                                .'Silakan cek detail pesanan Anda di dashboard customer.';
                             dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $waMessage));
                         }
                     });
@@ -1154,10 +1160,13 @@ class OrderService
                         $order->customer->notify(new OrderStatusChangedNotification($order, 'delivered'));
 
                         DB::afterCommit(function () use ($order) {
-                            $message = "Halo {$order->customer->name},\n\n"
-                                ."Pesanan Anda dengan nomor *{$order->number}* telah TIBA di tujuan!\n\n"
-                                .'Silakan periksa pesanan Anda dan jangan lupa konfirmasi penerimaan di aplikasi. Selamat menikmati!';
-                            dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                            $settings = OrderSettingsDTO::load();
+                            if ($settings->whatsappEnabled && $settings->whatsappNotifyOrderDelivered && ! empty($order->customer?->phone)) {
+                                $message = "Halo {$order->customer->name},\n\n"
+                                    ."Pesanan Anda dengan nomor *{$order->number}* telah TIBA di tujuan!\n\n"
+                                    .'Silakan periksa pesanan Anda dan jangan lupa konfirmasi penerimaan di aplikasi. Selamat menikmati!';
+                                dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $message));
+                            }
                         });
                     }
                 }

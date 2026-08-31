@@ -104,7 +104,7 @@
 </script>
 
 <svelte:head>
-    <title>Pilih Drop Point | {name($page.props.settings)}</title>
+    <title>Pilih Drop Point | {name(page.props.settings)}</title>
 </svelte:head>
 
 <div>

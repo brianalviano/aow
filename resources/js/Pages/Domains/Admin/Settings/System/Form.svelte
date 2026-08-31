@@ -55,7 +55,7 @@
     };
 
     let settings = $derived(
-        ($page.props.settings as SettingsData | null) ?? null,
+        (page.props.settings as SettingsData | null) ?? null,
     );
 
     const form = useForm(
@@ -121,7 +121,7 @@
 
     function submitForm(e: SubmitEvent) {
         e.preventDefault();
-        $form.put("/admin/settings", {
+        form.put("/admin/settings", {
             onSuccess: () => {
                 // Refresh is automatic if redirect back
             },
@@ -131,7 +131,7 @@
 </script>
 
 <svelte:head>
-    <title>Pengaturan Sistem | {name($page.props.settings)}</title>
+    <title>Pengaturan Sistem | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">
@@ -155,8 +155,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="settings-form"
                 class="w-full sm:w-auto"
@@ -190,8 +190,8 @@
                                     name="name"
                                     label="Nama Usaha"
                                     placeholder="Nama aplikasi/usaha"
-                                    bind:value={$form.name}
-                                    error={$form.errors.name}
+                                    bind:value={form.name}
+                                    error={form.errors.name}
                                     required
                                 />
                             </div>
@@ -201,24 +201,24 @@
                                 label="Email"
                                 type="email"
                                 placeholder="email@domain.com"
-                                bind:value={$form.email}
-                                error={$form.errors.email}
+                                bind:value={form.email}
+                                error={form.errors.email}
                             />
                             <TextInput
                                 id="phone"
                                 name="phone"
                                 label="No. Telepon"
                                 placeholder="021xxxxxxx"
-                                bind:value={$form.phone}
-                                error={$form.errors.phone}
+                                bind:value={form.phone}
+                                error={form.errors.phone}
                             />
                             <TextInput
                                 id="whatsapp"
                                 name="whatsapp"
                                 label="No. WhatsApp"
                                 placeholder="628xxxxxxx"
-                                bind:value={$form.whatsapp}
-                                error={$form.errors.whatsapp}
+                                bind:value={form.whatsapp}
+                                error={form.errors.whatsapp}
                             />
                             <div class="md:col-span-2">
                                 <TextArea
@@ -226,8 +226,8 @@
                                     name="address"
                                     label="Alamat"
                                     placeholder="Alamat lengkap"
-                                    error={$form.errors.address}
-                                    bind:value={$form.address}
+                                    error={form.errors.address}
+                                    bind:value={form.address}
                                 />
                             </div>
                         </div>
@@ -242,24 +242,24 @@
                                 name="instagram"
                                 label="URL / Username Instagram"
                                 placeholder="https://instagram.com/..."
-                                bind:value={$form.instagram}
-                                error={$form.errors.instagram}
+                                bind:value={form.instagram}
+                                error={form.errors.instagram}
                             />
                             <TextInput
                                 id="facebook"
                                 name="facebook"
                                 label="URL / Username Facebook"
                                 placeholder="https://facebook.com/..."
-                                bind:value={$form.facebook}
-                                error={$form.errors.facebook}
+                                bind:value={form.facebook}
+                                error={form.errors.facebook}
                             />
                             <TextInput
                                 id="tiktok"
                                 name="tiktok"
                                 label="URL / Username TikTok"
                                 placeholder="https://tiktok.com/@..."
-                                bind:value={$form.tiktok}
-                                error={$form.errors.tiktok}
+                                bind:value={form.tiktok}
+                                error={form.errors.tiktok}
                             />
                         </div>
                     {/snippet}
@@ -289,30 +289,30 @@
                                 id="order_cutoff_time"
                                 name="order_cutoff_time"
                                 label="Batas Order (Cut-off)"
-                                bind:value={$form.order_cutoff_time}
-                                error={$form.errors.order_cutoff_time}
+                                bind:value={form.order_cutoff_time}
+                                error={form.errors.order_cutoff_time}
                             />
                             <TextInput
                                 id="order_min_days_ahead"
                                 name="order_min_days_ahead"
                                 type="number"
                                 label="Minimal Hari Pemesanan Sebelumnya"
-                                bind:value={$form.order_min_days_ahead}
-                                error={$form.errors.order_min_days_ahead}
+                                bind:value={form.order_min_days_ahead}
+                                error={form.errors.order_min_days_ahead}
                             />
                             <TimeInput
                                 id="instant_order_start_time"
                                 name="instant_order_start_time"
                                 label="Waktu Buka Pesanan Instan"
-                                bind:value={$form.instant_order_start_time}
-                                error={$form.errors.instant_order_start_time}
+                                bind:value={form.instant_order_start_time}
+                                error={form.errors.instant_order_start_time}
                             />
                             <TimeInput
                                 id="instant_order_end_time"
                                 name="instant_order_end_time"
                                 label="Waktu Tutup Pesanan Instan"
-                                bind:value={$form.instant_order_end_time}
-                                error={$form.errors.instant_order_end_time}
+                                bind:value={form.instant_order_end_time}
+                                error={form.errors.instant_order_end_time}
                             />
                             <div class="md:col-span-2">
                                 <TextInput
@@ -320,8 +320,8 @@
                                     name="payment_expired_duration"
                                     type="number"
                                     label="Batas Waktu Pembayaran (Menit)"
-                                    bind:value={$form.payment_expired_duration}
-                                    error={$form.errors
+                                    bind:value={form.payment_expired_duration}
+                                    error={form.errors
                                         .payment_expired_duration}
                                 />
                             </div>
@@ -334,9 +334,9 @@
                         <div class="space-y-4">
                             <Select
                                 id="delivery_fee_mode"
-                                value={$form.delivery_fee_mode}
+                                value={form.delivery_fee_mode}
                                 onchange={(val) =>
-                                    ($form.delivery_fee_mode = val.toString())}
+                                    (form.delivery_fee_mode = val.toString())}
                                 label="Mode Ongkir"
                                 options={[
                                     {
@@ -349,17 +349,17 @@
                                     },
                                     { label: "Gratis Semua", value: "free" },
                                 ]}
-                                error={$form.errors.delivery_fee_mode}
+                                error={form.errors.delivery_fee_mode}
                             />
 
-                            {#if $form.delivery_fee_mode === "flat"}
+                            {#if form.delivery_fee_mode === "flat"}
                                 <TextInput
                                     id="delivery_fee_flat"
                                     name="delivery_fee_flat"
                                     type="number"
                                     label="Nominal Ongkir Flat (Rp)"
-                                    bind:value={$form.delivery_fee_flat}
-                                    error={$form.errors.delivery_fee_flat}
+                                    bind:value={form.delivery_fee_flat}
+                                    error={form.errors.delivery_fee_flat}
                                 />
                             {/if}
 
@@ -368,8 +368,8 @@
                                 name="free_courier_min_order"
                                 type="number"
                                 label="Minimal Belanja untuk Gratis Ongkir (Rp)"
-                                bind:value={$form.free_courier_min_order}
-                                error={$form.errors.free_courier_min_order}
+                                bind:value={form.free_courier_min_order}
+                                error={form.errors.free_courier_min_order}
                             />
                         </div>
                     {/snippet}
@@ -380,15 +380,15 @@
                         <div class="space-y-4">
                             <Checkbox
                                 id="admin_fee_enabled"
-                                bind:checked={$form.admin_fee_enabled}
+                                bind:checked={form.admin_fee_enabled}
                                 label="Aktifkan Biaya Layanan Aplikasi"
                             />
-                            {#if $form.admin_fee_enabled}
+                            {#if form.admin_fee_enabled}
                                 <Select
                                     id="admin_fee_type"
-                                    value={$form.admin_fee_type}
+                                    value={form.admin_fee_type}
                                     onchange={(val) =>
-                                        ($form.admin_fee_type = val.toString())}
+                                        (form.admin_fee_type = val.toString())}
                                     label="Tipe Biaya"
                                     options={[
                                         {
@@ -406,8 +406,8 @@
                                     name="admin_fee_value"
                                     type="number"
                                     label="Nilai Biaya Admin"
-                                    bind:value={$form.admin_fee_value}
-                                    error={$form.errors.admin_fee_value}
+                                    bind:value={form.admin_fee_value}
+                                    error={form.errors.admin_fee_value}
                                 />
                             {/if}
                         </div>
@@ -419,17 +419,17 @@
                         <div class="space-y-4">
                             <Checkbox
                                 id="tax_enabled"
-                                bind:checked={$form.tax_enabled}
+                                bind:checked={form.tax_enabled}
                                 label="Aktifkan PPN"
                             />
-                            {#if $form.tax_enabled}
+                            {#if form.tax_enabled}
                                 <TextInput
                                     id="tax_percentage"
                                     name="tax_percentage"
                                     type="number"
                                     label="Persentase PPN (%)"
-                                    bind:value={$form.tax_percentage}
-                                    error={$form.errors.tax_percentage}
+                                    bind:value={form.tax_percentage}
+                                    error={form.errors.tax_percentage}
                                 />
                             {/if}
                         </div>
@@ -457,25 +457,25 @@
                         <div class="space-y-4">
                             <Checkbox
                                 id="telegram_enabled"
-                                bind:checked={$form.telegram_enabled}
+                                bind:checked={form.telegram_enabled}
                                 label="Aktifkan Notifikasi Telegram (Admin)"
                             />
 
-                            {#if $form.telegram_enabled}
+                            {#if form.telegram_enabled}
                                 <TextInput
                                     id="telegram_bot_token"
                                     name="telegram_bot_token"
                                     label="Bot Token (@BotFather)"
                                     type="password"
-                                    bind:value={$form.telegram_bot_token}
-                                    error={$form.errors.telegram_bot_token}
+                                    bind:value={form.telegram_bot_token}
+                                    error={form.errors.telegram_bot_token}
                                 />
                                 <TextInput
                                     id="telegram_admin_chat_id"
                                     name="telegram_admin_chat_id"
                                     label="Chat ID Admin"
-                                    bind:value={$form.telegram_admin_chat_id}
-                                    error={$form.errors.telegram_admin_chat_id}
+                                    bind:value={form.telegram_admin_chat_id}
+                                    error={form.errors.telegram_admin_chat_id}
                                 />
 
                                 <div class="space-y-2 pt-2">
@@ -487,21 +487,21 @@
                                     <Checkbox
                                         id="tl_create"
                                         bind:checked={
-                                            $form.telegram_notify_order_created
+                                            form.telegram_notify_order_created
                                         }
                                         label="Ada Order Masuk"
                                     />
                                     <Checkbox
                                         id="tl_paid"
                                         bind:checked={
-                                            $form.telegram_notify_order_paid
+                                            form.telegram_notify_order_paid
                                         }
                                         label="Order Berhasil Dibayar"
                                     />
                                     <Checkbox
                                         id="tl_cancel"
                                         bind:checked={
-                                            $form.telegram_notify_order_cancelled
+                                            form.telegram_notify_order_cancelled
                                         }
                                         label="Order Dibatalkan"
                                     />
@@ -516,25 +516,25 @@
                         <div class="space-y-4">
                             <Checkbox
                                 id="whatsapp_enabled"
-                                bind:checked={$form.whatsapp_enabled}
+                                bind:checked={form.whatsapp_enabled}
                                 label="Aktifkan Notifikasi WhatsApp (Customer)"
                             />
 
-                            {#if $form.whatsapp_enabled}
+                            {#if form.whatsapp_enabled}
                                 <TextInput
                                     id="whatsapp_access_token"
                                     name="whatsapp_access_token"
                                     type="password"
                                     label="Access Token WHATSAPP"
-                                    bind:value={$form.whatsapp_access_token}
-                                    error={$form.errors.whatsapp_access_token}
+                                    bind:value={form.whatsapp_access_token}
+                                    error={form.errors.whatsapp_access_token}
                                 />
                                 <TextInput
                                     id="whatsapp_phone_id"
                                     name="whatsapp_phone_id"
                                     label="Phone Number ID"
-                                    bind:value={$form.whatsapp_phone_id}
-                                    error={$form.errors.whatsapp_phone_id}
+                                    bind:value={form.whatsapp_phone_id}
+                                    error={form.errors.whatsapp_phone_id}
                                 />
 
                                 <div class="space-y-2 pt-2">
@@ -546,21 +546,21 @@
                                     <Checkbox
                                         id="wa_create"
                                         bind:checked={
-                                            $form.whatsapp_notify_order_created
+                                            form.whatsapp_notify_order_created
                                         }
                                         label="Saat Order Dibuat"
                                     />
                                     <Checkbox
                                         id="wa_confirm"
                                         bind:checked={
-                                            $form.whatsapp_notify_order_confirmed
+                                            form.whatsapp_notify_order_confirmed
                                         }
                                         label="Saat Order Dikonfirmasi Admin"
                                     />
                                     <Checkbox
                                         id="wa_deliver"
                                         bind:checked={
-                                            $form.whatsapp_notify_order_delivered
+                                            form.whatsapp_notify_order_delivered
                                         }
                                         label="Saat Order Dikirim"
                                     />
@@ -572,8 +572,8 @@
                                         name="whatsapp_order_placed_remark"
                                         label="Catatan Konfirmasi Pesanan Baru (WA)"
                                         placeholder="Tulis pesan catatan konfirmasi di sini..."
-                                        bind:value={$form.whatsapp_order_placed_remark}
-                                        error={$form.errors.whatsapp_order_placed_remark}
+                                        bind:value={form.whatsapp_order_placed_remark}
+                                        error={form.errors.whatsapp_order_placed_remark}
                                         rows={4}
                                     />
                                     <p class="mt-1 text-xs text-gray-500">

@@ -23,14 +23,14 @@
     }
 
     let pickUpPoints = $derived(
-        $page.props.pickUpPoints as {
+        page.props.pickUpPoints as {
             data: PickUpPoint[];
             meta?: any;
         },
     );
 
     let filters = $derived(
-        $page.props.filters as { search?: string } | undefined,
+        page.props.filters as { search?: string } | undefined,
     );
 
     let searchQuery = $state(untrack(() => filters?.search || ""));
@@ -96,7 +96,7 @@
 </script>
 
 <svelte:head>
-    <title>Pick Up Point | {name($page.props.settings)}</title>
+    <title>Pick Up Point | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

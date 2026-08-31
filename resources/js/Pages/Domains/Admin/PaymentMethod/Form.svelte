@@ -33,7 +33,7 @@
     }
 
     let paymentMethod = $derived(
-        ($page.props.paymentMethod as { data: PaymentMethod } | null)?.data ??
+        (page.props.paymentMethod as { data: PaymentMethod } | null)?.data ??
             null,
     );
 
@@ -71,7 +71,7 @@
 
     const paymentGuideOptions = $derived([
         { value: "", label: "- Tanpa Panduan -" },
-        ...($page.props.paymentGuides as any[]).map((guide) => ({
+        ...(page.props.paymentGuides as any[]).map((guide) => ({
             value: guide.id,
             label: guide.name,
         })),
@@ -85,12 +85,12 @@
         e.preventDefault();
 
         if (isEditMode && paymentMethod) {
-            $form.post(`/admin/payment-methods/${paymentMethod.id}`, {
+            form.post(`/admin/payment-methods/${paymentMethod.id}`, {
                 preserveScroll: true,
                 forceFormData: true,
             });
         } else {
-            $form.post("/admin/payment-methods", {
+            form.post("/admin/payment-methods", {
                 preserveScroll: true,
                 forceFormData: true,
             });
@@ -101,7 +101,7 @@
 <svelte:head>
     <title>
         {isEditMode ? "Edit" : "Tambah"} Metode Pembayaran | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}
     </title>
 </svelte:head>
@@ -127,8 +127,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="payment-method-form"
             >
@@ -162,8 +162,8 @@
                             name="photo"
                             label="Logo Metode Pembayaran"
                             accept="image/*"
-                            bind:value={$form.photo}
-                            error={$form.errors.photo}
+                            bind:value={form.photo}
+                            error={form.errors.photo}
                             uploadText="Pilih atau seret logo logo di sini"
                             uploadSubtext="Batas maksimal 2MB. Format: JPG, PNG, WEBP."
                             maxSize={2 * 1024 * 1024}
@@ -189,8 +189,8 @@
                             name="qr_image"
                             label="Gambar QRIS (Opsional)"
                             accept="image/*"
-                            bind:value={$form.qr_image}
-                            error={$form.errors.qr_image}
+                            bind:value={form.qr_image}
+                            error={form.errors.qr_image}
                             uploadText="Pilih atau seret gambar QRIS di sini"
                             uploadSubtext="Batas maksimal 2MB. Format: JPG, PNG, WEBP."
                             maxSize={2 * 1024 * 1024}
@@ -201,8 +201,8 @@
                             name="name"
                             label="Nama Metode"
                             placeholder="Contoh: Transfer Bank BCA, Cash on Delivery"
-                            bind:value={$form.name}
-                            error={$form.errors.name}
+                            bind:value={form.name}
+                            error={form.errors.name}
                             required
                         />
 
@@ -212,8 +212,8 @@
                                 name="category"
                                 label="Kategori"
                                 options={categoryOptions}
-                                bind:value={$form.category}
-                                error={$form.errors.category}
+                                bind:value={form.category}
+                                error={form.errors.category}
                                 required
                             />
                         </div>
@@ -223,24 +223,24 @@
                             name="type"
                             label="Tipe Pembayaran"
                             options={typeOptions}
-                            bind:value={$form.type}
-                            error={$form.errors.type}
+                            bind:value={form.type}
+                            error={form.errors.type}
                             required
                         />
 
-                        {#if $form.type === "gateway"}
+                        {#if form.type === "gateway"}
                             <TextInput
                                 id="code"
                                 name="code"
                                 label="Kode Gateway"
                                 placeholder="Contoh: bca, gopay, qris"
-                                bind:value={$form.code}
-                                error={$form.errors.code}
+                                bind:value={form.code}
+                                error={form.errors.code}
                                 required
                             />
                         {/if}
 
-                        {#if $form.type === "manual" && $form.category === "bank-transfer"}
+                        {#if form.type === "manual" && form.category === "bank-transfer"}
                             <div
                                 class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t dark:border-gray-700"
                             >
@@ -249,16 +249,16 @@
                                     name="account_number"
                                     label="Nomor Rekening / E-Wallet"
                                     placeholder="Contoh: 123456789"
-                                    bind:value={$form.account_number}
-                                    error={$form.errors.account_number}
+                                    bind:value={form.account_number}
+                                    error={form.errors.account_number}
                                 />
                                 <TextInput
                                     id="account_name"
                                     name="account_name"
                                     label="Atas Nama (Pemilik)"
                                     placeholder="Contoh: Budi Santoso"
-                                    bind:value={$form.account_name}
-                                    error={$form.errors.account_name}
+                                    bind:value={form.account_name}
+                                    error={form.errors.account_name}
                                 />
                             </div>
                         {/if}
@@ -273,18 +273,18 @@
                                 type="number"
                                 step={0.01}
                                 placeholder="Contoh: 0.7"
-                                value={$form.service_fee_rate.toString()}
+                                value={form.service_fee_rate.toString()}
                                 oninput={(e) => {
                                     if (
                                         e &&
                                         typeof e === "object" &&
                                         "numericValue" in e
                                     ) {
-                                        $form.service_fee_rate =
+                                        form.service_fee_rate =
                                             e.numericValue ?? 0;
                                     }
                                 }}
-                                error={$form.errors.service_fee_rate}
+                                error={form.errors.service_fee_rate}
                             />
                             <TextInput
                                 id="service_fee_fixed"
@@ -292,18 +292,18 @@
                                 label="Biaya Layanan Tetap (Rp)"
                                 type="number"
                                 placeholder="Contoh: 2500"
-                                value={$form.service_fee_fixed.toString()}
+                                value={form.service_fee_fixed.toString()}
                                 oninput={(e) => {
                                     if (
                                         e &&
                                         typeof e === "object" &&
                                         "numericValue" in e
                                     ) {
-                                        $form.service_fee_fixed =
+                                        form.service_fee_fixed =
                                             e.numericValue ?? 0;
                                     }
                                 }}
-                                error={$form.errors.service_fee_fixed}
+                                error={form.errors.service_fee_fixed}
                             />
                         </div>
 
@@ -315,8 +315,8 @@
                                 name="payment_guide_id"
                                 label="Panduan Pembayaran (Opsional)"
                                 options={paymentGuideOptions}
-                                bind:value={$form.payment_guide_id}
-                                error={$form.errors.payment_guide_id}
+                                bind:value={form.payment_guide_id}
+                                error={form.errors.payment_guide_id}
                                 searchable={true}
                                 placeholder="- Tanpa Panduan -"
                             />
@@ -331,8 +331,8 @@
                                 id="is_active"
                                 name="is_active"
                                 label="Aktifkan Metode Pembayaran"
-                                bind:checked={$form.is_active}
-                                error={$form.errors.is_active}
+                                bind:checked={form.is_active}
+                                error={form.errors.is_active}
                             />
                         </div>
                     </div>

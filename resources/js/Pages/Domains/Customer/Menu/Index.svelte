@@ -3,11 +3,11 @@
     import { name, buildWaLink } from "@/Lib/Admin/Utils/settings";
 
     // Auth object holds user information
-    $: auth = $page.props.auth;
+    $: auth = page.props.auth;
     $: user = auth.user;
 
-    $: activeOrdersCount = $page.props.activeOrdersCount || 0;
-    $: unreadNotificationsCount = $page.props.unreadNotificationsCount || 0;
+    $: activeOrdersCount = page.props.activeOrdersCount || 0;
+    $: unreadNotificationsCount = page.props.unreadNotificationsCount || 0;
 
     // Function to extract initials (e.g. "Vino N" -> "VN")
     function getInitials(name: string | null | undefined) {
@@ -23,7 +23,7 @@
 </script>
 
 <svelte:head>
-    <title>Menu | {name($page.props.settings)}</title>
+    <title>Menu | {name(page.props.settings)}</title>
 </svelte:head>
 
 <div>
@@ -156,7 +156,7 @@
                 </Link>
                 <a
                     href={buildWaLink(
-                        $page.props.settings?.whatsapp,
+                        page.props.settings?.whatsapp,
                         "Halo Admin, saya ingin bertanya...",
                     )}
                     target="_blank"
@@ -227,7 +227,7 @@
                 </Link>
                 <a
                     href={buildWaLink(
-                        $page.props.settings?.whatsapp,
+                        page.props.settings?.whatsapp,
                         "Halo Admin, saya ingin bertanya...",
                     )}
                     target="_blank"

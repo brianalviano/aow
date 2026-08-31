@@ -17,7 +17,7 @@
         content: Section[];
     }
 
-    const { paymentGuide = null } = $page.props as any;
+    const { paymentGuide = null } = page.props as any;
     const isEdit = !!paymentGuide;
 
     const form = useForm(
@@ -35,28 +35,28 @@
     );
 
     function addSection() {
-        $form.content = [...$form.content, { title: "", items: [""] }];
+        form.content = [...form.content, { title: "", items: [""] }];
     }
 
     function removeSection(index: number) {
-        $form.content = $form.content.filter(
+        form.content = form.content.filter(
             (_: Section, i: number) => i !== index,
         );
     }
 
     function addItem(sectionIndex: number) {
-        $form.content[sectionIndex].items = [
-            ...$form.content[sectionIndex].items,
+        form.content[sectionIndex].items = [
+            ...form.content[sectionIndex].items,
             "",
         ];
     }
 
     function removeItem(sectionIndex: number, itemIndex: number) {
-        $form.content[sectionIndex].items = $form.content[
+        form.content[sectionIndex].items = form.content[
             sectionIndex
         ].items.filter((_: string, i: number) => i !== itemIndex);
-        if ($form.content[sectionIndex].items.length === 0) {
-            $form.content[sectionIndex].items = [""];
+        if (form.content[sectionIndex].items.length === 0) {
+            form.content[sectionIndex].items = [""];
         }
     }
 
@@ -66,9 +66,9 @@
 
     function submit() {
         if (isEdit) {
-            $form.put(`/admin/payment-guides/${paymentGuide.id}`);
+            form.put(`/admin/payment-guides/${paymentGuide.id}`);
         } else {
-            $form.post("/admin/payment-guides");
+            form.post("/admin/payment-guides");
         }
     }
 </script>
@@ -76,7 +76,7 @@
 <svelte:head>
     <title
         >{isEdit ? "Edit" : "Tambah"} Panduan Pembayaran | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
 </svelte:head>
@@ -103,8 +103,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="payment-guide-form"
             >
@@ -128,8 +128,8 @@
                     name="name"
                     label="Nama Panduan"
                     placeholder="Contoh: Panduan Transfer Bank BCA"
-                    bind:value={$form.name}
-                    error={$form.errors.name}
+                    bind:value={form.name}
+                    error={form.errors.name}
                     required
                 />
             </div>
@@ -148,7 +148,7 @@
             {/snippet}
 
             <div class="space-y-8">
-                {#each $form.content as section, sIndex}
+                {#each form.content as section, sIndex}
                     <div class="relative group">
                         <div class="space-y-4">
                             <span
@@ -222,7 +222,7 @@
                     </div>
                 {/each}
 
-                {#if $form.content.length === 0}
+                {#if form.content.length === 0}
                     <div
                         class="text-center py-6 border-2 border-dashed rounded-lg dark:border-gray-700"
                     >
@@ -242,8 +242,8 @@
                 {/if}
             </div>
 
-            {#if $form.errors.content}
-                <p class="mt-2 text-sm text-red-500">{$form.errors.content}</p>
+            {#if form.errors.content}
+                <p class="mt-2 text-sm text-red-500">{form.errors.content}</p>
             {/if}
         </Card>
     </form>

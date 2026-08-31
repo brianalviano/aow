@@ -23,7 +23,7 @@
     }
 
     let foodRequests = $derived(
-        $page.props.requests as {
+        page.props.requests as {
             data: FoodRequest[];
             meta?: any;
             current_page: number;
@@ -92,7 +92,7 @@
 </script>
 
 <svelte:head>
-    <title>Permintaan Menu Baru | {name($page.props.settings)}</title>
+    <title>Permintaan Menu Baru | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

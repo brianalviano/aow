@@ -52,7 +52,7 @@
         updated_at: string;
     }
 
-    let chefProp = $derived($page.props.chef as { data: Chef });
+    let chefProp = $derived(page.props.chef as { data: Chef });
     let chef = $derived(chefProp.data);
 
     // Transfer form
@@ -67,10 +67,10 @@
 
     // Preview calculation
     let previewFeeAmount = $derived(
-        Math.round(($transferForm.gross_amount * chef.fee_percentage) / 100),
+        Math.round((transferForm.gross_amount * chef.fee_percentage) / 100),
     );
     let previewNetAmount = $derived(
-        $transferForm.gross_amount - previewFeeAmount,
+        transferForm.gross_amount - previewFeeAmount,
     );
 
     // Proof image viewer
@@ -85,12 +85,12 @@
     function submitTransfer(e: SubmitEvent) {
         e.preventDefault();
 
-        $transferForm.post(`/admin/chefs/${chef.id}/transfers`, {
+        transferForm.post(`/admin/chefs/${chef.id}/transfers`, {
             preserveScroll: true,
             forceFormData: true,
             onSuccess: () => {
                 showTransferForm = false;
-                $transferForm.reset();
+                transferForm.reset();
             },
         });
     }
@@ -123,7 +123,7 @@
 </script>
 
 <svelte:head>
-    <title>Detail Chef — {chef.name} | {name($page.props.settings)}</title>
+    <title>Detail Chef — {chef.name} | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">
@@ -421,19 +421,19 @@
                                 label="Penjualan (Rp)"
                                 currency
                                 placeholder="0"
-                                value={$transferForm.gross_amount.toString()}
+                                value={transferForm.gross_amount.toString()}
                                 oninput={(e: any) => {
                                     if (e.numericValue !== undefined) {
-                                        $transferForm.gross_amount =
+                                        transferForm.gross_amount =
                                             e.numericValue ?? 0;
                                     }
                                 }}
-                                error={$transferForm.errors.gross_amount}
+                                error={transferForm.errors.gross_amount}
                                 required
                             />
 
                             <!-- Preview Calculation -->
-                            {#if $transferForm.gross_amount > 0}
+                            {#if transferForm.gross_amount > 0}
                                 <div
                                     class="text-xs space-y-1 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
                                 >
@@ -443,7 +443,7 @@
                                         <span>Penjualan</span>
                                         <span
                                             >{formatCurrency(
-                                                $transferForm.gross_amount,
+                                                transferForm.gross_amount,
                                             )}</span
                                         >
                                     </div>
@@ -477,19 +477,19 @@
                                 name="transferred_at"
                                 label="Tanggal Transfer"
                                 type="date"
-                                value={$transferForm.transferred_at ?? ""}
+                                value={transferForm.transferred_at ?? ""}
                                 oninput={(e) => {
                                     if (
                                         e &&
                                         typeof e === "object" &&
                                         "target" in e
                                     ) {
-                                        $transferForm.transferred_at = (
+                                        transferForm.transferred_at = (
                                             e.target as HTMLInputElement
                                         ).value;
                                     }
                                 }}
-                                error={$transferForm.errors.transferred_at}
+                                error={transferForm.errors.transferred_at}
                                 required
                             />
                         </div>
@@ -499,8 +499,8 @@
                                 name="note"
                                 label="Catatan (Opsional)"
                                 placeholder="Catatan transfer..."
-                                bind:value={$transferForm.note}
-                                error={$transferForm.errors.note}
+                                bind:value={transferForm.note}
+                                error={transferForm.errors.note}
                                 rows={2}
                             />
 
@@ -509,8 +509,8 @@
                                 name="transfer_proof"
                                 label="Bukti Transfer (Opsional)"
                                 accept="image/*"
-                                bind:value={$transferForm.transfer_proof}
-                                error={$transferForm.errors.transfer_proof}
+                                bind:value={transferForm.transfer_proof}
+                                error={transferForm.errors.transfer_proof}
                                 uploadText="Pilih atau seret foto bukti transfer"
                                 uploadSubtext="Batas maksimal 2MB. Format: JPG, PNG."
                                 maxSize={2 * 1024 * 1024}
@@ -521,8 +521,8 @@
                         <Button
                             variant="success"
                             type="submit"
-                            loading={$transferForm.processing}
-                            disabled={$transferForm.processing}
+                            loading={transferForm.processing}
+                            disabled={transferForm.processing}
                             icon="fa-solid fa-save"
                         >
                             Simpan Transfer

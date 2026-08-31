@@ -44,7 +44,7 @@
     let expandedMenus = $state<Set<string>>(new Set());
 
     let bookingPendingCount = $derived(() => {
-        const props = $page.props as unknown as {
+        const props = page.props as unknown as {
             booking_pending_count?: number;
         };
         const value = props?.booking_pending_count;
@@ -52,14 +52,14 @@
     });
 
     let userRole = $derived(() => {
-        const props = $page.props as unknown as {
+        const props = page.props as unknown as {
             auth?: { user?: { role?: string | null } };
         };
         return props?.auth?.user?.role ?? null;
     });
 
     let dynamicMenuGroups = $derived((): MenuGroup[] => {
-        const menu = ($page.props.menu || []) as MenuGroup[];
+        const menu = (page.props.menu || []) as MenuGroup[];
         return menu.map(
             (group): MenuGroup => ({
                 title: group.title,
@@ -85,8 +85,8 @@
     let activeLink = $derived(() => {
         return getActiveMenuLink(
             dynamicMenuGroups(),
-            $page.url,
-            $page.component,
+            page.url,
+            page.component,
         );
     });
 
@@ -194,8 +194,8 @@
             const nextMenus = ensureActiveSubmenuExpanded(
                 dynamicMenuGroups(),
                 expandedMenus,
-                $page.url,
-                $page.component,
+                page.url,
+                page.component,
             );
             if (nextMenus !== expandedMenus) {
                 expandedMenus = nextMenus;
@@ -211,15 +211,15 @@
     });
 
     $effect(() => {
-        $page.url;
-        $page.component;
+        page.url;
+        page.component;
 
         {
             const nextMenus = ensureActiveSubmenuExpanded(
                 dynamicMenuGroups(),
                 expandedMenus,
-                $page.url,
-                $page.component,
+                page.url,
+                page.component,
             );
             if (nextMenus !== expandedMenus) {
                 expandedMenus = nextMenus;
@@ -261,7 +261,7 @@
                 loading="lazy"
             />
             <span class="text-sm font-semibold text-gray-900 dark:text-white"
-                >{name($page.props.settings)}</span
+                >{name(page.props.settings)}</span
             >
         </div>
         <button
@@ -309,7 +309,7 @@
                     <h1
                         class="text-[13px] font-bold text-gray-900 dark:text-white"
                     >
-                        {name($page.props.settings)}
+                        {name(page.props.settings)}
                     </h1>
                     <p class="text-xs text-gray-500 dark:text-gray-400">
                         Admin Panel

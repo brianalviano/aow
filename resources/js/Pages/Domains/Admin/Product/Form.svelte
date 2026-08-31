@@ -54,11 +54,11 @@
     }
 
     let product = $derived(
-        ($page.props.product as { data: Product } | null)?.data ?? null,
+        (page.props.product as { data: Product } | null)?.data ?? null,
     );
 
     let productCategories = $derived(
-        ($page.props.productCategories as { data: ProductCategory[] })?.data ??
+        (page.props.productCategories as { data: ProductCategory[] })?.data ??
             [],
     );
 
@@ -124,7 +124,7 @@
         e.preventDefault();
 
         // Ensure sort_order defaults correctly for options and items
-        $form.options = $form.options.map((opt, oIndex) => ({
+        form.options = form.options.map((opt, oIndex) => ({
             ...opt,
             sort_order: opt.sort_order || oIndex,
             items: opt.items.map((it, iIndex) => ({
@@ -134,12 +134,12 @@
         }));
 
         if (isEditMode && product) {
-            $form.post(`/admin/products/${product.id}`, {
+            form.post(`/admin/products/${product.id}`, {
                 preserveScroll: true,
                 forceFormData: true,
             });
         } else {
-            $form.post("/admin/products", {
+            form.post("/admin/products", {
                 preserveScroll: true,
                 forceFormData: true,
             });
@@ -147,13 +147,13 @@
     }
 
     function addOption() {
-        $form.options = [
-            ...$form.options,
+        form.options = [
+            ...form.options,
             {
                 name: "",
                 is_required: false,
                 is_multiple: false,
-                sort_order: $form.options.length,
+                sort_order: form.options.length,
                 items: [
                     {
                         name: "",
@@ -166,11 +166,11 @@
     }
 
     function removeOption(index: number) {
-        $form.options = $form.options.filter((_, i) => i !== index);
+        form.options = form.options.filter((_, i) => i !== index);
     }
 
     function addItem(optionIndex: number) {
-        const option = $form.options[optionIndex];
+        const option = form.options[optionIndex];
         if (!option) return;
 
         option.items = [
@@ -181,22 +181,22 @@
                 sort_order: option.items.length,
             },
         ];
-        $form.options[optionIndex] = option;
+        form.options[optionIndex] = option;
     }
 
     function removeItem(optionIndex: number, itemIndex: number) {
-        const option = $form.options[optionIndex];
+        const option = form.options[optionIndex];
         if (!option) return;
 
         option.items = option.items.filter((_, i) => i !== itemIndex);
-        $form.options[optionIndex] = option;
+        form.options[optionIndex] = option;
     }
 </script>
 
 <svelte:head>
     <title
         >{isEditMode ? "Edit" : "Tambah"} Produk | {getSettingName(
-            $page.props.settings,
+            page.props.settings,
         )}</title
     >
 </svelte:head>
@@ -224,8 +224,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="product-form"
             >
@@ -257,8 +257,8 @@
                             name="image"
                             label="Gambar Produk"
                             accept="image/*"
-                            bind:value={$form.image}
-                            error={$form.errors.image}
+                            bind:value={form.image}
+                            error={form.errors.image}
                             uploadText="Pilih atau seret gambar ke sini"
                             uploadSubtext="Batas maksimal 2MB. Format: JPG, PNG, WEBP."
                             maxSize={2 * 1024 * 1024}
@@ -271,8 +271,8 @@
                             name="name"
                             label="Nama Produk"
                             placeholder="Contoh: Nasi Goreng Spesial"
-                            bind:value={$form.name}
-                            error={$form.errors.name}
+                            bind:value={form.name}
+                            error={form.errors.name}
                             required
                         />
                     </div>
@@ -283,8 +283,8 @@
                             name="product_category_id"
                             label="Kategori Produk"
                             options={categoryOptions}
-                            bind:value={$form.product_category_id}
-                            error={$form.errors.product_category_id}
+                            bind:value={form.product_category_id}
+                            error={form.errors.product_category_id}
                             required
                         />
                     </div>
@@ -296,7 +296,7 @@
                             label="Harga Jual (Rp)"
                             type="number"
                             placeholder="0"
-                            value={$form.price.toString()}
+                            value={form.price.toString()}
                             oninput={(e) => {
                                 if (
                                     e &&
@@ -304,18 +304,18 @@
                                     "numericValue" in e &&
                                     e.numericValue !== null
                                 ) {
-                                    $form.price = e.numericValue;
+                                    form.price = e.numericValue;
                                 } else if (
                                     e &&
                                     typeof e === "object" &&
                                     "target" in e
                                 ) {
-                                    $form.price = Number(
+                                    form.price = Number(
                                         (e.target as HTMLInputElement).value,
                                     );
                                 }
                             }}
-                            error={$form.errors.price}
+                            error={form.errors.price}
                             required
                         />
                     </div>
@@ -327,7 +327,7 @@
                             label="Harga Beli (Rp)"
                             type="number"
                             placeholder="0"
-                            value={$form.cost_price.toString()}
+                            value={form.cost_price.toString()}
                             oninput={(e) => {
                                 if (
                                     e &&
@@ -335,18 +335,18 @@
                                     "numericValue" in e &&
                                     e.numericValue !== null
                                 ) {
-                                    $form.cost_price = e.numericValue;
+                                    form.cost_price = e.numericValue;
                                 } else if (
                                     e &&
                                     typeof e === "object" &&
                                     "target" in e
                                 ) {
-                                    $form.cost_price = Number(
+                                    form.cost_price = Number(
                                         (e.target as HTMLInputElement).value,
                                     );
                                 }
                             }}
-                            error={$form.errors.cost_price}
+                            error={form.errors.cost_price}
                             required
                         />
                     </div>
@@ -358,8 +358,8 @@
                             label="Batas Stok (Opsional)"
                             type="number"
                             placeholder="Biarkan kosong jika tidak ada limit"
-                            value={$form.stock_limit !== null
-                                ? $form.stock_limit.toString()
+                            value={form.stock_limit !== null
+                                ? form.stock_limit.toString()
                                 : ""}
                             oninput={(e) => {
                                 if (
@@ -367,7 +367,7 @@
                                     typeof e === "object" &&
                                     "numericValue" in e
                                 ) {
-                                    $form.stock_limit = e.numericValue;
+                                    form.stock_limit = e.numericValue;
                                 } else if (
                                     e &&
                                     typeof e === "object" &&
@@ -375,11 +375,11 @@
                                 ) {
                                     const val = (e.target as HTMLInputElement)
                                         .value;
-                                    $form.stock_limit =
+                                    form.stock_limit =
                                         val === "" ? null : Number(val);
                                 }
                             }}
-                            error={$form.errors.stock_limit}
+                            error={form.errors.stock_limit}
                         />
                         <p
                             class="mt-1 text-xs text-gray-500 dark:text-gray-400"
@@ -396,7 +396,7 @@
                             label="Urutan Tampilan"
                             type="number"
                             placeholder="0"
-                            value={$form.sort_order.toString()}
+                            value={form.sort_order.toString()}
                             oninput={(e) => {
                                 if (
                                     e &&
@@ -404,18 +404,18 @@
                                     "numericValue" in e &&
                                     e.numericValue !== null
                                 ) {
-                                    $form.sort_order = e.numericValue;
+                                    form.sort_order = e.numericValue;
                                 } else if (
                                     e &&
                                     typeof e === "object" &&
                                     "target" in e
                                 ) {
-                                    $form.sort_order = Number(
+                                    form.sort_order = Number(
                                         (e.target as HTMLInputElement).value,
                                     );
                                 }
                             }}
-                            error={$form.errors.sort_order}
+                            error={form.errors.sort_order}
                             required
                         />
                         <p
@@ -432,8 +432,8 @@
                             name="description"
                             label="Deskripsi"
                             placeholder="Jelaskan tentang produk ini"
-                            bind:value={$form.description}
-                            error={$form.errors.description}
+                            bind:value={form.description}
+                            error={form.errors.description}
                             rows={4}
                         />
                     </div>
@@ -443,8 +443,8 @@
                             id="is_active"
                             name="is_active"
                             label="Aktif"
-                            bind:checked={$form.is_active}
-                            error={$form.errors.is_active}
+                            bind:checked={form.is_active}
+                            error={form.errors.is_active}
                         />
                         <span
                             class="ml-2 text-sm text-gray-500 dark:text-gray-400"
@@ -472,7 +472,7 @@
             {/snippet}
             {#snippet children()}
                 <div class="space-y-6">
-                    {#if $form.options.length === 0}
+                    {#if form.options.length === 0}
                         <div
                             class="text-center py-6 text-gray-500 dark:text-gray-400"
                         >
@@ -480,7 +480,7 @@
                             untuk menambahkan (misal: Ukuran, Toping).
                         </div>
                     {:else}
-                        {#each $form.options as option, optionIndex}
+                        {#each form.options as option, optionIndex}
                             <div
                                 class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 relative bg-gray-50/50 dark:bg-gray-800/50"
                             >
@@ -504,10 +504,10 @@
                                             label="Nama Opsi"
                                             placeholder="Misal: Ukuran, Toping"
                                             bind:value={
-                                                $form.options![optionIndex]!
+                                                form.options![optionIndex]!
                                                     .name
                                             }
-                                            error={($form.errors as any)[
+                                            error={(form.errors as any)[
                                                 `options.${optionIndex}.name`
                                             ]}
                                             required
@@ -521,7 +521,7 @@
                                             name={`options[${optionIndex}][is_required]`}
                                             label="Wajib dipilih pembeli"
                                             bind:checked={
-                                                $form.options![optionIndex]!
+                                                form.options![optionIndex]!
                                                     .is_required
                                             }
                                         />
@@ -530,7 +530,7 @@
                                             name={`options[${optionIndex}][is_multiple]`}
                                             label="Bisa pilih lebih dari satu"
                                             bind:checked={
-                                                $form.options![optionIndex]!
+                                                form.options![optionIndex]!
                                                     .is_multiple
                                             }
                                         />
@@ -559,11 +559,11 @@
                                         </Button>
                                     </div>
 
-                                    {#if ($form.errors as any)[`options.${optionIndex}.items`]}
+                                    {#if (form.errors as any)[`options.${optionIndex}.items`]}
                                         <div
                                             class="text-sm text-red-500 mt-1 mb-2"
                                         >
-                                            {($form.errors as any)[
+                                            {(form.errors as any)[
                                                 `options.${optionIndex}.items`
                                             ]}
                                         </div>
@@ -580,14 +580,14 @@
                                                         name={`options[${optionIndex}][items][${itemIndex}][name]`}
                                                         placeholder="Misal: Besar, Sedang, Ekstra Keju"
                                                         bind:value={
-                                                            $form.options![
+                                                            form.options![
                                                                 optionIndex
                                                             ]!.items![
                                                                 itemIndex
                                                             ]!.name
                                                         }
                                                         error={(
-                                                            $form.errors as any
+                                                            form.errors as any
                                                         )[
                                                             `options.${optionIndex}.items.${itemIndex}.name`
                                                         ]}
@@ -601,7 +601,7 @@
                                                         name={`options[${optionIndex}][items][${itemIndex}][extra_price]`}
                                                         placeholder="Tambahan harga (Rp)"
                                                         type="number"
-                                                        value={$form.options![
+                                                        value={form.options![
                                                             optionIndex
                                                         ]!.items![
                                                             itemIndex
@@ -616,7 +616,7 @@
                                                                 e.numericValue !==
                                                                     null
                                                             ) {
-                                                                $form.options![
+                                                                form.options![
                                                                     optionIndex
                                                                 ]!.items![
                                                                     itemIndex
@@ -628,7 +628,7 @@
                                                                     "object" &&
                                                                 "target" in e
                                                             ) {
-                                                                $form.options![
+                                                                form.options![
                                                                     optionIndex
                                                                 ]!.items![
                                                                     itemIndex
@@ -641,7 +641,7 @@
                                                             }
                                                         }}
                                                         error={(
-                                                            $form.errors as any
+                                                            form.errors as any
                                                         )[
                                                             `options.${optionIndex}.items.${itemIndex}.extra_price`
                                                         ]}
@@ -688,12 +688,12 @@
                             id="is_manipulation_active"
                             name="is_manipulation_active"
                             label="Aktifkan Manipulasi Data"
-                            bind:checked={$form.is_manipulation_active}
-                            error={$form.errors.is_manipulation_active}
+                            bind:checked={form.is_manipulation_active}
+                            error={form.errors.is_manipulation_active}
                         />
                     </div>
 
-                    {#if $form.is_manipulation_active}
+                    {#if form.is_manipulation_active}
                         <div>
                             <TextInput
                                 id="fake_sales_count"
@@ -701,7 +701,7 @@
                                 label="Jumlah Pembelian Palsu"
                                 type="number"
                                 placeholder="0"
-                                value={$form.fake_sales_count.toString()}
+                                value={form.fake_sales_count.toString()}
                                 oninput={(e) => {
                                     if (
                                         e &&
@@ -709,19 +709,19 @@
                                         "numericValue" in e &&
                                         e.numericValue !== null
                                     ) {
-                                        $form.fake_sales_count = e.numericValue;
+                                        form.fake_sales_count = e.numericValue;
                                     } else if (
                                         e &&
                                         typeof e === "object" &&
                                         "target" in e
                                     ) {
-                                        $form.fake_sales_count = Number(
+                                        form.fake_sales_count = Number(
                                             (e.target as HTMLInputElement)
                                                 .value,
                                         );
                                     }
                                 }}
-                                error={$form.errors.fake_sales_count}
+                                error={form.errors.fake_sales_count}
                             />
                             <p class="mt-1 text-xs text-gray-500">
                                 Angka ini akan ditambahkan ke jumlah pembelian
@@ -736,7 +736,7 @@
                                 label="Jumlah Testimoni Palsu"
                                 type="number"
                                 placeholder="0"
-                                value={$form.fake_testimonials_count.toString()}
+                                value={form.fake_testimonials_count.toString()}
                                 oninput={(e) => {
                                     if (
                                         e &&
@@ -744,20 +744,20 @@
                                         "numericValue" in e &&
                                         e.numericValue !== null
                                     ) {
-                                        $form.fake_testimonials_count =
+                                        form.fake_testimonials_count =
                                             e.numericValue;
                                     } else if (
                                         e &&
                                         typeof e === "object" &&
                                         "target" in e
                                     ) {
-                                        $form.fake_testimonials_count = Number(
+                                        form.fake_testimonials_count = Number(
                                             (e.target as HTMLInputElement)
                                                 .value,
                                         );
                                     }
                                 }}
-                                error={$form.errors.fake_testimonials_count}
+                                error={form.errors.fake_testimonials_count}
                             />
                             <p class="mt-1 text-xs text-gray-500">
                                 Akan mengambil testimoni acak dari template.

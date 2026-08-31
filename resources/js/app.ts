@@ -9,7 +9,17 @@ import { setRoleConfig } from "@/Lib/Admin/Utils/roles";
 
 import PicLayout from "@/Lib/Pic/Layouts/Default.svelte";
 
+const getInitialPage = () => {
+    if (typeof window === "undefined") return undefined;
+    const el = document.getElementById("app");
+    if (el?.dataset?.page) {
+        return JSON.parse(el.dataset.page);
+    }
+    return undefined;
+};
+
 createInertiaApp({
+    page: getInitialPage(),
     progress: false,
     resolve: (name: string) => {
         const pages = import.meta.glob("./Pages/**/*.svelte", {
@@ -40,9 +50,9 @@ createInertiaApp({
         if (rc) {
             setRoleConfig(rc);
         }
-        if (el.dataset.serverRendered === "true") {
+        if (el?.dataset?.serverRendered === "true") {
             hydrate(App, { target: el, props });
-        } else {
+        } else if (el) {
             mount(App, { target: el, props });
         }
     },

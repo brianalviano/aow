@@ -11,7 +11,7 @@
     let { children }: Props = $props();
 
     $effect(() => {
-        const flash = ($page as any).flash;
+        const flash = (page as any).flash;
         const t = flash?.toast as
             | {
                   type: "success" | "error" | "warning" | "info";

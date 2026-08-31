@@ -18,18 +18,18 @@
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.clearErrors();
-        $form.post("/feedback", {
+        form.clearErrors();
+        form.post("/feedback", {
             preserveScroll: true,
             onSuccess: () => {
-                $form.reset("content");
+                form.reset("content");
             },
         });
     }
 </script>
 
 <svelte:head>
-    <title>Kritik dan Saran | {appName($page.props.settings)}</title>
+    <title>Kritik dan Saran | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div
@@ -74,9 +74,9 @@
                     label="Tipe Masukan"
                     options={typeOptions}
                     required={true}
-                    disabled={$form.processing}
-                    bind:value={$form.type}
-                    error={$form.errors.type}
+                    disabled={form.processing}
+                    bind:value={form.type}
+                    error={form.errors.type}
                 />
 
                 <TextArea
@@ -86,9 +86,9 @@
                     placeholder="Tuliskan kritik atau saran Anda di sini (minimal 10 karakter)..."
                     required={true}
                     rows={8}
-                    disabled={$form.processing}
-                    bind:value={$form.content}
-                    error={$form.errors.content}
+                    disabled={form.processing}
+                    bind:value={form.content}
+                    error={form.errors.content}
                 />
             </div>
 
@@ -97,8 +97,8 @@
                     type="submit"
                     variant="warning"
                     fullWidth={true}
-                    disabled={$form.processing || !$form.content}
-                    loading={$form.processing}
+                    disabled={form.processing || !form.content}
+                    loading={form.processing}
                     icon="fa-solid fa-paper-plane"
                 >
                     Kirim Masukan

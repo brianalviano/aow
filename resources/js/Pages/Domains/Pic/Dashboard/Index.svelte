@@ -104,7 +104,7 @@
 </script>
 
 <svelte:head>
-    <title>Dashboard | Pickup Point | {appName($page.props.settings)}</title>
+    <title>Dashboard | Pickup Point | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div class="min-h-screen bg-slate-950 text-slate-100">
@@ -224,7 +224,7 @@
         <div class="flex items-center justify-between">
             <p class="text-[10px] font-medium text-slate-500">
                 &copy; {currentYear}
-                <span class="text-slate-400">{appName($page.props.settings)}</span>
+                <span class="text-slate-400">{appName(page.props.settings)}</span>
             </p>
             {#if pickUpPoint?.address}
                 <p class="text-[10px] text-slate-500 truncate max-w-[200px] flex items-center gap-1.5">

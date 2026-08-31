@@ -18,7 +18,7 @@
         updated_at: string;
     }
 
-    let customer = $derived($page.props.customer as { data: Customer });
+    let customer = $derived(page.props.customer as { data: Customer });
     let data = $derived(customer.data);
 
     function formatDate(dateStr: string) {
@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-    <title>Detail Customer | {name($page.props.settings)}</title>
+    <title>Detail Customer | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

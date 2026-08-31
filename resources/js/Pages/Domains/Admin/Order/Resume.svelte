@@ -18,11 +18,11 @@
     }
 
     let resumeData = $derived(
-        ($page.props.resumeData as ResumeGroup[]) ?? [],
+        (page.props.resumeData as ResumeGroup[]) ?? [],
     );
 
     let filters = $derived(
-        $page.props.filters as { delivery_date: string },
+        page.props.filters as { delivery_date: string },
     );
 
     let deliveryDate = $state<string>(untrack(() => {
@@ -59,7 +59,7 @@
 </script>
 
 <svelte:head>
-    <title>Resume Order | {name($page.props.settings)}</title>
+    <title>Resume Order | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6 print:space-y-4 print:p-0">
@@ -99,7 +99,7 @@
 
     <!-- Print Title Header (Visible only on print) -->
     <div class="hidden print:block text-center border-b-2 border-gray-800 pb-3 mb-6">
-        <h1 class="text-2xl font-bold text-black uppercase">{name($page.props.settings) || "AOWENAK"}</h1>
+        <h1 class="text-2xl font-bold text-black uppercase">{name(page.props.settings) || "AOWENAK"}</h1>
         <h2 class="text-lg font-bold text-black mt-1">RESUME ORDER</h2>
         <p class="text-sm text-gray-600 mt-1">
             Tanggal Pengiriman: <strong>{formatDateDisplay(deliveryDate)}</strong>

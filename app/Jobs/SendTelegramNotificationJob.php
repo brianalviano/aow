@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Models\OrderSetting;
+use App\DTOs\Setting\OrderSettingsDTO;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Http;
@@ -31,14 +31,13 @@ class SendTelegramNotificationJob implements ShouldQueue
 
     public function handle(): void
     {
-        // Get settings, returning false early if it's disabled.
-        $enabled = OrderSetting::where('key', 'telegram_enabled')->value('value');
-        if ($enabled !== 'true') {
+        $settings = OrderSettingsDTO::load();
+        if (! $settings->telegramEnabled) {
             return;
         }
 
-        $botToken = OrderSetting::where('key', 'telegram_bot_token')->value('value');
-        $chatId = OrderSetting::where('key', 'telegram_admin_chat_id')->value('value');
+        $botToken = $settings->telegramBotToken;
+        $chatId = $settings->telegramAdminChatId;
 
         if (empty($botToken) || empty($chatId)) {
             return;
@@ -52,23 +51,42 @@ class SendTelegramNotificationJob implements ShouldQueue
             ]);
 
             if ($response->failed()) {
-                throw new \Exception('Telegram API error -> '.$response->body());
+                $statusCode = $response->status();
+
+                // 4xx errors indicate invalid bot token, blocked bot, invalid chat ID, or bad HTML parse
+                if ($statusCode >= 400 && $statusCode < 500) {
+                    Log::error('SendTelegramNotificationJob permanent failure from Telegram API (not retrying)', [
+                        'status' => $statusCode,
+                        'chat_id' => $chatId,
+                        'response' => $response->body(),
+                    ]);
+
+                    $this->fail(new \Exception("Telegram API HTTP {$statusCode} error -> ".$response->body()));
+
+                    return;
+                }
+
+                // 5xx errors or network issues are transient and should trigger retry backoff
+                throw new \Exception("Telegram API HTTP {$statusCode} server error -> ".$response->body());
             }
         } catch (Throwable $e) {
-            Log::error('SendTelegramNotificationJob failed', [
-                'job_id' => $this->job?->getJobId(),
+            if ($this->job?->hasFailed()) {
+                return;
+            }
+
+            Log::warning('SendTelegramNotificationJob transient failure, will retry', [
+                'attempt' => $this->attempts(),
                 'chat_id' => $chatId,
-                'message' => $this->message,
-                'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'error' => $e->getMessage(),
             ]);
+
             throw $e;
         }
     }
 
     public function failed(Throwable $e): void
     {
-        Log::error('SendTelegramNotificationJob ultimately failed after retries', [
+        Log::error('SendTelegramNotificationJob permanently failed', [
             'job_id' => $this->job?->getJobId(),
             'message' => $this->message,
             'exception' => $e->getMessage(),

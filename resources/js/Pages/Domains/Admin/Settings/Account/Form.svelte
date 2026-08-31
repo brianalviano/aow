@@ -16,7 +16,7 @@
     };
 
     let account = $derived(
-        ($page.props.account as AccountProps | null) ?? null,
+        (page.props.account as AccountProps | null) ?? null,
     );
 
     const form = useForm(
@@ -34,7 +34,7 @@
 
     function submitForm(e: SubmitEvent) {
         e.preventDefault();
-        $form.put("/account/settings", {
+        form.put("/account/settings", {
             onSuccess: () => {
                 router.visit("/account/settings");
             },
@@ -44,7 +44,7 @@
 </script>
 
 <svelte:head>
-    <title>Pengaturan Akun | {name($page.props.settings)}</title>
+    <title>Pengaturan Akun | {name(page.props.settings)}</title>
     <meta name="robots" content="noindex,nofollow" />
 </svelte:head>
 
@@ -69,8 +69,8 @@
             <Button
                 variant="success"
                 type="submit"
-                loading={$form.processing}
-                disabled={$form.processing}
+                loading={form.processing}
+                disabled={form.processing}
                 icon="fa-solid fa-save"
                 form="account-form"
                 class="w-full"
@@ -106,8 +106,8 @@
                         label="Email"
                         type="email"
                         placeholder="email@domain.com"
-                        bind:value={$form.email}
-                        error={$form.errors.email}
+                        bind:value={form.email}
+                        error={form.errors.email}
                         required
                     />
                     <TextInput
@@ -116,16 +116,16 @@
                         label="Password Baru (opsional)"
                         type="password"
                         placeholder="********"
-                        bind:value={$form.password}
-                        error={$form.errors.password}
+                        bind:value={form.password}
+                        error={form.errors.password}
                     />
                     <TextInput
                         id="phone"
                         name="phone"
                         label="Nomor Telepon"
                         placeholder="08xxxxxxxxxx"
-                        bind:value={$form.phone}
-                        error={$form.errors.phone}
+                        bind:value={form.phone}
+                        error={form.errors.phone}
                     />
                 </div>
             {/snippet}

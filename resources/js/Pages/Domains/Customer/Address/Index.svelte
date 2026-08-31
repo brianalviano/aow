@@ -6,12 +6,12 @@
     import debounce from "lodash-es/debounce";
     import Dialog from "@/Lib/Admin/Components/Ui/Dialog.svelte";
 
-    let tomtomApiKey = $derived($page.props.tomtomApiKey as string);
+    let tomtomApiKey = $derived(page.props.tomtomApiKey as string);
     let defaultCenter = $derived(
-        $page.props.defaultCenter as { lat: number; lng: number },
+        page.props.defaultCenter as { lat: number; lng: number },
     );
-    let isAuthenticated = $derived($page.props.isAuthenticated as boolean);
-    let savedAddresses = $derived($page.props.savedAddresses as any[]);
+    let isAuthenticated = $derived(page.props.isAuthenticated as boolean);
+    let savedAddresses = $derived(page.props.savedAddresses as any[]);
 
     // Initialize the form with empty strings
     const form = useForm({
@@ -41,11 +41,11 @@
     }
 
     function useAccountName() {
-        $form.name = $form.register_name;
+        form.name = form.register_name;
     }
 
     function useAccountPhone() {
-        $form.phone = $form.register_phone;
+        form.phone = form.register_phone;
     }
 
     let editingId = $state<string | null>(null);
@@ -68,7 +68,7 @@
             );
             const data = await response.json();
             if (data.addresses && data.addresses.length > 0) {
-                $form.address = data.addresses[0].address.freeformAddress;
+                form.address = data.addresses[0].address.freeformAddress;
             }
         } catch (error) {
             console.error("Reverse geocoding failed", error);
@@ -85,8 +85,8 @@
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const { latitude, longitude } = position.coords;
-                $form.latitude = latitude;
-                $form.longitude = longitude;
+                form.latitude = latitude;
+                form.longitude = longitude;
 
                 if (map && marker) {
                     const newCenter = [longitude, latitude];
@@ -140,9 +140,9 @@
             searchLocationResults = [];
             searchLocation.cancel();
 
-            $form.latitude = result.position.lat;
-            $form.longitude = result.position.lon;
-            $form.address = result.address.freeformAddress;
+            form.latitude = result.position.lat;
+            form.longitude = result.position.lon;
+            form.address = result.address.freeformAddress;
 
             if (map && marker) {
                 const newCenter = [result.position.lon, result.position.lat];
@@ -154,11 +154,11 @@
 
     onMount(() => {
         // Use defaultCenter for initial coordinates if form is empty
-        if (!$form.latitude && defaultCenter?.lat) {
-            $form.latitude = defaultCenter.lat;
+        if (!form.latitude && defaultCenter?.lat) {
+            form.latitude = defaultCenter.lat;
         }
-        if (!$form.longitude && defaultCenter?.lng) {
-            $form.longitude = defaultCenter.lng;
+        if (!form.longitude && defaultCenter?.lng) {
+            form.longitude = defaultCenter.lng;
         }
 
         if (typeof window !== "undefined" && (window as any).tt) {
@@ -183,7 +183,7 @@
     function initMap() {
         if (!tomtomApiKey) return;
 
-        const center = [$form.longitude || 0, $form.latitude || 0];
+        const center = [form.longitude || 0, form.latitude || 0];
 
         map = (window as any).tt.map({
             key: tomtomApiKey,
@@ -201,8 +201,8 @@
         marker.on("dragend", () => {
             const lngLat = marker?.getLngLat();
             if (lngLat) {
-                $form.longitude = lngLat.lng;
-                $form.latitude = lngLat.lat;
+                form.longitude = lngLat.lng;
+                form.latitude = lngLat.lat;
                 // No reverse geocoding here to prevent overwriting manual address
             }
         });
@@ -212,8 +212,8 @@
             if (marker) {
                 marker.setLngLat(lngLat);
             }
-            $form.longitude = lngLat.lng;
-            $form.latitude = lngLat.lat;
+            form.longitude = lngLat.lng;
+            form.latitude = lngLat.lat;
             // No reverse geocoding here to prevent overwriting manual address
         });
 
@@ -221,12 +221,12 @@
     }
 
     function handleSelectAddress(address: any) {
-        $form.name = address.name;
-        $form.phone = address.phone;
-        $form.address = address.address;
-        $form.note = address.note || "";
-        $form.latitude = address.latitude;
-        $form.longitude = address.longitude;
+        form.name = address.name;
+        form.phone = address.phone;
+        form.address = address.address;
+        form.note = address.note || "";
+        form.latitude = address.latitude;
+        form.longitude = address.longitude;
         editingId = address.id;
 
         if (map && marker) {
@@ -247,11 +247,11 @@
     }
 
     function resetForm() {
-        $form.reset();
+        form.reset();
         editingId = null;
         if (defaultCenter) {
-            $form.latitude = defaultCenter.lat;
-            $form.longitude = defaultCenter.lng;
+            form.latitude = defaultCenter.lat;
+            form.longitude = defaultCenter.lng;
             if (map && marker) {
                 const newCenter = [defaultCenter.lng, defaultCenter.lat];
                 marker.setLngLat(newCenter);
@@ -267,7 +267,7 @@
 
     function confirmDelete() {
         if (addressToDelete) {
-            $form.delete(`/custom-address/${addressToDelete.id}`, {
+            form.delete(`/custom-address/${addressToDelete.id}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     showDeleteDialog = false;
@@ -282,14 +282,14 @@
         e.preventDefault();
 
         if (editingId) {
-            $form.put(`/custom-address/${editingId}`, {
+            form.put(`/custom-address/${editingId}`, {
                 preserveScroll: true,
                 onError: (errors: Record<string, string>) => {
                     console.error("Validation errors:", errors);
                 },
             });
         } else {
-            $form.post("/custom-address", {
+            form.post("/custom-address", {
                 preserveScroll: true,
                 onError: (errors: Record<string, string>) => {
                     console.error("Validation errors:", errors);
@@ -300,7 +300,7 @@
 
     const submitLogin = (e: Event) => {
         e.preventDefault();
-        $loginForm.post("/custom-address/login", {
+        loginForm.post("/custom-address/login", {
             preserveScroll: true,
         });
     };
@@ -455,8 +455,8 @@
                             name="register_name"
                             label="Nama Lengkap"
                             placeholder="Contoh: Budi Susanto"
-                            bind:value={$form.register_name}
-                            error={$form.errors.register_name}
+                            bind:value={form.register_name}
+                            error={form.errors.register_name}
                             required
                         />
 
@@ -466,8 +466,8 @@
                             type="tel"
                             label="Nomor HP"
                             placeholder="Contoh: 081234567890"
-                            bind:value={$form.register_phone}
-                            error={$form.errors.register_phone}
+                            bind:value={form.register_phone}
+                            error={form.errors.register_phone}
                             maxlength={15}
                             required
                         />
@@ -478,8 +478,8 @@
                             type="email"
                             label="Alamat Email"
                             placeholder="rino@example.com"
-                            bind:value={$form.email}
-                            error={$form.errors.email}
+                            bind:value={form.email}
+                            error={form.errors.email}
                             required
                         />
 
@@ -490,8 +490,8 @@
                                 type="password"
                                 label="Kata Sandi"
                                 placeholder="••••••••"
-                                bind:value={$form.password}
-                                error={$form.errors.password}
+                                bind:value={form.password}
+                                error={form.errors.password}
                                 required
                             />
 
@@ -501,8 +501,8 @@
                                 type="password"
                                 label="Konfirmasi Kata Sandi"
                                 placeholder="••••••••"
-                                bind:value={$form.password_confirmation}
-                                error={$form.errors.password_confirmation}
+                                bind:value={form.password_confirmation}
+                                error={form.errors.password_confirmation}
                                 required
                             />
                         </div>
@@ -514,8 +514,8 @@
                                 name="login"
                                 label="Email atau Nomor HP"
                                 placeholder="Contoh: 081234567890"
-                                bind:value={$loginForm.login}
-                                error={$loginForm.errors.login}
+                                bind:value={loginForm.login}
+                                error={loginForm.errors.login}
                                 required
                             />
 
@@ -525,18 +525,18 @@
                                 type="password"
                                 label="Kata Sandi"
                                 placeholder="••••••••"
-                                bind:value={$loginForm.password}
-                                error={$loginForm.errors.password}
+                                bind:value={loginForm.password}
+                                error={loginForm.errors.password}
                                 required
                             />
 
                             <button
                                 type="button"
                                 onclick={submitLogin}
-                                disabled={$loginForm.processing}
+                                disabled={loginForm.processing}
                                 class="w-full flex justify-center items-center py-3 px-4 border border-slate-700 rounded-xl shadow-sm text-sm font-bold text-[#FFD700] bg-slate-800 hover:bg-slate-700 transition-all disabled:opacity-50"
                             >
-                                {#if $loginForm.processing}
+                                {#if loginForm.processing}
                                     <i class="fa-solid fa-spinner fa-spin mr-2"
                                     ></i> Masuk...
                                 {:else}
@@ -566,7 +566,7 @@
                     >
                         Nama Penerima <span class="text-red-500">*</span>
                     </label>
-                    {#if !isAuthenticated && $form.register_name}
+                    {#if !isAuthenticated && form.register_name}
                         <button
                             type="button"
                             onclick={useAccountName}
@@ -581,8 +581,8 @@
                     name="name"
                     label=""
                     placeholder="Contoh: Budi Susanto"
-                    bind:value={$form.name}
-                    error={$form.errors.name}
+                    bind:value={form.name}
+                    error={form.errors.name}
                     required
                 />
             </div>
@@ -597,7 +597,7 @@
                             >*</span
                         >
                     </label>
-                    {#if !isAuthenticated && $form.register_phone}
+                    {#if !isAuthenticated && form.register_phone}
                         <button
                             type="button"
                             onclick={useAccountPhone}
@@ -613,8 +613,8 @@
                     type="tel"
                     label=""
                     placeholder="Contoh: 081234567890"
-                    bind:value={$form.phone}
-                    error={$form.errors.phone}
+                    bind:value={form.phone}
+                    error={form.errors.phone}
                     maxlength={15}
                     required
                 />
@@ -647,9 +647,9 @@
                     name="address"
                     label=""
                     placeholder="Contoh: Jl. Sudirman No. 123, RT 01/RW 02, Patokan: Pagar Hitam"
-                    bind:value={$form.address}
+                    bind:value={form.address}
                     oninput={handleAddressInput}
-                    error={$form.errors.address}
+                    error={form.errors.address}
                     rows={3}
                     required
                 />
@@ -687,8 +687,8 @@
                 name="note"
                 label="Catatan untuk Kurir (Opsional)"
                 placeholder="Contoh: Titip di pos satpam saja"
-                bind:value={$form.note}
-                error={$form.errors.note}
+                bind:value={form.note}
+                error={form.errors.note}
                 rows={2}
             />
 
@@ -713,10 +713,10 @@
             <div class="pt-3">
                 <button
                     type="submit"
-                    disabled={$form.processing}
+                    disabled={form.processing}
                     class="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-slate-900 bg-[#FFD700] hover:bg-[#FFC700] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFD700] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {#if $form.processing}
+                    {#if form.processing}
                         <i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...
                     {:else}
                         {editingId ? "Perbarui &" : "Simpan &"} Lanjut Pilih Menu

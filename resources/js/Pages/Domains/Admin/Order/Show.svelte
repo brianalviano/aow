@@ -500,7 +500,7 @@
 </script>
 
 <svelte:head>
-    <title>Detail Pesanan {order.number} | {name($page.props.settings)}</title>
+    <title>Detail Pesanan {order.number} | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

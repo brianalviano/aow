@@ -307,7 +307,7 @@
 </script>
 
 <svelte:head>
-    <title>Riwayat Pesanan | {appName($page.props.settings)}</title>
+    <title>Riwayat Pesanan | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <Dialog

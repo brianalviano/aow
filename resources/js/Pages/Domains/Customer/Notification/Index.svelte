@@ -2,8 +2,8 @@
     import { page, Link, router } from "@inertiajs/svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
 
-    $: notifications = $page.props.notifications;
-    $: settings = $page.props.settings;
+    $: notifications = page.props.notifications;
+    $: settings = page.props.settings;
 
     function markAsRead(id: string | null = null) {
         if (id) {

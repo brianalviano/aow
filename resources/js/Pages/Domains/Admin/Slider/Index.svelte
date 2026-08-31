@@ -19,14 +19,14 @@
     }
 
     let sliders = $derived(
-        $page.props.sliders as {
+        page.props.sliders as {
             data: Slider[];
             meta?: any;
         },
     );
 
     let filters = $derived(
-        $page.props.filters as { search?: string } | undefined,
+        page.props.filters as { search?: string } | undefined,
     );
 
     let searchQuery = $state(untrack(() => filters?.search || ""));
@@ -90,7 +90,7 @@
 </script>
 
 <svelte:head>
-    <title>Slider | {name($page.props.settings)}</title>
+    <title>Slider | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

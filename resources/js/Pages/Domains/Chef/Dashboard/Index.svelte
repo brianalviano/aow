@@ -65,7 +65,7 @@
 
     function handleLogout(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/chef/logout");
+        form.post("/chef/logout");
     }
 
     function approveItem(itemId: string) {
@@ -182,7 +182,7 @@
 </script>
 
 <svelte:head>
-    <title>Dashboard Chef | {appName($page.props.settings)}</title>
+    <title>Dashboard Chef | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div class="flex flex-col min-h-screen bg-slate-950 text-slate-100">
@@ -225,7 +225,7 @@
             <h2
                 class="text-3xl font-black text-slate-100 tracking-tight relative z-10"
             >
-                Halo, {$page.props.auth?.user?.name || "Chef"}!
+                Halo, {page.props.auth?.user?.name || "Chef"}!
             </h2>
             <p class="text-slate-400 mt-2 font-medium relative z-10">
                 Anda memiliki <span class="text-[#FFD700] font-black">{items.length}</span> item pesanan aktif 

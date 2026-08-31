@@ -15,8 +15,8 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            "@img": path.resolve(__dirname, "resources/img"),
-            "@css": path.resolve(__dirname, "resources/css"),
+            "@img": path.resolve(import.meta.dirname, "resources/img"),
+            "@css": path.resolve(import.meta.dirname, "resources/css"),
         },
     },
     build: {

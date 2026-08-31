@@ -25,8 +25,8 @@
 
     const isAuthenticated = $derived(
         !!(
-            ($page.props as any)?.auth?.guard ||
-            ($page.props as any)?.auth?.user
+            (page.props as any)?.auth?.guard ||
+            (page.props as any)?.auth?.user
         ),
     );
 

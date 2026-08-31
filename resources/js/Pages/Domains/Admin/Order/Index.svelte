@@ -32,14 +32,14 @@
     }
 
     let orders = $derived(
-        $page.props.orders as {
+        page.props.orders as {
             data: Order[];
             meta?: any;
         },
     );
 
     let filters = $derived(
-        $page.props.filters as
+        page.props.filters as
             | {
                   search?: string;
                   status?: string;
@@ -53,13 +53,13 @@
             | undefined,
     );
 
-    let dropPoints = $derived(($page.props.dropPoints as any[]) || []);
-    let chefs = $derived(($page.props.chefs as any[]) || []);
+    let dropPoints = $derived((page.props.dropPoints as any[]) || []);
+    let chefs = $derived((page.props.chefs as any[]) || []);
 
     let statusCounts = $derived(
-        ($page.props.status_counts as Record<string, number>) || {},
+        (page.props.status_counts as Record<string, number>) || {},
     );
-    let pickUpPoints = $derived(($page.props.pickUpPoints as any[]) || []);
+    let pickUpPoints = $derived((page.props.pickUpPoints as any[]) || []);
 
     let searchQuery = $state(untrack(() => filters?.search || ""));
     let statusFilter = $state(untrack(() => filters?.status || "all"));
@@ -371,7 +371,7 @@
 </script>
 
 <svelte:head>
-    <title>Pesanan | {name($page.props.settings)}</title>
+    <title>Pesanan | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">

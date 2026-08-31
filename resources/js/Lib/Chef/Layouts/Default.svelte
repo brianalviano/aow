@@ -11,7 +11,7 @@
     let { children }: Props = $props();
 
     $effect(() => {
-        const flash = ($page as any).flash;
+        const flash = (page as any).flash;
         const t = flash?.toast as
             | {
                   type: "success" | "error" | "warning" | "info";
@@ -45,20 +45,20 @@
         </div>
 
         <!-- Bottom Navigation -->
-        {#if $page.props.auth?.user}
+        {#if page.props.auth?.user}
             <nav
                 class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-slate-950/80 backdrop-blur-md border-t border-slate-700 px-6 py-3 flex justify-between items-center z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]"
             >
                 <Link
                     href="/chef"
-                    class="flex flex-col items-center gap-1 transition-all duration-300 {$page.url ===
+                    class="flex flex-col items-center gap-1 transition-all duration-300 {page.url ===
                     '/chef'
                         ? 'text-[#FFD700] scale-110'
                         : 'text-slate-400 hover:text-slate-200'}"
                 >
                     <div class="relative">
                         <i class="fa-solid fa-gauge-high text-xl"></i>
-                        {#if $page.url === "/chef"}
+                        {#if page.url === "/chef"}
                             <span
                                 class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#FFD700] rounded-full"
                             ></span>
@@ -71,14 +71,14 @@
 
                 <Link
                     href="/chef/orders"
-                    class="flex flex-col items-center gap-1 transition-all duration-300 {$page.url ===
+                    class="flex flex-col items-center gap-1 transition-all duration-300 {page.url ===
                     '/chef/orders'
                         ? 'text-[#FFD700] scale-110'
                         : 'text-slate-400 hover:text-slate-200'}"
                 >
                     <div class="relative">
                         <i class="fa-solid fa-clipboard-list text-xl"></i>
-                        {#if $page.url === "/chef/orders"}
+                        {#if page.url === "/chef/orders"}
                             <span
                                 class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#FFD700] rounded-full"
                             ></span>
@@ -91,14 +91,14 @@
 
                 <Link
                     href="/chef/report"
-                    class="flex flex-col items-center gap-1 transition-all duration-300 {$page.url ===
+                    class="flex flex-col items-center gap-1 transition-all duration-300 {page.url ===
                     '/chef/report'
                         ? 'text-[#FFD700] scale-110'
                         : 'text-slate-400 hover:text-slate-200'}"
                 >
                     <div class="relative">
                         <i class="fa-solid fa-wallet text-xl"></i>
-                        {#if $page.url === "/chef/report"}
+                        {#if page.url === "/chef/report"}
                             <span
                                 class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#FFD700] rounded-full"
                             ></span>

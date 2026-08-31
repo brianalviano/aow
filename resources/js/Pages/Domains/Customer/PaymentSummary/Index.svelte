@@ -27,7 +27,7 @@
     let selectedMethod = $derived(
         Object.values(paymentMethods)
             .flat()
-            .find((m) => m.id === $form.payment_method_id),
+            .find((m) => m.id === form.payment_method_id),
     );
 
     let serviceFee = $derived.by(() => {
@@ -51,7 +51,7 @@
     $effect(() => {
         if (!isSchool) {
             untrack(() => {
-                $form.school_class = "";
+                form.school_class = "";
             });
         }
     });
@@ -68,12 +68,12 @@
 
     const canPay = $derived.by(() => {
         const baseValid =
-            !!$form.name &&
-            !!$form.phone &&
-            !!$form.email &&
-            !!$form.payment_method_id;
+            !!form.name &&
+            !!form.phone &&
+            !!form.email &&
+            !!form.payment_method_id;
         if (isSchool) {
-            return baseValid && !!$form.school_class;
+            return baseValid && !!form.school_class;
         }
         return baseValid;
     });
@@ -90,11 +90,11 @@
     }
 
     function isCashPaymentSelected() {
-        if (!$form.payment_method_id) return false;
+        if (!form.payment_method_id) return false;
 
         for (const [category, methods] of Object.entries(paymentMethods)) {
             const method = methods.find(
-                (m) => m.id === $form.payment_method_id,
+                (m) => m.id === form.payment_method_id,
             );
             if (method && method.category === "cash") {
                 return true;
@@ -115,12 +115,12 @@
 
     function processPayment() {
         isConfirmModalOpen = false;
-        $form.post("/payment");
+        form.post("/payment");
     }
 </script>
 
 <svelte:head>
-    <title>Ringkasan Pembayaran | {getSettingName($page.props.settings)}</title>
+    <title>Ringkasan Pembayaran | {getSettingName(page.props.settings)}</title>
 </svelte:head>
 
 <div>
@@ -151,10 +151,10 @@
                     id="name"
                     name="name"
                     label="Nama Lengkap"
-                    bind:value={$form.name}
+                    bind:value={form.name}
                     placeholder="Nama Lengkap"
                     required
-                    error={$form.errors.name}
+                    error={form.errors.name}
                     class="rounded-2xl! focus:ring-[#FFD700]!"
                 />
 
@@ -164,10 +164,10 @@
                     name="phone"
                     label="Nomor Whatsapp"
                     type="tel"
-                    bind:value={$form.phone}
+                    bind:value={form.phone}
                     placeholder="Nomor Whatsapp"
                     required
-                    error={$form.errors.phone}
+                    error={form.errors.phone}
                     class="rounded-2xl! focus:ring-[#FFD700]!"
                 />
 
@@ -177,10 +177,10 @@
                     name="email"
                     label="Email"
                     type="email"
-                    bind:value={$form.email}
+                    bind:value={form.email}
                     placeholder="Email"
                     required
-                    error={$form.errors.email}
+                    error={form.errors.email}
                     class="rounded-2xl! focus:ring-[#FFD700]!"
                 />
 
@@ -190,10 +190,10 @@
                         id="school_class"
                         name="school_class"
                         label="Kelas Sekolah"
-                        bind:value={$form.school_class}
+                        bind:value={form.school_class}
                         placeholder="Cth: XII IPA 1"
                         required={isSchool}
-                        error={$form.errors.school_class}
+                        error={form.errors.school_class}
                         class="rounded-2xl! focus:ring-[#FFD700]!"
                     />
                 {/if}
@@ -221,12 +221,12 @@
                         <div
                             class="w-full px-6 py-5 flex items-center justify-between hover:bg-[#FFC700] transition-colors bg-[#FFD700] cursor-pointer border-b border-black/5"
                             onclick={() =>
-                                ($form.payment_method_id = method.id)}
+                                (form.payment_method_id = method.id)}
                             role="button"
                             tabindex="0"
                             onkeydown={(e) =>
                                 e.key === "Enter" &&
-                                ($form.payment_method_id = method.id)}
+                                (form.payment_method_id = method.id)}
                         >
                             <div class="flex items-center gap-4">
                                 {#if method.photo}
@@ -257,9 +257,9 @@
                             </div>
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all {$form.payment_method_id === method.id ? 'border-slate-950' : 'border-slate-500/30'}"
+                                    class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all {form.payment_method_id === method.id ? 'border-slate-950' : 'border-slate-500/30'}"
                                 >
-                                    {#if $form.payment_method_id === method.id}
+                                    {#if form.payment_method_id === method.id}
                                         <div
                                             class="w-3 h-3 rounded-full bg-slate-950 shadow-sm animate-in zoom-in duration-200"
                                         ></div>
@@ -269,9 +269,9 @@
                         </div>
                     {/each}
                 {/each}
-                {#if $form.errors.payment_method_id}
+                {#if form.errors.payment_method_id}
                     <p class="text-xs text-red-500 px-6 mt-2">
-                        {$form.errors.payment_method_id}
+                        {form.errors.payment_method_id}
                     </p>
                 {/if}
             </div>
@@ -296,10 +296,10 @@
             </div>
             <button
                 onclick={handleSubmit}
-                disabled={$form.processing || !canPay}
+                disabled={form.processing || !canPay}
                 class="bg-slate-950 text-[#FFD700] font-black py-3 px-6 rounded-xl shadow-lg shadow-black/20 hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap text-sm"
             >
-                {$form.processing ? "Memproses..." : "Bayar Sekarang"}
+                {form.processing ? "Memproses..." : "Bayar Sekarang"}
             </button>
         </div>
     </div>
@@ -357,7 +357,7 @@
         showCancel={true}
         cancelText="Batal"
         confirmText="Ya, Buat Pesanan"
-        loading={$form.processing}
+        loading={form.processing}
         onConfirm={processPayment}
     />
 </div>

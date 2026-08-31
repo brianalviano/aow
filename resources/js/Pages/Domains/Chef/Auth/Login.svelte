@@ -15,21 +15,21 @@
 
     function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
-        $form.post("/chef/login", {
+        form.post("/chef/login", {
             preserveScroll: true,
             preserveState: (page: {
                 props: { errors?: Record<string, string[]> };
             }) => Object.keys(page.props.errors ?? {}).length > 0,
             replace: false,
             onError: () => {
-                $form.reset("password");
+                form.reset("password");
             },
         });
     }
 </script>
 
 <svelte:head>
-    <title>Chef Login | {appName($page.props.settings)}</title>
+    <title>Chef Login | {appName(page.props.settings)}</title>
 </svelte:head>
 
 <div class="flex flex-col min-h-screen p-6 bg-slate-950 text-slate-100">
@@ -56,10 +56,10 @@
                 type="text"
                 autofocus={true}
                 required={true}
-                disabled={$form.processing}
-                bind:value={$form.login}
+                disabled={form.processing}
+                bind:value={form.login}
                 placeholder="nama@email.com atau 0812xxxx"
-                error={$form.errors.login}
+                error={form.errors.login}
             />
 
             <TextInput
@@ -69,10 +69,10 @@
                 type="password"
                 autocomplete="current-password"
                 required={true}
-                disabled={$form.processing}
-                bind:value={$form.password}
+                disabled={form.processing}
+                bind:value={form.password}
                 placeholder="••••••••"
-                error={$form.errors.password}
+                error={form.errors.password}
             />
 
             <div class="flex items-center justify-between">
@@ -80,8 +80,8 @@
                     id="remember"
                     name="remember"
                     label="Ingat saya"
-                    disabled={$form.processing}
-                    bind:checked={$form.remember}
+                    disabled={form.processing}
+                    bind:checked={form.remember}
                 />
             </div>
 
@@ -91,8 +91,8 @@
                     variant="primary"
                     size="lg"
                     fullWidth={true}
-                    disabled={$form.processing}
-                    loading={$form.processing}
+                    disabled={form.processing}
+                    loading={form.processing}
                     icon="fa-solid fa-right-to-bracket"
                     class="bg-[#FFD700] text-slate-900 hover:bg-[#FFC700] font-black shadow-lg shadow-[#FFD700]/10"
                 >
@@ -105,7 +105,7 @@
     <footer class="mt-auto py-8 text-center border-t border-slate-900">
         <p class="text-xs text-slate-500 font-bold tracking-widest uppercase">
             &copy; {currentYear}
-            {appName($page.props.settings)}
+            {appName(page.props.settings)}
         </p>
     </footer>
 </div>

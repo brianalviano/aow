@@ -93,14 +93,14 @@
     }
 
     // Props from Inertia
-    let product = $derived(($page.props.product as { data: ProductData })?.data ?? ($page.props.product as ProductData));
-    let summary = $derived(($page.props.summary as Summary) ?? { total_orders: 0, total_quantity: 0, total_revenue: 0, avg_qty_per_order: 0 });
-    let chefBreakdown = $derived(($page.props.chefBreakdown as ChefBreakdown[]) ?? []);
-    let variantBreakdown = $derived(($page.props.variantBreakdown as VariantBreakdown[]) ?? []);
-    let itemsData = $derived(($page.props.items as PaginatedItems) ?? { data: [] });
-    let filters = $derived(($page.props.filters as Record<string, string | null>) ?? {});
-    let chefsList = $derived(($page.props.chefs as { id: string; name: string }[]) ?? []);
-    let dropPointsList = $derived(($page.props.dropPoints as { id: string; name: string }[]) ?? []);
+    let product = $derived((page.props.product as { data: ProductData })?.data ?? (page.props.product as ProductData));
+    let summary = $derived((page.props.summary as Summary) ?? { total_orders: 0, total_quantity: 0, total_revenue: 0, avg_qty_per_order: 0 });
+    let chefBreakdown = $derived((page.props.chefBreakdown as ChefBreakdown[]) ?? []);
+    let variantBreakdown = $derived((page.props.variantBreakdown as VariantBreakdown[]) ?? []);
+    let itemsData = $derived((page.props.items as PaginatedItems) ?? { data: [] });
+    let filters = $derived((page.props.filters as Record<string, string | null>) ?? {});
+    let chefsList = $derived((page.props.chefs as { id: string; name: string }[]) ?? []);
+    let dropPointsList = $derived((page.props.dropPoints as { id: string; name: string }[]) ?? []);
 
     // Filter local state
     let dateFrom = $state(untrack(() => filters.date_from ?? ""));
@@ -270,7 +270,7 @@
 </script>
 
 <svelte:head>
-    <title>Detail Transaksi Produk - {product?.name || 'Detail'} | {name($page.props.settings)}</title>
+    <title>Detail Transaksi Produk - {product?.name || 'Detail'} | {name(page.props.settings)}</title>
 </svelte:head>
 
 <div class="space-y-6">
