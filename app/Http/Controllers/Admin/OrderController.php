@@ -72,29 +72,64 @@ class OrderController extends Controller
      */
     public function resume(Request $request): Response
     {
-        $deliveryDate = $request->query('delivery_date', now()->toDateString());
+        $todayStr = now()->toDateString();
+
+        // If delivery_date is not explicitly provided in query, find the smart default
+        if ($request->filled('delivery_date')) {
+            $deliveryDate = (string) $request->query('delivery_date');
+        } else {
+            $hasToday = Order::where('delivery_date', $todayStr)
+                ->where('order_status', '!=', OrderStatus::CANCELLED->value)
+                ->exists();
+
+            if ($hasToday) {
+                $deliveryDate = $todayStr;
+            } else {
+                $nextDate = Order::where('delivery_date', '>=', $todayStr)
+                    ->where('order_status', '!=', OrderStatus::CANCELLED->value)
+                    ->orderBy('delivery_date', 'asc')
+                    ->value('delivery_date');
+
+                if ($nextDate) {
+                    $deliveryDate = is_string($nextDate) ? $nextDate : $nextDate->format('Y-m-d');
+                } else {
+                    $latestDate = Order::where('order_status', '!=', OrderStatus::CANCELLED->value)
+                        ->orderBy('delivery_date', 'desc')
+                        ->value('delivery_date');
+                    $deliveryDate = $latestDate ? (is_string($latestDate) ? $latestDate : $latestDate->format('Y-m-d')) : $todayStr;
+                }
+            }
+        }
+
+        $paymentFilter = $request->query('payment_filter', 'all');
 
         // Query orders on delivery_date
-        $orders = Order::query()
+        $ordersQuery = Order::query()
             ->with([
                 'items.product',
                 'items.options.productOption',
                 'items.options.productOptionItem',
                 'dropPoint',
+                'paymentMethod',
             ])
             ->where('delivery_date', $deliveryDate)
-            ->where('order_status', '!=', OrderStatus::CANCELLED->value)
-            ->where(function ($q) {
+            ->where('order_status', '!=', OrderStatus::CANCELLED->value);
+
+        if ($paymentFilter === 'paid_only') {
+            $ordersQuery->where(function ($q) {
                 $q->where('payment_status', PaymentStatus::PAID->value)
                     ->orWhereHas('paymentMethod', fn ($pq) => $pq->where('category', 'cash'));
-            })
-            ->get();
+            });
+        }
+
+        $orders = $ordersQuery->get();
 
         $resumeData = [];
 
         foreach ($orders as $order) {
             $dropPointName = $order->dropPoint ? $order->dropPoint->name : 'Alamat Kustom / Lainnya';
             $dropPointId = $order->dropPoint ? $order->dropPoint->id : 'custom';
+            $isPaid = $order->payment_status === PaymentStatus::PAID || $order->payment_status === 'paid' || ($order->paymentMethod && $order->paymentMethod->category === 'cash');
 
             if (! isset($resumeData[$dropPointId])) {
                 $resumeData[$dropPointId] = [
@@ -104,11 +139,24 @@ class OrderController extends Controller
             }
 
             foreach ($order->items as $item) {
-                // Format options label
                 $optionsParts = [];
+                $sizeOption = null;
+                $spicyOption = null;
+                $otherOptions = [];
+
                 foreach ($item->options as $opt) {
                     if ($opt->productOption && $opt->productOptionItem) {
-                        $optionsParts[] = $opt->productOption->name.': '.$opt->productOptionItem->name;
+                        $optName = $opt->productOption->name;
+                        $optItem = $opt->productOptionItem->name;
+                        $optionsParts[] = $optName.': '.$optItem;
+
+                        if (stripos($optName, 'ukuran') !== false || stripos($optName, 'size') !== false) {
+                            $sizeOption = $optItem;
+                        } elseif (stripos($optName, 'pedas') !== false || stripos($optName, 'level') !== false || stripos($optName, 'spicy') !== false) {
+                            $spicyOption = $optItem;
+                        } else {
+                            $otherOptions[] = $optName.': '.$optItem;
+                        }
                     }
                 }
                 sort($optionsParts);
@@ -123,11 +171,21 @@ class OrderController extends Controller
                     $resumeData[$dropPointId]['items'][$groupKey] = [
                         'product_name' => $productName,
                         'options_label' => $optionsLabel ?: null,
+                        'size_option' => $sizeOption,
+                        'spicy_option' => $spicyOption,
+                        'other_options' => $otherOptions,
                         'quantity' => 0,
+                        'paid_quantity' => 0,
+                        'unpaid_quantity' => 0,
                     ];
                 }
 
                 $resumeData[$dropPointId]['items'][$groupKey]['quantity'] += $item->quantity;
+                if ($isPaid) {
+                    $resumeData[$dropPointId]['items'][$groupKey]['paid_quantity'] += $item->quantity;
+                } else {
+                    $resumeData[$dropPointId]['items'][$groupKey]['unpaid_quantity'] += $item->quantity;
+                }
             }
         }
 
@@ -138,11 +196,26 @@ class OrderController extends Controller
 
         $resumeData = array_values($resumeData);
 
+        // Fetch list of active dates that have orders for quick buttons
+        $activeDates = Order::query()
+            ->where('order_status', '!=', OrderStatus::CANCELLED->value)
+            ->whereNotNull('delivery_date')
+            ->selectRaw('delivery_date, count(*) as total_orders')
+            ->groupBy('delivery_date')
+            ->orderBy('delivery_date', 'asc')
+            ->get()
+            ->map(fn ($row) => [
+                'date' => is_string($row->delivery_date) ? $row->delivery_date : $row->delivery_date->format('Y-m-d'),
+                'total_orders' => (int) $row->total_orders,
+            ]);
+
         return Inertia::render('Domains/Admin/Order/Resume', [
             'resumeData' => $resumeData,
             'filters' => [
                 'delivery_date' => $deliveryDate,
+                'payment_filter' => $paymentFilter,
             ],
+            'activeDates' => $activeDates,
         ]);
     }
 

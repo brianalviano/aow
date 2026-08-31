@@ -470,7 +470,15 @@ class OrderService
     public function getFilteredOrdersForAdmin(OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
-            ->with(['dropPoint', 'customerAddress', 'paymentMethod', 'customer', 'items.product']);
+            ->with([
+                'dropPoint',
+                'customerAddress',
+                'paymentMethod',
+                'customer',
+                'items.product',
+                'items.options.productOption',
+                'items.options.productOptionItem',
+            ]);
 
         // Filter by Status
         if ($dto->status && $dto->status !== 'all') {
