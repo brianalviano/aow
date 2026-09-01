@@ -73,8 +73,6 @@
 
     const roleColors: Record<string, string> = {
         customer: "text-blue-400",
-        chef: "text-orange-400",
-        pic: "text-green-400",
         admin: "text-purple-400",
     };
 

@@ -211,7 +211,7 @@
     <!-- Print Title Header (Visible only on print) -->
     <div class="hidden print:block text-center border-b-2 border-gray-800 pb-3 mb-6">
         <h1 class="text-2xl font-bold text-black uppercase">{name(page.props.settings) || "AOWENAK"}</h1>
-        <h2 class="text-lg font-bold text-black mt-1">RESUME ORDER DAPUR</h2>
+        <h2 class="text-lg font-bold text-black mt-1">RESUME PRODUKSI PESANAN</h2>
         <p class="text-sm text-gray-600 mt-1">
             Tanggal Pengiriman: <strong>{formatDateDisplay(deliveryDate)}</strong>
         </p>

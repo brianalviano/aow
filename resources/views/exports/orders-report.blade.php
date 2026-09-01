@@ -235,7 +235,9 @@
                     $orderStatusMap = [
                         'pending' => ['label' => 'Menunggu', 'class' => 'badge-warning'],
                         'confirmed' => ['label' => 'Dikonfirmasi', 'class' => 'badge-info'],
-                        'shipped' => ['label' => 'Dikirim', 'class' => 'badge-primary'],
+                        'cooking' => ['label' => 'Sedang Dimasak', 'class' => 'badge-warning'],
+                        'on_delivery' => ['label' => 'Sedang Dikirim', 'class' => 'badge-primary'],
+                        'arrived' => ['label' => 'Tiba di Tujuan', 'class' => 'badge-info'],
                         'delivered' => ['label' => 'Selesai', 'class' => 'badge-success'],
                         'cancelled' => ['label' => 'Dibatalkan', 'class' => 'badge-danger'],
                     ];
@@ -249,8 +251,10 @@
                 @endphp
                 @forelse($orders as $i => $order)
                     @php
-                        $os = $orderStatusMap[$order->order_status] ?? ['label' => $order->order_status, 'class' => 'badge-secondary'];
-                        $ps = $paymentStatusMap[$order->payment_status] ?? ['label' => $order->payment_status, 'class' => 'badge-secondary'];
+                        $osKey = $order->order_status instanceof \App\Enums\OrderStatus ? $order->order_status->value : (string) $order->order_status;
+                        $psKey = $order->payment_status instanceof \App\Enums\PaymentStatus ? $order->payment_status->value : (string) $order->payment_status;
+                        $os = $orderStatusMap[$osKey] ?? ['label' => $osKey, 'class' => 'badge-secondary'];
+                        $ps = $paymentStatusMap[$psKey] ?? ['label' => $psKey, 'class' => 'badge-secondary'];
                     @endphp
                     <tr>
                         <td>{{ $i + 1 }}</td>

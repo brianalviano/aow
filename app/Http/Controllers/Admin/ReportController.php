@@ -10,6 +10,7 @@ use App\Exports\ProductsExport;
 use App\Http\Controllers\Controller;
 use App\Models\CompanyProfile;
 use App\Models\DropPoint;
+use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\ReportService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -34,8 +35,6 @@ class ReportController extends Controller
 
     /**
      * Display the reports overview page with filtered data.
-     *
-     * @param  ReportRequest  $request
      */
     public function index(ReportFilterData $dto): Response
     {
@@ -67,8 +66,6 @@ class ReportController extends Controller
 
     /**
      * Export the report as a downloadable PDF.
-     *
-     * @param  ReportRequest  $request
      */
     public function exportPdf(ReportFilterData $dto): HttpResponse
     {
@@ -104,18 +101,19 @@ class ReportController extends Controller
         }
 
         $orders = $this->reportService->getOrdersForExport($filters);
-        $deliveredOrderIds = $orders->where('order_status', 'delivered')->pluck('id');
+        $deliveredOrders = $orders->filter(fn (Order $o) => ($o->order_status->value ?? (string) $o->order_status) === 'delivered');
+        $deliveredOrderIds = $deliveredOrders->pluck('id');
         $totalCost = (int) OrderItem::whereIn('order_id', $deliveredOrderIds)
             ->selectRaw('SUM(quantity * COALESCE(cost_price, 0)) as total_cost')
             ->value('total_cost');
-        $totalRevenue = (int) $orders->where('order_status', 'delivered')->sum('total_amount');
+        $totalRevenue = (int) $deliveredOrders->sum('total_amount');
         $summary = [
             'total_orders' => $orders->count(),
             'total_revenue' => $totalRevenue,
             'total_cost' => $totalCost,
             'total_profit' => $totalRevenue - $totalCost,
-            'total_cancelled' => $orders->where('order_status', 'cancelled')->count(),
-            'total_pending' => $orders->whereIn('order_status', ['pending', 'confirmed', 'shipped'])->count(),
+            'total_cancelled' => $orders->filter(fn (Order $o) => ($o->order_status->value ?? (string) $o->order_status) === 'cancelled')->count(),
+            'total_pending' => $orders->filter(fn (Order $o) => in_array($o->order_status->value ?? (string) $o->order_status, ['pending', 'confirmed', 'cooking', 'on_delivery', 'arrived']))->count(),
         ];
 
         $pdf = Pdf::loadView('exports.orders-report', [
@@ -132,8 +130,6 @@ class ReportController extends Controller
 
     /**
      * Export the report as a downloadable Excel (.xlsx) file.
-     *
-     * @param  ReportRequest  $request
      */
     public function exportExcel(ReportFilterData $dto): BinaryFileResponse
     {

@@ -32,7 +32,6 @@
             taxPercentage: number;
             taxEnabled: boolean;
             shippingBreakdown?: Array<{
-                chef_name: string;
                 courier_company: string;
                 courier_name: string;
                 fee: number;
@@ -166,11 +165,26 @@
         if (processing) return;
 
         processing = true;
-        router.visit("/payment-summary", {
-            onFinish: () => {
-                processing = false;
+        router.post(
+            "/checkout/update-session",
+            {
+                cart,
+                dropPoint,
+                address,
+                delivery_date: deliveryDateIso,
+                delivery_time: deliveryTime,
+                order_type: orderType,
+                notes: orderNotes,
             },
-        });
+            {
+                onSuccess: () => {
+                    router.visit("/payment-summary");
+                },
+                onError: () => {
+                    processing = false;
+                },
+            },
+        );
     }
 
     function handleEditClick(item: any, key: string) {
@@ -301,16 +315,16 @@
 
     const canProceed = $derived(!!deliveryDateIso && !!deliveryTime);
 
-    $effect(() => {
-        deliveryDateIso = delivery_date || "";
-    });
-
-    $effect(() => {
-        deliveryTime = delivery_time || "";
-    });
-
-    $effect(() => {
-        orderNotes = notes || "";
+    $effect.pre(() => {
+        if (delivery_date && !deliveryDateIso) {
+            deliveryDateIso = delivery_date;
+        }
+        if (delivery_time && !deliveryTime) {
+            deliveryTime = delivery_time;
+        }
+        if (notes && !orderNotes) {
+            orderNotes = notes;
+        }
     });
 
     const minDateIso = $derived.by(() => {
@@ -382,7 +396,9 @@
                     "address",
                     "delivery_date",
                     "delivery_time",
+                    "notes",
                     "fees",
+                    "quotaProgress",
                 ],
             },
         );
@@ -706,7 +722,7 @@
             <input
                 type="text"
                 placeholder="Tinggalkan catatan..."
-                class="text-right text-sm focus:outline-none flex-1 ml-4"
+                class="text-right text-sm focus:outline-none flex-1 ml-4 bg-transparent text-slate-100 placeholder-slate-500"
                 bind:value={orderNotes}
                 onblur={updateSession}
             />

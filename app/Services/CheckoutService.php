@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\Setting\OrderSettingsDTO;
-use App\Models\Chef;
+use App\Models\CompanyProfile;
 use App\Models\CustomerAddress;
 use App\Models\DropPoint;
 use App\Models\PaymentMethod;
@@ -14,7 +14,7 @@ use App\Traits\RetryableTransactionsTrait;
 /**
  * Service for handling checkout business logic.
  *
- * Provides methods for fee calculation including per-chef dynamic shipping
+ * Provides methods for fee calculation including centralized dynamic shipping
  * via Biteship API (Grab/Gojek instant couriers) for custom address delivery.
  */
 class CheckoutService
@@ -33,14 +33,11 @@ class CheckoutService
     /**
      * Calculate checkout fees based on cart and drop point or custom address.
      *
-     * Untuk custom address, ongkir dihitung dinamis per-chef via Biteship.
-     * Untuk drop point, ongkir tetap flat fee seperti sebelumnya.
-     *
      * @param  array  $cart  The current items in the cart.
      * @param  string|null  $dropPointId  The selected drop point ID.
      * @param  string|null  $addressId  The selected custom address ID.
      * @param  string|null  $paymentMethodId  The selected payment method ID.
-     * @return array Calculated fees including delivery, admin, tax, and per-chef shipping breakdown.
+     * @return array Calculated fees including delivery, admin, tax, and shipping breakdown.
      */
     public function calculateFees(
         array $cart,
@@ -57,63 +54,46 @@ class CheckoutService
         $deliveryFeeMode = $settings->deliveryFeeMode;
         $minOrderFreeDelivery = $settings->freeCourierMinOrder;
 
-        // Get unique chefs from cart
-        $uniqueChefIds = collect($cart)->map(function ($item) {
-            $chefs = data_get($item, 'product.chefs', []);
-
-            return collect($chefs)->pluck('id');
-        })->flatten()->unique()->filter();
-
-        $chefCount = max(1, $uniqueChefIds->count());
-
-        // Per-chef shipping breakdown (Biteship) — only for custom address
         $shippingBreakdown = [];
         $useBiteship = false;
 
         if ($address && $address->latitude && $address->longitude) {
-            // Custom address → Biteship is temporarily disabled
+            // Custom address
             $useBiteship = false;
 
             if ($subtotal >= $minOrderFreeDelivery && $minOrderFreeDelivery > 0) {
                 $deliveryFee = 0;
             } else {
-                $deliveryFee = 0;
-                $chefs = Chef::whereIn('id', $uniqueChefIds)->get()->keyBy('id');
+                $company = CompanyProfile::first();
+                $originLat = -7.2575; // Default Surabaya center coordinates if company coordinates are not set
+                $originLng = 112.7521;
+                $originAddress = $company?->address ?? 'Surabaya';
 
-                foreach ($uniqueChefIds as $chefId) {
-                    $chef = $chefs->get($chefId);
-                    if (! $chef || ! $chef->latitude || ! $chef->longitude) {
-                        continue;
-                    }
+                $rateResult = $this->biteshipService->getCheapestRate(
+                    originLat: $originLat,
+                    originLng: $originLng,
+                    destLat: (float) $address->latitude,
+                    destLng: (float) $address->longitude,
+                );
 
-                    $rateResult = $this->biteshipService->getCheapestRate(
-                        originLat: $chef->latitude,
-                        originLng: $chef->longitude,
-                        destLat: $address->latitude,
-                        destLng: $address->longitude,
-                    );
+                $shippingBreakdown[] = [
+                    'courier_company' => $rateResult['courier_company'],
+                    'courier_type' => $rateResult['courier_type'],
+                    'courier_name' => $rateResult['courier_name'],
+                    'fee' => $rateResult['fee'],
+                    'success' => $rateResult['success'],
+                    'error' => $rateResult['error'],
+                    'origin_address' => $originAddress,
+                    'origin_latitude' => $originLat,
+                    'origin_longitude' => $originLng,
+                    'destination_latitude' => (float) $address->latitude,
+                    'destination_longitude' => (float) $address->longitude,
+                ];
 
-                    $shippingBreakdown[] = [
-                        'chef_id' => $chefId,
-                        'chef_name' => $chef->business_name ?: $chef->name,
-                        'courier_company' => $rateResult['courier_company'],
-                        'courier_type' => $rateResult['courier_type'],
-                        'courier_name' => $rateResult['courier_name'],
-                        'fee' => $rateResult['fee'],
-                        'success' => $rateResult['success'],
-                        'error' => $rateResult['error'],
-                        'origin_address' => $chef->address,
-                        'origin_latitude' => $chef->latitude,
-                        'origin_longitude' => $chef->longitude,
-                        'destination_latitude' => $address->latitude,
-                        'destination_longitude' => $address->longitude,
-                    ];
-
-                    $deliveryFee += $rateResult['fee'];
-                }
+                $deliveryFee = $rateResult['fee'];
             }
         } else {
-            // Drop point → flat fee logic (unchanged)
+            // Drop point → flat fee logic
             if ($subtotal >= $minOrderFreeDelivery && $minOrderFreeDelivery > 0) {
                 $deliveryFee = 0;
             } else {
@@ -122,7 +102,7 @@ class CheckoutService
                     'flat' => $settings->deliveryFeeFlat,
                     default => (int) ($dropPoint?->delivery_fee ?? $settings->deliveryFeeFlat),
                 };
-                $deliveryFee = $baseDeliveryFee * $chefCount;
+                $deliveryFee = $baseDeliveryFee;
             }
         }
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Exports;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Models\Order;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -60,10 +62,20 @@ class OrdersExport implements FromCollection, ShouldAutoSize, WithHeadings, With
      */
     public function map($order): array
     {
+        $orderStatusKey = $order->order_status instanceof OrderStatus
+            ? $order->order_status->value
+            : (string) $order->order_status;
+
+        $paymentStatusKey = $order->payment_status instanceof PaymentStatus
+            ? $order->payment_status->value
+            : (string) $order->payment_status;
+
         $orderStatusMap = [
-            'pending' => 'Menunggu',
+            'pending' => 'Menunggu Konfirmasi',
             'confirmed' => 'Dikonfirmasi',
-            'shipped' => 'Dikirim',
+            'cooking' => 'Sedang Dimasak',
+            'on_delivery' => 'Sedang Dikirim',
+            'arrived' => 'Tiba di Tujuan',
             'delivered' => 'Selesai',
             'cancelled' => 'Dibatalkan',
         ];
@@ -83,8 +95,8 @@ class OrdersExport implements FromCollection, ShouldAutoSize, WithHeadings, With
             $order->customer?->email ?? '-',
             $order->dropPoint?->name ?? '-',
             $order->total_amount,
-            $orderStatusMap[$order->order_status] ?? $order->order_status,
-            $paymentStatusMap[$order->payment_status] ?? $order->payment_status,
+            $orderStatusMap[$orderStatusKey] ?? $orderStatusKey,
+            $paymentStatusMap[$paymentStatusKey] ?? $paymentStatusKey,
         ];
     }
 

@@ -222,20 +222,22 @@ class ReportService
     {
         $all = (clone $query)->get();
 
-        $deliveredOrderIds = $all->where('order_status', 'delivered')->pluck('id');
+        $deliveredOrders = $all->filter(fn (Order $o) => ($o->order_status->value ?? (string) $o->order_status) === 'delivered');
+        $deliveredOrderIds = $deliveredOrders->pluck('id');
+
         $totalCost = (int) OrderItem::whereIn('order_id', $deliveredOrderIds)
             ->selectRaw('SUM(quantity * COALESCE(cost_price, 0)) as total_cost')
             ->value('total_cost');
 
-        $totalRevenue = (int) $all->where('order_status', 'delivered')->sum('total_amount');
+        $totalRevenue = (int) $deliveredOrders->sum('total_amount');
 
         return [
             'total_orders' => $all->count(),
             'total_revenue' => $totalRevenue,
             'total_cost' => $totalCost,
             'total_profit' => $totalRevenue - $totalCost,
-            'total_cancelled' => $all->where('order_status', 'cancelled')->count(),
-            'total_pending' => $all->whereIn('order_status', ['pending', 'confirmed', 'shipped'])->count(),
+            'total_cancelled' => $all->filter(fn (Order $o) => ($o->order_status->value ?? (string) $o->order_status) === 'cancelled')->count(),
+            'total_pending' => $all->filter(fn (Order $o) => in_array($o->order_status->value ?? (string) $o->order_status, ['pending', 'confirmed', 'cooking', 'on_delivery', 'arrived']))->count(),
         ];
     }
 }

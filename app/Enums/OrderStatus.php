@@ -7,15 +7,14 @@ namespace App\Enums;
 /**
  * Enum for Order Status.
  *
- * Flow: PENDING → CONFIRMED → SHIPPED → AT_PICKUP_POINT → ON_DELIVERY → DELIVERED
+ * Flow: PENDING → CONFIRMED → ON_DELIVERY → ARRIVED → DELIVERED
  * CANCELLED can happen at any point before DELIVERED.
  */
 enum OrderStatus: string
 {
     case PENDING = 'pending';
     case CONFIRMED = 'confirmed';
-    case SHIPPED = 'shipped';
-    case AT_PICKUP_POINT = 'at_pickup_point';
+    case COOKING = 'cooking';
     case ON_DELIVERY = 'on_delivery';
     case ARRIVED = 'arrived';
     case DELIVERED = 'delivered';
@@ -29,9 +28,8 @@ enum OrderStatus: string
         return match ($this) {
             self::PENDING => 'Menunggu Konfirmasi',
             self::CONFIRMED => 'Dikonfirmasi',
-            self::SHIPPED => 'Dikirim ke Pickup Point',
-            self::AT_PICKUP_POINT => 'Di Pickup Point',
-            self::ON_DELIVERY => 'Sedang Dikirim ke Customer',
+            self::COOKING => 'Sedang Dimasak',
+            self::ON_DELIVERY => 'Sedang Dikirim',
             self::ARRIVED => 'Tiba di Tujuan',
             self::DELIVERED => 'Selesai',
             self::CANCELLED => 'Dibatalkan',
@@ -45,10 +43,9 @@ enum OrderStatus: string
     {
         return match ($this) {
             self::PENDING => 'Pesanan baru masuk dan menunggu konfirmasi admin.',
-            self::CONFIRMED => 'Pesanan telah dikonfirmasi dan sedang diproses chef.',
-            self::SHIPPED => 'Chef sedang mengirim makanan ke pickup point.',
-            self::AT_PICKUP_POINT => 'Semua makanan sudah sampai di pickup point.',
-            self::ON_DELIVERY => 'PIC sedang mengirim pesanan ke customer.',
+            self::CONFIRMED => 'Pesanan telah dikonfirmasi dan menunggu antrean masak.',
+            self::COOKING => 'Pesanan sedang dimasak dan disiapkan di dapur utama.',
+            self::ON_DELIVERY => 'Pesanan sedang dalam pengiriman ke customer / drop point.',
             self::ARRIVED => 'Pesanan telah sampai dan menunggu konfirmasi pelanggan.',
             self::DELIVERED => 'Pesanan telah diterima oleh pelanggan.',
             self::CANCELLED => 'Pesanan telah dibatalkan.',

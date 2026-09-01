@@ -165,19 +165,11 @@
             };
         }
 
-        if (orderStatus === "shipped") {
+        if (orderStatus === "cooking") {
             return {
-                text: isCash ? "Dikirim (COD)" : "Dikirim ke Pickup",
+                text: "Sedang Dimasak",
                 classes:
-                    "bg-purple-900/20 text-purple-400 border border-purple-800",
-            };
-        }
-
-        if (orderStatus === "at_pickup_point") {
-            return {
-                text: "Di Pickup Point",
-                classes:
-                    "bg-purple-900/20 text-purple-400 border border-purple-800",
+                    "bg-orange-900/20 text-orange-400 border border-orange-800",
             };
         }
 

@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Enums\ChefStatus;
 use App\Enums\OrderStatus;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\OrderShipping;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Synchronize historical cancelled orders so chef and PIC/courier statuses are cancelled too.
+ * Synchronize historical cancelled orders so shipping statuses are cancelled too.
  */
 class SyncCancelledOrderStatuses extends Command
 {
@@ -31,7 +29,7 @@ class SyncCancelledOrderStatuses extends Command
      *
      * @var string
      */
-    protected $description = 'Sinkronkan status chef dan PIC/kurir untuk order lama yang sudah dibatalkan';
+    protected $description = 'Sinkronkan status pengiriman untuk order lama yang sudah dibatalkan';
 
     /**
      * Execute the console command.
@@ -43,19 +41,12 @@ class SyncCancelledOrderStatuses extends Command
 
         $query = Order::query()
             ->where('order_status', OrderStatus::CANCELLED)
-            ->where(function ($query) {
-                $query->whereHas('items', fn ($itemQuery) => $itemQuery->where('chef_status', '!=', ChefStatus::CANCELLED->value))
-                    ->orWhereHas('shippings', function ($shippingQuery) {
-                        $shippingQuery->whereNull('biteship_status')
-                            ->orWhere('biteship_status', '!=', 'cancelled');
-                    });
+            ->whereHas('shippings', function ($shippingQuery) {
+                $shippingQuery->whereNull('biteship_status')
+                    ->orWhere('biteship_status', '!=', 'cancelled');
             });
 
         $orderCount = (clone $query)->count();
-        $itemCount = OrderItem::query()
-            ->whereHas('order', fn ($orderQuery) => $orderQuery->where('order_status', OrderStatus::CANCELLED))
-            ->where('chef_status', '!=', ChefStatus::CANCELLED->value)
-            ->count();
         $shippingCount = OrderShipping::query()
             ->whereHas('order', fn ($orderQuery) => $orderQuery->where('order_status', OrderStatus::CANCELLED))
             ->where(function ($shippingQuery) {
@@ -65,8 +56,7 @@ class SyncCancelledOrderStatuses extends Command
             ->count();
 
         $this->info("Order perlu sinkronisasi: {$orderCount}");
-        $this->info("Item chef perlu dibatalkan: {$itemCount}");
-        $this->info("Shipping PIC/kurir perlu dibatalkan: {$shippingCount}");
+        $this->info("Shipping perlu dibatalkan: {$shippingCount}");
 
         if ($dryRun) {
             $this->warn('Dry-run aktif. Tidak ada data yang diubah.');
@@ -75,19 +65,11 @@ class SyncCancelledOrderStatuses extends Command
         }
 
         $processedOrders = 0;
-        $updatedItems = 0;
         $updatedShippings = 0;
 
-        $query->select('id')->chunkById($chunkSize, function ($orders) use (&$processedOrders, &$updatedItems, &$updatedShippings) {
+        $query->select('id')->chunkById($chunkSize, function ($orders) use (&$processedOrders, &$updatedShippings) {
             foreach ($orders as $order) {
-                DB::transaction(function () use ($order, &$processedOrders, &$updatedItems, &$updatedShippings) {
-                    $updatedItems += OrderItem::where('order_id', $order->id)
-                        ->where('chef_status', '!=', ChefStatus::CANCELLED->value)
-                        ->update([
-                            'chef_status' => ChefStatus::CANCELLED,
-                            'chef_confirmed_at' => now(),
-                        ]);
-
+                DB::transaction(function () use ($order, &$processedOrders, &$updatedShippings) {
                     $updatedShippings += OrderShipping::where('order_id', $order->id)
                         ->where(function ($shippingQuery) {
                             $shippingQuery->whereNull('biteship_status')
@@ -100,7 +82,7 @@ class SyncCancelledOrderStatuses extends Command
             }
         });
 
-        $this->info("Selesai. {$processedOrders} order diproses, {$updatedItems} item chef dan {$updatedShippings} shipping PIC/kurir diperbarui.");
+        $this->info("Selesai. {$processedOrders} order diproses dan {$updatedShippings} shipping diperbarui.");
 
         return Command::SUCCESS;
     }

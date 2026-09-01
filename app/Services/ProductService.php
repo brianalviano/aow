@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\Product\ProductData;
-use App\Models\Chef;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Traits\FileHelperTrait;
 use App\Traits\RetryableTransactionsTrait;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -159,76 +157,52 @@ class ProductService
 
                         $keepOptionIds[] = $option->id;
 
-                        // Reconcile items for this option
-                        $existingItems = $option->items->keyBy('id');
+                        // Smart sync option items
+                        $existingItems = $option->items()->get()->keyBy('id');
                         $keepItemIds = [];
 
                         foreach ($optionData->items as $itemData) {
                             $itemId = $itemData->id;
-                            $item = null;
-
                             if ($itemId && $existingItems->has($itemId)) {
-                                $item = $existingItems->get($itemId);
-                                $item->update([
+                                $existingItems->get($itemId)->update([
                                     'name' => $itemData->name,
                                     'extra_price' => $itemData->extraPrice,
                                     'sort_order' => $itemData->sortOrder,
                                 ]);
+                                $keepItemIds[] = $itemId;
                             } else {
-                                $item = $option->items()->create([
+                                $newItem = $option->items()->create([
                                     'name' => $itemData->name,
                                     'extra_price' => $itemData->extraPrice,
                                     'sort_order' => $itemData->sortOrder,
                                 ]);
+                                $keepItemIds[] = $newItem->id;
                             }
-
-                            $keepItemIds[] = $item->id;
                         }
 
                         // Delete removed items
-                        foreach ($existingItems as $existingItemId => $existingItem) {
-                            if (! in_array($existingItemId, $keepItemIds)) {
-                                try {
-                                    $existingItem->delete();
-                                } catch (QueryException $e) {
-                                    if ($e->getCode() === '23503') {
-                                        throw new \RuntimeException(
-                                            "Gagal menghapus item opsi '{$existingItem->name}' karena sudah digunakan dalam riwayat pesanan."
-                                        );
-                                    }
-                                    throw $e;
-                                }
-                            }
-                        }
+                        $option->items()->whereNotIn('id', $keepItemIds)->delete();
                     }
 
                     // Delete removed options
-                    foreach ($existingOptions as $existingOptionId => $existingOption) {
-                        if (! in_array($existingOptionId, $keepOptionIds)) {
-                            try {
-                                $existingOption->items()->delete();
-                                $existingOption->delete();
-                            } catch (QueryException $e) {
-                                if ($e->getCode() === '23503') {
-                                    throw new \RuntimeException(
-                                        "Gagal menghapus opsi '{$existingOption->name}' karena sudah digunakan dalam riwayat pesanan."
-                                    );
-                                }
-                                throw $e;
-                            }
-                        }
-                    }
+                    $product->productOptions()->whereNotIn('id', $keepOptionIds)->delete();
 
-                    $product->manipulation()->updateOrCreate(
-                        ['product_id' => $product->id],
-                        [
+                    // Smart sync manipulation
+                    if ($product->manipulation) {
+                        $product->manipulation->update([
                             'fake_sales_count' => $data->fakeSalesCount,
                             'fake_testimonials_count' => $data->fakeTestimonialsCount,
                             'is_active' => $data->isManipulationActive,
-                        ]
-                    );
+                        ]);
+                    } else {
+                        $product->manipulation()->create([
+                            'fake_sales_count' => $data->fakeSalesCount,
+                            'fake_testimonials_count' => $data->fakeTestimonialsCount,
+                            'is_active' => $data->isManipulationActive,
+                        ]);
+                    }
 
-                    return $product->refresh();
+                    return $product;
                 });
             } catch (\Throwable $e) {
                 Log::error('Failed to update product', [
@@ -288,7 +262,6 @@ class ProductService
                 'order:id,number,order_status,payment_status,delivery_date,created_at,customer_id,drop_point_id',
                 'order.customer:id,name,email',
                 'order.dropPoint:id,name',
-                'chef:id,name,business_name',
                 'options.productOption',
                 'options.productOptionItem',
             ])
@@ -307,9 +280,6 @@ class ProductService
                 if (! empty($filters['status'])) {
                     $q->where('order_status', $filters['status']);
                 }
-            })
-            ->when($filters['chef_id'] ?? null, function ($q, $chefId) {
-                $q->where('chef_id', $chefId);
             });
 
         // Calculate summary
@@ -318,27 +288,6 @@ class ProductService
         $totalQuantity = (int) $allItems->sum('quantity');
         $totalRevenue = (int) $allItems->sum('subtotal');
         $avgQtyPerOrder = $totalOrders > 0 ? round($totalQuantity / $totalOrders, 1) : 0;
-
-        // Chef breakdown with percentage
-        $chefBreakdown = $allItems->groupBy(fn ($item) => $item->chef_id ?? 'no_chef')
-            ->map(function ($items, $chefId) use ($totalRevenue) {
-                $chef = $items->first()?->chef;
-                $chefRevenue = (int) $items->sum('subtotal');
-                $percentage = $totalRevenue > 0 ? round(($chefRevenue / $totalRevenue) * 100, 1) : 0;
-
-                return [
-                    'chef_id' => $chefId === 'no_chef' ? null : $chefId,
-                    'chef_name' => $chef?->name ?? 'Belum Diassign',
-                    'business_name' => $chef?->business_name,
-                    'total_orders' => $items->pluck('order_id')->unique()->count(),
-                    'total_quantity' => (int) $items->sum('quantity'),
-                    'total_revenue' => $chefRevenue,
-                    'percentage' => $percentage,
-                ];
-            })
-            ->values()
-            ->sortByDesc('total_quantity')
-            ->values();
 
         // Variant / Ukuran Kemasan breakdown with percentage
         $variantBreakdownMap = [];
@@ -383,7 +332,6 @@ class ProductService
                 'total_revenue' => $totalRevenue,
                 'avg_qty_per_order' => $avgQtyPerOrder,
             ],
-            'chef_breakdown' => $chefBreakdown,
             'variant_breakdown' => $variantBreakdown,
             'items' => $paginatedItems,
         ];

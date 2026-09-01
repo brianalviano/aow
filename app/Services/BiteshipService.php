@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Order;
+use App\Models\CompanyProfile;
 use App\Models\OrderShipping;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Collection;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
  * Service untuk berkomunikasi dengan Biteship API.
  *
  * Menyediakan method untuk mengambil tarif kurir instant (Grab/Gojek)
- * berdasarkan koordinat origin (chef) dan destination (customer).
+ * berdasarkan koordinat origin (dapur pusat) dan destination (customer).
  * Hasil di-cache selama 5 menit per kombinasi koordinat.
  */
 class BiteshipService
@@ -32,14 +32,13 @@ class BiteshipService
     /**
      * Ambil tarif kurir dari Biteship Rates API.
      *
-     * @param  float  $originLat  Latitude origin (chef).
-     * @param  float  $originLng  Longitude origin (chef).
+     * @param  float  $originLat  Latitude origin.
+     * @param  float  $originLng  Longitude origin.
      * @param  float  $destLat  Latitude destination (customer).
      * @param  float  $destLng  Longitude destination (customer).
      * @param  array  $items  Item list sesuai format Biteship (name, value, weight, quantity, dll).
      * @param  string  $couriers  Comma-separated courier codes (default: grab,gojek).
      * @return array{success: bool, pricing: array, error: string|null}
-     *                                                                  pricing berisi array dari available couriers dengan tarif.
      */
     public function getRates(
         float $originLat,
@@ -66,8 +65,8 @@ class BiteshipService
     /**
      * Ambil tarif termurah dari Biteship untuk kombinasi origin-destination.
      *
-     * @param  float  $originLat  Latitude origin (chef).
-     * @param  float  $originLng  Longitude origin (chef).
+     * @param  float  $originLat  Latitude origin.
+     * @param  float  $originLng  Longitude origin.
      * @param  float  $destLat  Latitude destination (customer).
      * @param  float  $destLng  Longitude destination (customer).
      * @param  array  $items  Item list sesuai format Biteship.
@@ -209,8 +208,8 @@ class BiteshipService
     /**
      * Buat pesanan pengiriman ke Biteship (Cari driver Gojek/Grab).
      *
-     * @param  OrderShipping  $shipping  Data shipping per-chef.
-     * @param  Collection  $items  Koleksi OrderItem milik chef ini di order ini.
+     * @param  OrderShipping  $shipping  Data shipping.
+     * @param  Collection  $items  Koleksi OrderItem pada order ini.
      * @return array{success: bool, order_id: string|null, tracking_id: string|null, waybill_id: string|null, status: string|null, error: string|null}
      */
     public function createOrder(OrderShipping $shipping, Collection $items): array
@@ -225,7 +224,7 @@ class BiteshipService
 
         $order = current($items)->order;
         $customer = $order->customer;
-        $chef = $shipping->chef;
+        $company = CompanyProfile::first();
 
         // Siapkan list barang sesuai format Biteship
         $biteshipItems = [];
@@ -234,20 +233,24 @@ class BiteshipService
                 'name' => mb_substr($item->product->name, 0, 50),
                 'description' => mb_substr($item->note ?? 'Makanan', 0, 50),
                 'value' => (int) $item->price,
-                'weight' => 1000, // Asumsi 1kg/item jika produk tdk ada berat
+                'weight' => 1000,
                 'quantity' => $item->quantity,
             ];
         }
 
-        $payload = [
-            'shipper_contact_name' => mb_substr($chef->business_name ?: $chef->name, 0, 50),
-            'shipper_contact_phone' => preg_replace('/[^0-9]/', '', $chef->phone ?: '081234567890'),
-            'shipper_contact_email' => $chef->email ?: 'admin@example.com',
-            'shipper_organization' => mb_substr($chef->business_name ?: $chef->name, 0, 50),
+        $companyName = $company?->name ?? config('app.name', 'AOWenak');
+        $companyPhone = preg_replace('/[^0-9]/', '', $company?->phone ?? $company?->whatsapp ?? '081234567890');
+        $companyEmail = $company?->email ?? 'admin@aowenak.com';
 
-            'origin_contact_name' => mb_substr($chef->name, 0, 50),
-            'origin_contact_phone' => preg_replace('/[^0-9]/', '', $chef->phone ?: '081234567890'),
-            'origin_address' => $shipping->origin_address ?: 'Alamat tidak diketahui',
+        $payload = [
+            'shipper_contact_name' => mb_substr($companyName, 0, 50),
+            'shipper_contact_phone' => $companyPhone,
+            'shipper_contact_email' => $companyEmail,
+            'shipper_organization' => mb_substr($companyName, 0, 50),
+
+            'origin_contact_name' => mb_substr($companyName, 0, 50),
+            'origin_contact_phone' => $companyPhone,
+            'origin_address' => $shipping->origin_address ?: ($company?->address ?? 'Surabaya'),
             'origin_coordinate' => [
                 'latitude' => (float) $shipping->origin_latitude,
                 'longitude' => (float) $shipping->origin_longitude,

@@ -59,6 +59,7 @@ class ProcessOrderData extends Data
         public readonly ?string $deliveryTime = null,
 
         public readonly ?string $orderType = 'preorder',
+        public readonly ?string $notes = null,
     ) {}
 
     /**
@@ -105,6 +106,7 @@ class ProcessOrderData extends Data
             deliveryDate: $validated['delivery_date'] ?? null,
             deliveryTime: $validated['delivery_time'] ?? null,
             orderType: session('checkout_order_type', 'preorder'),
+            notes: (string) ($validated['notes'] ?? session('checkout_notes') ?? ''),
         );
     }
 }

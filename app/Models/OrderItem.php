@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\ChefStatus;
 use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,7 +19,7 @@ class OrderItem extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
         'order_id',
@@ -33,18 +32,7 @@ class OrderItem extends Model
         'final_price',
         'subtotal',
         'note',
-        'chef_id',
-        'chef_status',
-        'chef_confirmed_at',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'chef_status' => ChefStatus::class,
-            'chef_confirmed_at' => 'datetime',
-        ];
-    }
 
     public function order(): BelongsTo
     {
@@ -59,11 +47,6 @@ class OrderItem extends Model
     public function discount(): BelongsTo
     {
         return $this->belongsTo(Discount::class);
-    }
-
-    public function chef(): BelongsTo
-    {
-        return $this->belongsTo(Chef::class);
     }
 
     /**

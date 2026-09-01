@@ -92,10 +92,8 @@
                 return { variant: "warning", label: "Menunggu" };
             case "confirmed":
                 return { variant: "info", label: "Dikonfirmasi" };
-            case "shipped":
-                return { variant: "primary", label: "Dikirim ke Pickup" };
-            case "at_pickup_point":
-                return { variant: "purple", label: "Di Pickup Point" };
+            case "cooking":
+                return { variant: "warning", label: "Sedang Dimasak" };
             case "on_delivery":
                 return { variant: "primary", label: "Sedang Dikirim" };
             case "arrived":

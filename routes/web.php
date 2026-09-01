@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\AccountSettingController;
-use App\Http\Controllers\Admin\ChefController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DropPointController;
@@ -12,8 +11,6 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\PasswordResetController;
 use App\Http\Controllers\Admin\PaymentGuideController;
 use App\Http\Controllers\Admin\PaymentMethodController;
-use App\Http\Controllers\Admin\PickUpPointController;
-use App\Http\Controllers\Admin\PickUpPointOfficerController;
 use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReportController;
@@ -21,10 +18,6 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\TestimonialTemplateController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Chef\DashboardController as ChefDashboardController;
-use App\Http\Controllers\Chef\LoginController as ChefLoginController;
-use App\Http\Controllers\Chef\OrderController as ChefOrderController;
-use App\Http\Controllers\Chef\ReportController as ChefReportController;
 use App\Http\Controllers\Customer\AuthController;
 use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\CustomerAddressController;
@@ -40,9 +33,6 @@ use App\Http\Controllers\Customer\ProductController as CustomerProductController
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\TermsAndConditionController;
 use App\Http\Controllers\DocsController;
-use App\Http\Controllers\Pic\DashboardController as PicDashboardController;
-use App\Http\Controllers\Pic\LoginController as PicLoginController;
-use App\Http\Controllers\Pic\OrderController as PicOrderController;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -204,11 +194,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
         Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+        Route::post('/orders/{order}/cook', [OrderController::class, 'cook'])->name('orders.cook');
         Route::post('/orders/{order}/ship', [OrderController::class, 'ship'])->name('orders.ship');
         Route::post('/orders/{order}/deliver', [OrderController::class, 'deliver'])->name('orders.deliver');
         Route::post('/orders/{order}/resend-notifications/{target}', [OrderController::class, 'resendNotifications'])->name('orders.resend-notifications');
-        Route::patch('/orders/{order}/pickup-point', [OrderController::class, 'updatePickUpPoint'])->name('orders.update-pickup-point');
-        Route::post('/order-items/{order_item}/reassign-chef', [OrderController::class, 'reassignItemChef'])->name('orders.reassign-chef');
 
         // Testimonial Management
         Route::patch('/testimonials/{testimonial}/approve', [OrderController::class, 'approveTestimonial'])->name('orders.testimonial.approve');
@@ -250,22 +239,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/drop-points/{dropPoint}', [DropPointController::class, 'update'])->name('drop-points.update');
         Route::delete('/drop-points/{dropPoint}', [DropPointController::class, 'destroy'])->name('drop-points.destroy');
 
-        // Pick Up Points
-        Route::get('/pick-up-points', [PickUpPointController::class, 'index'])->name('pick-up-points.index');
-        Route::get('/pick-up-points/create', [PickUpPointController::class, 'create'])->name('pick-up-points.create');
-        Route::post('/pick-up-points', [PickUpPointController::class, 'store'])->name('pick-up-points.store');
-        Route::get('/pick-up-points/{pickUpPoint}/edit', [PickUpPointController::class, 'edit'])->name('pick-up-points.edit');
-        Route::put('/pick-up-points/{pickUpPoint}', [PickUpPointController::class, 'update'])->name('pick-up-points.update');
-        Route::delete('/pick-up-points/{pickUpPoint}', [PickUpPointController::class, 'destroy'])->name('pick-up-points.destroy');
-
-        // Pick Up Point Officers
-        Route::get('/pick-up-point-officers', [PickUpPointOfficerController::class, 'index'])->name('pick-up-point-officers.index');
-        Route::get('/pick-up-point-officers/create', [PickUpPointOfficerController::class, 'create'])->name('pick-up-point-officers.create');
-        Route::post('/pick-up-point-officers', [PickUpPointOfficerController::class, 'store'])->name('pick-up-point-officers.store');
-        Route::get('/pick-up-point-officers/{pickUpPointOfficer}/edit', [PickUpPointOfficerController::class, 'edit'])->name('pick-up-point-officers.edit');
-        Route::put('/pick-up-point-officers/{pickUpPointOfficer}', [PickUpPointOfficerController::class, 'update'])->name('pick-up-point-officers.update');
-        Route::delete('/pick-up-point-officers/{pickUpPointOfficer}', [PickUpPointOfficerController::class, 'destroy'])->name('pick-up-point-officers.destroy');
-
         // Payment Methods
         Route::get('/payment-methods', [PaymentMethodController::class, 'index'])->name('payment-methods.index');
         Route::get('/payment-methods/create', [PaymentMethodController::class, 'create'])->name('payment-methods.create');
@@ -289,17 +262,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Food Requests
         Route::get('/food-requests', [AdminFoodRequestController::class, 'index'])->name('food-requests.index');
         Route::patch('/food-requests/{foodRequest}', [AdminFoodRequestController::class, 'update'])->name('food-requests.update');
-
-        // Chefs
-        Route::get('/chefs/region/{region}', [ChefController::class, 'index'])->name('chefs.region');
-        Route::get('/chefs', [ChefController::class, 'index'])->name('chefs.index');
-        Route::get('/chefs/create', [ChefController::class, 'create'])->name('chefs.create');
-        Route::post('/chefs', [ChefController::class, 'store'])->name('chefs.store');
-        Route::get('/chefs/{chef}', [ChefController::class, 'show'])->name('chefs.show');
-        Route::get('/chefs/{chef}/edit', [ChefController::class, 'edit'])->name('chefs.edit');
-        Route::put('/chefs/{chef}', [ChefController::class, 'update'])->name('chefs.update');
-        Route::delete('/chefs/{chef}', [ChefController::class, 'destroy'])->name('chefs.destroy');
-        Route::post('/chefs/{chef}/transfers', [ChefController::class, 'storeTransfer'])->name('chefs.transfers.store');
 
         // Users (Admins)
         Route::resource('users', UserController::class)->middleware('can:admin-only');
@@ -327,55 +289,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('notifications.mark_all');
         Route::patch('/notifications/{notification}', [NotificationController::class, 'mark'])
             ->name('notifications.mark');
-    });
-});
-
-/*
-|--------------------------------------------------------------------------
-| Chef Routes (/chef prefix)
-|--------------------------------------------------------------------------
-*/
-
-Route::prefix('chef')->name('chef.')->group(function () {
-
-    // Chef authenticated routes
-    Route::middleware('auth:chef')->group(function () {
-        Route::get('/', [ChefDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/orders', [ChefOrderController::class, 'index'])->name('orders');
-        Route::get('/report', [ChefReportController::class, 'index'])->name('report');
-        Route::post('/orders/approve', [ChefOrderController::class, 'approve'])->name('orders.approve');
-        Route::post('/orders/reject', [ChefOrderController::class, 'reject'])->name('orders.reject');
-        Route::post('/orders/ship', [ChefOrderController::class, 'ship'])->name('orders.ship');
-        Route::post('/logout', [ChefLoginController::class, 'logout'])->name('logout');
-    });
-
-    // Chef guest routes
-    Route::middleware('guest:chef')->group(function () {
-        Route::get('/login', [ChefLoginController::class, 'show'])->name('login');
-        Route::post('/login', [ChefLoginController::class, 'login'])->name('login.store');
-    });
-});
-
-/*
-|--------------------------------------------------------------------------
-| PIC Routes (/pic prefix)
-|--------------------------------------------------------------------------
-*/
-
-Route::prefix('pic')->name('pic.')->group(function () {
-
-    // PIC authenticated routes
-    Route::middleware('auth:pickup_officer')->group(function () {
-        Route::get('/', [PicDashboardController::class, 'index'])->name('dashboard');
-        Route::post('/orders/{order}/approve', [PicOrderController::class, 'approve'])->name('orders.approve');
-        Route::post('/orders/{order}/send', [PicOrderController::class, 'send'])->name('orders.send');
-        Route::post('/orders/{order}/complete', [PicOrderController::class, 'complete'])->name('orders.complete');
-        Route::post('/logout', [PicLoginController::class, 'logout'])->name('logout');
-    });
-
-    // PIC guest routes
-    Route::middleware('guest:pickup_officer')->group(function () {
-        Route::get('/login', [PicLoginController::class, 'show'])->name('login');
-        Route::post('/login', [PicLoginController::class, 'login'])->name('login.store');
     });
 });

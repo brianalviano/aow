@@ -5,7 +5,6 @@
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import FileUpload from "@/Lib/Admin/Components/Ui/FileUpload.svelte";
     import MediaViewer from "@/Lib/Admin/Components/Ui/MediaViewer.svelte";
-    import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
     import OrderPrintModal from "./OrderPrintModal.svelte";
 
@@ -79,64 +78,24 @@
         delivered_at?: string;
         arrived_at?: string;
         created_at: string;
-        items: (OrderItem & {
-            chef?: { id: string; name: string };
-            chef_status: string;
-            chef_confirmed_at?: string;
-        })[];
+        items: OrderItem[];
         shippings: Array<{
-            chef?: { name: string };
             courier_company: string;
             courier_name: string;
             shipping_fee: number;
             biteship_status?: string;
             biteship_waybill_id?: string;
         }>;
-        pick_up_point?: {
-            id: string;
-            name: string;
-            address: string;
-            latitude?: number;
-            longitude?: number;
-        };
-        pick_up_point_id?: string;
-        chef_status_summary?: string;
-    }
-
-    interface Chef {
-        id: string;
-        name: string;
-    }
-
-    interface PickUpPointOption {
-        id: string;
-        name: string;
-        address: string;
-        latitude?: number;
-        longitude?: number;
     }
 
     let {
         order: orderProp,
-        chefs = [],
-        pickUpPoints = [],
-        canChangePickUpPoint = false,
         free_courier_min_order = 0,
     }: {
         order: Order;
-        chefs: Chef[];
-        pickUpPoints: PickUpPointOption[];
-        canChangePickUpPoint: boolean;
         free_courier_min_order: number;
     } = $props();
     let order = $derived(orderProp);
-
-    const pickUpPointOptions = $derived(
-        pickUpPoints.map((pp) => ({
-            value: pp.id,
-            label: `${pp.name} - ${pp.address}`,
-        })),
-    );
 
     interface ConfirmDialog {
         open: boolean;
@@ -164,85 +123,47 @@
     let isMediaViewerOpen = $state(false);
     let mediaViewerItems = $state<string | string[]>([]);
     let mediaViewerInitialIndex = $state(0);
-
-    let reassignModalOpen = $state(false);
-    let selectedItemForReassign = $state<any>(null);
-    let selectedNewChefId = $state("");
-
-    let selectedPickUpPointId = $state("");
-    $effect(() => {
-        selectedPickUpPointId = order.pick_up_point_id ?? "";
-    });
-    let isPickupUpdating = $state(false);
-
     let confirmOrderModalOpen = $state(false);
-    let confirmPickUpPointId = $state("");
-
-    function calculateDistance(
-        lat1: number,
-        lon1: number,
-        lat2: number,
-        lon2: number,
-    ) {
-        const R = 6371; // km
-        const dLat = ((lat2 - lat1) * Math.PI) / 180;
-        const dLon = ((lon2 - lon1) * Math.PI) / 180;
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos((lat1 * Math.PI) / 180) *
-                Math.cos((lat2 * Math.PI) / 180) *
-                Math.sin(dLon / 2) *
-                Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-    }
-
-    function getSuggestedPickUpPoint() {
-        if (order.pick_up_point_id) return order.pick_up_point_id;
-
-        const targetLat =
-            order.customer_address?.latitude || order.drop_point?.latitude;
-        const targetLon =
-            order.customer_address?.longitude || order.drop_point?.longitude;
-
-        if (!targetLat || !targetLon || pickUpPoints.length === 0) return "";
-
-        let nearestId = "";
-        let minDistance = Infinity;
-
-        pickUpPoints.forEach((pp) => {
-            if (pp.latitude && pp.longitude) {
-                const dist = calculateDistance(
-                    targetLat,
-                    targetLon,
-                    pp.latitude,
-                    pp.longitude,
-                );
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    nearestId = pp.id;
-                }
-            }
-        });
-
-        return nearestId || pickUpPoints[0]?.id || "";
-    }
 
     function openConfirmOrderModal() {
-        confirmPickUpPointId = getSuggestedPickUpPoint();
         confirmOrderModalOpen = true;
     }
 
     function submitConfirmOrder() {
-        if (!confirmPickUpPointId) return;
         isProcessing = true;
         router.post(
             `/admin/orders/${order.id}/confirm`,
-            { pick_up_point_id: confirmPickUpPointId },
+            {},
             {
                 onFinish: () => {
                     isProcessing = false;
                     confirmOrderModalOpen = false;
+                },
+            },
+        );
+    }
+
+    function startCooking() {
+        isProcessing = true;
+        router.post(
+            `/admin/orders/${order.id}/cook`,
+            {},
+            {
+                onFinish: () => {
+                    isProcessing = false;
+                },
+            },
+        );
+    }
+
+    function shipOrder() {
+        isProcessing = true;
+        router.post(
+            `/admin/orders/${order.id}/ship`,
+            {},
+            {
+                onFinish: () => {
+                    isProcessing = false;
                 },
             },
         );
@@ -255,13 +176,11 @@
     }
 
     function submitDeliver() {
-        if (!deliveryPhotoFile) {
-            deliveryPhotoError = undefined;
-            return;
-        }
         isProcessing = true;
         const formData = new FormData();
-        formData.append("delivery_photo", deliveryPhotoFile);
+        if (deliveryPhotoFile) {
+            formData.append("delivery_photo", deliveryPhotoFile);
+        }
         router.post(`/admin/orders/${order.id}/deliver`, formData, {
             forceFormData: true,
             onFinish: () => {
@@ -292,18 +211,6 @@
         closeConfirm();
     }
 
-    function postAction(routeName: string) {
-        router.post(
-            `/admin/orders/${order.id}/${routeName}`,
-            {},
-            {
-                onFinish: () => {
-                    isProcessing = false;
-                },
-            },
-        );
-    }
-
     function formatCurrency(amount: number) {
         return new Intl.NumberFormat("id-ID", {
             style: "currency",
@@ -326,50 +233,17 @@
     }
 
     function rejectTestimonial(testimonialId: string) {
-        if (!confirm("Apakah Anda yakin ingin menghapus testimoni ini?"))
-            return;
-        isProcessing = true;
-        router.delete(`/admin/testimonials/${testimonialId}`, {
-            onFinish: () => {
-                isProcessing = false;
+        openConfirm(
+            "Hapus Testimoni",
+            "Apakah Anda yakin ingin menghapus testimoni untuk produk ini?",
+            () => {
+                router.delete(`/admin/testimonials/${testimonialId}`, {
+                    onFinish: () => {
+                        isProcessing = false;
+                    },
+                });
             },
-        });
-    }
-
-    function openReassignModal(item: any) {
-        selectedItemForReassign = item;
-        selectedNewChefId = item.chef?.id || "";
-        reassignModalOpen = true;
-    }
-
-    function submitReassign() {
-        if (!selectedNewChefId) return;
-        isProcessing = true;
-        router.post(
-            `/admin/order-items/${selectedItemForReassign.id}/reassign-chef`,
-            {
-                chef_id: selectedNewChefId,
-            },
-            {
-                onFinish: () => {
-                    isProcessing = false;
-                    reassignModalOpen = false;
-                },
-            },
-        );
-    }
-
-    function submitPickUpPointChange() {
-        if (!selectedPickUpPointId) return;
-        isPickupUpdating = true;
-        router.patch(
-            `/admin/orders/${order.id}/pickup-point`,
-            { pick_up_point_id: selectedPickUpPointId },
-            {
-                onFinish: () => {
-                    isPickupUpdating = false;
-                },
-            },
+            "danger",
         );
     }
 
@@ -394,10 +268,8 @@
                 return { variant: "warning", label: "Menunggu" };
             case "confirmed":
                 return { variant: "info", label: "Dikonfirmasi" };
-            case "shipped":
-                return { variant: "primary", label: "Dikirim ke Pickup" };
-            case "at_pickup_point":
-                return { variant: "info", label: "Di Pickup Point" };
+            case "cooking":
+                return { variant: "warning", label: "Sedang Dimasak" };
             case "on_delivery":
                 return { variant: "primary", label: "Sedang Dikirim" };
             case "arrived":
@@ -429,22 +301,6 @@
         }
     }
 
-    const itemsByChef = $derived.by(() => {
-        const groups: Record<string, { chef: any; items: any[] }> = {};
-
-        order.items.forEach((item: any) => {
-            const chefId = item.chef?.id || "unknown";
-            if (!groups[chefId]) {
-                groups[chefId] = {
-                    chef: item.chef,
-                    items: [],
-                };
-            }
-            groups[chefId].items.push(item);
-        });
-
-        return Object.values(groups);
-    });
     const backUrl = $derived.by(() => {
         const params = new URLSearchParams(window.location.search);
         const from = params.get("from");
@@ -453,11 +309,10 @@
         return "/admin/orders";
     });
 
-    function resendNotifications(target: "customer" | "chef" | "admin") {
+    function resendNotifications(target: "customer" | "admin") {
         let targetLabel = "";
         if (target === "customer") targetLabel = "Customer (WhatsApp & Email)";
-        if (target === "chef") targetLabel = "Chef (Email & Notifikasi)";
-        if (target === "admin") targetLabel = "PIC / Admin (Telegram)";
+        if (target === "admin") targetLabel = "Admin (Telegram)";
 
         if (
             !confirm(
@@ -475,27 +330,6 @@
                 },
             },
         );
-    }
-
-    function getCustomerResendLabel(status: string): string {
-        const labels: Record<string, string> = {
-            pending: "Tagihan / Pesanan Baru",
-            shipped: "Dikirim ke Pickup Point",
-            at_pickup_point: "Transit di Pickup Point",
-            on_delivery: "Sedang Diantar",
-            arrived: "Tiba di Tujuan",
-        };
-        return labels[status] || status;
-    }
-
-    function getAdminResendLabel(status: string): string {
-        const labels: Record<string, string> = {
-            shipped: "Menuju Pickup Point",
-            at_pickup_point: "Di Pickup Point",
-            on_delivery: "Sedang Dikirim",
-            arrived: "Tiba di Tujuan",
-        };
-        return labels[status] || "Update Status";
     }
 </script>
 
@@ -590,6 +424,47 @@
                         {#snippet children()}Batalkan{/snippet}
                     </Button>
                 {/if}
+
+                {#if order.order_status === "confirmed"}
+                    <Button
+                        variant="warning"
+                        icon="fa-solid fa-fire-burner"
+                        disabled={isProcessing}
+                        onclick={startCooking}
+                    >
+                        {#snippet children()}Mulai Memasak{/snippet}
+                    </Button>
+                    <Button
+                        variant="primary"
+                        icon="fa-solid fa-truck-fast"
+                        disabled={isProcessing}
+                        onclick={shipOrder}
+                    >
+                        {#snippet children()}Kirim Pesanan{/snippet}
+                    </Button>
+                {/if}
+
+                {#if order.order_status === "cooking"}
+                    <Button
+                        variant="primary"
+                        icon="fa-solid fa-truck-fast"
+                        disabled={isProcessing}
+                        onclick={shipOrder}
+                    >
+                        {#snippet children()}Kirim Pesanan{/snippet}
+                    </Button>
+                {/if}
+
+                {#if order.order_status === "on_delivery" || order.order_status === "arrived"}
+                    <Button
+                        variant="success"
+                        icon="fa-solid fa-circle-check"
+                        disabled={isProcessing}
+                        onclick={() => (deliverModalOpen = true)}
+                    >
+                        {#snippet children()}Selesaikan Pesanan{/snippet}
+                    </Button>
+                {/if}
             </div>
         </div>
     </header>
@@ -619,77 +494,6 @@
         </div>
     {/if}
 
-    {#if order.chef_status_summary === "cancelled" || order.chef_status_summary === "cancelled_partial"}
-        <div
-            class="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20"
-        >
-            <div class="flex items-center gap-3">
-                <div
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                >
-                    <i class="fa-solid fa-ban"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-red-800 dark:text-red-300">
-                        {order.chef_status_summary === "cancelled_partial"
-                            ? "Status Dapur Dibatalkan Sebagian"
-                            : "Status Dapur Dibatalkan"}
-                    </h4>
-                    <p class="text-sm text-red-700 dark:text-red-400">
-                        Pesanan ini sudah dibatalkan sehingga status dapur ikut
-                        ditandai batal.
-                    </p>
-                </div>
-            </div>
-        </div>
-    {:else if order.chef_status_summary === "rejected" || order.chef_status_summary === "rejected_partial"}
-        <div
-            class="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20"
-        >
-            <div class="flex items-center gap-3">
-                <div
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
-                >
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-red-800 dark:text-red-300">
-                        {order.chef_status_summary === "rejected_partial"
-                            ? "Konfirmasi Dapur Ditolak Sebagian"
-                            : "Konfirmasi Dapur Ditolak"}
-                    </h4>
-                    <p class="text-sm text-red-700 dark:text-red-400">
-                        Salah satu atau lebih item dalam pesanan ini ditolak
-                        oleh Dapur. Silakan lakukan pemindahan (reassign) ke
-                        Dapur lain agar pesanan bisa diproses.
-                    </p>
-                </div>
-            </div>
-        </div>
-    {:else if order.chef_status_summary === "pending" || order.chef_status_summary === "partial"}
-        <div
-            class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-900/20"
-        >
-            <div class="flex items-center gap-3">
-                <div
-                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
-                >
-                    <i class="fa-solid fa-clock"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-amber-800 dark:text-amber-300">
-                        Menunggu Konfirmasi Dapur
-                    </h4>
-                    <p class="text-sm text-amber-700 dark:text-amber-400">
-                        Ada {order.items.filter(
-                            (i: any) => i.chef_status === "pending",
-                        ).length} item yang masih menunggu konfirmasi dari Dapur.
-                    </p>
-                </div>
-            </div>
-        </div>
-    {/if}
-
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
@@ -699,300 +503,207 @@
                         <thead>
                             <tr>
                                 <th>Produk</th>
-                                <th class="text-center">Dapur</th>
                                 <th class="text-center">Jumlah</th>
                                 <th class="text-right">Harga</th>
                                 <th class="text-right">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {#each itemsByChef as group}
-                                <tr class="bg-gray-50/50 dark:bg-gray-800/20">
-                                    <td
-                                        colspan="5"
-                                        class="py-2 px-4 border-b border-gray-100 dark:border-gray-800"
-                                    >
-                                        <div
-                                            class="flex items-center justify-between"
-                                        >
-                                            <div
-                                                class="flex items-center gap-2"
-                                            >
-                                                <i
-                                                    class="fa-solid fa-kitchen-set text-indigo-500 text-xs"
-                                                ></i>
-                                                <span
-                                                    class="text-sm font-bold text-gray-900 dark:text-white"
-                                                >
-                                                    Dapur: {group.chef?.name ||
-                                                        "Lainnya"}
-                                                </span>
-                                            </div>
-                                            {#if group.chef}
-                                                <Badge
-                                                    size="xs"
-                                                    variant={group.items.every(
-                                                        (i) =>
-                                                            i.chef_status ===
-                                                            "delivered",
-                                                    )
-                                                        ? "success"
-                                                        : group.items.some(
-                                                                (i) =>
-                                                                    i.chef_status ===
-                                                                    "shipped",
-                                                            )
-                                                          ? "primary"
-                                                          : group.items.some(
-                                                                  (i) =>
-                                                                      i.chef_status ===
-                                                                      "accepted",
-                                                              )
-                                                            ? "info"
-                                                            : group.items.some(
-                                                                    (i) =>
-                                                                        i.chef_status ===
-                                                                            "rejected" ||
-                                                                        i.chef_status ===
-                                                                            "cancelled",
-                                                                )
-                                                               ? "danger"
-                                                              : "warning"}
-                                                    dot={true}
-                                                >
-                                                    {#snippet children()}
-                                                        {group.items.every(
-                                                            (i) =>
-                                                                i.chef_status ===
-                                                                "delivered",
-                                                        )
-                                                            ? "Selesai"
-                                                            : group.items.some(
-                                                                    (i) =>
-                                                                        i.chef_status ===
-                                                                        "shipped",
-                                                                )
-                                                              ? "Dikirim"
-                                                              : group.items.some(
-                                                                      (i) =>
-                                                                          i.chef_status ===
-                                                                          "accepted",
-                                                                  )
-                                                                ? "Diproses"
-                                                                : group.items.some(
-                                                                        (i) =>
-                                                                            i.chef_status ===
-                                                                                "cancelled",
-                                                                    )
-                                                                  ? "Dibatalkan"
-                                                                  : group.items.some(
-                                                                        (i) =>
-                                                                            i.chef_status ===
-                                                                            "rejected",
-                                                                    )
-                                                                   ? "Ditolak"
-                                                                  : "Menunggu"}
-                                                    {/snippet}
-                                                </Badge>
+                            {#each order.items as item}
+                                <tr>
+                                    <td class="pl-4">
+                                        <div class="flex items-center gap-3">
+                                            {#if item.product?.image_url}
+                                                <img
+                                                    src={item.product.image_url}
+                                                    alt={item.product.name}
+                                                    class="w-10 h-10 object-cover rounded shadow-sm"
+                                                />
                                             {/if}
-                                        </div>
-                                    </td>
-                                </tr>
-                                {#each group.items as item}
-                                    <tr>
-                                        <td class="pl-8">
-                                            <div
-                                                class="flex items-center gap-3"
-                                            >
-                                                {#if item.product.image_url}
-                                                    <img
-                                                        src={item.product
-                                                            .image_url}
-                                                        alt={item.product.name}
-                                                        class="w-10 h-10 object-cover rounded shadow-sm"
-                                                    />
-                                                {/if}
-                                                <div>
-                                                    <div
-                                                        class="font-medium text-gray-900 dark:text-white"
-                                                    >
-                                                        {item.product.name}
-                                                    </div>
-                                                    {#if item.options.length > 0}
-                                                        <div
-                                                            class="text-[10px] text-gray-500 mt-0.5"
-                                                        >
-                                                            {#each item.options as opt}
-                                                                <span>
-                                                                    {opt
-                                                                        .product_option
-                                                                        .name}: {opt
-                                                                        .product_option_item
-                                                                        .name}
-                                                                    {#if opt.extra_price > 0}
-                                                                        (+{formatCurrency(
-                                                                            opt.extra_price,
-                                                                        )})
-                                                                    {/if}
-                                                                </span>
-                                                                {#if opt !== item.options[item.options.length - 1]}<span
-                                                                        class="mx-1"
-                                                                        >|</span
-                                                                    >{/if}
-                                                            {/each}
-                                                        </div>
-                                                    {/if}
-                                                    {#if item.note}
-                                                        <div
-                                                            class="text-[10px] text-amber-600 mt-0.5 italic"
-                                                        >
-                                                            Catatan: {item.note}
-                                                        </div>
-                                                    {/if}
-                                                </div>
-                                            </div>
-
-                                            {#if item.testimonial}
-                                                <!-- Testimonial UI remain same -->
+                                            <div>
                                                 <div
-                                                    class="mt-2 p-2 bg-gray-50 dark:bg-gray-800/50 rounded border border-gray-100 dark:border-gray-700/50 max-w-sm ml-10"
+                                                    class="font-medium text-gray-900 dark:text-white"
+                                                >
+                                                    {item.product?.name ?? "Produk"}
+                                                </div>
+                                                {#if item.options && item.options.length > 0}
+                                                    <div
+                                                        class="text-[10px] text-gray-500 mt-0.5"
+                                                    >
+                                                        {#each item.options as opt}
+                                                            <span>
+                                                                {opt.product_option?.name}: {opt.product_option_item?.name}
+                                                                {#if opt.extra_price > 0}
+                                                                    (+{formatCurrency(
+                                                                        opt.extra_price,
+                                                                    )})
+                                                                {/if}
+                                                            </span>
+                                                            {#if opt !== item.options[item.options.length - 1]}<span
+                                                                    class="mx-1"
+                                                                    >|</span
+                                                                >{/if}
+                                                        {/each}
+                                                    </div>
+                                                {/if}
+                                                {#if item.note}
+                                                    <div
+                                                        class="text-[10px] text-amber-600 mt-0.5 italic"
+                                                    >
+                                                        Catatan: {item.note}
+                                                    </div>
+                                                {/if}
+                                            </div>
+                                        </div>
+
+                                        {#if item.testimonial}
+                                            <div
+                                                class="mt-3 p-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm space-y-2.5 max-w-xl"
+                                            >
+                                                <div
+                                                    class="flex items-center justify-between gap-3"
                                                 >
                                                     <div
-                                                        class="flex items-center justify-between mb-1"
+                                                        class="flex items-center gap-2"
                                                     >
                                                         <div
-                                                            class="flex items-center gap-0.5"
+                                                            class="flex items-center gap-0.5 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20"
                                                         >
                                                             {#each Array(5) as _, i}
                                                                 <i
-                                                                    class="fa-solid fa-star text-[8px] {i <
+                                                                    class="fa-solid fa-star text-xs {i <
                                                                     parseInt(
                                                                         item
                                                                             .testimonial!
                                                                             .rating,
                                                                     )
-                                                                        ? 'text-yellow-400'
-                                                                        : 'text-gray-200'}"
+                                                                        ? 'text-amber-400'
+                                                                        : 'text-slate-300 dark:text-slate-600'}"
                                                                 ></i>
                                                             {/each}
+                                                            <span
+                                                                class="text-xs font-bold text-amber-500 ml-1"
+                                                                >{item
+                                                                    .testimonial!
+                                                                    .rating}.0</span
+                                                            >
                                                         </div>
-                                                        <Badge
-                                                            size="xs"
-                                                            variant={item
+                                                        <span
+                                                            class="text-xs font-medium text-slate-500 dark:text-slate-400"
+                                                            >Ulasan Pelanggan</span
+                                                        >
+                                                    </div>
+
+                                                    <Badge
+                                                        size="xs"
+                                                        variant={item
+                                                            .testimonial!
+                                                            .is_approved
+                                                            ? "success"
+                                                            : "warning"}
+                                                        dot={true}
+                                                    >
+                                                        {#snippet children()}{item
                                                                 .testimonial!
                                                                 .is_approved
-                                                                ? "success"
-                                                                : "warning"}
-                                                        >
-                                                            {#snippet children()}{item
-                                                                    .testimonial!
-                                                                    .is_approved
-                                                                    ? "Disetujui"
-                                                                    : "Menunggu"}{/snippet}
-                                                        </Badge>
-                                                    </div>
-                                                    <p
-                                                        class="text-[10px] text-gray-600 dark:text-gray-400 italic"
-                                                    >
-                                                        "{item.testimonial
-                                                            .content ||
-                                                            "Tanpa komentar"}"
-                                                    </p>
+                                                                ? "Disetujui"
+                                                                : "Menunggu Moderasi"}{/snippet}
+                                                    </Badge>
+                                                </div>
+
+                                                <div
+                                                    class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed italic bg-white dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800/80"
+                                                >
+                                                    "{item.testimonial
+                                                        .content ||
+                                                        "Tanpa komentar"}"
+                                                </div>
+
+                                                {#if item.testimonial.photo_url}
                                                     <div
-                                                        class="flex gap-1 mt-2"
+                                                        class="flex items-center gap-2 pt-0.5"
                                                     >
-                                                        {#if !item.testimonial.is_approved}
-                                                            <button
-                                                                class="text-[10px] text-green-600 font-bold"
-                                                                onclick={() =>
-                                                                    approveTestimonial(
-                                                                        item
-                                                                            .testimonial!
-                                                                            .id,
-                                                                    )}
-                                                                >Setujui</button
-                                                            >
-                                                        {/if}
                                                         <button
-                                                            class="text-[10px] text-red-600 font-bold"
+                                                            type="button"
+                                                            class="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 w-14 h-14 shrink-0 block"
                                                             onclick={() =>
-                                                                rejectTestimonial(
+                                                                openMediaViewer(
+                                                                    item
+                                                                        .testimonial!
+                                                                        .photo_url,
+                                                                )}
+                                                            title="Lihat foto ulasan"
+                                                        >
+                                                            <img
+                                                                src={item
+                                                                    .testimonial
+                                                                    .photo_url}
+                                                                alt="Foto Ulasan"
+                                                                class="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                                            />
+                                                            <div
+                                                                class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs"
+                                                            >
+                                                                <i
+                                                                    class="fa-solid fa-expand"
+                                                                ></i>
+                                                            </div>
+                                                        </button>
+                                                        <span
+                                                            class="text-[11px] text-slate-500 dark:text-slate-400"
+                                                            >Foto lampiran dari pelanggan (klik untuk memperbesar)</span
+                                                        >
+                                                    </div>
+                                                {/if}
+
+                                                <div
+                                                    class="flex items-center justify-end gap-2 pt-1 border-t border-slate-100 dark:border-slate-700/60"
+                                                >
+                                                    {#if !item.testimonial.is_approved}
+                                                        <Button
+                                                            variant="success"
+                                                            size="xs"
+                                                            icon="fa-solid fa-check"
+                                                            disabled={isProcessing}
+                                                            onclick={() =>
+                                                                approveTestimonial(
                                                                     item
                                                                         .testimonial!
                                                                         .id,
-                                                                )}>Hapus</button
+                                                                )}
                                                         >
-                                                    </div>
-                                                </div>
-                                            {/if}
-                                        </td>
-                                        <td class="text-center">
-                                            <div
-                                                class="flex flex-col items-center gap-1"
-                                            >
-                                                <Badge
-                                                    size="xs"
-                                                    variant={item.chef_status ===
-                                                    "delivered"
-                                                        ? "success"
-                                                        : item.chef_status ===
-                                                            "shipped"
-                                                          ? "primary"
-                                                          : item.chef_status ===
-                                                              "accepted"
-                                                            ? "info"
-                                                            : item.chef_status ===
-                                                                "cancelled"
-                                                              ? "danger"
-                                                              : item.chef_status ===
-                                                                "rejected"
-                                                              ? "danger"
-                                                              : "warning"}
-                                                    dot={true}
-                                                >
-                                                    {#snippet children()}
-                                                        {item.chef_status ===
-                                                        "delivered"
-                                                            ? "Selesai"
-                                                            : item.chef_status ===
-                                                                "shipped"
-                                                              ? "Dikirim"
-                                                              : item.chef_status ===
-                                                                  "accepted"
-                                                                ? "Diterima"
-                                                               : item.chef_status ===
-                                                                    "cancelled"
-                                                                  ? "Dibatalkan"
-                                                                  : item.chef_status ===
-                                                                    "rejected"
-                                                                  ? "Ditolak"
-                                                                  : "Menunggu"}
-                                                    {/snippet}
-                                                </Badge>
-                                                {#if order.order_status === "confirmed"}
-                                                    <button
-                                                        class="text-[10px] text-indigo-600 hover:text-indigo-800 font-medium underline"
+                                                            {#snippet children()}Setujui
+                                                                Testimoni{/snippet}
+                                                        </Button>
+                                                    {/if}
+                                                    <Button
+                                                        variant="danger"
+                                                        size="xs"
+                                                        icon="fa-solid fa-trash-can"
+                                                        disabled={isProcessing}
                                                         onclick={() =>
-                                                            openReassignModal(
-                                                                item,
+                                                            rejectTestimonial(
+                                                                item
+                                                                    .testimonial!
+                                                                    .id,
                                                             )}
                                                     >
-                                                        Ganti Dapur
-                                                    </button>
-                                                {/if}
+                                                        {#snippet children()}Hapus{/snippet}
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </td>
-                                        <td class="text-center text-sm"
-                                            >{item.quantity}</td
-                                        >
-                                        <td class="text-right text-sm"
-                                            >{formatCurrency(item.price)}</td
-                                        >
-                                        <td class="text-right text-sm font-bold"
-                                            >{formatCurrency(item.subtotal)}</td
-                                        >
-                                    </tr>
-                                {/each}
+                                        {/if}
+                                    </td>
+                                    <td class="text-center text-sm"
+                                        >{item.quantity}</td
+                                    >
+                                    <td class="text-right text-sm"
+                                        >{formatCurrency(item.price)}</td
+                                    >
+                                    <td class="text-right text-sm font-bold"
+                                        >{formatCurrency(item.subtotal)}</td
+                                    >
+                                </tr>
                             {/each}
                         </tbody>
                         <tfoot>
@@ -1082,85 +793,6 @@
                     </div>
                 </Card>
 
-                <!-- Pickup Point Card -->
-                <Card title="Pickup Point">
-                    <div class="space-y-4">
-                        {#if order.pick_up_point}
-                            <div>
-                                <div
-                                    class="text-sm font-semibold text-gray-500 uppercase tracking-wider"
-                                >
-                                    Pickup Point Saat Ini
-                                </div>
-                                <div
-                                    class="mt-1 font-medium text-gray-900 dark:text-white"
-                                >
-                                    {order.pick_up_point.name}
-                                </div>
-                                <div class="text-sm text-gray-500">
-                                    {order.pick_up_point.address}
-                                </div>
-                                {#if order.pick_up_point.latitude && order.pick_up_point.longitude}
-                                    <a
-                                        href="https://www.google.com/maps/dir/?api=1&destination={order
-                                            .pick_up_point.latitude},{order
-                                            .pick_up_point.longitude}"
-                                        target="_blank"
-                                        rel="noopener"
-                                        class="inline-flex items-center gap-1 mt-2 text-xs text-blue-600 hover:text-blue-800"
-                                    >
-                                        <i class="fa-solid fa-map-location-dot"
-                                        ></i>
-                                        Buka Google Maps
-                                    </a>
-                                {/if}
-                            </div>
-                        {:else}
-                            <div class="text-sm text-gray-400 italic">
-                                Belum ada pickup point
-                            </div>
-                        {/if}
-
-                        {#if canChangePickUpPoint && pickUpPoints.length > 0}
-                            <div class="border-t border-gray-100 pt-3">
-                                <label
-                                    for="pickup-point-select"
-                                    class="text-sm font-semibold text-gray-500 uppercase tracking-wider block mb-2"
-                                >
-                                    Ubah Pickup Point
-                                </label>
-                                <Select
-                                    id="pickup-point-select"
-                                    bind:value={selectedPickUpPointId}
-                                    options={pickUpPointOptions}
-                                    placeholder="-- Pilih Pickup Point --"
-                                    searchable={true}
-                                />
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    icon="fa-solid fa-save"
-                                    disabled={!selectedPickUpPointId ||
-                                        isPickupUpdating}
-                                    loading={isPickupUpdating}
-                                    onclick={submitPickUpPointChange}
-                                    class="mt-2"
-                                >
-                                    {#snippet children()}Simpan{/snippet}
-                                </Button>
-                            </div>
-                        {:else if !canChangePickUpPoint && order.pick_up_point}
-                            <div
-                                class="text-xs text-amber-600 bg-amber-50 p-2 rounded"
-                            >
-                                <i class="fa-solid fa-lock mr-1"></i>
-                                Pickup point tidak dapat diubah karena semua item
-                                sudah dikirim.
-                            </div>
-                        {/if}
-                    </div>
-                </Card>
-
                 <Card title="Metode Pembayaran">
                     <div class="space-y-4">
                         <div>
@@ -1228,41 +860,25 @@
             {#if order.order_status !== 'delivered' && order.order_status !== 'cancelled'}
                 <Card title="Kirim Ulang Notifikasi">
                     <div class="flex flex-col gap-2">
-                        {#if order.order_status !== 'confirmed'}
-                            <Button
-                                variant="success"
-                                size="sm"
-                                icon="fa-solid fa-user"
-                                disabled={isProcessing}
-                                onclick={() => resendNotifications('customer')}
-                            >
-                                {#snippet children()}Ke Customer: {getCustomerResendLabel(order.order_status)}{/snippet}
-                            </Button>
-                        {/if}
+                        <Button
+                            variant="success"
+                            size="sm"
+                            icon="fa-solid fa-user"
+                            disabled={isProcessing}
+                            onclick={() => resendNotifications('customer')}
+                        >
+                            {#snippet children()}Ke Customer (WhatsApp & Email){/snippet}
+                        </Button>
 
-                        {#if order.order_status === 'pending' || order.order_status === 'confirmed'}
-                            <Button
-                                variant="warning"
-                                size="sm"
-                                icon="fa-solid fa-kitchen-set"
-                                disabled={isProcessing}
-                                onclick={() => resendNotifications('chef')}
-                            >
-                                {#snippet children()}Ke Chef: Penugasan Masak{/snippet}
-                            </Button>
-                        {/if}
-
-                        {#if order.order_status === 'shipped' || order.order_status === 'at_pickup_point' || order.order_status === 'on_delivery' || order.order_status === 'arrived'}
-                            <Button
-                                variant="info"
-                                size="sm"
-                                icon="fa-brands fa-telegram"
-                                disabled={isProcessing}
-                                onclick={() => resendNotifications('admin')}
-                            >
-                                {#snippet children()}Ke PIC / Admin: {getAdminResendLabel(order.order_status)}{/snippet}
-                            </Button>
-                        {/if}
+                        <Button
+                            variant="info"
+                            size="sm"
+                            icon="fa-brands fa-telegram"
+                            disabled={isProcessing}
+                            onclick={() => resendNotifications('admin')}
+                        >
+                            {#snippet children()}Ke Admin (Telegram){/snippet}
+                        </Button>
                     </div>
                 </Card>
             {/if}
@@ -1283,112 +899,24 @@
                             )}</span
                         >
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-600 dark:text-gray-400"
-                            >Diskon</span
-                        >
-                        <span class="text-red-500 text-right"
-                            >-{formatCurrency(order.discount_amount)}</span
-                        >
-                    </div>
-                    {#if order.shippings && order.shippings.length > 0}
-                        <div class="flex flex-col gap-1.5 pt-1">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600 dark:text-gray-400"
-                                    >Ongkos Kirim</span
-                                >
-                                <span
-                                    class="text-gray-900 dark:text-white font-medium"
-                                    >{formatCurrency(order.delivery_fee)}</span
-                                >
-                            </div>
-                            <div
-                                class="pl-2 border-l-2 border-gray-100 dark:border-gray-700 space-y-1"
-                            >
-                                {#each order.shippings as shipping}
-                                    <div
-                                        class="space-y-1 pb-2 mb-2 border-b border-gray-50 dark:border-gray-800 last:border-0 last:mb-0 last:pb-0"
-                                    >
-                                        <div
-                                            class="flex justify-between items-center text-xs"
-                                        >
-                                            <span
-                                                class="text-gray-500 dark:text-gray-400 font-medium"
-                                            >
-                                                <i
-                                                    class="fa-solid fa-truck-fast text-[10px] mr-1 text-indigo-400"
-                                                ></i>
-                                                {shipping.chef?.name || "Dapur"}
-                                                <span class="opacity-75"
-                                                    >({shipping.courier_name})</span
-                                                >
-                                            </span>
-                                            <span
-                                                class="text-gray-700 dark:text-gray-300 font-bold"
-                                            >
-                                                {formatCurrency(
-                                                    shipping.shipping_fee,
-                                                )}
-                                            </span>
-                                        </div>
-
-                                        {#if shipping.biteship_waybill_id}
-                                            <div
-                                                class="flex flex-col gap-1 mt-1"
-                                            >
-                                                <div
-                                                    class="flex items-center justify-between text-[10px]"
-                                                >
-                                                    <span class="text-gray-400"
-                                                        >No. Resi:</span
-                                                    >
-                                                    <span
-                                                        class="text-indigo-600 dark:text-indigo-400 font-mono font-bold"
-                                                    >
-                                                        {shipping.biteship_waybill_id}
-                                                    </span>
-                                                </div>
-                                                <div
-                                                    class="flex items-center justify-between text-[10px]"
-                                                >
-                                                    <span class="text-gray-400"
-                                                        >Status:</span
-                                                    >
-                                                    <Badge
-                                                        size="xs"
-                                                        variant={shipping.biteship_status ===
-                                                        "delivered"
-                                                            ? "success"
-                                                            : "info"}
-                                                        dot={true}
-                                                    >
-                                                        {#snippet children()}{shipping.biteship_status ||
-                                                                "Pending"}{/snippet}
-                                                    </Badge>
-                                                </div>
-                                                <a
-                                                    href={`https://biteship.com/id/tracking/${shipping.biteship_waybill_id}`}
-                                                    target="_blank"
-                                                    class="text-[9px] text-center text-indigo-500 hover:text-indigo-700 underline mt-0.5"
-                                                >
-                                                    Lacak di Biteship
-                                                </a>
-                                            </div>
-                                        {/if}
-                                    </div>
-                                {/each}
-                            </div>
-                        </div>
-                    {:else}
+                    {#if order.discount_amount > 0}
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600 dark:text-gray-400"
-                                >Ongkos Kirim</span
+                                >Diskon</span
                             >
-                            <span class="text-gray-900 dark:text-white"
-                                >{formatCurrency(order.delivery_fee)}</span
+                            <span class="text-red-500 text-right"
+                                >-{formatCurrency(order.discount_amount)}</span
                             >
                         </div>
                     {/if}
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600 dark:text-gray-400"
+                            >Ongkos Kirim</span
+                        >
+                        <span class="text-gray-900 dark:text-white"
+                            >{formatCurrency(order.delivery_fee)}</span
+                        >
+                    </div>
                     {#if order.admin_fee > 0}
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-600 dark:text-gray-400"
@@ -1396,6 +924,16 @@
                             >
                             <span class="text-gray-900 dark:text-white"
                                 >{formatCurrency(order.admin_fee)}</span
+                            >
+                        </div>
+                    {/if}
+                    {#if order.service_fee && order.service_fee > 0}
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400"
+                                >Biaya Layanan</span
+                            >
+                            <span class="text-gray-900 dark:text-white"
+                                >{formatCurrency(order.service_fee)}</span
                             >
                         </div>
                     {/if}
@@ -1587,11 +1125,11 @@
                         id="deliver-modal-title"
                         class="text-base font-semibold text-gray-900 dark:text-white"
                     >
-                        Upload Bukti Penerimaan
+                        Konfirmasi Selesaikan Pesanan
                     </h3>
                     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        Upload foto sebagai bukti bahwa pesanan
-                        <strong>#{order.number}</strong> telah diterima oleh pelanggan.
+                        Konfirmasi bahwa pesanan
+                        <strong>#{order.number}</strong> telah berhasil diserahkan/diterima di lokasi tujuan.
                     </p>
                 </div>
             </div>
@@ -1600,8 +1138,9 @@
                 <FileUpload
                     id="delivery_photo"
                     name="delivery_photo"
-                    label="Foto Bukti Penerimaan"
-                    required={true}
+                    label="Foto Bukti Serah Terima (Opsional)"
+                    placeholder="Pilih foto atau drag and drop bukti serah terima (jika ada)"
+                    required={false}
                     accept="image/*"
                     bind:value={deliveryPhotoFile}
                     error={deliveryPhotoError}
@@ -1620,7 +1159,7 @@
                 <Button
                     variant="success"
                     size="sm"
-                    disabled={isProcessing || !deliveryPhotoFile}
+                    disabled={isProcessing}
                     onclick={submitDeliver}
                 >
                     {#snippet children()}
@@ -1792,68 +1331,6 @@
     </div>
 {/if}
 
-<!-- Reassign Chef Modal -->
-{#if reassignModalOpen}
-    <div
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-        role="dialog"
-        aria-modal="true"
-    >
-        <div
-            class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
-        >
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                Pindahkan ke Dapur Lain
-            </h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Pilih Dapur baru untuk item <strong
-                    >{selectedItemForReassign?.product?.name}</strong
-                >.
-            </p>
-
-            <div class="space-y-4">
-                <div>
-                    <label
-                        for="chef-select"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                        Pilih Dapur
-                    </label>
-                    <select
-                        id="chef-select"
-                        bind:value={selectedNewChefId}
-                        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    >
-                        <option value="">-- Pilih Dapur --</option>
-                        {#each chefs as chef}
-                            <option value={chef.id}>{chef.name}</option>
-                        {/each}
-                    </select>
-                </div>
-            </div>
-
-            <div class="mt-6 flex justify-end gap-3">
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    onclick={() => (reassignModalOpen = false)}
-                    disabled={isProcessing}
-                >
-                    {#snippet children()}Batal{/snippet}
-                </Button>
-                <Button
-                    variant="primary"
-                    size="sm"
-                    disabled={isProcessing || !selectedNewChefId}
-                    onclick={submitReassign}
-                >
-                    {#snippet children()}Ya, Pindahkan{/snippet}
-                </Button>
-            </div>
-        </div>
-    </div>
-{/if}
-
 <!-- Confirm Order Modal -->
 {#if confirmOrderModalOpen}
     <div
@@ -1885,7 +1362,7 @@
                         {#if !order.payment_proof_url && order.payment_method?.category !== 'cash'}
                             <span class="text-amber-600 font-bold"
                                 >PERINGATAN: Bukti pembayaran belum diunggah.</span
-                            > Apakah Anda yakin ingin tetap mengkonfirmasi pesanan
+                            > Apakah Anda yakin ingin mengkonfirmasi pesanan
                             <strong>#{order.number}</strong> secara manual?
                         {:else}
                             Apakah Anda yakin ingin mengkonfirmasi pesanan <strong
@@ -1893,29 +1370,6 @@
                             >?
                         {/if}
                     </p>
-                </div>
-            </div>
-
-            <div class="space-y-4 border-t border-gray-100 dark:border-gray-700 pt-4">
-                <div>
-                    <label
-                        for="confirm-pickup-point"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                        Pilih Pickup Point
-                    </label>
-                    <Select
-                        id="confirm-pickup-point"
-                        bind:value={confirmPickUpPointId}
-                        options={pickUpPointOptions}
-                        placeholder="-- Pilih Pickup Point --"
-                        searchable={true}
-                    />
-                    {#if confirmPickUpPointId && confirmPickUpPointId === getSuggestedPickUpPoint() && !order.pick_up_point_id}
-                        <p class="mt-1 text-[10px] text-green-600 flex items-center gap-1">
-                            <i class="fa-solid fa-location-dot"></i> Disarankan (Terdekat)
-                        </p>
-                    {/if}
                 </div>
             </div>
 
@@ -1931,7 +1385,7 @@
                 <Button
                     variant={!order.payment_proof_url && order.payment_method?.category !== 'cash' ? "warning" : "primary"}
                     size="sm"
-                    disabled={isProcessing || !confirmPickUpPointId}
+                    disabled={isProcessing}
                     loading={isProcessing}
                     onclick={submitConfirmOrder}
                 >
@@ -1953,4 +1407,3 @@
     open={printModalOpen}
     onClose={() => (printModalOpen = false)}
 />
-

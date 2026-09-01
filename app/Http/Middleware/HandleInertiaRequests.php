@@ -43,15 +43,9 @@ class HandleInertiaRequests extends Middleware
     protected function sharedAuth(array $base): array
     {
         $isAdminRequest = request()->is('admin') || request()->is('admin/*');
-        $isChefRequest = request()->is('chef') || request()->is('chef/*');
-        $isPicRequest = request()->is('pic') || request()->is('pic/*');
 
         if ($isAdminRequest) {
             $guard = Auth::guard('web')->check() ? 'web' : null;
-        } elseif ($isChefRequest) {
-            $guard = Auth::guard('chef')->check() ? 'chef' : null;
-        } elseif ($isPicRequest) {
-            $guard = Auth::guard('pickup_officer')->check() ? 'pickup_officer' : null;
         } else {
             $guard = Auth::guard('customer')->check() ? 'customer' : null;
         }
@@ -66,7 +60,7 @@ class HandleInertiaRequests extends Middleware
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'role' => $guard === 'customer' ? 'customer' : ($guard === 'chef' ? 'chef' : ($guard === 'pickup_officer' ? 'pickup_officer' : $user->role?->name)),
+                'role' => $guard === 'customer' ? 'customer' : $user->role?->name,
             ] : ($base['auth']['user'] ?? null),
         ];
     }
@@ -91,7 +85,7 @@ class HandleInertiaRequests extends Middleware
 
     private function getSidebarMenu(?string $role): array
     {
-        if (! $role || in_array($role, ['customer', 'chef'])) {
+        if (! $role || $role === 'customer') {
             return [];
         }
 
@@ -141,14 +135,14 @@ class HandleInertiaRequests extends Middleware
                     [
                         'id' => 'orders-processing',
                         'label' => 'Proses Pesanan',
-                        'icon' => 'fa-kitchen-set',
+                        'icon' => 'fa-boxes-packing',
                         'link' => route('admin.orders.processing'),
                         'badge' => Order::query()
                             ->where(function ($q) {
                                 $q->where('payment_status', '!=', 'pending')
                                     ->orWhereHas('paymentMethod', fn ($pq) => $pq->where('category', 'cash'));
                             })
-                            ->whereIn('order_status', ['pending', 'confirmed', 'shipped'])
+                            ->whereIn('order_status', ['pending', 'confirmed'])
                             ->count(),
                     ],
                 ],
@@ -178,49 +172,6 @@ class HandleInertiaRequests extends Middleware
                         'label' => 'Drop Points',
                         'icon' => 'fa-location-dot',
                         'link' => route('admin.drop-points.index'),
-                    ],
-                    [
-                        'id' => 'pick-up-points',
-                        'label' => 'Pick Up Points',
-                        'icon' => 'fa-map-pin',
-                        'link' => route('admin.pick-up-points.index'),
-                    ],
-                    [
-                        'id' => 'pick-up-point-officers',
-                        'label' => 'PIC Pick Up Point',
-                        'icon' => 'fa-user-tie',
-                        'link' => route('admin.pick-up-point-officers.index'),
-                    ],
-                    [
-                        'id' => 'chefs',
-                        'label' => 'Chef',
-                        'icon' => 'fa-user-chef',
-                        'submenu' => [
-                            [
-                                'label' => 'Semua Chef',
-                                'link' => route('admin.chefs.index'),
-                            ],
-                            [
-                                'label' => 'Dapur SBY Timur',
-                                'link' => route('admin.chefs.region', 'sby_timur'),
-                            ],
-                            [
-                                'label' => 'Dapur SBY Barat',
-                                'link' => route('admin.chefs.region', 'sby_barat'),
-                            ],
-                            [
-                                'label' => 'Dapur SBY Utara',
-                                'link' => route('admin.chefs.region', 'sby_utara'),
-                            ],
-                            [
-                                'label' => 'Dapur SBY Selatan',
-                                'link' => route('admin.chefs.region', 'sby_selatan'),
-                            ],
-                            [
-                                'label' => 'Dapur SBY Pusat',
-                                'link' => route('admin.chefs.region', 'sby_pusat'),
-                            ],
-                        ],
                     ],
                     [
                         'id' => 'customers',

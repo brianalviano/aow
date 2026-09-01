@@ -13,22 +13,19 @@
         address?: string;
     }
 
-    interface Chef {
-        id: string;
-        name: string;
-        business_name?: string;
-    }
-
     interface Customer {
         id: string;
         name: string;
         email: string;
     }
 
-    interface ChefItem {
+    interface OrderItem {
         id: string;
-        name: string;
-        chef_status?: string;
+        product?: {
+            id: string;
+            name: string;
+        };
+        quantity: number;
     }
 
     interface Order {
@@ -42,8 +39,7 @@
         created_at: string;
         customer?: Customer;
         drop_point?: DropPoint;
-        items?: ChefItem[];
-        chef_status_summary?: string;
+        items?: OrderItem[];
     }
 
     let orders = $derived(page.props.orders as { data: Order[]; meta?: any });
@@ -52,7 +48,6 @@
         page.props.filters as
             | {
                   drop_point_id?: string;
-                  chef_id?: string;
                   delivery_date?: string;
                   view?: string;
               }
@@ -60,8 +55,6 @@
     );
 
     let dropPoints = $derived((page.props.dropPoints as DropPoint[]) ?? []);
-
-    let chefs = $derived((page.props.chefs as Chef[]) ?? []);
 
     let meta = $derived(
         orders?.meta ?? {
@@ -76,19 +69,16 @@
 
     let currentView = $state(untrack(() => filters?.view || "list"));
     let dropPointFilter = $state(untrack(() => filters?.drop_point_id || ""));
-    let chefFilter = $state(untrack(() => filters?.chef_id || ""));
     let deliveryDateFilter = $state(
         untrack(() => filters?.delivery_date || ""),
     );
 
     let hasActiveFilters = $derived(
-        !!dropPointFilter || !!chefFilter || !!deliveryDateFilter,
+        !!dropPointFilter || !!deliveryDateFilter,
     );
 
     $effect(() => {
-        // Trigger applyFilters whenever any filter state changes
         const _dp = dropPointFilter;
-        const _cf = chefFilter;
         const _dd = deliveryDateFilter;
         const _v = currentView;
 
@@ -98,7 +88,6 @@
     function applyFilters(pageNumber = 1) {
         const params: Record<string, string> = { page: String(pageNumber) };
         if (dropPointFilter) params.drop_point_id = dropPointFilter;
-        if (chefFilter) params.chef_id = chefFilter;
         if (deliveryDateFilter) params.delivery_date = deliveryDateFilter;
         if (currentView !== "list") params.view = currentView;
 
@@ -111,12 +100,10 @@
 
     function switchView(view: string) {
         currentView = view;
-        // Effect will trigger applyFilters(1)
     }
 
     function resetFilters() {
         dropPointFilter = "";
-        chefFilter = "";
         deliveryDateFilter = "";
         applyFilters();
     }
@@ -154,46 +141,18 @@
                 return { variant: "warning", label: "Menunggu" };
             case "confirmed":
                 return { variant: "info", label: "Dikonfirmasi" };
-            case "shipped":
-                return { variant: "primary", label: "Dikirim ke Pickup" };
-            case "at_pickup_point":
-                return { variant: "info", label: "Di Pickup Point" };
             case "on_delivery":
                 return { variant: "primary", label: "Sedang Dikirim" };
             case "arrived":
                 return { variant: "info", label: "Tiba di Tujuan" };
+            case "delivered":
+                return { variant: "success", label: "Selesai" };
             default:
                 return { variant: "secondary", label: status };
         }
     }
 
-    function getChefStatusBadge(status: string | undefined): {
-        variant: BadgeVariant;
-        label: string;
-    } {
-        switch (status) {
-            case "delivered":
-                return { variant: "success", label: "Selesai" };
-            case "shipped":
-                return { variant: "primary", label: "Dikirim" };
-            case "accepted":
-                return { variant: "info", label: "Diproses" };
-            case "rejected":
-                return { variant: "danger", label: "Ditolak" };
-            case "rejected_partial":
-                return { variant: "danger", label: "Ditolak Sebagian" };
-            case "cancelled":
-                return { variant: "danger", label: "Dibatalkan" };
-            case "cancelled_partial":
-                return { variant: "danger", label: "Dibatalkan Sebagian" };
-            case "partial":
-                return { variant: "purple", label: "Sebagian" };
-            default:
-                return { variant: "warning", label: "Menunggu" };
-        }
-    }
-
-    // Group orders by delivery_date for better readability (Standard List view)
+    // Group orders by delivery_date
     let groupedItems = $derived(() => {
         const groups: Record<string, Order[]> = {};
         for (const order of items) {
@@ -201,7 +160,6 @@
             if (!groups[key]) groups[key] = [];
             groups[key].push(order);
         }
-        // Sort keys: dated entries ascending, undated last
         return Object.entries(groups).sort(([a], [b]) => {
             if (a === "Tanpa Tanggal") return 1;
             if (b === "Tanpa Tanggal") return -1;
@@ -230,47 +188,6 @@
         );
     });
 
-    // Group orders by Kitchen/Chef
-    let groupedByKitchen = $derived(() => {
-        const groups: Record<
-            string,
-            { chef: Chef | undefined; orders: Order[] }
-        > = {};
-        for (const order of items) {
-            // Get unique chefs by ID for this order
-            const orderChefsMap = (order.items ?? [])
-                .map((i: any) => i.chef)
-                .filter(Boolean)
-                .reduce((acc: Record<string, Chef>, chef: Chef) => {
-                    acc[chef.id] = chef;
-                    return acc;
-                }, {});
-
-            const orderChefs = Object.values(orderChefsMap) as Chef[];
-
-            if (orderChefs.length === 0) {
-                const key = "unknown";
-                if (!groups[key]) groups[key] = { chef: undefined, orders: [] };
-                groups[key].orders.push(order);
-                continue;
-            }
-
-            for (const chef of orderChefs) {
-                const key = chef.id;
-                if (!groups[key]) {
-                    groups[key] = {
-                        chef: chef,
-                        orders: [],
-                    };
-                }
-                groups[key].orders.push(order);
-            }
-        }
-        return Object.values(groups).sort((a, b) =>
-            (a.chef?.name ?? "").localeCompare(b.chef?.name ?? ""),
-        );
-    });
-
     function formatDeliveryDate(dateStr: string) {
         if (dateStr === "Tanpa Tanggal") return dateStr;
         return new Date(dateStr).toLocaleDateString("id-ID", {
@@ -281,15 +198,9 @@
         });
     }
 
-    // Build select options
     let dropPointOptions = $derived([
         { value: "", label: "Semua Drop Point" },
         ...dropPoints.map((dp) => ({ value: dp.id, label: dp.name })),
-    ]);
-
-    let chefOptions = $derived([
-        { value: "", label: "Semua Dapur/Chef" },
-        ...chefs.map((c) => ({ value: c.id, label: c.name })),
     ]);
 </script>
 
@@ -302,26 +213,14 @@
                     <th>Jam</th>
                     <th>Customer</th>
                     <th>Drop Point</th>
-                    <th>Dapur / Chef</th>
                     <th>Total</th>
                     <th>Status</th>
-                    <th>Status Dapur</th>
                     <th class="w-28 text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 {#each orderList as item}
                     {@const statusBadge = getStatusBadge(item.order_status)}
-                    {@const chefBadge = getChefStatusBadge(
-                        item.chef_status_summary,
-                    )}
-                    {@const chefNames = [
-                        ...new Set(
-                            (item.items ?? [])
-                                .map((i: any) => i.chef?.name)
-                                .filter(Boolean),
-                        ),
-                    ]}
                     <tr
                         class={item.order_status === "cancelled"
                             ? "bg-gray-100 dark:bg-gray-800/60 opacity-60 hover:opacity-100 transition-opacity"
@@ -350,8 +249,8 @@
                                 >
                                     {item.items
                                         .map(
-                                            (i: any) =>
-                                                `${i.product?.name ?? "Produk"} ${i.quantity}`,
+                                            (i) =>
+                                                `${i.product?.name ?? "Produk"} x${i.quantity}`,
                                         )
                                         .join(", ")}
                                 </div>
@@ -363,21 +262,6 @@
                             >
                                 {item.drop_point?.name ?? "-"}
                             </div>
-                        </td>
-                        <td>
-                            {#if chefNames.length > 0}
-                                <div class="flex flex-wrap gap-1">
-                                    {#each chefNames as chefName}
-                                        <span
-                                            class="text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
-                                        >
-                                            {chefName}
-                                        </span>
-                                    {/each}
-                                </div>
-                            {:else}
-                                <span class="text-gray-400 text-sm">-</span>
-                            {/if}
                         </td>
                         <td>
                             <div
@@ -393,16 +277,6 @@
                                 variant={statusBadge.variant}
                             >
                                 {#snippet children()}{statusBadge.label}{/snippet}
-                            </Badge>
-                        </td>
-                        <td>
-                            <Badge
-                                size="sm"
-                                rounded="pill"
-                                variant={chefBadge.variant}
-                                dot={true}
-                            >
-                                {#snippet children()}{chefBadge.label}{/snippet}
                             </Badge>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-center">
@@ -464,16 +338,6 @@
             <i class="fa-solid fa-location-dot mr-2"></i>
             Per Drop Point
         </button>
-        <button
-            class="flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-md transition-all {currentView ===
-            'kitchen'
-                ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}"
-            onclick={() => switchView("kitchen")}
-        >
-            <i class="fa-solid fa-fire-burner mr-2"></i>
-            Per Dapur
-        </button>
     </div>
 
     <!-- Filter Bar -->
@@ -489,15 +353,6 @@
                         name="drop_point_id"
                         options={dropPointOptions}
                         bind:value={dropPointFilter}
-                    />
-                </div>
-                <div class="flex-1 min-w-[180px]">
-                    <Select
-                        label="Dapur / Chef"
-                        id="chef_id"
-                        name="chef_id"
-                        options={chefOptions}
-                        bind:value={chefFilter}
                     />
                 </div>
                 <div class="flex gap-2 shrink-0">
@@ -530,15 +385,6 @@
                     {dp?.name ?? dropPointFilter}
                 </span>
             {/if}
-            {#if chefFilter}
-                {@const chef = chefs.find((c) => c.id === chefFilter)}
-                <span
-                    class="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs"
-                >
-                    <i class="fa-solid fa-user-chef"></i>
-                    {chef?.name ?? chefFilter}
-                </span>
-            {/if}
             {#if deliveryDateFilter}
                 <span
                     class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs"
@@ -555,77 +401,42 @@
     {/if}
 
     <!-- Summary Cards -->
-    {#if currentView !== "list" && items.length > 0}
+    {#if currentView === "drop_point" && items.length > 0}
         <div
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
         >
-            {#if currentView === "drop_point"}
-                {#each groupedByDropPoint() as group}
-                    <button
-                        class="text-left bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 flex items-center gap-4 transition-all hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-md group"
-                        onclick={() => {
-                            const el = document.getElementById(
-                                `group-${group.drop_point?.id ?? "unknown"}`,
-                            );
-                            el?.scrollIntoView({
-                                behavior: "smooth",
-                                block: "start",
-                            });
-                        }}
+            {#each groupedByDropPoint() as group}
+                <button
+                    class="text-left bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 flex items-center gap-4 transition-all hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-md group"
+                    onclick={() => {
+                        const el = document.getElementById(
+                            `group-${group.drop_point?.id ?? "unknown"}`,
+                        );
+                        el?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                        });
+                    }}
+                >
+                    <div
+                        class="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors"
                     >
-                        <div
-                            class="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors"
+                        <i class="fa-solid fa-location-dot text-xl"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3
+                            class="text-sm font-bold text-gray-900 dark:text-white truncate"
                         >
-                            <i class="fa-solid fa-location-dot text-xl"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <h3
-                                class="text-sm font-bold text-gray-900 dark:text-white truncate"
-                            >
-                                {group.drop_point?.name ?? "Tanpa Drop Point"}
-                            </h3>
-                            <p
-                                class="text-xs text-blue-600 dark:text-blue-400 font-bold mt-1"
-                            >
-                                {group.orders.length} Pesanan
-                            </p>
-                        </div>
-                    </button>
-                {/each}
-            {:else if currentView === "kitchen"}
-                {#each groupedByKitchen() as group}
-                    <button
-                        class="text-left bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 flex items-center gap-4 transition-all hover:border-purple-500 dark:hover:border-purple-400 hover:shadow-md group"
-                        onclick={() => {
-                            const el = document.getElementById(
-                                `group-${group.chef?.id ?? "unknown"}`,
-                            );
-                            el?.scrollIntoView({
-                                behavior: "smooth",
-                                block: "start",
-                            });
-                        }}
-                    >
-                        <div
-                            class="w-12 h-12 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/30 transition-colors"
+                            {group.drop_point?.name ?? "Tanpa Drop Point"}
+                        </h3>
+                        <p
+                            class="text-xs text-blue-600 dark:text-blue-400 font-bold mt-1"
                         >
-                            <i class="fa-solid fa-fire-burner text-xl"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <h3
-                                class="text-sm font-bold text-gray-900 dark:text-white truncate"
-                            >
-                                {group.chef?.name ?? "Tanpa Dapur/Chef"}
-                            </h3>
-                            <p
-                                class="text-xs text-purple-600 dark:text-purple-400 font-bold mt-1"
-                            >
-                                {group.orders.length} Pesanan
-                            </p>
-                        </div>
-                    </button>
-                {/each}
-            {/if}
+                            {group.orders.length} Pesanan
+                        </p>
+                    </div>
+                </button>
+            {/each}
         </div>
     {/if}
 
@@ -636,7 +447,6 @@
         {#if items.length > 0}
             {#if currentView === "list"}
                 {#each groupedItems() as [dateKey, groupOrders]}
-                    <!-- Group header by Date -->
                     <div
                         class="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2"
                     >
@@ -656,7 +466,6 @@
                 {/each}
             {:else if currentView === "drop_point"}
                 {#each groupedByDropPoint() as group}
-                    <!-- Group header by Drop Point -->
                     <div
                         id={`group-${group.drop_point?.id ?? "unknown"}`}
                         class="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3 scroll-mt-20"
@@ -675,40 +484,6 @@
                             {#if group.drop_point?.address}
                                 <span class="text-xs text-gray-500 line-clamp-1"
                                     >{group.drop_point.address}</span
-                                >
-                            {/if}
-                        </div>
-                        <span class="ml-auto text-xs text-gray-400 font-medium">
-                            <span
-                                class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300"
-                            >
-                                {group.orders.length} pesanan
-                            </span>
-                        </span>
-                    </div>
-                    {@render orderTable(group.orders)}
-                {/each}
-            {:else if currentView === "kitchen"}
-                {#each groupedByKitchen() as group}
-                    <!-- Group header by Kitchen -->
-                    <div
-                        id={`group-${group.chef?.id ?? "unknown"}`}
-                        class="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3 scroll-mt-20"
-                    >
-                        <div
-                            class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400"
-                        >
-                            <i class="fa-solid fa-fire-burner"></i>
-                        </div>
-                        <div>
-                            <span
-                                class="text-base font-bold text-gray-900 dark:text-white block"
-                            >
-                                {group.chef?.name ?? "Tanpa Dapur/Chef"}
-                            </span>
-                            {#if group.chef?.business_name}
-                                <span class="text-xs text-gray-500"
-                                    >{group.chef.business_name}</span
                                 >
                             {/if}
                         </div>

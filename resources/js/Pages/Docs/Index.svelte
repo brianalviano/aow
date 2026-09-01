@@ -196,8 +196,7 @@
             style="color:#8b91a8;"
         >
             AOWenak adalah platform pre-order makanan berbasis web yang
-            menghubungkan customer, chef mitra, petugas pickup point, dan admin
-            dalam satu ekosistem terintegrasi.
+            menghubungkan customer dan admin/operasional dalam satu ekosistem terintegrasi.
         </p>
 
         <!-- Mode Toggle -->

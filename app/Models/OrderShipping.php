@@ -10,10 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Model untuk data pengiriman per-chef pada suatu order.
- *
- * Setiap record merepresentasikan satu shipment dari satu chef
- * menggunakan kurir instant (Grab/Gojek) via Biteship.
+ * Model untuk data pengiriman pesanan menggunakan kurir instant (Grab/Gojek) via Biteship.
  */
 class OrderShipping extends Model
 {
@@ -26,7 +23,6 @@ class OrderShipping extends Model
      */
     protected $fillable = [
         'order_id',
-        'chef_id',
         'courier_company',
         'courier_type',
         'courier_name',
@@ -63,13 +59,5 @@ class OrderShipping extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
-    }
-
-    /**
-     * Chef yang mengirim untuk shipment ini.
-     */
-    public function chef(): BelongsTo
-    {
-        return $this->belongsTo(Chef::class);
     }
 }

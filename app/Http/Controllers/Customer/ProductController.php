@@ -51,33 +51,16 @@ class ProductController extends Controller
     private function renderProducts(?DropPoint $dropPoint = null, ?array $address = null): Response
     {
         $orderType = session('checkout_order_type', 'preorder');
-        $lat = $dropPoint?->latitude ?? ($address['latitude'] ?? null);
-        $lng = $dropPoint?->longitude ?? ($address['longitude'] ?? null);
 
         $categories = ProductCategory::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
-            ->whereHas('products', function ($query) use ($orderType) {
-                $query->where('is_active', true)->whereHas('chefs', function ($q) use ($orderType) {
-                    $q->whereJsonContains('order_types', $orderType);
-                });
+            ->whereHas('products', function ($query) {
+                $query->where('is_active', true);
             })
             ->get();
 
         $products = Product::with([
-            'chefs' => function ($query) use ($orderType, $lat, $lng) {
-                $query->whereJsonContains('order_types', $orderType);
-
-                if ($lat !== null && $lng !== null) {
-                    // Haversine formula to calculate distance in kilometers
-                    $query->select('*')
-                        ->selectRaw(
-                            '(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance',
-                            [$lat, $lng, $lat]
-                        )
-                        ->orderBy('distance');
-                }
-            },
             'productCategory',
             'productOptions' => function ($query) {
                 $query->orderBy('sort_order')->with(['items' => function ($query) {
@@ -86,16 +69,13 @@ class ProductController extends Controller
             },
         ])
             ->where('is_active', true)
-            ->whereHas('chefs', function ($query) use ($orderType) {
-                $query->whereJsonContains('order_types', $orderType);
-            })
             ->orderBy('sort_order')
             ->get();
 
         $quotaProgress = null;
         if ($dropPoint && $orderType === 'preorder') {
             $deliveryDate = session('checkout_delivery_date');
-            $quotaDate = $deliveryDate ?: now()->addDay()->format('Y-m-d'); // Default to tomorrow if null
+            $quotaDate = $deliveryDate ?: now()->addDay()->format('Y-m-d');
             $quotaProgress = $this->quotaService->calculateDropPointQuotaProgress($dropPoint->id, $quotaDate);
         }
 
@@ -115,7 +95,7 @@ class ProductController extends Controller
      */
     public function testimonials(Product $product): AnonymousResourceCollection
     {
-        $merged = $product->getManipulatedTestimonials(50); // Get up to 50 merged items
+        $merged = $product->getManipulatedTestimonials(50);
 
         return TestimonialResource::collection($merged);
     }

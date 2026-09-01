@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use App\Enums\ChefStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ShippingMethod;
@@ -21,12 +22,11 @@ class Order extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
         'number',
         'drop_point_id',
-        'pick_up_point_id',
         'customer_address_id',
         'customer_id',
         'delivery_date',
@@ -94,14 +94,6 @@ class Order extends Model
     }
 
     /**
-     * Get the pickup point assigned to this order.
-     */
-    public function pickUpPoint(): BelongsTo
-    {
-        return $this->belongsTo(PickUpPoint::class);
-    }
-
-    /**
      * Determine if this is a pre-order (delivered to drop point).
      */
     public function isPreOrder(): bool
@@ -115,33 +107,6 @@ class Order extends Model
     public function isInstant(): bool
     {
         return $this->customer_address_id !== null && $this->drop_point_id === null && (! $this->delivery_date || $this->delivery_date->isToday());
-    }
-
-    /**
-     * Determine if admin can still change the pickup point for this order.
-     *
-     * Allowed only when the order is PENDING or CONFIRMED,
-     * AND no items have been shipped by chefs yet.
-     */
-    public function canChangePickUpPoint(): bool
-    {
-        if (! in_array($this->order_status, [OrderStatus::PENDING, OrderStatus::CONFIRMED])) {
-            return false;
-        }
-
-        if (! $this->items->count()) {
-            return true;
-        }
-
-        // Return true only if NO items have been shipped or delivered to hub
-        $anyShipped = $this->items->contains(
-            fn ($item) => in_array($item->chef_status, [
-                ChefStatus::SHIPPED,
-                ChefStatus::DELIVERED,
-            ])
-        );
-
-        return ! $anyShipped;
     }
 
     public function customer(): BelongsTo
@@ -173,7 +138,7 @@ class Order extends Model
     }
 
     /**
-     * Get the per-chef shipping records for this order.
+     * Get the shipping records for this order.
      */
     public function shippings(): HasMany
     {
@@ -194,49 +159,5 @@ class Order extends Model
     protected function getDeliveryPhotoAttribute(?string $value): ?string
     {
         return $this->getFileUrl($value);
-    }
-
-    /**
-     * Get aggregate chef status for the order.
-     *
-     * @return string (pending|accepted|rejected|cancelled|partial)
-     */
-    public function getChefStatusSummaryAttribute(): string
-    {
-        if (! $this->items->count()) {
-            return 'pending';
-        }
-
-        $statuses = $this->items->pluck('chef_status')->unique();
-
-        if ($statuses->count() === 1 && $statuses->first() === ChefStatus::CANCELLED) {
-            return 'cancelled';
-        }
-
-        if ($statuses->contains(ChefStatus::CANCELLED)) {
-            return 'cancelled_partial';
-        }
-
-        if ($statuses->contains(ChefStatus::REJECTED)) {
-            return $statuses->count() > 1 ? 'rejected_partial' : 'rejected';
-        }
-
-        if ($statuses->contains(ChefStatus::PENDING) || $statuses->contains(null)) {
-            $hasProcessed = $statuses->contains(ChefStatus::ACCEPTED)
-                || $statuses->contains(ChefStatus::SHIPPED)
-                || $statuses->contains(ChefStatus::DELIVERED);
-
-            return $hasProcessed ? 'partial' : 'pending';
-        }
-
-        if ($statuses->count() === 1 && $statuses->first() === ChefStatus::DELIVERED) {
-            return 'delivered';
-        }
-
-        if ($statuses->contains(ChefStatus::SHIPPED)) {
-            return 'shipped';
-        }
-
-        return 'accepted';
     }
 }

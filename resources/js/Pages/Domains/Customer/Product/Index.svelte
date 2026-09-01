@@ -46,12 +46,6 @@
         total_sales: number;
         average_rating: number;
         testimonials_count: number;
-        chefs: {
-            id: string;
-            name: string;
-            business_name: string;
-            address: string;
-        }[];
     }[];
 
     export let address: {
@@ -83,7 +77,6 @@
         categories.length > 0 && categories[0] ? categories[0].id : "";
     let selectedProduct: any = null;
     let showModal = false;
-    let showChefWarningModal = false;
     let baseDeliveryFee: number = 0;
 
     // Scroll Spy State
@@ -93,8 +86,6 @@
     let scrollTimeout: any = null;
 
     // Cart State
-    // format: { [cartItemId]: { product, quantity, options, notes, totalPrice } }
-    // cartItemId is a unique string based on product id and selected options
     let cart: Record<string, any> =
         savedCart && !Array.isArray(savedCart) ? savedCart : {};
 
@@ -142,22 +133,6 @@
         if (quotaProgress.min_qty && quotaProgress.min_amount) return Math.min(qtyP, amtP);
         return quotaProgress.min_qty ? qtyP : amtP;
     })();
-
-    $: uniqueChefIds = [
-        ...new Set(
-            Object.values(cart).flatMap((item) => {
-                const rawChefs = item.product.chefs;
-                const productChefs = Array.isArray(rawChefs)
-                    ? rawChefs
-                    : rawChefs?.data && Array.isArray(rawChefs.data)
-                      ? rawChefs.data
-                      : [];
-                return productChefs.map((c: any) => c.id);
-            }),
-        ),
-    ].filter(Boolean);
-
-    $: chefCount = Math.max(1, uniqueChefIds.length);
 
     async function fetchBaseDeliveryFee() {
         // We can get this from dropPoint if available, or we might need a small API call if it's dynamic.
@@ -616,34 +591,6 @@
                                     {product.name}
                                 </h3>
 
-                                {#if product.chefs && product.chefs.length > 0}
-                                    <div class="mt-1.5 space-y-1">
-                                        <div
-                                            class="flex items-center gap-1.5 text-[10px] font-bold text-amber-500"
-                                        >
-                                            <i
-                                                class="fa-solid fa-kitchen-set shrink-0"
-                                            ></i>
-                                            <span class="truncate"
-                                                >{product.chefs?.[0]
-                                                    ?.business_name ||
-                                                    product.chefs?.[0]
-                                                        ?.name}</span
-                                            >
-                                        </div>
-                                        <div
-                                            class="flex items-start gap-1.5 text-[9px] text-slate-400 leading-tight"
-                                        >
-                                            <i
-                                                class="fa-solid fa-location-dot mt-0.5 shrink-0"
-                                            ></i>
-                                            <span class="line-clamp-1"
-                                                >{product.chefs?.[0]
-                                                    ?.address}</span
-                                            >
-                                        </div>
-                                    </div>
-                                {/if}
 
                                 <div
                                     class="mt-auto pt-2 flex items-center justify-between"
@@ -833,67 +780,6 @@
     />
 {/if}
 
-{#if showChefWarningModal}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-        class="fixed inset-0 bg-black/60 z-60 flex items-center justify-center p-4"
-        on:click={() => (showChefWarningModal = false)}
-    >
-        <div
-            class="bg-slate-950 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
-            on:click|stopPropagation
-        >
-            <div class="p-6 text-center">
-                <div
-                    class="w-16 h-16 bg-yellow-900/20 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-400"
-                >
-                    <i class="fa-solid fa-kitchen-set text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-bold text-slate-100 mb-2">
-                    Dapur Berbeda-beda
-                </h3>
-                <p class="text-sm text-slate-300 mb-6 leading-relaxed">
-                    Produk yang kamu pilih berasal dari <strong
-                        >{chefCount} dapur</strong
-                    > yang berbeda. Hal ini akan menyebabkan biaya ongkir menjadi
-                    berkali lipat sesuai jumlah dapur.
-                </p>
-
-                <div class="flex flex-col gap-3">
-                    <button
-                        class="w-full py-3 bg-[#FFD700] text-slate-900 font-bold rounded-xl active:scale-[0.98] transition-all"
-                        on:click={() => {
-                            showChefWarningModal = false;
-                            isCheckoutLoading = true;
-                            router.post(
-                                "/checkout/session",
-                                {
-                                    cart,
-                                    dropPoint,
-                                    address,
-                                },
-                                {
-                                    onFinish: () => {
-                                        isCheckoutLoading = false;
-                                    },
-                                },
-                            );
-                        }}
-                    >
-                        Lanjutkan Checkout
-                    </button>
-                    <button
-                        class="w-full py-3 bg-slate-800 text-slate-300 font-bold rounded-xl active:scale-[0.98] transition-all"
-                        on:click={() => (showChefWarningModal = false)}
-                    >
-                        Kembali
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-{/if}
  
  <style>
     /* Hide scrollbar for Chrome, Safari and Opera */

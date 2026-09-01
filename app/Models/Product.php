@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -62,14 +61,6 @@ class Product extends Model
     }
 
     /**
-     * Chef-chef yang di-assign ke produk ini.
-     */
-    public function chefs(): BelongsToMany
-    {
-        return $this->belongsToMany(Chef::class)->withTimestamps();
-    }
-
-    /**
      * Get the order items for this product.
      */
     public function orderItems(): HasMany
@@ -109,7 +100,8 @@ class Product extends Model
             ->whereHas('order', function ($query) {
                 $query->whereIn('order_status', [
                     OrderStatus::CONFIRMED->value,
-                    OrderStatus::SHIPPED->value,
+                    OrderStatus::ON_DELIVERY->value,
+                    OrderStatus::ARRIVED->value,
                     OrderStatus::DELIVERED->value,
                 ]);
             })

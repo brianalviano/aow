@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * API Resource untuk OrderShipping.
  *
- * Serializes per-chef shipping data untuk ditampilkan di frontend.
+ * Serializes shipping data untuk ditampilkan di frontend.
  */
 class OrderShippingResource extends JsonResource
 {
@@ -23,7 +23,6 @@ class OrderShippingResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'chef_id' => $this->chef_id,
             'courier_company' => $this->courier_company,
             'courier_type' => $this->courier_type,
             'courier_name' => $this->courier_name,
@@ -37,10 +36,6 @@ class OrderShippingResource extends JsonResource
             'biteship_tracking_id' => $this->biteship_tracking_id,
             'biteship_waybill_id' => $this->biteship_waybill_id,
             'biteship_status' => $this->biteship_status,
-            'chef' => $this->whenLoaded('chef', fn () => [
-                'id' => $this->chef->id,
-                'name' => $this->chef->name,
-            ]),
         ];
     }
 }

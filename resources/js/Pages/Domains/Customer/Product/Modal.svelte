@@ -30,12 +30,6 @@
         total_sales: number;
         average_rating: number;
         testimonials_count: number;
-        chefs?: {
-            id: string;
-            name: string;
-            business_name: string;
-            address: string;
-        }[];
     };
 
     export let onClose: () => void;
@@ -280,30 +274,7 @@
                     </p>
                 {/if}
 
-                {#if product.chefs && product.chefs.length > 0}
-                    <div
-                        class="mt-4 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50 flex flex-col gap-2"
-                    >
-                        <div
-                            class="flex items-center gap-2 text-xs font-bold text-amber-500"
-                        >
-                            <i class="fa-solid fa-kitchen-set"></i>
-                            <span
-                                >{product.chefs?.[0]?.business_name ||
-                                    product.chefs?.[0]?.name}</span
-                            >
-                        </div>
-                        <div
-                            class="flex items-start gap-2 text-[11px] text-slate-400"
-                        >
-                            <i class="fa-solid fa-location-dot mt-0.5 shrink-0"
-                            ></i>
-                            <p class="leading-relaxed">
-                                {product.chefs?.[0]?.address}
-                            </p>
-                        </div>
-                    </div>
-                {/if}
+
             </div>
 
             <!-- Options sections -->

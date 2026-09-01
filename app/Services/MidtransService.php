@@ -60,7 +60,7 @@ class MidtransService
         $shippingAddress = [
             'first_name' => $order->dropPoint->name ?? 'Pengiriman',
             'address' => $order->dropPoint->address ?? '-',
-            'phone' => $order->dropPoint->pic_phone ?? ($order->dropPoint->phone ?? $order->customer->phone),
+            'phone' => $order->dropPoint->phone ?? $order->customer->phone,
             'country_code' => 'IDN',
         ];
 
@@ -110,8 +110,6 @@ class MidtransService
 
         // 1. Order Items (Products + Options)
         foreach ($order->items as $item) {
-            // We use subtotal divided by quantity to get the effective unit price (includes options)
-            // This ensures (unitPrice * quantity) matches the item subtotal exactly.
             $unitPrice = (int) ($item->subtotal / $item->quantity);
 
             $items[] = [
@@ -120,10 +118,6 @@ class MidtransService
                 'quantity' => (int) $item->quantity,
                 'name' => substr((string) data_get($item, 'product.name', 'Produk'), 0, 50),
             ];
-
-            // Item-level discount handling (if stored separately as negative amount)
-            // But usually subtotal already accounts for this.
-            // If subtotal is final, we don't need to add another discount item here.
         }
 
         // 2. Shipping Cost (use final_delivery_fee if available)
@@ -235,19 +229,8 @@ class MidtransService
 
             $updateData = [
                 'payment_status' => $paymentStatus,
-                'order_status' => $paymentStatus === 'paid' ? 'processing' : $order->order_status,
+                'order_status' => $paymentStatus === 'paid' ? 'confirmed' : $order->order_status,
             ];
-
-            if ($paymentStatus === 'paid' && empty($order->pick_up_point_id)) {
-                $resolvedPickup = PicOrderService::resolvePickUpPoint(
-                    $order->items->first()?->chef,
-                    $order->dropPoint?->toArray(),
-                    $order->customerAddress?->toArray()
-                );
-                if ($resolvedPickup) {
-                    $updateData['pick_up_point_id'] = $resolvedPickup->id;
-                }
-            }
 
             $order->update($updateData);
 
@@ -294,7 +277,7 @@ class MidtransService
         // GoPay / QRIS
         if ($code === 'gopay' || $code === 'qris') {
             return [
-                'payment_type' => 'gopay', // GOPAY response usually includes QRIS
+                'payment_type' => 'gopay',
                 'gopay' => [
                     'enable_callback' => true,
                     'callback_url' => url('/'),

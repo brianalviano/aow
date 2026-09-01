@@ -47,19 +47,16 @@
                   start_date?: string;
                   end_date?: string;
                   drop_point_id?: string;
-                  chef_id?: string;
                   delivery_date?: string;
               }
             | undefined,
     );
 
     let dropPoints = $derived((page.props.dropPoints as any[]) || []);
-    let chefs = $derived((page.props.chefs as any[]) || []);
 
     let statusCounts = $derived(
         (page.props.status_counts as Record<string, number>) || {},
     );
-    let pickUpPoints = $derived((page.props.pickUpPoints as any[]) || []);
 
     let searchQuery = $state(untrack(() => filters?.search || ""));
     let statusFilter = $state(untrack(() => filters?.status || "all"));
@@ -67,7 +64,6 @@
     let startDate = $state(untrack(() => filters?.start_date || ""));
     let endDate = $state(untrack(() => filters?.end_date || ""));
     let dropPointId = $state(untrack(() => filters?.drop_point_id || ""));
-    let chefId = $state(untrack(() => filters?.chef_id || ""));
     let deliveryDate = $state(untrack(() => filters?.delivery_date || ""));
 
     let isFilterExpanded = $state(false);
@@ -139,9 +135,6 @@
         if (dropPointId) {
             params.set("drop_point_id", dropPointId);
         }
-        if (chefId) {
-            params.set("chef_id", chefId);
-        }
         if (deliveryDate) {
             params.set("delivery_date", deliveryDate);
         }
@@ -165,7 +158,6 @@
             startDate !== (filters?.start_date || "") ||
             endDate !== (filters?.end_date || "") ||
             dropPointId !== (filters?.drop_point_id || "") ||
-            chefId !== (filters?.chef_id || "") ||
             deliveryDate !== (filters?.delivery_date || "")
         ) {
             handleSearch();
@@ -201,10 +193,8 @@
                 return { variant: "warning", label: "Menunggu" };
             case "confirmed":
                 return { variant: "info", label: "Dikonfirmasi" };
-            case "shipped":
-                return { variant: "primary", label: "Dikirim ke Pickup" };
-            case "at_pickup_point":
-                return { variant: "info", label: "Di Pickup Point" };
+            case "cooking":
+                return { variant: "warning", label: "Sedang Dimasak" };
             case "on_delivery":
                 return { variant: "primary", label: "Sedang Dikirim" };
             case "arrived":
@@ -253,71 +243,11 @@
     });
 
     let isProcessing = $state(false);
-
     let confirmOrderModalOpen = $state(false);
-    let confirmPickUpPointId = $state("");
     let selectedOrder = $state<Order | null>(null);
-
-    const pickUpPointOptions = $derived(
-        pickUpPoints.map((pp) => ({
-            value: pp.id,
-            label: `${pp.name} - ${pp.address}`,
-        })),
-    );
-
-    function calculateDistance(
-        lat1: number,
-        lon1: number,
-        lat2: number,
-        lon2: number,
-    ) {
-        const R = 6371; // km
-        const dLat = ((lat2 - lat1) * Math.PI) / 180;
-        const dLon = ((lon2 - lon1) * Math.PI) / 180;
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos((lat1 * Math.PI) / 180) *
-                Math.cos((lat2 * Math.PI) / 180) *
-                Math.sin(dLon / 2) *
-                Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-    }
-
-    function getSuggestedPickUpPoint(order: any) {
-        if (order.pick_up_point_id) return order.pick_up_point_id;
-
-        const targetLat =
-            order.customer_address?.latitude || order.drop_point?.latitude;
-        const targetLon =
-            order.customer_address?.longitude || order.drop_point?.longitude;
-
-        if (!targetLat || !targetLon || pickUpPoints.length === 0) return "";
-
-        let nearestId = "";
-        let minDistance = Infinity;
-
-        pickUpPoints.forEach((pp) => {
-            if (pp.latitude && pp.longitude) {
-                const dist = calculateDistance(
-                    targetLat,
-                    targetLon,
-                    pp.latitude,
-                    pp.longitude,
-                );
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    nearestId = pp.id;
-                }
-            }
-        });
-
-        return nearestId || pickUpPoints[0]?.id || "";
-    }
 
     function openConfirmOrderModal(order: Order) {
         selectedOrder = order;
-        confirmPickUpPointId = getSuggestedPickUpPoint(order);
         confirmOrderModalOpen = true;
     }
 
@@ -342,12 +272,13 @@
     }
 
     function approveOrder() {
-        if (!selectedOrder || !confirmPickUpPointId) return;
+        if (!selectedOrder) return;
         isProcessing = true;
         router.post(
             `/admin/orders/${selectedOrder.id}/confirm`,
-            { pick_up_point_id: confirmPickUpPointId },
+            {},
             {
+                preserveScroll: true,
                 onFinish: () => {
                     isProcessing = false;
                     confirmOrderModalOpen = false;
@@ -357,11 +288,13 @@
         );
     }
 
-    function rejectOrder(orderId: string) {
+    function rejectOrder(id: string) {
+        isProcessing = true;
         router.post(
-            `/admin/orders/${orderId}/cancel`,
-            { cancellation_note: "Ditolak oleh Admin" },
+            `/admin/orders/${id}/cancel`,
+            { cancellation_note: "Dibatalkan oleh Admin" },
             {
+                preserveScroll: true,
                 onFinish: () => {
                     isProcessing = false;
                 },
@@ -371,56 +304,82 @@
 </script>
 
 <svelte:head>
-    <title>Pesanan | {name(page.props.settings)}</title>
+    <title>Daftar Pesanan | {name(page.props.settings)}</title>
 </svelte:head>
 
 <section class="space-y-6">
-    <header
-        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    <div
+        class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
     >
         <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                Pesanan
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                Daftar Pesanan
             </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Kelola pesanan pelanggan dari berbagai dapur
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                Kelola dan pantau semua transaksi pesanan masuk.
             </p>
         </div>
-    </header>
-    <Tab
-        tabs={orderTabs}
-        bind:activeTab={statusFilter}
-        variant="underline"
-        onTabChange={() => goToPage(1)}
-    />
+        <div class="flex items-center gap-2">
+            <Button
+                variant="secondary"
+                size="sm"
+                icon="fa-solid fa-list-check"
+                href="/admin/orders/resume"
+            >
+                {#snippet children()}Resume Produksi{/snippet}
+            </Button>
+            <Button
+                variant="primary"
+                size="sm"
+                icon="fa-solid fa-clock-rotate-left"
+                href="/admin/orders/processing"
+            >
+                {#snippet children()}Dalam Proses{/snippet}
+            </Button>
+        </div>
+    </div>
+
+    <!-- Tabs for Order Status -->
+    <div class="border-b border-gray-200 dark:border-gray-800">
+        <Tab
+            tabs={orderTabs}
+            bind:activeTab={statusFilter}
+            variant="underline"
+        />
+    </div>
 
     <div
-        class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700 overflow-hidden"
     >
-        <div class="p-4 flex flex-col sm:flex-row items-center gap-4">
-            <div class="flex-1 w-full">
+        <!-- Filter Header -->
+        <div
+            class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-col md:flex-row gap-3 items-center justify-between"
+        >
+            <div class="w-full md:w-80">
                 <TextInput
-                    id="search"
-                    name="search"
-                    placeholder="Cari nomor pesanan atau customer..."
+                    id="searchQuery"
+                    name="searchQuery"
                     bind:value={searchQuery}
-                    class="mb-0!"
-                    icon="fa-solid fa-search"
+                    placeholder="Cari nomor order / customer / menu..."
+                    icon="fa-solid fa-magnifying-glass"
                 />
             </div>
-            <div class="flex gap-2 shrink-0">
+
+            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
                 <Button
-                    variant="light"
+                    variant={isFilterExpanded ? "primary" : "secondary"}
                     size="sm"
                     icon="fa-solid fa-filter"
                     onclick={() => (isFilterExpanded = !isFilterExpanded)}
                 >
-                    Filter Lanjutan
+                    {#snippet children()}Filter Lanjutan{/snippet}
                 </Button>
-                {#if searchQuery || statusFilter !== "all" || dateRange !== "all" || dropPointId || chefId || deliveryDate}
+
+                {#if searchQuery || statusFilter !== "all" || dateRange !== "all" || dropPointId || deliveryDate}
                     <Button
                         variant="secondary"
                         size="sm"
+                        icon="fa-solid fa-xmark"
                         onclick={() => {
                             searchQuery = "";
                             statusFilter = "all";
@@ -428,43 +387,41 @@
                             startDate = "";
                             endDate = "";
                             dropPointId = "";
-                            chefId = "";
                             deliveryDate = "";
-                            handleSearch();
                         }}
                     >
-                        Reset Filter
+                        {#snippet children()}Reset{/snippet}
                     </Button>
                 {/if}
             </div>
         </div>
 
+        <!-- Filter Drawer / Expandable -->
         {#if isFilterExpanded}
             <div
-                class="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 border-t border-gray-100 dark:border-gray-800 pt-4"
+                class="p-4 bg-gray-50 dark:bg-gray-850 border-b border-gray-200 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
             >
                 <Select
-                    label="Rentang Tanggal"
+                    label="Rentang Tanggal Order"
                     bind:value={dateRange}
                     options={[
                         { value: "all", label: "Semua Waktu" },
                         { value: "30_days", label: "30 Hari Terakhir" },
                         { value: "90_days", label: "90 Hari Terakhir" },
-                        { value: "custom", label: "Rentang Custom" },
+                        { value: "custom", label: "Kustom" },
                     ]}
-                    placeholder="Pilih rentang..."
                 />
 
                 {#if dateRange === "custom"}
                     <DateInput
-                        label="Tgl. Mulai"
+                        label="Dari Tanggal"
                         bind:value={startDate}
-                        placeholder="Mulai"
+                        placeholder="Pilih tanggal awal"
                     />
                     <DateInput
-                        label="Tgl. Selesai"
+                        label="Sampai Tanggal"
                         bind:value={endDate}
-                        placeholder="Selesai"
+                        placeholder="Pilih tanggal akhir"
                     />
                 {/if}
 
@@ -479,20 +436,6 @@
                         })),
                     ]}
                     placeholder="Pilih drop point..."
-                    searchable={true}
-                />
-
-                <Select
-                    label="Chef / Dapur"
-                    bind:value={chefId}
-                    options={[
-                        { value: "", label: "Semua Chef" },
-                        ...chefs.map((c) => ({
-                            value: c.id,
-                            label: c.name,
-                        })),
-                    ]}
-                    placeholder="Pilih chef..."
                     searchable={true}
                 />
 
@@ -513,7 +456,6 @@
                         <th>Customer</th>
                         <th>Total</th>
                         <th>Status Pesanan</th>
-                        <th>Status Dapur</th>
                         <th>Status Bayar</th>
                         <th>Bukti</th>
                         <th class="w-48 text-center">Aksi</th>
@@ -528,8 +470,6 @@
                             {@const paymentBadge = getPaymentBadge(
                                 item.payment_status,
                             )}
-                            {@const chefStatus = (item as any)
-                                .chef_status_summary}
                             <tr
                                 class={item.order_status === "cancelled"
                                     ? "bg-gray-100 dark:bg-gray-800/60 opacity-60 hover:opacity-100 transition-opacity"
@@ -604,47 +544,6 @@
                                     <Badge
                                         size="sm"
                                         rounded="pill"
-                                        variant={chefStatus === "rejected" ||
-                                        chefStatus === "rejected_partial" ||
-                                        chefStatus === "cancelled" ||
-                                        chefStatus === "cancelled_partial"
-                                            ? "danger"
-                                            : chefStatus === "delivered"
-                                              ? "success"
-                                              : chefStatus === "shipped"
-                                                ? "primary"
-                                                : chefStatus === "accepted"
-                                                  ? "info"
-                                                  : chefStatus === "partial"
-                                                    ? "purple"
-                                                    : "warning"}
-                                        dot={true}
-                                    >
-                                        {#snippet children()}
-                                            {chefStatus === "cancelled"
-                                                ? "Dibatalkan"
-                                                : chefStatus === "cancelled_partial"
-                                                  ? "Dibatalkan Sebagian"
-                                                  : chefStatus === "rejected"
-                                                ? "Ditolak"
-                                                : chefStatus === "rejected_partial"
-                                                  ? "Ditolak Sebagian"
-                                                  : chefStatus === "delivered"
-                                                    ? "Selesai"
-                                                    : chefStatus === "shipped"
-                                                      ? "Dikirim"
-                                                      : chefStatus === "accepted"
-                                                        ? "Diproses"
-                                                        : chefStatus === "partial"
-                                                          ? "Sebagian"
-                                                          : "Menunggu"}
-                                        {/snippet}
-                                    </Badge>
-                                </td>
-                                <td>
-                                    <Badge
-                                        size="sm"
-                                        rounded="pill"
                                         variant={paymentBadge.variant}
                                     >
                                         {#snippet children()}{paymentBadge.label}{/snippet}
@@ -705,7 +604,7 @@
                                                                 item.id,
                                                             ),
                                                         "danger",
-                                                    )}
+                                                      )}
                                                 title="Tolak"
                                             />
                                         {/if}
@@ -718,7 +617,7 @@
                                         ? 'bg-gray-100/90 dark:bg-gray-800/40 opacity-60 hover:opacity-100 transition-opacity'
                                         : 'bg-slate-50/75 dark:bg-slate-900/50'} border-b border-gray-200/90 dark:border-gray-800"
                                 >
-                                    <td colspan="9" class="py-2.5 px-4">
+                                    <td colspan="8" class="py-2.5 px-4">
                                         <div class="flex items-center gap-3 flex-wrap">
                                             <div
                                                 class="flex items-center gap-1.5 text-xs font-bold shrink-0 {item.order_status ===
@@ -797,7 +696,7 @@
                     {:else}
                         <tr>
                             <td
-                                colspan="9"
+                                colspan="8"
                                 class="py-12 text-sm text-center text-gray-500 dark:text-gray-400"
                             >
                                 <div
@@ -921,7 +820,7 @@
                         {#if !(selectedOrder as any).payment_proof_url && (selectedOrder as any).payment_method?.category !== 'cash'}
                             <span class="text-amber-600 font-bold"
                                 >PERINGATAN: Bukti pembayaran belum diunggah.</span
-                            > Apakah Anda yakin ingin tetap mengkonfirmasi pesanan
+                            > Apakah Anda yakin ingin mengkonfirmasi pesanan
                             <strong>#{selectedOrder.number}</strong> secara manual?
                         {:else}
                             Apakah Anda yakin ingin mengkonfirmasi pesanan <strong
@@ -929,29 +828,6 @@
                             >?
                         {/if}
                     </p>
-                </div>
-            </div>
-
-            <div class="space-y-4 border-t border-gray-100 dark:border-gray-700 pt-4">
-                <div>
-                    <label
-                        for="confirm-pickup-point"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                        Pilih Pickup Point
-                    </label>
-                    <Select
-                        id="confirm-pickup-point"
-                        bind:value={confirmPickUpPointId}
-                        options={pickUpPointOptions}
-                        placeholder="-- Pilih Pickup Point --"
-                        searchable={true}
-                    />
-                    {#if confirmPickUpPointId && confirmPickUpPointId === getSuggestedPickUpPoint(selectedOrder) && !(selectedOrder as any).pick_up_point_id}
-                        <p class="mt-1 text-[10px] text-green-600 flex items-center gap-1">
-                            <i class="fa-solid fa-location-dot"></i> Disarankan (Terdekat)
-                        </p>
-                    {/if}
                 </div>
             </div>
 
@@ -967,7 +843,7 @@
                 <Button
                     variant={!(selectedOrder as any).payment_proof_url && (selectedOrder as any).payment_method?.category !== 'cash' ? "warning" : "primary"}
                     size="sm"
-                    disabled={isProcessing || !confirmPickUpPointId}
+                    disabled={isProcessing}
                     loading={isProcessing}
                     onclick={approveOrder}
                 >

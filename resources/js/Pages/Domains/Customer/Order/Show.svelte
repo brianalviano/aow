@@ -31,9 +31,6 @@
                 id: string;
                 quantity: number;
                 price: number;
-                chef_id: string;
-                chef_status: string;
-                chef?: { name: string };
                 product: { name: string; image_url: string };
                 can_give_testimonial?: boolean;
                 testimonial?: {
@@ -45,8 +42,6 @@
                 };
             }>;
             shippings: Array<{
-                chef_id: string;
-                chef?: { name: string };
                 courier_company: string;
                 courier_name: string;
                 shipping_fee: number;
@@ -93,21 +88,12 @@
             };
         }
 
-        if (orderStatus === "shipped") {
+        if (orderStatus === "cooking") {
             return {
-                text: isCash ? "Dikirim (COD)" : "Dikirim ke Pickup",
+                text: "Sedang Dimasak",
                 classes:
-                    "bg-purple-900/20 text-purple-400 border border-purple-800",
-                icon: "fa-solid fa-truck-fast",
-            };
-        }
-
-        if (orderStatus === "at_pickup_point") {
-            return {
-                text: "Di Pickup Point",
-                classes:
-                    "bg-purple-900/20 text-purple-400 border border-purple-800",
-                icon: "fa-solid fa-location-dot",
+                    "bg-orange-900/20 text-orange-400 border border-orange-800",
+                icon: "fa-solid fa-fire-burner",
             };
         }
 
@@ -205,58 +191,6 @@
         mediaViewerItems = items;
         mediaViewerInitialIndex = index;
         isMediaViewerOpen = true;
-    }
-
-    const itemsByChef = $derived.by(() => {
-        const groups: Record<
-            string,
-            { chef: any; items: any[]; shipping: any }
-        > = {};
-
-        if (!order?.items) return [];
-
-        order.items.forEach((item) => {
-            const chefId = item.chef_id || "unknown";
-            if (!groups[chefId]) {
-                groups[chefId] = {
-                    chef: item.chef,
-                    items: [],
-                    shipping: order.shippings?.find(
-                        (s) => s.chef_id === item.chef_id,
-                    ),
-                };
-            }
-            groups[chefId].items.push(item);
-        });
-
-        return Object.values(groups);
-    });
-
-    function getChefStatusBadge(status: string) {
-        switch (status) {
-            case "pending":
-                return {
-                    text: "Menunggu",
-                    classes: "bg-slate-800 text-slate-300",
-                };
-            case "approved":
-                return {
-                    text: "Disiapkan",
-                    classes: "bg-blue-900/30 text-blue-400",
-                };
-            case "shipped":
-                return {
-                    text: "Dikirim",
-                    classes: "bg-purple-900/30 text-purple-400",
-                };
-            case "delivered":
-                return {
-                    text: "Selesai",
-                    classes: "bg-green-900/30 text-green-400",
-                };
-            default:
-                return { text: status, classes: "bg-slate-800 text-slate-300" };
-        }
     }
 </script>
 
@@ -493,74 +427,45 @@
                 Daftar Produk
             </div>
             <div class="space-y-4">
-                <div class="space-y-6">
-                    {#each itemsByChef as group}
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between px-1">
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="w-2 h-2 rounded-full bg-[#FFD700]"
-                                    ></div>
-                                    <span
-                                        class="text-sm font-bold text-slate-100"
-                                    >
-                                        Dapur: {group.chef?.name || "Lainnya"}
-                                    </span>
-                                </div>
-
-                                {#if group.items.length > 0}
-                                    {@const chefBadge = getChefStatusBadge(
-                                        group.items[0].chef_status,
-                                    )}
-                                    <div class="flex items-center gap-2">
-                                        <span
-                                            class="text-[10px] font-bold px-2 py-0.5 rounded-full {chefBadge.classes}"
-                                        >
-                                            {chefBadge.text}
-                                        </span>
-                                    </div>
-                                {/if}
+                {#if order.shippings?.[0]?.biteship_waybill_id}
+                    <div
+                        class="bg-blue-900/20 rounded-xl p-3 border border-blue-800 flex items-center justify-between mb-4"
+                    >
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-[#FFD700] shadow-sm"
+                            >
+                                <i
+                                    class="fa-solid fa-truck-fast text-xs"
+                                ></i>
                             </div>
-
-                            {#if group.shipping?.biteship_waybill_id}
+                            <div>
                                 <div
-                                    class="bg-blue-900/20 rounded-xl p-3 border border-blue-800 flex items-center justify-between"
+                                    class="text-[10px] text-slate-400 font-medium"
                                 >
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-[#FFD700] shadow-sm"
-                                        >
-                                            <i
-                                                class="fa-solid fa-truck-fast text-xs"
-                                            ></i>
-                                        </div>
-                                        <div>
-                                            <div
-                                                class="text-[10px] text-slate-400 font-medium"
-                                            >
-                                                No. Resi ({group.shipping
-                                                    .courier_name})
-                                            </div>
-                                            <div
-                                                class="text-xs font-bold text-slate-100 leading-tight"
-                                            >
-                                                {group.shipping
-                                                    .biteship_waybill_id}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <a
-                                        href={`https://biteship.com/id/tracking/${group.shipping.biteship_waybill_id}`}
-                                        target="_blank"
-                                        class="text-[10px] font-bold text-[#FFD700] hover:text-yellow-300 underline decoration-yellow-400/50 underline-offset-4"
-                                    >
-                                        Lacak Pesanan
-                                    </a>
+                                    No. Resi ({order.shippings[0]
+                                        .courier_name})
                                 </div>
-                            {/if}
+                                <div
+                                    class="text-xs font-bold text-slate-100 leading-tight"
+                                >
+                                    {order.shippings[0]
+                                        .biteship_waybill_id}
+                                </div>
+                            </div>
+                        </div>
+                        <a
+                            href={`https://biteship.com/id/tracking/${order.shippings[0].biteship_waybill_id}`}
+                            target="_blank"
+                            class="text-[10px] font-bold text-[#FFD700] hover:text-yellow-300 underline decoration-yellow-400/50 underline-offset-4"
+                        >
+                            Lacak Pesanan
+                        </a>
+                    </div>
+                {/if}
 
-                            <div class="space-y-3">
-                                {#each group.items as item}
+                <div class="space-y-3">
+                    {#each order.items as item}
                                     <div
                                         class="bg-slate-800 rounded-xl p-4 border border-slate-700 shadow-sm"
                                     >
@@ -709,14 +614,14 @@
                                                             class="space-y-3 pt-1"
                                                         >
                                                             <div
-                                                                class="flex items-center justify-between"
+                                                                class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/60"
                                                             >
                                                                 <span
-                                                                    class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"
-                                                                    >Rating</span
+                                                                    class="text-xs font-semibold text-slate-300"
+                                                                    >Beri Rating:</span
                                                                 >
                                                                 <div
-                                                                    class="flex gap-1.5"
+                                                                    class="flex items-center gap-1.5"
                                                                 >
                                                                     {#each ["1", "2", "3", "4", "5"] as star}
                                                                         <button
@@ -724,22 +629,20 @@
                                                                             onclick={() =>
                                                                                 (testimonialForm.rating =
                                                                                     star)}
-                                                                            class="w-7 h-7 rounded-md flex items-center justify-center border transition-all {parseInt(
+                                                                            class="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 {parseInt(
                                                                                 testimonialForm.rating,
                                                                             ) >=
                                                                             parseInt(
                                                                                 star,
                                                                             )
-                                                                                ? 'bg-yellow-900/20 border-yellow-400 text-yellow-400'
-                                                                                : 'bg-slate-700 border-slate-600 text-slate-500'}"
+                                                                                ? 'bg-amber-400/20 text-amber-400 border border-amber-400/50 shadow-sm shadow-amber-500/20'
+                                                                                : 'bg-slate-800 text-slate-500 border border-slate-700 hover:text-amber-300'}"
                                                                             aria-label="Pilih rating {star} bintang"
                                                                         >
                                                                             <i
-                                                                                class="fa-solid fa-star text-xs"
-
+                                                                                class="fa-solid fa-star text-sm"
                                                                             ></i>
                                                                         </button>
-                                                                        Star
                                                                     {/each}
                                                                 </div>
                                                             </div>
@@ -800,12 +703,6 @@
                                             </div>
                                         {/if}
                                     </div>
-                                {/each}
-                            </div>
-                        </div>
-                        {#if group !== itemsByChef[itemsByChef.length - 1]}
-                            <div class="border-b border-gray-100 my-4"></div>
-                        {/if}
                     {/each}
                 </div>
             </div>
@@ -859,10 +756,7 @@
                                         <i
                                             class="fa-solid fa-truck-fast text-[10px] mr-1 text-[#FFD700]"
                                         ></i>
-                                        {shipping.chef?.name || "Chef"}
-                                        <span class="text-slate-500"
-                                            >({shipping.courier_name})</span
-                                        >
+                                        {shipping.courier_name}
                                     </span>
                                     <span class="text-slate-300">
                                         {formatCurrency(shipping.shipping_fee)}

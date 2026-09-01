@@ -4,12 +4,10 @@ import { hydrate, mount } from "svelte";
 import "@css/vendor/fontawesome/all.css";
 import AdminLayout from "@/Lib/Admin/Layouts/Default.svelte";
 import CustomerLayout from "@/Lib/Customer/Layouts/Default.svelte";
-import ChefLayout from "@/Lib/Chef/Layouts/Default.svelte";
 import { setRoleConfig } from "@/Lib/Admin/Utils/roles";
 
 import { router } from "@inertiajs/svelte";
 import { applyThemeClass } from "@/Lib/Admin/Hooks/sidebar";
-import PicLayout from "@/Lib/Pic/Layouts/Default.svelte";
 
 // Synchronize theme on client-side navigation
 router.on("navigate", (event: any) => {
@@ -21,7 +19,7 @@ router.on("navigate", (event: any) => {
         const darkMode = savedTheme ? savedTheme === "dark" : prefersDark;
         applyThemeClass(darkMode);
     } else {
-        // Public, Customer, Chef, PIC pages are permanently dark mode
+        // Public and Customer pages are permanently dark mode
         applyThemeClass(true);
     }
 });
@@ -45,8 +43,6 @@ createInertiaApp({
         const page = pages[`./Pages/${name}.svelte`];
         const isAdmin = name.startsWith("Domains/Admin/");
         const isCustomer = name.startsWith("Domains/Customer/");
-        const isChef = name.startsWith("Domains/Chef/");
-        const isPic = name.startsWith("Domains/Pic/");
         return {
             default: page.default,
             layout:
@@ -55,11 +51,7 @@ createInertiaApp({
                     ? AdminLayout
                     : isCustomer
                       ? CustomerLayout
-                      : isChef
-                        ? ChefLayout
-                        : isPic
-                          ? PicLayout
-                          : undefined),
+                      : undefined),
         };
     },
     setup({ el, App, props }: { el: HTMLElement; App: any; props: any }) {
