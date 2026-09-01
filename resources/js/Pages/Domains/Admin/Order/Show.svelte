@@ -283,6 +283,80 @@
         }
     }
 
+    const ORDER_LIFECYCLE_STEPS = [
+        {
+            key: "pending",
+            label: "1. Menunggu",
+            title: "Verifikasi Pembayaran",
+            icon: "fa-solid fa-clock",
+        },
+        {
+            key: "confirmed",
+            label: "2. Dikonfirmasi",
+            title: "Masuk Antrean Dapur",
+            icon: "fa-solid fa-clipboard-check",
+        },
+        {
+            key: "cooking",
+            label: "3. Sedang Dimasak",
+            title: "Proses Dapur Sentral",
+            icon: "fa-solid fa-fire-burner",
+        },
+        {
+            key: "on_delivery",
+            label: "4. Sedang Dikirim",
+            title: "Pengantaran Kurir",
+            icon: "fa-solid fa-truck-fast",
+        },
+        {
+            key: "arrived",
+            label: "5. Tiba di Lokasi",
+            title: "Sampai di Tujuan",
+            icon: "fa-solid fa-location-dot",
+        },
+        {
+            key: "delivered",
+            label: "6. Selesai",
+            title: "Diterima Pelanggan",
+            icon: "fa-solid fa-circle-check",
+        },
+    ] as const;
+
+    const stepOrderKeys = [
+        "pending",
+        "confirmed",
+        "cooking",
+        "on_delivery",
+        "arrived",
+        "delivered",
+    ];
+    const currentStepIdx = $derived(
+        order.order_status === "cancelled"
+            ? -1
+            : stepOrderKeys.indexOf(order.order_status),
+    );
+
+    function getNextStepHint(status: string): string {
+        switch (status) {
+            case "pending":
+                return "Langkah berikutnya: Periksa bukti pembayaran lalu klik 'Konfirmasi' atau 'Batalkan'.";
+            case "confirmed":
+                return "Langkah berikutnya: Saat dapur mulai menyiapkan pesanan, klik 'Mulai Memasak'.";
+            case "cooking":
+                return "Langkah berikutnya: Saat makanan matang & diserahkan ke kurir, klik 'Kirim Pesanan'.";
+            case "on_delivery":
+                return "Langkah berikutnya: Kurir dalam perjalanan menuju Drop Point atau Alamat Customer.";
+            case "arrived":
+                return "Langkah berikutnya: Pesanan telah tiba di lokasi, lakukan serah terima lalu klik 'Selesaikan Pesanan'.";
+            case "delivered":
+                return "Semua tahapan pesanan telah selesai dengan sukses.";
+            case "cancelled":
+                return "Pesanan ini telah dibatalkan.";
+            default:
+                return "";
+        }
+    }
+
     function getPaymentBadge(status: string): {
         variant: BadgeVariant;
         label: string;
@@ -468,6 +542,130 @@
             </div>
         </div>
     </header>
+
+    <!-- Order Lifecycle Stepper Tracker -->
+    <div
+        class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-[#2c2c2c] dark:bg-[#0f0f0f]"
+    >
+        <div
+            class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3 dark:border-gray-800"
+        >
+            <div class="flex items-center gap-2.5">
+                <div
+                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 dark:bg-amber-400/10 dark:text-amber-400"
+                >
+                    <i class="fa-solid fa-timeline text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white">
+                        Alur Status & Tahapan Pesanan
+                    </h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {getNextStepHint(order.order_status)}
+                    </p>
+                </div>
+            </div>
+
+            {#if order.order_status === "cancelled"}
+                <Badge variant="danger" size="sm" dot={true}>
+                    {#snippet children()}Pesanan Dibatalkan{/snippet}
+                </Badge>
+            {:else}
+                <div class="flex items-center gap-1.5 text-xs">
+                    <span class="text-gray-500 dark:text-gray-400"
+                        >Tahap Saat Ini:</span
+                    >
+                    <span class="font-bold text-amber-600 dark:text-amber-400">
+                        {getStatusBadge(order.order_status).label} (Tahap {currentStepIdx +
+                            1} dari 6)
+                    </span>
+                </div>
+            {/if}
+        </div>
+
+        {#if order.order_status === "cancelled"}
+            <div
+                class="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50/80 p-4 dark:border-red-900/50 dark:bg-red-950/20"
+            >
+                <div
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400"
+                >
+                    <i class="fa-solid fa-ban text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-sm font-bold text-red-800 dark:text-red-300">
+                        Pesanan Telah Dibatalkan
+                    </h4>
+                    <p class="mt-0.5 text-xs text-red-700 dark:text-red-400">
+                        {order.cancellation_note
+                            ? `Alasan: "${order.cancellation_note}"`
+                            : "Tidak ada catatan pembatalan."}
+                    </p>
+                </div>
+            </div>
+        {:else}
+            <!-- Responsive Step Progress Bar -->
+            <div class="relative py-2">
+                <div
+                    class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6 relative"
+                >
+                    {#each ORDER_LIFECYCLE_STEPS as step, index}
+                        {@const isPassed = currentStepIdx > index}
+                        {@const isCurrent = currentStepIdx === index}
+                        {@const isUpcoming = currentStepIdx < index}
+
+                        <div
+                            class="flex flex-col items-center text-center relative group"
+                        >
+                            <!-- Connecting Line for Desktop (LG) -->
+                            {#if index < ORDER_LIFECYCLE_STEPS.length - 1}
+                                <div
+                                    class="hidden lg:block absolute top-4 left-1/2 w-full h-0.5 z-0 {isPassed
+                                        ? 'bg-emerald-500'
+                                        : isCurrent
+                                          ? 'bg-gradient-to-r from-amber-500 to-gray-200 dark:to-gray-700'
+                                          : 'bg-gray-200 dark:bg-gray-800'}"
+                                ></div>
+                            {/if}
+
+                            <!-- Icon Node -->
+                            <div
+                                class="relative z-10 flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 {isPassed
+                                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 ring-4 ring-emerald-500/10'
+                                    : isCurrent
+                                      ? 'bg-amber-500 text-slate-950 font-bold shadow-lg shadow-amber-500/30 ring-4 ring-amber-500/25 scale-110'
+                                      : 'border border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-500'}"
+                            >
+                                {#if isPassed}
+                                    <i class="fa-solid fa-check text-sm"></i>
+                                {:else}
+                                    <i class="{step.icon} text-xs"></i>
+                                {/if}
+                            </div>
+
+                            <!-- Texts -->
+                            <div class="mt-2.5 space-y-0.5">
+                                <div
+                                    class="text-xs font-bold transition-colors {isPassed
+                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                        : isCurrent
+                                          ? 'text-amber-600 dark:text-amber-400 font-extrabold'
+                                          : 'text-gray-400 dark:text-gray-500'}"
+                                >
+                                    {step.label}
+                                </div>
+                                <div
+                                    class="text-[10px] text-gray-500 dark:text-gray-400 line-clamp-1"
+                                >
+                                    {step.title}
+                                </div>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {/if}
+    </div>
 
     {#if order.order_status === "pending"}
         {@const orderSubtotal = order.items.reduce((sum, item) => sum + item.subtotal, 0)}

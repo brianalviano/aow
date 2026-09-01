@@ -192,6 +192,29 @@
         mediaViewerInitialIndex = index;
         isMediaViewerOpen = true;
     }
+
+    const CUSTOMER_STEPS = [
+        { key: "pending", label: "Menunggu", icon: "fa-solid fa-clock" },
+        { key: "confirmed", label: "Dikonfirmasi", icon: "fa-solid fa-clipboard-check" },
+        { key: "cooking", label: "Dimasak", icon: "fa-solid fa-fire-burner" },
+        { key: "on_delivery", label: "Dikirim", icon: "fa-solid fa-truck-fast" },
+        { key: "arrived", label: "Tiba", icon: "fa-solid fa-location-dot" },
+        { key: "delivered", label: "Selesai", icon: "fa-solid fa-circle-check" },
+    ] as const;
+
+    const customerStepOrder = [
+        "pending",
+        "confirmed",
+        "cooking",
+        "on_delivery",
+        "arrived",
+        "delivered",
+    ];
+    const customerStepIdx = $derived(
+        order.order_status === "cancelled"
+            ? -1
+            : customerStepOrder.indexOf(order.order_status),
+    );
 </script>
 
 <svelte:head>
@@ -217,6 +240,72 @@
     </header>
 
     <div class="p-4 space-y-4">
+        <!-- Live Order Status Stepper -->
+        {#if order.order_status !== "cancelled"}
+            <div
+                class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm space-y-3"
+            >
+                <div
+                    class="flex items-center justify-between text-xs border-b border-slate-800/80 pb-2.5"
+                >
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-route text-[#FFD700]"></i>
+                        <span class="font-bold text-slate-200"
+                            >Pelacakan Tahapan Pesanan</span
+                        >
+                    </div>
+                    <span class="text-xs font-semibold text-amber-400"
+                        >Tahap {customerStepIdx + 1} dari 6</span
+                    >
+                </div>
+
+                <div class="grid grid-cols-6 gap-1 relative py-1">
+                    {#each CUSTOMER_STEPS as step, index}
+                        {@const isPassed = customerStepIdx > index}
+                        {@const isCurrent = customerStepIdx === index}
+
+                        <div
+                            class="flex flex-col items-center text-center relative"
+                        >
+                            {#if index < CUSTOMER_STEPS.length - 1}
+                                <div
+                                    class="absolute top-3.5 left-1/2 w-full h-0.5 z-0 {isPassed
+                                        ? 'bg-emerald-500'
+                                        : isCurrent
+                                          ? 'bg-gradient-to-r from-amber-400 to-slate-800'
+                                          : 'bg-slate-800'}"
+                                ></div>
+                            {/if}
+
+                            <div
+                                class="relative z-10 flex h-7 w-7 items-center justify-center rounded-full transition-all {isPassed
+                                    ? 'bg-emerald-500 text-white shadow-sm ring-2 ring-emerald-500/20'
+                                    : isCurrent
+                                      ? 'bg-[#FFD700] text-slate-950 font-bold shadow-md shadow-amber-500/20 ring-2 ring-amber-400/30 scale-110'
+                                      : 'border border-slate-800 bg-slate-900 text-slate-600'}"
+                            >
+                                {#if isPassed}
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                {:else}
+                                    <i class="{step.icon} text-[10px]"></i>
+                                {/if}
+                            </div>
+
+                            <span
+                                class="mt-2 text-[9px] leading-tight font-semibold {isPassed
+                                    ? 'text-emerald-400'
+                                    : isCurrent
+                                      ? 'text-[#FFD700] font-bold'
+                                      : 'text-slate-500'}"
+                            >
+                                {step.label}
+                            </span>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {/if}
+
         <!-- Status & Timeline Info -->
         <div
             class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm"
