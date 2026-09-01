@@ -530,7 +530,11 @@
                             )}
                             {@const chefStatus = (item as any)
                                 .chef_status_summary}
-                            <tr>
+                            <tr
+                                class={item.order_status === "cancelled"
+                                    ? "bg-gray-100 dark:bg-gray-800/60 opacity-60 hover:opacity-100 transition-opacity"
+                                    : "hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"}
+                            >
                                 <td
                                     class="font-medium text-gray-900 dark:text-white"
                                 >
@@ -709,31 +713,77 @@
                                 </td>
                             </tr>
                             {#if (item as any).items && (item as any).items.length > 0}
-                                <tr class="bg-slate-50/75 dark:bg-slate-900/50 border-b border-gray-200/90 dark:border-gray-800">
+                                <tr
+                                    class="{item.order_status === 'cancelled'
+                                        ? 'bg-gray-100/90 dark:bg-gray-800/40 opacity-60 hover:opacity-100 transition-opacity'
+                                        : 'bg-slate-50/75 dark:bg-slate-900/50'} border-b border-gray-200/90 dark:border-gray-800"
+                                >
                                     <td colspan="9" class="py-2.5 px-4">
                                         <div class="flex items-center gap-3 flex-wrap">
-                                            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">
-                                                <i class="fa-solid fa-utensils text-indigo-500 text-xs"></i>
+                                            <div
+                                                class="flex items-center gap-1.5 text-xs font-bold shrink-0 {item.order_status ===
+                                                'cancelled'
+                                                    ? 'text-gray-400 dark:text-gray-500'
+                                                    : 'text-slate-500 dark:text-slate-400'}"
+                                            >
+                                                <i
+                                                    class="fa-solid fa-utensils {item.order_status ===
+                                                    'cancelled'
+                                                        ? 'text-gray-400 dark:text-gray-500'
+                                                        : 'text-indigo-500'} text-xs"
+                                                ></i>
                                                 <span>Menu Dipesan:</span>
                                             </div>
                                             <div class="flex items-center gap-2 flex-wrap flex-1">
                                                 {#each (item as any).items as orderItem}
-                                                    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xs text-xs">
-                                                        <span class="font-bold text-gray-800 dark:text-gray-100">
+                                                    <div
+                                                        class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg {item.order_status ===
+                                                        'cancelled'
+                                                            ? 'bg-gray-200/60 dark:bg-gray-800/80 border border-gray-300 dark:border-gray-700 text-gray-500'
+                                                            : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700'} shadow-2xs text-xs"
+                                                    >
+                                                        <span
+                                                            class="font-bold {item.order_status ===
+                                                            'cancelled'
+                                                                ? 'text-gray-500 dark:text-gray-400 line-through'
+                                                                : 'text-gray-800 dark:text-gray-100'}"
+                                                        >
                                                             {orderItem.product?.name ?? "Produk"}
                                                         </span>
                                                         {#if orderItem.options && orderItem.options.length > 0}
                                                             <div class="flex items-center gap-1">
                                                                 {#each orderItem.options as opt}
                                                                     {#if opt.product_option_item?.name}
-                                                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded font-bold text-[10px] {opt.product_option_item.name.toLowerCase().includes('besar') ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800' : opt.product_option_item.name.toLowerCase().includes('pedas') ? 'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300 border border-orange-200 dark:border-orange-800' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}">
+                                                                        <span
+                                                                            class="inline-flex items-center px-1.5 py-0.2 rounded font-bold text-[10px] {item.order_status ===
+                                                                            'cancelled'
+                                                                                ? 'bg-gray-200/90 text-gray-500 dark:bg-gray-700 dark:text-gray-400 border border-gray-300 dark:border-gray-600'
+                                                                                : opt.product_option_item.name
+                                                                                        .toLowerCase()
+                                                                                        .includes(
+                                                                                            'besar',
+                                                                                        )
+                                                                                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                                                                                  : opt.product_option_item.name
+                                                                                          .toLowerCase()
+                                                                                          .includes(
+                                                                                              'pedas',
+                                                                                          )
+                                                                                    ? 'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300 border border-orange-200 dark:border-orange-800'
+                                                                                    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700'}"
+                                                                        >
                                                                             {opt.product_option_item.name}
                                                                         </span>
                                                                     {/if}
                                                                 {/each}
                                                             </div>
                                                         {/if}
-                                                        <span class="font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/80 px-1.5 py-0.2 rounded text-[11px]">
+                                                        <span
+                                                            class="font-black {item.order_status ===
+                                                            'cancelled'
+                                                                ? 'text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700/80'
+                                                                : 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/80'} px-1.5 py-0.2 rounded text-[11px]"
+                                                        >
                                                             {orderItem.quantity}x
                                                         </span>
                                                     </div>

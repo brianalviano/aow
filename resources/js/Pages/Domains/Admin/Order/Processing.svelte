@@ -322,7 +322,11 @@
                                 .filter(Boolean),
                         ),
                     ]}
-                    <tr>
+                    <tr
+                        class={item.order_status === "cancelled"
+                            ? "bg-gray-100 dark:bg-gray-800/60 opacity-60 hover:opacity-100 transition-opacity"
+                            : "hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"}
+                    >
                         <td class="font-medium text-gray-900 dark:text-white">
                             {item.number}
                         </td>
