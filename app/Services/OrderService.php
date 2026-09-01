@@ -182,6 +182,15 @@ class OrderService
 
                 if ($pickUpPointId) {
                     $updateData['pick_up_point_id'] = $pickUpPointId;
+                } elseif (empty($order->pick_up_point_id)) {
+                    $resolvedPickup = PicOrderService::resolvePickUpPoint(
+                        $order->items->first()?->chef,
+                        $order->dropPoint?->toArray(),
+                        $order->customerAddress?->toArray()
+                    );
+                    if ($resolvedPickup) {
+                        $updateData['pick_up_point_id'] = $resolvedPickup->id;
+                    }
                 }
 
                 if ($order->payment_status === PaymentStatus::PENDING && $order->paymentMethod?->category !== 'cash') {
@@ -898,15 +907,15 @@ class OrderService
                         }
                     }
 
-                    // Assign nearest pickup point based on first chef's location
-                    if ($firstChef && $firstChef->latitude && $firstChef->longitude) {
-                        $nearestPickup = PicOrderService::findNearestPickUpPoint(
-                            $firstChef->latitude,
-                            $firstChef->longitude
-                        );
-                        if ($nearestPickup) {
-                            $order->update(['pick_up_point_id' => $nearestPickup->id]);
-                        }
+                    // Automatically resolve pickup point with tiered fallback
+                    $pickupPoint = PicOrderService::resolvePickUpPoint($firstChef, $dropPoint, $address);
+                    if ($pickupPoint) {
+                        $order->update(['pick_up_point_id' => $pickupPoint->id]);
+                    }
+
+                    // Remember customer's last selected drop point if available
+                    if (! empty($dropPoint['id']) && $customer->last_drop_point_id !== $dropPoint['id']) {
+                        $customer->update(['last_drop_point_id' => $dropPoint['id']]);
                     }
 
                     // Create per-chef shipping records (Biteship)

@@ -137,7 +137,8 @@
         color: #d1d5db;
         transition: color 0.2s ease;
     }
-    :global(html.dark) .default-icon {
+    :global(html.dark) .default-icon,
+    :global(.dark) .default-icon {
         color: #4b5563;
     }
     .default-label:hover .default-icon,
@@ -149,7 +150,8 @@
         font-weight: 500;
         color: #374151;
     }
-    :global(html.dark) .default-text {
+    :global(html.dark) .default-text,
+    :global(.dark) .default-text {
         color: #d1d5db;
     }
 
@@ -166,14 +168,16 @@
         transition: all 0.2s ease;
         user-select: none;
     }
-    :global(html.dark) .card-label {
+    :global(html.dark) .card-label,
+    :global(.dark) .card-label {
         border-color: #1f2937;
         background-color: #111827;
     }
     .card-label:hover {
         border-color: #9ca3af;
     }
-    :global(html.dark) .card-label:hover {
+    :global(html.dark) .card-label:hover,
+    :global(.dark) .card-label:hover {
         border-color: #374151;
     }
     .card-label.active {
@@ -202,7 +206,8 @@
         transition: color 0.2s ease;
         flex-shrink: 0;
     }
-    :global(html.dark) .card-icon {
+    :global(html.dark) .card-icon,
+    :global(.dark) .card-icon {
         color: #4b5563;
     }
     .card-label.active .card-icon {
@@ -220,7 +225,8 @@
         color: #111827;
         transition: color 0.2s;
     }
-    :global(html.dark) .card-title {
+    :global(html.dark) .card-title,
+    :global(.dark) .card-title {
         color: #ffffff;
     }
     .card-label.active .card-title {
@@ -229,5 +235,9 @@
     .card-sublabel {
         font-size: 0.75rem;
         color: #6b7280;
+    }
+    :global(html.dark) .card-sublabel,
+    :global(.dark) .card-sublabel {
+        color: #9ca3af;
     }
 </style>

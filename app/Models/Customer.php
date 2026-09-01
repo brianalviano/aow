@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -25,6 +26,7 @@ class Customer extends Authenticatable
         'email',
         'password',
         'school_class',
+        'last_drop_point_id',
         'is_active',
         'remember_token',
     ];
@@ -50,5 +52,13 @@ class Customer extends Authenticatable
             'is_active' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the last selected drop point for the customer.
+     */
+    public function lastDropPoint(): BelongsTo
+    {
+        return $this->belongsTo(DropPoint::class, 'last_drop_point_id');
     }
 }

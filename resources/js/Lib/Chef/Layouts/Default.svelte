@@ -1,14 +1,20 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import type { Snippet } from "svelte";
     import { page, Link } from "@inertiajs/svelte";
     import { toastStore } from "@/Lib/Admin/Stores/toast";
     import Toast from "@/Lib/Admin/Components/Ui/Toast.svelte";
+    import { applyThemeClass } from "@/Lib/Admin/Hooks/sidebar";
 
     interface Props {
         children: Snippet;
     }
 
     let { children }: Props = $props();
+
+    onMount(() => {
+        applyThemeClass(true);
+    });
 
     $effect(() => {
         const flash = (page as any).flash;
@@ -34,7 +40,7 @@
 </script>
 
 <div
-    class="min-h-screen bg-slate-950 flex justify-center font-sans text-slate-100"
+    class="dark min-h-screen bg-slate-950 flex justify-center font-sans text-slate-100"
 >
     <!-- Mobile Container -->
     <div

@@ -7,7 +7,24 @@ import CustomerLayout from "@/Lib/Customer/Layouts/Default.svelte";
 import ChefLayout from "@/Lib/Chef/Layouts/Default.svelte";
 import { setRoleConfig } from "@/Lib/Admin/Utils/roles";
 
+import { router } from "@inertiajs/svelte";
+import { applyThemeClass } from "@/Lib/Admin/Hooks/sidebar";
 import PicLayout from "@/Lib/Pic/Layouts/Default.svelte";
+
+// Synchronize theme on client-side navigation
+router.on("navigate", (event: any) => {
+    const componentName = event.detail.page.component;
+    const isAdmin = componentName.startsWith("Domains/Admin/");
+    if (isAdmin) {
+        const savedTheme = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const darkMode = savedTheme ? savedTheme === "dark" : prefersDark;
+        applyThemeClass(darkMode);
+    } else {
+        // Public, Customer, Chef, PIC pages are permanently dark mode
+        applyThemeClass(true);
+    }
+});
 
 const getInitialPage = () => {
     if (typeof window === "undefined") return undefined;

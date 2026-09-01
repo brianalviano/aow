@@ -34,12 +34,25 @@
         };
     });
 
+    interface Props {
+        sliders?: { data: any[] };
+        activeOrdersCount?: number;
+        unreadNotificationsCount?: number;
+        lastDropPoint?: {
+            id: string;
+            name: string;
+            address?: string;
+            category_label?: string;
+        } | null;
+    }
+
     // Props from controller
     let {
         sliders = { data: [] },
         activeOrdersCount = 0,
         unreadNotificationsCount = 0,
-    } = $props();
+        lastDropPoint = null,
+    }: Props = $props();
 
     let totalBadgeCount = $derived(
         activeOrdersCount + unreadNotificationsCount,
@@ -168,6 +181,40 @@
         </div>
 
         <div class="px-4 w-full max-w-sm space-y-4">
+            <!-- Quick Re-order at Last Drop Point if exists -->
+            {#if lastDropPoint}
+                <Link
+                    href={`/drop-points/${lastDropPoint.id}/products`}
+                    class="group block bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 p-5 rounded-2xl shadow-lg border border-blue-400/30 transition-all transform active:scale-[0.98] text-left"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl shadow-inner shrink-0"
+                        >
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span
+                                    class="text-[10px] font-bold uppercase tracking-wider bg-white/20 text-blue-100 px-2 py-0.5 rounded-full"
+                                >
+                                    Terakhir Dipilih
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-white text-base truncate">
+                                {lastDropPoint.name}
+                            </h3>
+                            <p class="text-blue-100/80 text-xs truncate mt-0.5">
+                                Pesan cepat langsung di lokasi ini
+                            </p>
+                        </div>
+                        <i
+                            class="fa-solid fa-chevron-right text-white/80 group-hover:translate-x-1 transition-transform"
+                        ></i>
+                    </div>
+                </Link>
+            {/if}
+
             <!-- Option 1: Choose Drop Point -->
             <Link
                 href="/drop-points"

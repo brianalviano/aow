@@ -578,9 +578,9 @@
                             onclick={() => selectDate(date)}
                             disabled={!isCurrentMonth || isDateDisabled(date)}
                             class="relative h-7 w-7 text-xs rounded-md transition-all duration-200 {!isCurrentMonth
-                                ? 'text-gray-300 cursor-not-allowed'
+                                ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
                                 : isDateDisabled(date)
-                                  ? 'text-gray-300 cursor-not-allowed'
+                                  ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
                                   : isSelectedDate(date)
                                     ? 'bg-[#0060B2] text-white font-semibold shadow-sm'
                                     : isToday(date)

@@ -5,17 +5,23 @@
         <meta charset="utf-8">
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <meta content="{{ csrf_token() }}" name="csrf-token">
-        <meta content="light" name="color-scheme" />
+        <meta content="dark light" name="color-scheme" />
 
         <!-- Prevent theme flashing -->
         <script>
             (function() {
-                const savedTheme = localStorage.getItem('theme');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                    document.documentElement.classList.add('dark');
+                const isAdmin = window.location.pathname.startsWith('/admin');
+                if (isAdmin) {
+                    const savedTheme = localStorage.getItem('theme');
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
                 } else {
-                    document.documentElement.classList.remove('dark');
+                    // All public, customer, chef, and user-facing pages are permanently dark mode
+                    document.documentElement.classList.add('dark');
                 }
             })();
         </script>

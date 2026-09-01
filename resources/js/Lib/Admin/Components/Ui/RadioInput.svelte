@@ -170,7 +170,8 @@
         justify-content: center;
     }
 
-    :global(html.dark) .custom-radio-circle {
+    :global(html.dark) .custom-radio-circle,
+    :global(.dark) .custom-radio-circle {
         background-color: #0a0a0a;
         border-color: #212121;
     }
@@ -207,6 +208,10 @@
     :global(html.dark)
         .custom-radio
         input[type="radio"]:focus
+        ~ .custom-radio-circle,
+    :global(.dark)
+        .custom-radio
+        input[type="radio"]:focus
         ~ .custom-radio-circle {
         box-shadow: 0 0 0 3px rgba(0, 96, 178, 0.2);
         border-color: #0060b2;
@@ -217,7 +222,8 @@
         background-color: rgba(0, 96, 178, 0.05);
     }
 
-    :global(html.dark) .custom-radio:hover .custom-radio-circle {
+    :global(html.dark) .custom-radio:hover .custom-radio-circle,
+    :global(.dark) .custom-radio:hover .custom-radio-circle {
         background-color: #212121;
         border-color: #0060b2;
     }
@@ -236,7 +242,8 @@
         transition: color 0.2s ease;
     }
 
-    :global(html.dark) .radio-text {
+    :global(html.dark) .radio-text,
+    :global(.dark) .radio-text {
         color: #d1d5db;
     }
 

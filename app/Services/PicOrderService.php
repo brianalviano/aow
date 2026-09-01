@@ -8,6 +8,7 @@ use App\DTOs\Setting\OrderSettingsDTO;
 use App\Enums\ChefStatus;
 use App\Enums\OrderStatus;
 use App\Jobs\SendWhatsAppNotificationJob;
+use App\Models\Chef;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderShipping;
@@ -298,5 +299,46 @@ class PicOrderService
             ', [$latitude, $longitude, $latitude])
             ->orderBy('distance_km')
             ->first();
+    }
+
+    /**
+     * Resolve the most suitable active pickup point for an order with tiered fallback:
+     * 1. Nearest from Chef coordinates.
+     * 2. Nearest from Drop Point coordinates.
+     * 3. Nearest from Customer Address coordinates.
+     * 4. First active pickup point available in the system.
+     */
+    public static function resolvePickUpPoint(?Chef $chef = null, ?array $dropPoint = null, ?array $address = null): ?PickUpPoint
+    {
+        // Tier 1: Chef coordinates
+        if ($chef && ! blank($chef->latitude) && ! blank($chef->longitude)) {
+            $nearest = self::findNearestPickUpPoint((float) $chef->latitude, (float) $chef->longitude);
+            if ($nearest) {
+                return $nearest;
+            }
+        }
+
+        // Tier 2: Drop Point coordinates
+        $dropLat = data_get($dropPoint, 'latitude');
+        $dropLng = data_get($dropPoint, 'longitude');
+        if (! blank($dropLat) && ! blank($dropLng)) {
+            $nearest = self::findNearestPickUpPoint((float) $dropLat, (float) $dropLng);
+            if ($nearest) {
+                return $nearest;
+            }
+        }
+
+        // Tier 2b: Customer Address coordinates
+        $addrLat = data_get($address, 'latitude');
+        $addrLng = data_get($address, 'longitude');
+        if (! blank($addrLat) && ! blank($addrLng)) {
+            $nearest = self::findNearestPickUpPoint((float) $addrLat, (float) $addrLng);
+            if ($nearest) {
+                return $nearest;
+            }
+        }
+
+        // Tier 3: Default active pickup point
+        return PickUpPoint::query()->where('is_active', true)->first();
     }
 }

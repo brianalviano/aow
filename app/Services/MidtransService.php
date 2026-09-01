@@ -233,10 +233,23 @@ class MidtransService
                 $paymentStatus = 'pending';
             }
 
-            $order->update([
+            $updateData = [
                 'payment_status' => $paymentStatus,
                 'order_status' => $paymentStatus === 'paid' ? 'processing' : $order->order_status,
-            ]);
+            ];
+
+            if ($paymentStatus === 'paid' && empty($order->pick_up_point_id)) {
+                $resolvedPickup = PicOrderService::resolvePickUpPoint(
+                    $order->items->first()?->chef,
+                    $order->dropPoint?->toArray(),
+                    $order->customerAddress?->toArray()
+                );
+                if ($resolvedPickup) {
+                    $updateData['pick_up_point_id'] = $resolvedPickup->id;
+                }
+            }
+
+            $order->update($updateData);
 
             return [
                 'order_id' => $orderId,
