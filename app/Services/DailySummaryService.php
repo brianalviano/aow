@@ -65,7 +65,7 @@ class DailySummaryService
                         ->sum('order_items.quantity');
 
                     $totalPending = (clone $base)
-                        ->whereIn('order_status', ['pending', 'confirmed', 'shipped'])
+                        ->whereIn('order_status', ['pending', 'confirmed', 'cooking', 'on_delivery', 'arrived'])
                         ->count();
 
                     $totalCancelled = (clone $base)

@@ -256,9 +256,20 @@
                                     </td>
                                     <td>
                                         <div
-                                            class="text-sm text-gray-900 dark:text-white"
+                                            class="text-sm font-semibold text-gray-900 dark:text-white"
                                         >
                                             {formatCurrency(item.price)}
+                                        </div>
+                                        <div class="text-xs mt-0.5">
+                                            {#if item.cost_price && Number(item.cost_price) > 0}
+                                                <span class="text-emerald-600 dark:text-emerald-400 font-medium">
+                                                    HPP: {formatCurrency(Number(item.cost_price))}
+                                                </span>
+                                            {:else}
+                                                <span class="text-amber-600 dark:text-amber-400 font-medium">
+                                                    HPP: Rp 0 <span class="text-[10px] opacity-80">(Belum diisi)</span>
+                                                </span>
+                                            {/if}
                                         </div>
                                     </td>
                                     <td>

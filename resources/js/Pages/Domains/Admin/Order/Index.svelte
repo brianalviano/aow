@@ -83,21 +83,27 @@
         { id: "all", label: "Semua", badge: statusCounts.all || 0 },
         {
             id: "unpaid",
-            label: "Belum Bayar",
+            label: "Menunggu Bayar",
             badge: statusCounts.unpaid || 0,
             badgeVariant: "warning" as const,
         },
         {
-            id: "process",
-            label: "Diproses",
-            badge: statusCounts.process || 0,
-            badgeVariant: "primary" as const,
+            id: "confirmed",
+            label: "Dikonfirmasi",
+            badge: statusCounts.confirmed || 0,
+            badgeVariant: "info" as const,
+        },
+        {
+            id: "cooking",
+            label: "Sedang Dimasak",
+            badge: statusCounts.cooking || 0,
+            badgeVariant: "warning" as const,
         },
         {
             id: "shipped",
             label: "Dikirim",
             badge: statusCounts.shipped || 0,
-            badgeVariant: "info" as const,
+            badgeVariant: "primary" as const,
         },
         {
             id: "completed",
@@ -301,6 +307,69 @@
             },
         );
     }
+
+    function handleCookOrder(order: Order) {
+        openConfirm(
+            "Mulai Memasak",
+            `Ubah status pesanan #${order.number} menjadi 'Sedang Dimasak'?`,
+            () => {
+                isProcessing = true;
+                router.post(
+                    `/admin/orders/${order.id}/cook`,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onFinish: () => {
+                            isProcessing = false;
+                        },
+                    },
+                );
+            },
+            "warning",
+        );
+    }
+
+    function handleShipOrder(order: Order) {
+        openConfirm(
+            "Kirim Pesanan",
+            `Ubah status pesanan #${order.number} menjadi 'Sedang Dikirim'?`,
+            () => {
+                isProcessing = true;
+                router.post(
+                    `/admin/orders/${order.id}/ship`,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onFinish: () => {
+                            isProcessing = false;
+                        },
+                    },
+                );
+            },
+            "primary",
+        );
+    }
+
+    function handleDeliverOrder(order: Order) {
+        openConfirm(
+            "Selesaikan Pesanan",
+            `Tandai pesanan #${order.number} sebagai 'Selesai' (Diterima Pelanggan)?`,
+            () => {
+                isProcessing = true;
+                router.post(
+                    `/admin/orders/${order.id}/deliver`,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onFinish: () => {
+                            isProcessing = false;
+                        },
+                    },
+                );
+            },
+            "success",
+        );
+    }
 </script>
 
 <svelte:head>
@@ -319,7 +388,7 @@
                 Kelola dan pantau semua transaksi pesanan masuk.
             </p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
             <Button
                 variant="secondary"
                 size="sm"
@@ -334,7 +403,7 @@
                 icon="fa-solid fa-clock-rotate-left"
                 href="/admin/orders/processing"
             >
-                {#snippet children()}Dalam Proses{/snippet}
+                {#snippet children()}Proses Pesanan{/snippet}
             </Button>
         </div>
     </div>
@@ -571,15 +640,16 @@
                                     class="px-4 py-3 whitespace-nowrap text-center"
                                 >
                                     <div
-                                        class="flex gap-2 items-center justify-center"
+                                        class="flex gap-1.5 items-center justify-center"
                                     >
                                         <Button
                                             variant="primary"
                                             size="xs"
                                             icon="fa-solid fa-eye"
                                             href={`/admin/orders/${item.id}`}
-                                            title="Detail"
+                                            title="Lihat Detail"
                                         />
+
                                         {#if item.order_status === "pending"}
                                             <Button
                                                 variant="success"
@@ -588,7 +658,7 @@
                                                 disabled={isProcessing}
                                                 onclick={() =>
                                                     openConfirmOrderModal(item)}
-                                                title="Setujui"
+                                                title="Konfirmasi Pesanan"
                                             />
                                             <Button
                                                 variant="danger"
@@ -597,15 +667,94 @@
                                                 disabled={isProcessing}
                                                 onclick={() =>
                                                     openConfirm(
-                                                        "Tolak Pesanan",
-                                                        `Apakah Anda yakin ingin menolak pesanan #${item.number}?`,
+                                                        "Batalkan Pesanan",
+                                                        `Apakah Anda yakin ingin membatalkan pesanan #${item.number}?`,
                                                         () =>
                                                             rejectOrder(
                                                                 item.id,
                                                             ),
                                                         "danger",
-                                                      )}
-                                                title="Tolak"
+                                                    )}
+                                                title="Batalkan Pesanan"
+                                            />
+                                        {/if}
+
+                                        {#if item.order_status === "confirmed"}
+                                            <Button
+                                                variant="warning"
+                                                size="xs"
+                                                icon="fa-solid fa-fire-burner"
+                                                disabled={isProcessing}
+                                                onclick={() =>
+                                                    handleCookOrder(item)}
+                                                title="Mulai Memasak"
+                                            />
+                                            <Button
+                                                variant="info"
+                                                size="xs"
+                                                icon="fa-solid fa-truck-fast"
+                                                disabled={isProcessing}
+                                                onclick={() =>
+                                                    handleShipOrder(item)}
+                                                title="Kirim Pesanan"
+                                            />
+                                            <Button
+                                                variant="danger"
+                                                size="xs"
+                                                icon="fa-solid fa-xmark"
+                                                disabled={isProcessing}
+                                                onclick={() =>
+                                                    openConfirm(
+                                                        "Batalkan Pesanan",
+                                                        `Apakah Anda yakin ingin membatalkan pesanan #${item.number}?`,
+                                                        () =>
+                                                            rejectOrder(
+                                                                item.id,
+                                                            ),
+                                                        "danger",
+                                                    )}
+                                                title="Batalkan Pesanan"
+                                            />
+                                        {/if}
+
+                                        {#if item.order_status === "cooking"}
+                                            <Button
+                                                variant="info"
+                                                size="xs"
+                                                icon="fa-solid fa-truck-fast"
+                                                disabled={isProcessing}
+                                                onclick={() =>
+                                                    handleShipOrder(item)}
+                                                title="Kirim Pesanan"
+                                            />
+                                            <Button
+                                                variant="danger"
+                                                size="xs"
+                                                icon="fa-solid fa-xmark"
+                                                disabled={isProcessing}
+                                                onclick={() =>
+                                                    openConfirm(
+                                                        "Batalkan Pesanan",
+                                                        `Apakah Anda yakin ingin membatalkan pesanan #${item.number}?`,
+                                                        () =>
+                                                            rejectOrder(
+                                                                item.id,
+                                                            ),
+                                                        "danger",
+                                                    )}
+                                                title="Batalkan Pesanan"
+                                            />
+                                        {/if}
+
+                                        {#if item.order_status === "on_delivery" || item.order_status === "arrived"}
+                                            <Button
+                                                variant="success"
+                                                size="xs"
+                                                icon="fa-solid fa-circle-check"
+                                                disabled={isProcessing}
+                                                onclick={() =>
+                                                    handleDeliverOrder(item)}
+                                                title="Selesaikan Pesanan"
                                             />
                                         {/if}
                                     </div>

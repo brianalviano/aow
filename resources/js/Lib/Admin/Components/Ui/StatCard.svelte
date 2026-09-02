@@ -2,6 +2,7 @@
     interface Props {
         label: string;
         value: string | number;
+        subtitle?: string;
         unit?: string;
         icon?: string;
         color?:
@@ -21,6 +22,7 @@
     let {
         label,
         value,
+        subtitle = "",
         unit = "",
         icon = "fa-solid fa-chart-line",
         color = "indigo",
@@ -202,6 +204,11 @@
                 </span>
             {/if}
         </div>
+        {#if subtitle}
+            <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-1 leading-tight">
+                {subtitle}
+            </p>
+        {/if}
     </div>
 
     <div

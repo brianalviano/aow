@@ -149,35 +149,48 @@
         </div>
     </div>
 
-    <!-- Statistics Stats (Max 3 per row for better readability) -->
+    <!-- Statistics Stats (3 per row on large screens for balanced grid) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <StatCard
             label="Total Revenue"
             value={formatCurrency(stats.total_revenue)}
+            subtitle="Omzet kotor dari pesanan lunas"
             icon="fa-solid fa-circle-dollar-to-slot"
             color="indigo"
         />
         <StatCard
             label="Total Profit"
             value={formatCurrency(stats.total_profit)}
+            subtitle="Laba bersih (Revenue - HPP Modal)"
             icon="fa-solid fa-money-bill-trend-up"
             color="teal"
         />
         <StatCard
             label="Total Orders"
             value={stats.total_orders}
+            subtitle="Total transaksi pesanan masuk"
             icon="fa-solid fa-cart-shopping"
             color="blue"
         />
         <StatCard
-            label="Total Customers"
+            label="Total Porsi Terjual"
+            value={stats.total_items_sold ?? 0}
+            unit="porsi"
+            subtitle="Total porsi makanan & minuman"
+            icon="fa-solid fa-utensils"
+            color="green"
+        />
+        <StatCard
+            label="Total Pelanggan"
             value={stats.total_customers}
+            subtitle={`${stats.active_customers ?? 0} pelanggan pernah order`}
             icon="fa-solid fa-users"
             color="purple"
         />
         <StatCard
             label="Today's Orders"
             value={stats.today_orders}
+            subtitle="Pesanan masuk hari ini"
             icon="fa-solid fa-calendar-check"
             color="orange"
         />

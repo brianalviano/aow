@@ -24,10 +24,13 @@ class DashboardController extends Controller
         $sixMonthsAgo = $now->copy()->subMonths(5)->startOfMonth();
 
         $paidOrderIds = Order::where('payment_status', 'paid')->pluck('id');
-        $totalCost = (int) OrderItem::whereIn('order_id', $paidOrderIds)
-            ->selectRaw('SUM(quantity * COALESCE(cost_price, 0)) as total_cost')
+        $totalCost = (int) OrderItem::whereIn('order_items.order_id', $paidOrderIds)
+            ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+            ->selectRaw('SUM(order_items.quantity * COALESCE(NULLIF(order_items.cost_price, 0), products.cost_price, 0)) as total_cost')
             ->value('total_cost');
         $totalRevenue = (int) Order::where('payment_status', 'paid')->sum('total_amount');
+        $activeCustomersCount = Order::whereNotNull('customer_id')->distinct('customer_id')->count('customer_id');
+        $totalItemsSold = (int) OrderItem::whereIn('order_id', $paidOrderIds)->sum('quantity');
 
         // 1. Summary Statistics
         $stats = [
@@ -35,6 +38,8 @@ class DashboardController extends Controller
             'total_profit' => $totalRevenue - $totalCost,
             'total_orders' => Order::count(),
             'total_customers' => Customer::count(),
+            'active_customers' => $activeCustomersCount,
+            'total_items_sold' => $totalItemsSold,
             'today_orders' => Order::whereDate('created_at', $now->toDateString())->count(),
         ];
 

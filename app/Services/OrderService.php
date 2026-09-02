@@ -312,6 +312,12 @@ class OrderService
                             });
                         });
                     break;
+                case 'confirmed':
+                    $query->where('order_status', 'confirmed');
+                    break;
+                case 'cooking':
+                    $query->where('order_status', 'cooking');
+                    break;
                 case 'process':
                     $query->where(function ($q) {
                         $q->where('payment_status', '!=', 'pending')
@@ -438,13 +444,19 @@ class OrderService
                             });
                         });
                     break;
+                case 'confirmed':
+                    $query->where('order_status', 'confirmed');
+                    break;
+                case 'cooking':
+                    $query->where('order_status', 'cooking');
+                    break;
                 case 'process':
                     $query->where(function ($q) {
                         $q->where('payment_status', '!=', 'pending')
                             ->orWhereHas('paymentMethod', function ($pq) {
                                 $pq->where('category', 'cash');
                             });
-                    })->whereIn('order_status', ['pending', 'confirmed']);
+                    })->whereIn('order_status', ['pending', 'confirmed', 'cooking']);
                     break;
                 case 'shipped':
                     $query->whereIn('order_status', [OrderStatus::ON_DELIVERY, OrderStatus::ARRIVED]);

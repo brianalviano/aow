@@ -92,8 +92,8 @@ class ReportService
                     product_categories.name AS category_name,
                     SUM(order_items.quantity)   AS total_sold,
                     SUM(order_items.subtotal)   AS total_revenue,
-                    SUM(order_items.quantity * COALESCE(order_items.cost_price, 0)) AS total_cost,
-                    SUM(order_items.subtotal) - SUM(order_items.quantity * COALESCE(order_items.cost_price, 0)) AS total_profit
+                    SUM(order_items.quantity * COALESCE(NULLIF(order_items.cost_price, 0), products.cost_price, 0)) AS total_cost,
+                    SUM(order_items.subtotal) - SUM(order_items.quantity * COALESCE(NULLIF(order_items.cost_price, 0), products.cost_price, 0)) AS total_profit
                 ')
                 ->groupBy('order_items.product_id', 'products.name', 'product_categories.name')
                 ->orderByDesc('total_sold');
@@ -186,8 +186,8 @@ class ReportService
                     product_categories.name AS category_name,
                     SUM(order_items.quantity) AS total_sold,
                     SUM(order_items.subtotal) AS total_revenue,
-                    SUM(order_items.quantity * COALESCE(order_items.cost_price, 0)) AS total_cost,
-                    SUM(order_items.subtotal) - SUM(order_items.quantity * COALESCE(order_items.cost_price, 0)) AS total_profit
+                    SUM(order_items.quantity * COALESCE(NULLIF(order_items.cost_price, 0), products.cost_price, 0)) AS total_cost,
+                    SUM(order_items.subtotal) - SUM(order_items.quantity * COALESCE(NULLIF(order_items.cost_price, 0), products.cost_price, 0)) AS total_profit
                 ')
                 ->groupBy('order_items.product_id', 'products.name', 'product_categories.name')
                 ->orderByDesc('total_sold')
@@ -225,8 +225,9 @@ class ReportService
         $deliveredOrders = $all->filter(fn (Order $o) => ($o->order_status->value ?? (string) $o->order_status) === 'delivered');
         $deliveredOrderIds = $deliveredOrders->pluck('id');
 
-        $totalCost = (int) OrderItem::whereIn('order_id', $deliveredOrderIds)
-            ->selectRaw('SUM(quantity * COALESCE(cost_price, 0)) as total_cost')
+        $totalCost = (int) OrderItem::whereIn('order_items.order_id', $deliveredOrderIds)
+            ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+            ->selectRaw('SUM(order_items.quantity * COALESCE(NULLIF(order_items.cost_price, 0), products.cost_price, 0)) as total_cost')
             ->value('total_cost');
 
         $totalRevenue = (int) $deliveredOrders->sum('total_amount');

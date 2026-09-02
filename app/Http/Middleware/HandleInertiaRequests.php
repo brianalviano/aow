@@ -142,7 +142,7 @@ class HandleInertiaRequests extends Middleware
                                 $q->where('payment_status', '!=', 'pending')
                                     ->orWhereHas('paymentMethod', fn ($pq) => $pq->where('category', 'cash'));
                             })
-                            ->whereIn('order_status', ['pending', 'confirmed'])
+                            ->whereIn('order_status', ['pending', 'confirmed', 'cooking', 'on_delivery', 'arrived'])
                             ->count(),
                     ],
                 ],

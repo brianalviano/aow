@@ -310,7 +310,7 @@
         },
         {
             key: "arrived",
-            label: "5. Tiba di Lokasi",
+            label: "5. Tiba di Tujuan",
             title: "Sampai di Tujuan",
             icon: "fa-solid fa-location-dot",
         },
@@ -413,64 +413,75 @@
 
 <section class="space-y-6">
     <header
-        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
     >
-        <div>
-            <div class="flex items-center gap-2">
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    icon="fa-solid fa-arrow-left"
-                    href={backUrl}
-                />
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        <div class="flex items-center gap-3">
+            <Button
+                variant="secondary"
+                size="sm"
+                icon="fa-solid fa-arrow-left"
+                href={backUrl}
+            />
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                     Detail Pesanan
                 </h1>
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                    #{order.number}
+                </p>
             </div>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">#{order.number}</p>
         </div>
-        <div class="flex flex-wrap items-end gap-4">
-            <div class="flex flex-col gap-1.5">
-                <span
-                    class="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap">
+            <!-- Badges -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <div
+                    class="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800/80 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700"
                 >
-                    Status Pesanan
-                </span>
-                <Badge
-                    size="sm"
-                    variant={getStatusBadge(order.order_status).variant}
-                    outlined={true}
-                    dot={true}
-                    rounded="pill"
-                    pulse={order.order_status === "pending"}
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                    >
+                        Order:
+                    </span>
+                    <Badge
+                        size="sm"
+                        variant={getStatusBadge(order.order_status).variant}
+                        outlined={true}
+                        dot={true}
+                        rounded="pill"
+                        pulse={order.order_status === "pending"}
+                    >
+                        {#snippet children()}{getStatusBadge(order.order_status)
+                                .label}{/snippet}
+                    </Badge>
+                </div>
+                <div
+                    class="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-800/80 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700"
                 >
-                    {#snippet children()}{getStatusBadge(order.order_status)
-                            .label}{/snippet}
-                </Badge>
-            </div>
-            <div class="flex flex-col gap-1.5">
-                <span
-                    class="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
-                >
-                    Status Pembayaran
-                </span>
-                <Badge
-                    size="sm"
-                    variant={getPaymentBadge(order.payment_status).variant}
-                    outlined={true}
-                    dot={true}
-                    rounded="pill"
-                    pulse={order.payment_status === "pending"}
-                >
-                    {#snippet children()}{getPaymentBadge(order.payment_status)
-                            .label}{/snippet}
-                </Badge>
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                    >
+                        Bayar:
+                    </span>
+                    <Badge
+                        size="sm"
+                        variant={getPaymentBadge(order.payment_status).variant}
+                        outlined={true}
+                        dot={true}
+                        rounded="pill"
+                        pulse={order.payment_status === "pending"}
+                    >
+                        {#snippet children()}{getPaymentBadge(order.payment_status)
+                                .label}{/snippet}
+                    </Badge>
+                </div>
             </div>
 
             <!-- Status Action Buttons -->
-            <div class="flex flex-wrap gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
                 <Button
                     variant="info"
+                    size="sm"
                     icon="fa-solid fa-print"
                     onclick={() => (printModalOpen = true)}
                 >
@@ -480,6 +491,7 @@
                 {#if order.order_status === "pending"}
                     <Button
                         variant="primary"
+                        size="sm"
                         icon="fa-solid fa-check"
                         disabled={isProcessing}
                         onclick={openConfirmOrderModal}
@@ -488,6 +500,7 @@
                     </Button>
                     <Button
                         variant="danger"
+                        size="sm"
                         icon="fa-solid fa-xmark"
                         disabled={isProcessing}
                         onclick={() => {
@@ -502,6 +515,7 @@
                 {#if order.order_status === "confirmed"}
                     <Button
                         variant="warning"
+                        size="sm"
                         icon="fa-solid fa-fire-burner"
                         disabled={isProcessing}
                         onclick={startCooking}
@@ -510,6 +524,7 @@
                     </Button>
                     <Button
                         variant="primary"
+                        size="sm"
                         icon="fa-solid fa-truck-fast"
                         disabled={isProcessing}
                         onclick={shipOrder}
@@ -521,6 +536,7 @@
                 {#if order.order_status === "cooking"}
                     <Button
                         variant="primary"
+                        size="sm"
                         icon="fa-solid fa-truck-fast"
                         disabled={isProcessing}
                         onclick={shipOrder}
@@ -532,6 +548,7 @@
                 {#if order.order_status === "on_delivery" || order.order_status === "arrived"}
                     <Button
                         variant="success"
+                        size="sm"
                         icon="fa-solid fa-circle-check"
                         disabled={isProcessing}
                         onclick={() => (deliverModalOpen = true)}
@@ -548,7 +565,7 @@
         class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-[#2c2c2c] dark:bg-[#0f0f0f]"
     >
         <div
-            class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3 dark:border-gray-800"
+            class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 border-b border-gray-100 pb-3 dark:border-gray-800"
         >
             <div class="flex items-center gap-2.5">
                 <div
@@ -571,7 +588,9 @@
                     {#snippet children()}Pesanan Dibatalkan{/snippet}
                 </Badge>
             {:else}
-                <div class="flex items-center gap-1.5 text-xs">
+                <div
+                    class="flex items-center gap-1.5 text-xs bg-amber-500/10 dark:bg-amber-400/10 px-2.5 py-1 rounded-full w-fit"
+                >
                     <span class="text-gray-500 dark:text-gray-400"
                         >Tahap Saat Ini:</span
                     >
@@ -607,7 +626,7 @@
             <!-- Responsive Step Progress Bar -->
             <div class="relative py-2">
                 <div
-                    class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6 relative"
+                    class="flex lg:grid lg:grid-cols-6 gap-3 overflow-x-auto no-scrollbar py-2 relative"
                 >
                     {#each ORDER_LIFECYCLE_STEPS as step, index}
                         {@const isPassed = currentStepIdx > index}
@@ -615,12 +634,14 @@
                         {@const isUpcoming = currentStepIdx < index}
 
                         <div
-                            class="flex flex-col items-center text-center relative group"
+                            class="flex-1 min-w-[130px] lg:min-w-0 flex flex-col items-center text-center relative group shrink-0 lg:shrink p-2.5 rounded-xl transition-all duration-200 {isCurrent
+                                ? 'bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20'
+                                : 'bg-transparent'}"
                         >
                             <!-- Connecting Line for Desktop (LG) -->
                             {#if index < ORDER_LIFECYCLE_STEPS.length - 1}
                                 <div
-                                    class="hidden lg:block absolute top-4 left-1/2 w-full h-0.5 z-0 {isPassed
+                                    class="hidden lg:block absolute top-6 left-1/2 w-full h-0.5 z-0 {isPassed
                                         ? 'bg-emerald-500'
                                         : isCurrent
                                           ? 'bg-gradient-to-r from-amber-500 to-gray-200 dark:to-gray-700'
@@ -646,7 +667,7 @@
                             <!-- Texts -->
                             <div class="mt-2.5 space-y-0.5">
                                 <div
-                                    class="text-xs font-bold transition-colors {isPassed
+                                    class="text-xs font-bold transition-colors whitespace-nowrap {isPassed
                                         ? 'text-emerald-600 dark:text-emerald-400'
                                         : isCurrent
                                           ? 'text-amber-600 dark:text-amber-400 font-extrabold'
@@ -655,7 +676,7 @@
                                     {step.label}
                                 </div>
                                 <div
-                                    class="text-[10px] text-gray-500 dark:text-gray-400 line-clamp-1"
+                                    class="text-[10px] text-gray-500 dark:text-gray-400 whitespace-nowrap"
                                 >
                                     {step.title}
                                 </div>

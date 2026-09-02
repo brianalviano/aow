@@ -103,8 +103,9 @@ class ReportController extends Controller
         $orders = $this->reportService->getOrdersForExport($filters);
         $deliveredOrders = $orders->filter(fn (Order $o) => ($o->order_status->value ?? (string) $o->order_status) === 'delivered');
         $deliveredOrderIds = $deliveredOrders->pluck('id');
-        $totalCost = (int) OrderItem::whereIn('order_id', $deliveredOrderIds)
-            ->selectRaw('SUM(quantity * COALESCE(cost_price, 0)) as total_cost')
+        $totalCost = (int) OrderItem::whereIn('order_items.order_id', $deliveredOrderIds)
+            ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
+            ->selectRaw('SUM(order_items.quantity * COALESCE(NULLIF(order_items.cost_price, 0), products.cost_price, 0)) as total_cost')
             ->value('total_cost');
         $totalRevenue = (int) $deliveredOrders->sum('total_amount');
         $summary = [

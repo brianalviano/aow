@@ -97,10 +97,17 @@
         deliveryDate = dateStr;
     }
 
-    const todayStr = new Date().toISOString().split("T")[0] ?? "";
-    const tomorrowDate = new Date();
-    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-    const tomorrowStr = tomorrowDate.toISOString().split("T")[0] ?? "";
+    function getLocalDateString(offsetDays = 0): string {
+        const d = new Date();
+        d.setDate(d.getDate() + offsetDays);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
+    const todayStr = getLocalDateString(0);
+    const tomorrowStr = getLocalDateString(1);
 </script>
 
 <svelte:head>
@@ -311,7 +318,7 @@
                         <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 max-w-lg w-full">
                             <p class="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-3">
                                 <i class="fa-solid fa-bolt text-amber-500 mr-1"></i>
-                                Rekomendasi Jadwal Pengiriman dengan Pesanan Aktif:
+                                Jadwal Pengiriman Mendatang dengan Pesanan Aktif:
                             </p>
                             <div class="flex flex-wrap justify-center gap-2">
                                 {#each activeDates as item}

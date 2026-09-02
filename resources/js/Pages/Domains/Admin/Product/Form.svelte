@@ -324,7 +324,7 @@
                         <TextInput
                             id="cost_price"
                             name="cost_price"
-                            label="Harga Beli (Rp)"
+                            label="HPP / Harga Modal (Rp)"
                             type="number"
                             placeholder="0"
                             value={form.cost_price.toString()}
@@ -349,6 +349,9 @@
                             error={form.errors.cost_price}
                             required
                         />
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                            Harga Pokok Penjualan per porsi (digunakan untuk kalkulasi laba bersih di dashboard & laporan).
+                        </p>
                     </div>
 
                     <div>

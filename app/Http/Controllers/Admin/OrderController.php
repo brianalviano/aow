@@ -47,10 +47,8 @@ class OrderController extends Controller
                     ->where('order_status', '!=', 'cancelled')
                     ->whereDoesntHave('paymentMethod', fn ($q) => $q->where('category', 'cash'))
                     ->count(),
-                'process' => Order::where(function ($q) {
-                    $q->where('payment_status', '!=', 'pending')
-                        ->orWhereHas('paymentMethod', fn ($pq) => $pq->where('category', 'cash'));
-                })->whereIn('order_status', ['pending', 'confirmed'])->count(),
+                'confirmed' => Order::where('order_status', 'confirmed')->count(),
+                'cooking' => Order::where('order_status', 'cooking')->count(),
                 'shipped' => Order::whereIn('order_status', ['on_delivery', 'arrived'])->count(),
                 'completed' => Order::where('order_status', 'delivered')->count(),
                 'cancelled' => Order::where(function ($q) {
@@ -72,27 +70,7 @@ class OrderController extends Controller
         if ($request->filled('delivery_date')) {
             $deliveryDate = (string) $request->query('delivery_date');
         } else {
-            $hasToday = Order::where('delivery_date', $todayStr)
-                ->where('order_status', '!=', OrderStatus::CANCELLED->value)
-                ->exists();
-
-            if ($hasToday) {
-                $deliveryDate = $todayStr;
-            } else {
-                $nextDate = Order::where('delivery_date', '>=', $todayStr)
-                    ->where('order_status', '!=', OrderStatus::CANCELLED->value)
-                    ->orderBy('delivery_date', 'asc')
-                    ->value('delivery_date');
-
-                if ($nextDate) {
-                    $deliveryDate = is_string($nextDate) ? $nextDate : $nextDate->format('Y-m-d');
-                } else {
-                    $latestDate = Order::where('order_status', '!=', OrderStatus::CANCELLED->value)
-                        ->orderBy('delivery_date', 'desc')
-                        ->value('delivery_date');
-                    $deliveryDate = $latestDate ? (is_string($latestDate) ? $latestDate : $latestDate->format('Y-m-d')) : $todayStr;
-                }
-            }
+            $deliveryDate = $todayStr;
         }
 
         $paymentFilter = $request->query('payment_filter', 'all');
@@ -189,6 +167,7 @@ class OrderController extends Controller
 
         $activeDates = Order::query()
             ->where('order_status', '!=', OrderStatus::CANCELLED->value)
+            ->whereDate('delivery_date', '>=', $todayStr)
             ->whereNotNull('delivery_date')
             ->selectRaw('delivery_date, count(*) as total_orders')
             ->groupBy('delivery_date')

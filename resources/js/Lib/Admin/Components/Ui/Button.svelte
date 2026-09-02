@@ -361,7 +361,7 @@
                 {replace}
                 aria-label={ariaLabel}
                 {title}
-                class="flex justify-center items-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 w-full
+                class="flex justify-center items-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 w-full whitespace-nowrap select-none
                 {getVariantClasses()} 
                 {getSizeClasses()} 
                 {variant !== 'link' && variant !== 'icon'
@@ -411,7 +411,7 @@
             {disabled}
             aria-label={ariaLabel}
             {title}
-            class="flex justify-center items-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 w-full
+            class="flex justify-center items-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 w-full whitespace-nowrap select-none
             {getVariantClasses()} 
             {getSizeClasses()} 
             {variant !== 'link' && variant !== 'icon'
@@ -475,7 +475,7 @@
                     {replace}
                     aria-label={ariaLabel}
                     title={getNativeTitle()}
-                    class="inline-flex justify-center items-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+                    class="inline-flex justify-center items-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 whitespace-nowrap select-none
                     {getVariantClasses()} 
                     {getSizeClasses()} 
                     {variant !== 'link' && variant !== 'icon'
@@ -525,7 +525,7 @@
                 {disabled}
                 aria-label={ariaLabel}
                 title={getNativeTitle()}
-                class="inline-flex justify-center items-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+                class="inline-flex justify-center items-center font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 whitespace-nowrap select-none
                 {getVariantClasses()} 
                 {getSizeClasses()} 
                 {variant !== 'link' && variant !== 'icon'
