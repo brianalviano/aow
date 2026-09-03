@@ -22,6 +22,7 @@
         name: string;
         description: string;
         price: number;
+        cost_price?: number | string | null;
         image: string;
         image_url: string;
         stock_limit: number | null;

@@ -22,6 +22,8 @@
         total_amount: number;
         payment_status: string;
         payment_expired_at: string | null;
+        delivery_date: string | null;
+        delivery_time: string | null;
         created_at: string;
         customer?: Customer;
         payment_method?: PaymentMethod;
@@ -111,35 +113,6 @@
         });
     }
 
-    function getExpiryStatus(expiredAt: string | null): {
-        label: string;
-        classes: string;
-    } {
-        if (!expiredAt) return { label: "-", classes: "text-gray-400" };
-
-        const now = new Date();
-        const expiry = new Date(expiredAt);
-        const diffMs = expiry.getTime() - now.getTime();
-        const diffHours = diffMs / (1000 * 60 * 60);
-
-        if (diffMs < 0) {
-            return {
-                label: "Kedaluwarsa",
-                classes: "text-red-600 font-semibold",
-            };
-        } else if (diffHours <= 6) {
-            return {
-                label: formatDateTime(expiredAt),
-                classes: "text-orange-500 font-semibold",
-            };
-        } else {
-            return {
-                label: formatDateTime(expiredAt),
-                classes: "text-gray-700 dark:text-gray-300",
-            };
-        }
-    }
-
     function approveOrder(orderId: string) {
         router.post(
             `/admin/orders/${orderId}/confirm`,
@@ -195,7 +168,7 @@
                         <th>Total</th>
                         <th>Metode Bayar</th>
                         <th>Waktu Order</th>
-                        <th>Batas Bayar</th>
+                        <th>Minta Dikirim</th>
                         <th>Bukti</th>
                         <th class="w-48 text-center">Aksi</th>
                     </tr>
@@ -203,9 +176,6 @@
                 <tbody>
                     {#if items.length > 0}
                         {#each items as item}
-                            {@const expiry = getExpiryStatus(
-                                item.payment_expired_at,
-                            )}
                             <tr>
                                 <td
                                     class="font-medium text-gray-900 dark:text-white"
@@ -263,8 +233,24 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="text-sm {expiry.classes}">
-                                        {expiry.label}
+                                    <div class="text-sm text-gray-900 dark:text-white font-medium">
+                                        {#if item.delivery_date}
+                                            <div>
+                                                {new Date(item.delivery_date).toLocaleDateString("id-ID", {
+                                                    weekday: "short",
+                                                    day: "numeric",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })}
+                                            </div>
+                                            {#if item.delivery_time}
+                                                <div class="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-0.5">
+                                                    <i class="fa-regular fa-clock mr-1"></i>Pukul {item.delivery_time} WIB
+                                                </div>
+                                            {/if}
+                                        {:else}
+                                            <span class="text-xs text-gray-400 italic">Langsung / Secepatnya</span>
+                                        {/if}
                                     </div>
                                 </td>
                                 <td class="text-center">

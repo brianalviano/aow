@@ -120,6 +120,107 @@
         }).format(amount);
     }
 
+    interface ConfirmDialog {
+        open: boolean;
+        title: string;
+        message: string;
+        action: (() => void) | null;
+        variant: "danger" | "primary" | "success" | "warning";
+    }
+
+    let confirmDialog = $state<ConfirmDialog>({
+        open: false,
+        title: "",
+        message: "",
+        action: null,
+        variant: "primary",
+    });
+
+    let isProcessing = $state(false);
+
+    function openConfirm(
+        title: string,
+        message: string,
+        action: () => void,
+        variant: ConfirmDialog["variant"] = "primary",
+    ) {
+        confirmDialog = { open: true, title, message, action, variant };
+    }
+
+    function closeConfirm() {
+        confirmDialog = { ...confirmDialog, open: false, action: null };
+    }
+
+    function executeAction() {
+        if (!confirmDialog.action) return;
+        isProcessing = true;
+        confirmDialog.action();
+        closeConfirm();
+    }
+
+    function handleCookOrder(order: Order) {
+        openConfirm(
+            "Mulai Memasak",
+            `Ubah status pesanan #${order.number} menjadi 'Sedang Dimasak'?`,
+            () => {
+                isProcessing = true;
+                router.post(
+                    `/admin/orders/${order.id}/cook`,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onFinish: () => {
+                            isProcessing = false;
+                        },
+                    },
+                );
+            },
+            "warning",
+        );
+    }
+
+    function handleShipOrder(order: Order) {
+        openConfirm(
+            "Kirim Pesanan",
+            `Ubah status pesanan #${order.number} menjadi 'Sedang Dikirim'?`,
+            () => {
+                isProcessing = true;
+                router.post(
+                    `/admin/orders/${order.id}/ship`,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onFinish: () => {
+                            isProcessing = false;
+                        },
+                    },
+                );
+            },
+            "primary",
+        );
+    }
+
+    function handleDeliverOrder(order: Order) {
+        openConfirm(
+            "Selesaikan Pesanan",
+            `Tandai pesanan #${order.number} sebagai 'Diterima' (Pesanan Selesai)?`,
+            () => {
+                isProcessing = true;
+                router.post(
+                    `/admin/orders/${order.id}/deliver`,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onFinish: () => {
+                            isProcessing = false;
+                        },
+                    },
+                );
+            },
+            "success",
+        );
+    }
+
     type BadgeVariant =
         | "dark"
         | "light"
@@ -141,12 +242,13 @@
                 return { variant: "warning", label: "Menunggu" };
             case "confirmed":
                 return { variant: "info", label: "Dikonfirmasi" };
+            case "cooking":
+                return { variant: "warning", label: "Sedang Dimasak" };
             case "on_delivery":
                 return { variant: "primary", label: "Sedang Dikirim" };
             case "arrived":
-                return { variant: "info", label: "Tiba di Tujuan" };
             case "delivered":
-                return { variant: "success", label: "Selesai" };
+                return { variant: "success", label: "Diterima (Selesai)" };
             default:
                 return { variant: "secondary", label: status };
         }
@@ -215,7 +317,7 @@
                     <th>Drop Point</th>
                     <th>Total</th>
                     <th>Status</th>
-                    <th class="w-28 text-center">Aksi</th>
+                    <th class="w-48 text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -280,14 +382,56 @@
                             </Badge>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-center">
-                            <Button
-                                variant="primary"
-                                size="sm"
-                                icon="fa-solid fa-eye"
-                                href={`/admin/orders/${item.id}?from=processing`}
-                            >
-                                Detail
-                            </Button>
+                            <div class="flex gap-1.5 items-center justify-center">
+                                <Button
+                                    variant="primary"
+                                    size="xs"
+                                    icon="fa-solid fa-eye"
+                                    href={`/admin/orders/${item.id}?from=processing`}
+                                    title="Lihat Detail"
+                                />
+
+                                {#if item.order_status === "confirmed"}
+                                    <Button
+                                        variant="warning"
+                                        size="xs"
+                                        icon="fa-solid fa-fire-burner"
+                                        disabled={isProcessing}
+                                        onclick={() => handleCookOrder(item)}
+                                        title="Mulai Memasak"
+                                    />
+                                    <Button
+                                        variant="info"
+                                        size="xs"
+                                        icon="fa-solid fa-truck-fast"
+                                        disabled={isProcessing}
+                                        onclick={() => handleShipOrder(item)}
+                                        title="Kirim Pesanan"
+                                    />
+                                {/if}
+
+                                {#if item.order_status === "cooking"}
+                                    <Button
+                                        variant="info"
+                                        size="xs"
+                                        icon="fa-solid fa-truck-fast"
+                                        disabled={isProcessing}
+                                        onclick={() => handleShipOrder(item)}
+                                        title="Kirim Pesanan"
+                                    />
+                                {/if}
+
+                                {#if item.order_status === "on_delivery" || item.order_status === "arrived"}
+                                    <Button
+                                        variant="success"
+                                        size="xs"
+                                        icon="fa-solid fa-circle-check"
+                                        disabled={isProcessing}
+                                        onclick={() => handleDeliverOrder(item)}
+                                        title="Tandai Diterima / Selesai"
+                                    />
+                                {/if}
+                            </div>
                         </td>
                     </tr>
                 {/each}
@@ -528,3 +672,75 @@
         </div>
     </div>
 </section>
+
+<!-- Confirm Dialog -->
+{#if confirmDialog.open}
+    <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
+    >
+        <div
+            class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+        >
+            <div class="flex items-start gap-4">
+                <div
+                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full {confirmDialog.variant ===
+                    'danger'
+                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                        : confirmDialog.variant === 'warning'
+                          ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+                          : confirmDialog.variant === 'success'
+                            ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'}"
+                >
+                    <i
+                        class="fa-solid {confirmDialog.variant === 'danger'
+                            ? 'fa-triangle-exclamation'
+                            : confirmDialog.variant === 'warning'
+                              ? 'fa-fire-burner'
+                              : confirmDialog.variant === 'success'
+                                ? 'fa-circle-check'
+                                : 'fa-circle-info'}"
+                    ></i>
+                </div>
+                <div class="flex-1">
+                    <h3
+                        id="confirm-dialog-title"
+                        class="text-base font-semibold text-gray-900 dark:text-white"
+                    >
+                        {confirmDialog.title}
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        {confirmDialog.message}
+                    </p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    onclick={closeConfirm}
+                    disabled={isProcessing}
+                >
+                    {#snippet children()}Batal{/snippet}
+                </Button>
+                <Button
+                    variant={confirmDialog.variant}
+                    size="sm"
+                    disabled={isProcessing}
+                    onclick={executeAction}
+                >
+                    {#snippet children()}
+                        {#if isProcessing}
+                            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Memproses...
+                        {:else}
+                            Ya, Lanjutkan
+                        {/if}
+                    {/snippet}
+                </Button>
+            </div>
+        </div>
+    </div>
+{/if}

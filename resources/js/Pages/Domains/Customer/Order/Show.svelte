@@ -198,7 +198,6 @@
         { key: "confirmed", label: "Dikonfirmasi", icon: "fa-solid fa-clipboard-check" },
         { key: "cooking", label: "Dimasak", icon: "fa-solid fa-fire-burner" },
         { key: "on_delivery", label: "Dikirim", icon: "fa-solid fa-truck-fast" },
-        { key: "arrived", label: "Tiba", icon: "fa-solid fa-location-dot" },
         { key: "delivered", label: "Selesai", icon: "fa-solid fa-circle-check" },
     ] as const;
 
@@ -207,13 +206,16 @@
         "confirmed",
         "cooking",
         "on_delivery",
-        "arrived",
         "delivered",
     ];
     const customerStepIdx = $derived(
         order.order_status === "cancelled"
             ? -1
-            : customerStepOrder.indexOf(order.order_status),
+            : customerStepOrder.indexOf(
+                  order.order_status === "arrived"
+                      ? "delivered"
+                      : order.order_status,
+              ),
     );
 </script>
 
@@ -255,11 +257,11 @@
                         >
                     </div>
                     <span class="text-xs font-semibold text-amber-400"
-                        >Tahap {customerStepIdx + 1} dari 6</span
+                        >Tahap {customerStepIdx + 1} dari 5</span
                     >
                 </div>
 
-                <div class="grid grid-cols-6 gap-1 relative py-1">
+                <div class="grid grid-cols-5 gap-1 relative py-1">
                     {#each CUSTOMER_STEPS as step, index}
                         {@const isPassed = customerStepIdx > index}
                         {@const isCurrent = customerStepIdx === index}

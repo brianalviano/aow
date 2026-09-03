@@ -204,9 +204,8 @@
             case "on_delivery":
                 return { variant: "primary", label: "Sedang Dikirim" };
             case "arrived":
-                return { variant: "info", label: "Tiba di Tujuan" };
             case "delivered":
-                return { variant: "success", label: "Selesai" };
+                return { variant: "success", label: "Diterima (Selesai)" };
             case "cancelled":
                 return { variant: "danger", label: "Dibatalkan" };
             default:

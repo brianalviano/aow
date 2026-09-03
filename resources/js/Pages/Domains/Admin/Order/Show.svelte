@@ -309,15 +309,9 @@
             icon: "fa-solid fa-truck-fast",
         },
         {
-            key: "arrived",
-            label: "5. Tiba di Tujuan",
-            title: "Sampai di Tujuan",
-            icon: "fa-solid fa-location-dot",
-        },
-        {
             key: "delivered",
-            label: "6. Selesai",
-            title: "Diterima Pelanggan",
+            label: "5. Diterima",
+            title: "Pesanan Selesai",
             icon: "fa-solid fa-circle-check",
         },
     ] as const;
@@ -327,13 +321,16 @@
         "confirmed",
         "cooking",
         "on_delivery",
-        "arrived",
         "delivered",
     ];
     const currentStepIdx = $derived(
         order.order_status === "cancelled"
             ? -1
-            : stepOrderKeys.indexOf(order.order_status),
+            : stepOrderKeys.indexOf(
+                  order.order_status === "arrived"
+                      ? "delivered"
+                      : order.order_status,
+              ),
     );
 
     function getNextStepHint(status: string): string {
@@ -345,9 +342,8 @@
             case "cooking":
                 return "Langkah berikutnya: Saat makanan matang & diserahkan ke kurir, klik 'Kirim Pesanan'.";
             case "on_delivery":
-                return "Langkah berikutnya: Kurir dalam perjalanan menuju Drop Point atau Alamat Customer.";
+                return "Langkah berikutnya: Kurir dalam perjalanan / serah terima pesanan, lalu klik 'Selesaikan Pesanan'.";
             case "arrived":
-                return "Langkah berikutnya: Pesanan telah tiba di lokasi, lakukan serah terima lalu klik 'Selesaikan Pesanan'.";
             case "delivered":
                 return "Semua tahapan pesanan telah selesai dengan sukses.";
             case "cancelled":
@@ -596,7 +592,7 @@
                     >
                     <span class="font-bold text-amber-600 dark:text-amber-400">
                         {getStatusBadge(order.order_status).label} (Tahap {currentStepIdx +
-                            1} dari 6)
+                            1} dari 5)
                     </span>
                 </div>
             {/if}
@@ -626,7 +622,7 @@
             <!-- Responsive Step Progress Bar -->
             <div class="relative py-2">
                 <div
-                    class="flex lg:grid lg:grid-cols-6 gap-3 overflow-x-auto no-scrollbar py-2 relative"
+                    class="flex lg:grid lg:grid-cols-5 gap-3 overflow-x-auto no-scrollbar py-2 relative"
                 >
                     {#each ORDER_LIFECYCLE_STEPS as step, index}
                         {@const isPassed = currentStepIdx > index}
