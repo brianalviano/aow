@@ -91,9 +91,13 @@
     let {
         order: orderProp,
         free_courier_min_order = 0,
+        default_whatsapp_message = "",
+        default_telegram_message = "",
     }: {
         order: Order;
         free_courier_min_order: number;
+        default_whatsapp_message?: string;
+        default_telegram_message?: string;
     } = $props();
     let order = $derived(orderProp);
 
@@ -118,6 +122,11 @@
     let printModalOpen = $state(false);
     let cancelNote = $state("");
     let deliverModalOpen = $state(false);
+    let notificationModalOpen = $state(false);
+    let notificationTarget = $state<"customer" | "admin">("customer");
+    let notificationMessage = $state("");
+    let sendWhatsApp = $state(true);
+    let sendEmail = $state(true);
     let deliveryPhotoFile = $state<File | null>(null);
     let deliveryPhotoError = $state<string | undefined>(undefined);
     let isMediaViewerOpen = $state(false);
@@ -379,27 +388,76 @@
         return "/admin/orders";
     });
 
-    function resendNotifications(target: "customer" | "admin") {
-        let targetLabel = "";
-        if (target === "customer") targetLabel = "Customer (WhatsApp & Email)";
-        if (target === "admin") targetLabel = "Admin (Telegram)";
+    function getFallbackCustomerMessage(): string {
+        const customerName = order.customer?.name ?? "Pelanggan";
+        const orderNumber = order.number;
+        const total = formatCurrency(order.total_amount);
+        return `Halo ${customerName},\n\nInformasi update pesanan Anda dengan nomor *#${orderNumber}*.\nTotal Tagihan: ${total}\n\nTerima kasih telah memesan di Aowenak!`;
+    }
 
-        if (
-            !confirm(
-                `Apakah Anda yakin ingin mengirim ulang notifikasi ke ${targetLabel} untuk pesanan ini?`,
-            )
-        )
+    function openNotificationModal(target: "customer" | "admin") {
+        notificationTarget = target;
+        if (target === "customer") {
+            notificationMessage = default_whatsapp_message || getFallbackCustomerMessage();
+            sendWhatsApp = true;
+            sendEmail = true;
+        } else {
+            notificationMessage = default_telegram_message || `<b>UPDATE PESANAN #${order.number}</b>\nCustomer: ${order.customer?.name ?? '-'}`;
+            sendWhatsApp = false;
+            sendEmail = false;
+        }
+        notificationModalOpen = true;
+    }
+
+    function closeNotificationModal() {
+        notificationModalOpen = false;
+    }
+
+    function resetNotificationMessage() {
+        if (notificationTarget === "customer") {
+            notificationMessage = default_whatsapp_message || getFallbackCustomerMessage();
+        } else {
+            notificationMessage = default_telegram_message || `<b>UPDATE PESANAN #${order.number}</b>\nCustomer: ${order.customer?.name ?? '-'}`;
+        }
+    }
+
+    function submitNotification() {
+        if (!notificationMessage.trim()) {
+            alert("Pesan notifikasi tidak boleh kosong.");
             return;
+        }
+
+        const channels: string[] = [];
+        if (notificationTarget === "customer") {
+            if (sendWhatsApp) channels.push("whatsapp");
+            if (sendEmail) channels.push("email");
+            if (channels.length === 0) {
+                alert("Pilih setidaknya satu saluran pengiriman (WhatsApp atau Email).");
+                return;
+            }
+        } else {
+            channels.push("telegram");
+        }
+
         isProcessing = true;
         router.post(
-            `/admin/orders/${order.id}/resend-notifications/${target}`,
-            {},
+            `/admin/orders/${order.id}/resend-notifications/${notificationTarget}`,
             {
+                message: notificationMessage,
+                channels: channels,
+            },
+            {
+                preserveScroll: true,
                 onFinish: () => {
                     isProcessing = false;
+                    closeNotificationModal();
                 },
             },
         );
+    }
+
+    function resendNotifications(target: "customer" | "admin") {
+        openNotificationModal(target);
     }
 </script>
 
@@ -1074,13 +1132,17 @@
 
             {#if order.order_status !== 'delivered' && order.order_status !== 'cancelled'}
                 <Card title="Kirim Ulang Notifikasi">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                        Pesan notifikasi dapat disesuaikan / diedit terlebih dahulu oleh admin sebelum dikirim.
+                    </p>
                     <div class="flex flex-col gap-2">
                         <Button
                             variant="success"
                             size="sm"
-                            icon="fa-solid fa-user"
+                            icon="fa-solid fa-pen-to-square"
                             disabled={isProcessing}
-                            onclick={() => resendNotifications('customer')}
+                            onclick={() => openNotificationModal('customer')}
+                            title="Tulis dan kirim notifikasi ke Customer"
                         >
                             {#snippet children()}Ke Customer (WhatsApp & Email){/snippet}
                         </Button>
@@ -1090,7 +1152,8 @@
                             size="sm"
                             icon="fa-brands fa-telegram"
                             disabled={isProcessing}
-                            onclick={() => resendNotifications('admin')}
+                            onclick={() => openNotificationModal('admin')}
+                            title="Tulis dan kirim notifikasi ke Admin"
                         >
                             {#snippet children()}Ke Admin (Telegram){/snippet}
                         </Button>
@@ -1605,6 +1668,177 @@
                     onclick={submitConfirmOrder}
                 >
                     {#snippet children()}Ya, Konfirmasi{/snippet}
+                </Button>
+            </div>
+        </div>
+    </div>
+{/if}
+
+<!-- Notification Modal (Customizable Message) -->
+{#if notificationModalOpen}
+    <div
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notification-modal-title"
+    >
+        <div
+            class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800 border border-gray-100 dark:border-gray-700 my-8 flex flex-col max-h-[90vh]"
+        >
+            <!-- Header -->
+            <div class="flex items-start justify-between border-b border-gray-100 dark:border-gray-700 pb-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {notificationTarget === 'customer' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400' : 'bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400'}"
+                    >
+                        <i
+                            class="text-lg {notificationTarget === 'customer' ? 'fa-brands fa-whatsapp' : 'fa-brands fa-telegram'}"
+                        ></i>
+                    </div>
+                    <div>
+                        <h3
+                            id="notification-modal-title"
+                            class="text-lg font-bold text-gray-900 dark:text-white"
+                        >
+                            {notificationTarget === 'customer' ? 'Kirim Notifikasi ke Customer' : 'Kirim Notifikasi ke Admin (Telegram)'}
+                        </h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Pesanan #{order.number} &bull; {order.customer?.name ?? 'Customer'}
+                        </p>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1"
+                    onclick={closeNotificationModal}
+                    disabled={isProcessing}
+                    title="Tutup"
+                >
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="py-4 space-y-4 overflow-y-auto pr-1">
+                <!-- Recipient Info Card -->
+                <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 border border-gray-200 dark:border-gray-700 text-xs grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <span class="text-gray-400 block text-[11px]">Penerima:</span>
+                        <span class="font-bold text-gray-800 dark:text-gray-200">{order.customer?.name ?? '-'}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400 block text-[11px]">No. WhatsApp:</span>
+                        <span class="font-semibold text-emerald-600 dark:text-emerald-400">
+                            <i class="fa-brands fa-whatsapp mr-1"></i>{order.customer?.phone ?? '-'}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400 block text-[11px]">Email Customer:</span>
+                        <span class="text-gray-700 dark:text-gray-300">
+                            <i class="fa-regular fa-envelope mr-1"></i>{order.customer?.email ?? '-'}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-gray-400 block text-[11px]">Status Pesanan:</span>
+                        <span class="font-bold text-amber-600 dark:text-amber-400 uppercase">
+                            {order.order_status}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Channel Toggles (For Customer) -->
+                {#if notificationTarget === 'customer'}
+                    <div class="space-y-1.5">
+                        <span class="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                            Saluran Pengiriman Notifikasi:
+                        </span>
+                        <div class="flex flex-wrap gap-3">
+                            <label class="flex items-center gap-2 cursor-pointer bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-800 dark:text-gray-200 hover:border-emerald-500 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    bind:checked={sendWhatsApp}
+                                    class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                                />
+                                <span class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                                </span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer bg-gray-50 dark:bg-gray-700/50 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-800 dark:text-gray-200 hover:border-blue-500 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    bind:checked={sendEmail}
+                                    class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
+                                />
+                                <span class="inline-flex items-center gap-1 text-blue-700 dark:text-blue-400 font-bold">
+                                    <i class="fa-regular fa-envelope text-sm"></i> Email
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                {/if}
+
+                <!-- Textarea Message -->
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label
+                            for="notification-message-textarea"
+                            class="block text-xs font-bold text-gray-700 dark:text-gray-300"
+                        >
+                            Isi Pesan Notifikasi (Dapat Diedit Admin):
+                        </label>
+                        <button
+                            type="button"
+                            onclick={resetNotificationMessage}
+                            class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 font-medium"
+                            title="Kembalikan teks ke template standar sistem"
+                        >
+                            <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                            Reset ke Template Standar
+                        </button>
+                    </div>
+
+                    <textarea
+                        id="notification-message-textarea"
+                        bind:value={notificationMessage}
+                        rows="9"
+                        disabled={isProcessing}
+                        placeholder="Tulis pesan notifikasi di sini..."
+                        class="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 p-3 text-xs text-gray-900 dark:text-white font-mono leading-relaxed focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-inner resize-y transition-all"
+                    ></textarea>
+
+                    <div class="flex items-center justify-between text-[11px] text-gray-400">
+                        <span>
+                            💡 Format WA: <code class="text-gray-600 dark:text-gray-300">*tebal*</code>, <code class="text-gray-600 dark:text-gray-300">_miring_</code>.
+                        </span>
+                        <span>{notificationMessage.length} karakter</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end gap-2.5">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={isProcessing}
+                    onclick={closeNotificationModal}
+                >
+                    {#snippet children()}Batal{/snippet}
+                </Button>
+
+                <Button
+                    variant={notificationTarget === 'customer' ? 'success' : 'primary'}
+                    size="sm"
+                    disabled={isProcessing || !notificationMessage.trim()}
+                    onclick={submitNotification}
+                >
+                    {#snippet children()}
+                        {#if isProcessing}
+                            <i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Mengirim...
+                        {:else}
+                            <i class="fa-solid fa-paper-plane mr-1.5"></i> Kirim Notifikasi Sekarang
+                        {/if}
+                    {/snippet}
                 </Button>
             </div>
         </div>

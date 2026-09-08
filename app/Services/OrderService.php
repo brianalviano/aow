@@ -59,7 +59,11 @@ class OrderService
     {
         try {
             return DB::transaction(function () use ($order, $deliveryPhotoPath) {
-                if (in_array($order->order_status, [OrderStatus::DELIVERED, OrderStatus::CANCELLED])) {
+                if ($order->order_status === OrderStatus::DELIVERED) {
+                    return $order;
+                }
+
+                if ($order->order_status === OrderStatus::CANCELLED) {
                     throw new \Exception("Pesanan tidak dapat diselesaikan karena status saat ini adalah {$order->order_status->value}.");
                 }
 
@@ -106,7 +110,7 @@ class OrderService
     {
         try {
             return DB::transaction(function () use ($order, $reason) {
-                if ($order->order_status !== OrderStatus::PENDING) {
+                if (in_array($order->order_status, [OrderStatus::DELIVERED, OrderStatus::CANCELLED])) {
                     throw new \Exception("Pesanan tidak dapat dibatalkan karena status saat ini adalah {$order->order_status->value}.");
                 }
 
@@ -157,7 +161,11 @@ class OrderService
     {
         try {
             return DB::transaction(function () use ($order) {
-                if ($order->order_status !== OrderStatus::PENDING) {
+                if ($order->order_status === OrderStatus::CONFIRMED) {
+                    return $order;
+                }
+
+                if (! in_array($order->order_status, [OrderStatus::PENDING, OrderStatus::COOKING])) {
                     throw new \Exception("Pesanan tidak dapat dikonfirmasi karena status saat ini adalah {$order->order_status->value}.");
                 }
 
@@ -207,7 +215,11 @@ class OrderService
     {
         try {
             return DB::transaction(function () use ($order) {
-                if ($order->order_status !== OrderStatus::CONFIRMED) {
+                if ($order->order_status === OrderStatus::COOKING) {
+                    return $order;
+                }
+
+                if (! in_array($order->order_status, [OrderStatus::CONFIRMED, OrderStatus::PENDING, OrderStatus::ON_DELIVERY])) {
                     throw new \Exception("Pesanan tidak dapat dimasak karena status saat ini adalah {$order->order_status->value}.");
                 }
 
@@ -249,7 +261,11 @@ class OrderService
     {
         try {
             return DB::transaction(function () use ($order) {
-                if (! in_array($order->order_status, [OrderStatus::COOKING, OrderStatus::CONFIRMED])) {
+                if ($order->order_status === OrderStatus::ON_DELIVERY) {
+                    return $order;
+                }
+
+                if (! in_array($order->order_status, [OrderStatus::COOKING, OrderStatus::CONFIRMED, OrderStatus::PENDING, OrderStatus::ARRIVED])) {
                     throw new \Exception("Pesanan tidak dapat dikirim karena status saat ini adalah {$order->order_status->value}.");
                 }
 
@@ -382,17 +398,22 @@ class OrderService
     }
 
     /**
-     * Get orders awaiting payment approval (unpaid, non-cash).
+     * Get orders awaiting payment approval (unpaid, non-cash), ordered by delivery date (today/nearest first).
      */
     public function getPaymentApprovalOrders(int $perPage = 15)
     {
+        $today = now()->toDateString();
+
         return Order::query()
             ->with(['customer', 'paymentMethod', 'items.product'])
             ->where('payment_status', 'pending')
             ->where('order_status', '!=', 'cancelled')
             ->whereDoesntHave('paymentMethod', fn ($q) => $q->where('category', 'cash'))
-            ->orderBy('payment_expired_at', 'asc')
-            ->orderBy('created_at', 'asc')
+            ->orderByRaw('CASE WHEN COALESCE(delivery_date, ?) >= ? THEN 0 ELSE 1 END ASC', [$today, $today])
+            ->orderByRaw('CASE WHEN COALESCE(delivery_date, ?) >= ? THEN COALESCE(delivery_date, ?) END ASC', [$today, $today, $today])
+            ->orderByRaw('CASE WHEN COALESCE(delivery_date, ?) < ? THEN delivery_date END DESC', [$today, $today])
+            ->orderByRaw('delivery_time ASC NULLS FIRST')
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }
 
@@ -418,7 +439,7 @@ class OrderService
             $query->whereDate('delivery_date', $dto->deliveryDate);
         }
 
-        return $query->orderBy('delivery_date', 'asc')->orderBy('created_at', 'asc')->paginate($perPage);
+        return $query->orderBy('delivery_date', 'desc')->orderBy('delivery_time', 'asc')->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
     /**
@@ -923,70 +944,103 @@ class OrderService
     }
 
     /**
+     * Get default WhatsApp message template for an order based on current status.
+     */
+    public function getDefaultWhatsAppMessage(Order $order): string
+    {
+        $order->loadMissing(['customer', 'items.product', 'dropPoint', 'customerAddress']);
+
+        switch ($order->order_status) {
+            case OrderStatus::PENDING:
+                return "Halo {$order->customer?->name},\n\n"
+                    ."Pesanan Anda dengan nomor *{$order->number}* telah berhasil dibuat dan sedang menunggu konfirmasi pembayaran/admin.\n\n"
+                    .'Total Tagihan: Rp '.number_format($order->total_amount, 0, ',', '.')."\n\n"
+                    .'Terima kasih telah memesan di Aowenak!';
+            case OrderStatus::CONFIRMED:
+                return $this->buildConfirmedWhatsAppMessage($order);
+            case OrderStatus::COOKING:
+                return "Halo {$order->customer?->name},\n\n"
+                    ."Pesanan Anda dengan nomor *{$order->number}* saat ini sedang dimasak oleh tim dapur sentral kami. 🍳\n\n"
+                    .'Kami pastikan hidangan Anda disiapkan secara higienis dan lezat. Mohon ditunggu ya! Terima kasih.';
+            case OrderStatus::ON_DELIVERY:
+                return "Halo {$order->customer?->name},\n\n"
+                    ."Pesanan Anda dengan nomor *{$order->number}* sedang dalam perjalanan menuju lokasi pengiriman! 🛵\n\n"
+                    .'Mohon bersiap untuk menerima pesanan Anda ya. Terima kasih telah memesan di Aowenak!';
+            case OrderStatus::ARRIVED:
+                return "Halo {$order->customer?->name},\n\n"
+                    ."Pesanan Anda dengan nomor *{$order->number}* telah TIBA di tujuan! 📍\n\n"
+                    .'Silakan periksa pesanan Anda dan jangan lupa konfirmasi penerimaan di aplikasi. Selamat menikmati!';
+            case OrderStatus::DELIVERED:
+                return "Halo {$order->customer?->name},\n\n"
+                    ."Pesanan Anda dengan nomor *{$order->number}* telah BERHASIL dikirim dan diselesaikan! 🎉\n\n"
+                    .'Terima kasih banyak telah berbelanja bersama Aowenak. Selamat menikmati hidangan Anda!';
+            case OrderStatus::CANCELLED:
+                return "Halo {$order->customer?->name},\n\n"
+                    ."Mohon maaf, pesanan Anda dengan nomor *{$order->number}* telah dibatalkan oleh Admin.\n\n"
+                    .'Alasan: '.($order->cancellation_note ?: 'Tidak disebutkan');
+            default:
+                return "Halo {$order->customer?->name},\n\n"
+                    ."Informasi update pesanan Anda dengan nomor *{$order->number}*.\n\n"
+                    .'Total Tagihan: Rp '.number_format($order->total_amount, 0, ',', '.')."\n\n"
+                    .'Terima kasih.';
+        }
+    }
+
+    /**
+     * Get default Telegram message template for an order based on current status.
+     */
+    public function getDefaultTelegramMessage(Order $order): string
+    {
+        $order->loadMissing(['customer']);
+
+        if ($order->order_status === OrderStatus::PENDING) {
+            return "<b>PESANAN BARU MASUK! (Kirim Ulang)</b>\n\n"
+                ."Order: <b>{$order->number}</b>\n"
+                ."Customer: {$order->customer?->name}\n"
+                .'Total: Rp '.number_format($order->total_amount, 0, ',', '.')."\n"
+                .'Harap segera cek dashboard admin.';
+        }
+
+        $statusLabel = $order->order_status?->label() ?? 'UPDATE';
+
+        return "<b>UPDATE PESANAN (Kirim Ulang)</b>\n\n"
+            ."Order: <b>{$order->number}</b>\n"
+            ."Customer: {$order->customer?->name}\n"
+            .'Status Saat Ini: <b>'.strtoupper($statusLabel)."</b>\n"
+            .'Total: Rp '.number_format($order->total_amount, 0, ',', '.').'.';
+    }
+
+    /**
      * Resend order notifications based on target.
      */
-    public function resendOrderNotifications(Order $order, string $target): void
+    public function resendOrderNotifications(Order $order, string $target, ?string $customMessage = null, ?array $channels = null): void
     {
-        $order->loadMissing(['customer', 'dropPoint']);
+        $order->loadMissing(['customer', 'dropPoint', 'items.product', 'customerAddress']);
 
         if ($target === 'customer') {
-            $waMessage = null;
-            switch ($order->order_status) {
-                case OrderStatus::PENDING:
-                    $waMessage = "Halo {$order->customer->name},\n\n"
-                        ."Pesanan Anda dengan nomor *{$order->number}* telah berhasil dibuat dan sedang menunggu konfirmasi pembayaran/admin.\n\n"
-                        .'Total Tagihan: Rp '.number_format($order->total_amount, 0, ',', '.')."\n\n"
-                        .'Terima kasih telah memesan!';
-                    break;
-                case OrderStatus::CONFIRMED:
-                    $waMessage = $this->buildConfirmedWhatsAppMessage($order);
-                    break;
-                case OrderStatus::ON_DELIVERY:
-                    $waMessage = "Halo {$order->customer->name},\n\n"
-                        ."Pesanan Anda dengan nomor *{$order->number}* sedang dalam perjalanan menuju lokasi pengiriman!\n\n"
-                        .'Mohon bersiap untuk menerima pesanan Anda ya. Terima kasih.';
-                    break;
-                case OrderStatus::ARRIVED:
-                    $waMessage = "Halo {$order->customer->name},\n\n"
-                        ."Pesanan Anda dengan nomor *{$order->number}* telah TIBA di tujuan!\n\n"
-                        .'Silakan periksa pesanan Anda dan jangan lupa konfirmasi penerimaan di aplikasi. Selamat menikmati!';
-                    break;
-                case OrderStatus::DELIVERED:
-                    $waMessage = "Halo {$order->customer->name},\n\n"
-                        ."Pesanan Anda dengan nomor *{$order->number}* telah BERHASIL dikirim dan diselesaikan!\n\n"
-                        .'Terima kasih telah berbelanja bersama kami. Selamat menikmati hidangan Anda!';
-                    break;
-                case OrderStatus::CANCELLED:
-                    $waMessage = "Halo {$order->customer->name},\n\n"
-                        ."Mohon maaf, pesanan Anda dengan nomor *{$order->number}* telah dibatalkan oleh Admin.\n\n"
-                        .'Alasan: '.($order->cancellation_note ?: 'Tidak disebutkan');
-                    break;
-            }
+            $selectedChannels = $channels ?? ['whatsapp', 'email'];
 
-            if ($waMessage) {
+            // 1. WhatsApp
+            if (in_array('whatsapp', $selectedChannels, true) && $order->customer?->phone) {
+                $waMessage = ! empty(trim($customMessage ?? ''))
+                    ? trim($customMessage)
+                    : $this->getDefaultWhatsAppMessage($order);
+
                 dispatch(new SendWhatsAppNotificationJob($order->customer->phone, $waMessage));
             }
 
-            if ($order->order_status !== OrderStatus::PENDING) {
-                $order->customer->notify(new OrderStatusChangedNotification($order, $order->order_status->value));
-            } else {
-                Mail::to($order->customer->email)->send(new OrderPlacedMail($order));
+            // 2. Email
+            if (in_array('email', $selectedChannels, true) && $order->customer?->email) {
+                if ($order->order_status !== OrderStatus::PENDING) {
+                    $order->customer->notify(new OrderStatusChangedNotification($order, $order->order_status->value));
+                } else {
+                    Mail::to($order->customer->email)->send(new OrderPlacedMail($order));
+                }
             }
         } elseif ($target === 'admin') {
-            if ($order->order_status === OrderStatus::PENDING) {
-                $tgMessage = "<b>PESANAN BARU MASUK! (Kirim Ulang)</b>\n\n"
-                    ."Order: <b>{$order->number}</b>\n"
-                    ."Customer: {$order->customer->name}\n"
-                    .'Total: Rp '.number_format($order->total_amount, 0, ',', '.')."\n"
-                    .'Harap segera cek dashboard admin.';
-            } else {
-                $statusLabel = $order->order_status->label();
-                $tgMessage = "<b>UPDATE PESANAN (Kirim Ulang)</b>\n\n"
-                    ."Order: <b>{$order->number}</b>\n"
-                    ."Customer: {$order->customer->name}\n"
-                    .'Status Saat Ini: <b>'.strtoupper($statusLabel)."</b>\n"
-                    .'Total: Rp '.number_format($order->total_amount, 0, ',', '.').'.';
-            }
+            $tgMessage = ! empty(trim($customMessage ?? ''))
+                ? trim($customMessage)
+                : $this->getDefaultTelegramMessage($order);
 
             if ($tgMessage) {
                 dispatch(new SendTelegramNotificationJob($tgMessage));

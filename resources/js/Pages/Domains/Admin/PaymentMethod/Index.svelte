@@ -22,6 +22,7 @@
         photo: string | null;
         is_active: boolean;
         type: "manual" | "gateway";
+        is_locked?: boolean;
         created_at: string;
         updated_at: string;
     }
@@ -161,6 +162,13 @@
             </div>
         {/snippet}
         {#snippet children()}
+            <div class="px-6 pt-4 pb-1">
+                <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2.5">
+                    <i class="fa-solid fa-shield-halved text-amber-600 dark:text-amber-400 text-sm shrink-0"></i>
+                    <span>Metode pembayaran utama (QRIS & Transfer Bank BCA) dilindungi oleh sistem sehingga tidak dapat diedit atau dihapus oleh admin.</span>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="custom-table min-w-full">
                     <thead>
@@ -272,27 +280,39 @@
                                     <td
                                         class="px-4 py-3 whitespace-nowrap text-center"
                                     >
-                                        <div
-                                            class="flex gap-2 items-center justify-center"
-                                        >
-                                            <Button
-                                                variant="warning"
-                                                size="sm"
-                                                icon="fa-solid fa-edit"
-                                                href={`/admin/payment-methods/${item.id}/edit`}
+                                        {#if item.is_locked}
+                                            <div class="flex items-center justify-center">
+                                                <span
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-lg text-xs font-semibold border border-gray-200 dark:border-gray-700 shadow-xs"
+                                                    title="Metode pembayaran ini dikunci dan tidak dapat diubah atau dihapus oleh admin"
+                                                >
+                                                    <i class="fa-solid fa-lock text-amber-500"></i>
+                                                    Terkunci
+                                                </span>
+                                            </div>
+                                        {:else}
+                                            <div
+                                                class="flex gap-2 items-center justify-center"
                                             >
-                                                Edit
-                                            </Button>
-                                            <Button
-                                                variant="danger"
-                                                size="sm"
-                                                icon="fa-solid fa-trash"
-                                                onclick={() =>
-                                                    confirmDelete(item)}
-                                            >
-                                                Hapus
-                                            </Button>
-                                        </div>
+                                                <Button
+                                                    variant="warning"
+                                                    size="sm"
+                                                    icon="fa-solid fa-edit"
+                                                    href={`/admin/payment-methods/${item.id}/edit`}
+                                                >
+                                                    Edit
+                                                </Button>
+                                                <Button
+                                                    variant="danger"
+                                                    size="sm"
+                                                    icon="fa-solid fa-trash"
+                                                    onclick={() =>
+                                                        confirmDelete(item)}
+                                                >
+                                                    Hapus
+                                                </Button>
+                                            </div>
+                                        {/if}
                                     </td>
                                 </tr>
                             {/each}

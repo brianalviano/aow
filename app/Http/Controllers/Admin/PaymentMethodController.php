@@ -31,7 +31,7 @@ class PaymentMethodController extends Controller
     public function index(Request $request): Response
     {
         $search = $request->query('search');
-        $limit = (int) $request->query('limit', 15);
+        $limit = (int) $request->query('limit', '15');
 
         $paymentMethods = $this->paymentMethodService->getPaginated($limit, $search);
 
@@ -80,8 +80,17 @@ class PaymentMethodController extends Controller
     /**
      * Show the form for editing the specified payment method.
      */
-    public function edit(PaymentMethod $paymentMethod): Response
+    public function edit(PaymentMethod $paymentMethod): Response|RedirectResponse
     {
+        if ($paymentMethod->isLocked()) {
+            Inertia::flash('toast', [
+                'message' => "Metode pembayaran '{$paymentMethod->name}' dilindungi sistem dan tidak dapat diubah.",
+                'type' => 'error',
+            ]);
+
+            return redirect()->route('admin.payment-methods.index');
+        }
+
         return Inertia::render('Domains/Admin/PaymentMethod/Form', [
             'paymentMethod' => new PaymentMethodResource($paymentMethod),
             'paymentGuides' => PaymentGuide::all(['id', 'name']),
@@ -93,6 +102,15 @@ class PaymentMethodController extends Controller
      */
     public function update(PaymentMethodData $data, PaymentMethod $paymentMethod): RedirectResponse
     {
+        if ($paymentMethod->isLocked()) {
+            Inertia::flash('toast', [
+                'message' => "Metode pembayaran '{$paymentMethod->name}' dilindungi sistem dan tidak dapat diubah.",
+                'type' => 'error',
+            ]);
+
+            return redirect()->route('admin.payment-methods.index');
+        }
+
         try {
             $this->paymentMethodService->updatePaymentMethod($paymentMethod, $data);
 
@@ -117,6 +135,15 @@ class PaymentMethodController extends Controller
      */
     public function destroy(PaymentMethod $paymentMethod): RedirectResponse
     {
+        if ($paymentMethod->isLocked()) {
+            Inertia::flash('toast', [
+                'message' => "Metode pembayaran '{$paymentMethod->name}' dilindungi sistem dan tidak dapat dihapus.",
+                'type' => 'error',
+            ]);
+
+            return redirect()->route('admin.payment-methods.index');
+        }
+
         try {
             $this->paymentMethodService->deletePaymentMethod($paymentMethod);
 

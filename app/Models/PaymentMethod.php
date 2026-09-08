@@ -60,6 +60,22 @@ class PaymentMethod extends Model
     }
 
     /**
+     * Determine if this payment method is protected from modification or deletion.
+     */
+    public function isLocked(): bool
+    {
+        $name = strtolower(trim($this->name));
+        $protected = [
+            'qris',
+            'transfer bank bca',
+            'bca',
+            'bank bca',
+        ];
+
+        return in_array($name, $protected, true) || in_array($this->code, ['bca_qris', 'qris', 'bca'], true);
+    }
+
+    /**
      * Get the photo URL.
      */
     protected function getPhotoAttribute(?string $value): ?string

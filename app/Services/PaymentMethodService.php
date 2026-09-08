@@ -83,6 +83,10 @@ class PaymentMethodService
      */
     public function updatePaymentMethod(PaymentMethod $paymentMethod, PaymentMethodData $data): PaymentMethod
     {
+        if ($paymentMethod->isLocked()) {
+            throw new \DomainException("Metode pembayaran '{$paymentMethod->name}' dilindungi sistem dan tidak dapat diubah.");
+        }
+
         return $this->runWithRetry(function () use ($paymentMethod, $data) {
             try {
                 return DB::transaction(function () use ($paymentMethod, $data) {
@@ -130,6 +134,10 @@ class PaymentMethodService
      */
     public function deletePaymentMethod(PaymentMethod $paymentMethod): ?bool
     {
+        if ($paymentMethod->isLocked()) {
+            throw new \DomainException("Metode pembayaran '{$paymentMethod->name}' dilindungi sistem dan tidak dapat dihapus.");
+        }
+
         return $this->runWithRetry(function () use ($paymentMethod) {
             try {
                 return DB::transaction(function () use ($paymentMethod) {

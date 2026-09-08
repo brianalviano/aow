@@ -158,7 +158,30 @@
         closeConfirm();
     }
 
+    function handleConfirmOrder(order: Order) {
+        if (order.order_status === "confirmed") return;
+        openConfirm(
+            "Konfirmasi Pesanan",
+            `Ubah status pesanan #${order.number} menjadi 'Dikonfirmasi'?`,
+            () => {
+                isProcessing = true;
+                router.post(
+                    `/admin/orders/${order.id}/confirm`,
+                    {},
+                    {
+                        preserveScroll: true,
+                        onFinish: () => {
+                            isProcessing = false;
+                        },
+                    },
+                );
+            },
+            "primary",
+        );
+    }
+
     function handleCookOrder(order: Order) {
+        if (order.order_status === "cooking") return;
         openConfirm(
             "Mulai Memasak",
             `Ubah status pesanan #${order.number} menjadi 'Sedang Dimasak'?`,
@@ -180,6 +203,7 @@
     }
 
     function handleShipOrder(order: Order) {
+        if (order.order_status === "on_delivery") return;
         openConfirm(
             "Kirim Pesanan",
             `Ubah status pesanan #${order.number} menjadi 'Sedang Dikirim'?`,
@@ -201,6 +225,7 @@
     }
 
     function handleDeliverOrder(order: Order) {
+        if (order.order_status === "delivered") return;
         openConfirm(
             "Selesaikan Pesanan",
             `Tandai pesanan #${order.number} sebagai 'Diterima' (Pesanan Selesai)?`,
@@ -221,36 +246,92 @@
         );
     }
 
-    type BadgeVariant =
-        | "dark"
-        | "light"
-        | "success"
-        | "warning"
-        | "info"
-        | "primary"
-        | "danger"
-        | "white"
-        | "secondary"
-        | "purple";
+    function handleCancelOrder(order: Order) {
+        if (order.order_status === "cancelled" || order.order_status === "delivered") return;
+        openConfirm(
+            "Batalkan Pesanan",
+            `Apakah Anda yakin ingin membatalkan pesanan #${order.number}?`,
+            () => {
+                isProcessing = true;
+                router.post(
+                    `/admin/orders/${order.id}/cancel`,
+                    { cancellation_note: "Dibatalkan oleh Admin di Pesanan Diproses" },
+                    {
+                        preserveScroll: true,
+                        onFinish: () => {
+                            isProcessing = false;
+                        },
+                    },
+                );
+            },
+            "danger",
+        );
+    }
 
-    function getStatusBadge(status: string): {
-        variant: BadgeVariant;
-        label: string;
-    } {
-        switch (status) {
-            case "pending":
-                return { variant: "warning", label: "Menunggu" };
+    const ORDER_LIFECYCLE_STEPS = [
+        {
+            key: "pending",
+            label: "1. Menunggu",
+            title: "Verifikasi Pembayaran",
+            icon: "fa-solid fa-clock",
+        },
+        {
+            key: "confirmed",
+            label: "2. Dikonfirmasi",
+            title: "Masuk Antrean Dapur",
+            icon: "fa-solid fa-clipboard-check",
+        },
+        {
+            key: "cooking",
+            label: "3. Sedang Dimasak",
+            title: "Proses Dapur Sentral",
+            icon: "fa-solid fa-fire-burner",
+        },
+        {
+            key: "on_delivery",
+            label: "4. Sedang Dikirim",
+            title: "Pengantaran Kurir",
+            icon: "fa-solid fa-truck-fast",
+        },
+        {
+            key: "delivered",
+            label: "5. Diterima",
+            title: "Pesanan Selesai",
+            icon: "fa-solid fa-circle-check",
+        },
+    ] as const;
+
+    const stepOrderKeys = [
+        "pending",
+        "confirmed",
+        "cooking",
+        "on_delivery",
+        "delivered",
+    ];
+
+    function getStepIndex(status: string): number {
+        if (status === "cancelled") return -1;
+        if (status === "arrived" || status === "delivered") return 4;
+        return stepOrderKeys.indexOf(status);
+    }
+
+    function handleStepClick(order: Order, stepKey: string) {
+        if (order.order_status === "cancelled" || isProcessing) return;
+        if (order.order_status === stepKey) return;
+
+        switch (stepKey) {
             case "confirmed":
-                return { variant: "info", label: "Dikonfirmasi" };
+                handleConfirmOrder(order);
+                break;
             case "cooking":
-                return { variant: "warning", label: "Sedang Dimasak" };
+                handleCookOrder(order);
+                break;
             case "on_delivery":
-                return { variant: "primary", label: "Sedang Dikirim" };
-            case "arrived":
+                handleShipOrder(order);
+                break;
             case "delivered":
-                return { variant: "success", label: "Diterima (Selesai)" };
-            default:
-                return { variant: "secondary", label: status };
+                handleDeliverOrder(order);
+                break;
         }
     }
 
@@ -265,7 +346,7 @@
         return Object.entries(groups).sort(([a], [b]) => {
             if (a === "Tanpa Tanggal") return 1;
             if (b === "Tanpa Tanggal") return -1;
-            return a.localeCompare(b);
+            return b.localeCompare(a);
         });
     });
 
@@ -311,30 +392,53 @@
         <table class="custom-table min-w-full">
             <thead>
                 <tr>
-                    <th>No. Pesanan</th>
-                    <th>Jam</th>
+                    <th class="whitespace-nowrap">No. Pesanan</th>
+                    <th class="whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1.5" title="Jam Pengantaran / Minta Dikirim">
+                            <i class="fa-regular fa-clock text-xs text-amber-500"></i>
+                            Jam Kirim
+                        </span>
+                    </th>
                     <th>Customer</th>
                     <th>Drop Point</th>
                     <th>Total</th>
-                    <th>Status</th>
-                    <th class="w-48 text-center">Aksi</th>
+                    <th class="min-w-[620px] text-center">
+                        <span class="inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrows-split-up-and-left text-xs text-blue-500"></i>
+                            Alur Proses Pesanan (Klik Tombol untuk Ubah Status)
+                        </span>
+                    </th>
+                    <th class="w-28 text-center whitespace-nowrap">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 {#each orderList as item}
-                    {@const statusBadge = getStatusBadge(item.order_status)}
+                    {@const currentStepIdx = getStepIndex(item.order_status)}
                     <tr
                         class={item.order_status === "cancelled"
                             ? "bg-gray-100 dark:bg-gray-800/60 opacity-60 hover:opacity-100 transition-opacity"
                             : "hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"}
                     >
-                        <td class="font-medium text-gray-900 dark:text-white">
-                            {item.number}
+                        <td class="font-medium text-gray-900 dark:text-white whitespace-nowrap">
+                            <a
+                                href={`/admin/orders/${item.id}?from=processing`}
+                                class="hover:text-blue-600 hover:underline inline-flex items-center gap-1"
+                                title="Lihat Detail Pesanan"
+                            >
+                                {item.number}
+                            </a>
                         </td>
                         <td
-                            class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                            class="text-sm font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap"
                         >
-                            {item.delivery_time ?? "-"}
+                            {#if item.delivery_time}
+                                <span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-bold">
+                                    <i class="fa-regular fa-clock text-xs"></i>
+                                    {item.delivery_time.substring(0, 5)} WIB
+                                </span>
+                            {:else}
+                                <span class="text-xs text-gray-400 italic">Secepatnya</span>
+                            {/if}
                         </td>
                         <td>
                             <div
@@ -360,75 +464,132 @@
                         </td>
                         <td>
                             <div
-                                class="text-sm text-gray-700 dark:text-gray-300"
+                                class="text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap"
                             >
                                 {item.drop_point?.name ?? "-"}
                             </div>
                         </td>
                         <td>
                             <div
-                                class="text-sm font-bold text-gray-900 dark:text-white"
+                                class="text-sm font-bold text-gray-900 dark:text-white whitespace-nowrap"
                             >
                                 {formatCurrency(item.total_amount)}
                             </div>
                         </td>
-                        <td>
-                            <Badge
-                                size="sm"
-                                rounded="pill"
-                                variant={statusBadge.variant}
-                            >
-                                {#snippet children()}{statusBadge.label}{/snippet}
-                            </Badge>
+                        <td class="py-2.5 px-3">
+                            {#if item.order_status === "cancelled"}
+                                <div class="flex items-center justify-center gap-2 py-2 px-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 rounded-xl text-red-600 dark:text-red-400">
+                                    <i class="fa-solid fa-ban text-sm"></i>
+                                    <span class="text-xs font-bold uppercase tracking-wider">Pesanan Dibatalkan</span>
+                                </div>
+                            {:else}
+                                <div class="relative py-1 px-1 min-w-[620px]">
+                                    <div class="grid grid-cols-5 gap-1.5 relative items-center">
+                                        {#each ORDER_LIFECYCLE_STEPS as step, index}
+                                            {@const isPassed = currentStepIdx > index}
+                                            {@const isCurrent = currentStepIdx === index}
+                                            {@const isUpcoming = currentStepIdx < index}
+                                            {@const isClickable = !isCurrent && step.key !== "pending" && item.order_status !== "delivered"}
+
+                                            <div class="relative flex flex-col items-center">
+                                                <!-- Connecting line to next step -->
+                                                {#if index < ORDER_LIFECYCLE_STEPS.length - 1}
+                                                    <div
+                                                        class="hidden sm:block absolute top-[24px] left-1/2 w-full h-[2px] z-0 pointer-events-none {isPassed
+                                                            ? 'bg-emerald-500'
+                                                            : isCurrent
+                                                              ? 'bg-gradient-to-r from-amber-500 to-gray-200 dark:to-gray-700'
+                                                              : 'bg-gray-200 dark:bg-gray-700'}"
+                                                    ></div>
+                                                {/if}
+
+                                                <!-- Button / Card -->
+                                                <button
+                                                    type="button"
+                                                    disabled={!isClickable || isProcessing}
+                                                    onclick={() => handleStepClick(item, step.key)}
+                                                    class="w-full flex flex-col items-center text-center relative z-10 p-2 rounded-xl transition-all duration-200 {isCurrent
+                                                        ? 'bg-amber-500/10 dark:bg-amber-500/20 border-2 border-amber-500 shadow-sm ring-2 ring-amber-500/20 cursor-default'
+                                                        : isClickable
+                                                          ? 'hover:bg-blue-50/80 dark:hover:bg-blue-950/40 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-sm cursor-pointer border border-transparent group'
+                                                          : 'opacity-70 cursor-default border border-transparent'}"
+                                                    title={isCurrent
+                                                        ? `Tahap saat ini: ${step.label} (${step.title})`
+                                                        : isClickable
+                                                          ? `Klik untuk ubah status ke: ${step.label} (${step.title})`
+                                                          : `${step.label} (${step.title})`}
+                                                >
+                                                    <!-- Node Circle -->
+                                                    <div
+                                                        class="flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 {isPassed
+                                                            ? 'bg-emerald-500 text-white shadow-sm ring-2 ring-emerald-500/20'
+                                                            : isCurrent
+                                                              ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/30 ring-4 ring-amber-500/30 scale-105'
+                                                              : 'border border-gray-300 bg-gray-100 text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 group-hover:border-blue-400 group-hover:text-blue-500 group-hover:bg-blue-50'}"
+                                                    >
+                                                        {#if isPassed}
+                                                            <i class="fa-solid fa-check text-xs"></i>
+                                                        {:else}
+                                                            <i class="{step.icon} text-xs"></i>
+                                                        {/if}
+                                                    </div>
+
+                                                    <!-- Step Label & Subtitle -->
+                                                    <div class="mt-1.5 space-y-0.5 pointer-events-none">
+                                                        <div
+                                                            class="text-[11px] font-bold leading-tight whitespace-nowrap transition-colors {isPassed
+                                                                ? 'text-emerald-700 dark:text-emerald-400'
+                                                                : isCurrent
+                                                                  ? 'text-amber-700 dark:text-amber-400 font-extrabold'
+                                                                  : 'text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400'}"
+                                                        >
+                                                            {step.label}
+                                                        </div>
+                                                        <div
+                                                            class="text-[9px] text-gray-500 dark:text-gray-400 leading-tight whitespace-nowrap"
+                                                        >
+                                                            {step.title}
+                                                        </div>
+                                                        {#if isCurrent}
+                                                            <div class="inline-flex items-center gap-1 text-[8px] font-bold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded-full mt-0.5">
+                                                                <span class="w-1 h-1 rounded-full bg-amber-500 animate-ping"></span>
+                                                                Aktif
+                                                            </div>
+                                                        {:else if isUpcoming && isClickable}
+                                                            <div class="text-[8px] text-blue-600 dark:text-blue-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity mt-0.5">
+                                                                Pilih &rarr;
+                                                            </div>
+                                                        {/if}
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        {/each}
+                                    </div>
+                                </div>
+                            {/if}
                         </td>
-                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                        <td class="px-3 py-3 whitespace-nowrap text-center">
                             <div class="flex gap-1.5 items-center justify-center">
+                                <!-- Detail Button -->
                                 <Button
-                                    variant="primary"
+                                    variant="secondary"
                                     size="xs"
                                     icon="fa-solid fa-eye"
                                     href={`/admin/orders/${item.id}?from=processing`}
-                                    title="Lihat Detail"
-                                />
+                                    title="Lihat Detail Pesanan"
+                                >
+                                    {#snippet children()}Detail{/snippet}
+                                </Button>
 
-                                {#if item.order_status === "confirmed"}
+                                <!-- Batalkan Button -->
+                                {#if item.order_status !== "cancelled" && item.order_status !== "delivered"}
                                     <Button
-                                        variant="warning"
+                                        variant="outline-danger"
                                         size="xs"
-                                        icon="fa-solid fa-fire-burner"
+                                        icon="fa-solid fa-xmark"
                                         disabled={isProcessing}
-                                        onclick={() => handleCookOrder(item)}
-                                        title="Mulai Memasak"
-                                    />
-                                    <Button
-                                        variant="info"
-                                        size="xs"
-                                        icon="fa-solid fa-truck-fast"
-                                        disabled={isProcessing}
-                                        onclick={() => handleShipOrder(item)}
-                                        title="Kirim Pesanan"
-                                    />
-                                {/if}
-
-                                {#if item.order_status === "cooking"}
-                                    <Button
-                                        variant="info"
-                                        size="xs"
-                                        icon="fa-solid fa-truck-fast"
-                                        disabled={isProcessing}
-                                        onclick={() => handleShipOrder(item)}
-                                        title="Kirim Pesanan"
-                                    />
-                                {/if}
-
-                                {#if item.order_status === "on_delivery" || item.order_status === "arrived"}
-                                    <Button
-                                        variant="success"
-                                        size="xs"
-                                        icon="fa-solid fa-circle-check"
-                                        disabled={isProcessing}
-                                        onclick={() => handleDeliverOrder(item)}
-                                        title="Tandai Diterima / Selesai"
+                                        onclick={() => handleCancelOrder(item)}
+                                        title="Batalkan Pesanan"
                                     />
                                 {/if}
                             </div>

@@ -113,6 +113,51 @@
         });
     }
 
+    function getDeliveryBadge(dateStr: string | null): { label: string; classes: string } | null {
+        if (!dateStr) {
+            return {
+                label: "Hari Ini",
+                classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+            };
+        }
+
+        const today = new Date();
+        const y = today.getFullYear();
+        const m = String(today.getMonth() + 1).padStart(2, "0");
+        const d = String(today.getDate()).padStart(2, "0");
+        const todayStr = `${y}-${m}-${d}`;
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomY = tomorrow.getFullYear();
+        const tomM = String(tomorrow.getMonth() + 1).padStart(2, "0");
+        const tomD = String(tomorrow.getDate()).padStart(2, "0");
+        const tomorrowStr = `${tomY}-${tomM}-${tomD}`;
+
+        const cleanDate = dateStr.substring(0, 10);
+
+        if (cleanDate === todayStr) {
+            return {
+                label: "Hari Ini",
+                classes: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+            };
+        }
+        if (cleanDate === tomorrowStr) {
+            return {
+                label: "Besok",
+                classes: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+            };
+        }
+        if (cleanDate < todayStr) {
+            return {
+                label: "Terlewat",
+                classes: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
+            };
+        }
+
+        return null;
+    }
+
     function approveOrder(orderId: string) {
         router.post(
             `/admin/orders/${orderId}/confirm`,
@@ -168,7 +213,12 @@
                         <th>Total</th>
                         <th>Metode Bayar</th>
                         <th>Waktu Order</th>
-                        <th>Minta Dikirim</th>
+                        <th>
+                            <span class="inline-flex items-center gap-1.5">
+                                Minta Dikirim
+                                <i class="fa-solid fa-arrow-down-short-wide text-xs text-primary-600 dark:text-primary-400" title="Diurutkan: Hari ini & terdekat paling atas"></i>
+                            </span>
+                        </th>
                         <th>Bukti</th>
                         <th class="w-48 text-center">Aksi</th>
                     </tr>
@@ -235,13 +285,21 @@
                                 <td>
                                     <div class="text-sm text-gray-900 dark:text-white font-medium">
                                         {#if item.delivery_date}
-                                            <div>
-                                                {new Date(item.delivery_date).toLocaleDateString("id-ID", {
-                                                    weekday: "short",
-                                                    day: "numeric",
-                                                    month: "short",
-                                                    year: "numeric",
-                                                })}
+                                            {@const badge = getDeliveryBadge(item.delivery_date)}
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span>
+                                                    {new Date(item.delivery_date.includes("T") ? item.delivery_date : `${item.delivery_date}T00:00:00`).toLocaleDateString("id-ID", {
+                                                        weekday: "short",
+                                                        day: "numeric",
+                                                        month: "short",
+                                                        year: "numeric",
+                                                    })}
+                                                </span>
+                                                {#if badge}
+                                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold {badge.classes}">
+                                                        {badge.label}
+                                                    </span>
+                                                {/if}
                                             </div>
                                             {#if item.delivery_time}
                                                 <div class="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-0.5">
@@ -249,7 +307,12 @@
                                                 </div>
                                             {/if}
                                         {:else}
-                                            <span class="text-xs text-gray-400 italic">Langsung / Secepatnya</span>
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="text-xs text-gray-400 italic">Langsung / Secepatnya</span>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                                    Hari Ini
+                                                </span>
+                                            </div>
                                         {/if}
                                     </div>
                                 </td>

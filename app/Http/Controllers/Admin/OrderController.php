@@ -191,7 +191,7 @@ class OrderController extends Controller
     /**
      * Display the specified order detail.
      */
-    public function show(Order $order): Response
+    public function show(Order $order, OrderService $service): Response
     {
         $order->load([
             'items.product',
@@ -208,6 +208,8 @@ class OrderController extends Controller
         return Inertia::render('Domains/Admin/Order/Show', [
             'order' => (new OrderResource($order))->resolve(),
             'free_courier_min_order' => OrderSettingsDTO::load()->freeCourierMinOrder,
+            'default_whatsapp_message' => $service->getDefaultWhatsAppMessage($order),
+            'default_telegram_message' => $service->getDefaultTelegramMessage($order),
         ]);
     }
 
@@ -263,24 +265,35 @@ class OrderController extends Controller
     }
 
     /**
-     * Resend order notifications (admin action).
+     * Resend order notifications (admin action with custom message support).
      *
      * @throws Throwable
      */
-    public function resendNotifications(Order $order, string $target, OrderService $service): RedirectResponse
+    public function resendNotifications(Request $request, Order $order, string $target, OrderService $service): RedirectResponse
     {
+        $validated = $request->validate([
+            'message' => ['nullable', 'string', 'max:5000'],
+            'channels' => ['nullable', 'array'],
+            'channels.*' => ['string', 'in:whatsapp,email,telegram'],
+        ]);
+
         try {
-            $service->resendOrderNotifications($order, $target);
+            $service->resendOrderNotifications(
+                $order,
+                $target,
+                $validated['message'] ?? null,
+                $validated['channels'] ?? null
+            );
 
             Inertia::flash('toast', [
-                'message' => 'Notifikasi berhasil dikirim ulang.',
+                'message' => 'Notifikasi berhasil dikirim.',
                 'type' => 'success',
             ]);
 
             return redirect()->back();
         } catch (Throwable $e) {
             Inertia::flash('toast', [
-                'message' => 'Gagal mengirim ulang notifikasi: '.$e->getMessage(),
+                'message' => 'Gagal mengirim notifikasi: '.$e->getMessage(),
                 'type' => 'error',
             ]);
 
@@ -449,7 +462,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Display orders awaiting payment approval.
+     * Display orders awaiting payment approval, ordered by delivery date (today/nearest first).
      */
     public function payments(OrderService $service): Response
     {
