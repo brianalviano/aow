@@ -162,13 +162,6 @@
             </div>
         {/snippet}
         {#snippet children()}
-            <div class="px-6 pt-4 pb-1">
-                <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2.5">
-                    <i class="fa-solid fa-shield-halved text-amber-600 dark:text-amber-400 text-sm shrink-0"></i>
-                    <span>Metode pembayaran utama (QRIS & Transfer Bank BCA) dilindungi oleh sistem sehingga tidak dapat diedit atau dihapus oleh admin.</span>
-                </div>
-            </div>
-
             <div class="overflow-x-auto">
                 <table class="custom-table min-w-full">
                     <thead>
