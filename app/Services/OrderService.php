@@ -423,7 +423,14 @@ class OrderService
     public function getProcessingOrders(OrderFilterDTO $dto, int $perPage = 15)
     {
         $query = Order::query()
-            ->with(['customer', 'dropPoint', 'items.product', 'paymentMethod'])
+            ->with([
+                'customer',
+                'dropPoint',
+                'items.product',
+                'items.options.productOption',
+                'items.options.productOptionItem',
+                'paymentMethod',
+            ])
             ->where(function ($q) {
                 $q->where(function ($inner) {
                     $inner->where('payment_status', '!=', 'pending')
