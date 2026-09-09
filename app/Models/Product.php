@@ -49,7 +49,7 @@ class Product extends Model
 
     public function productCategory(): BelongsTo
     {
-        return $this->belongsTo(ProductCategory::class);
+        return $this->belongsTo(ProductCategory::class)->withTrashed();
     }
 
     /**

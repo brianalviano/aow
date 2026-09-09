@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Represents a specific choice inside a product option, such as "Large" or "Extra Cheese".
  */
 class ProductOptionItem extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -46,6 +47,6 @@ class ProductOptionItem extends Model
      */
     public function productOption(): BelongsTo
     {
-        return $this->belongsTo(ProductOption::class);
+        return $this->belongsTo(ProductOption::class)->withTrashed();
     }
 }

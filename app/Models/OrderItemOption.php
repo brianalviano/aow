@@ -41,7 +41,7 @@ class OrderItemOption extends Model
      */
     public function productOption(): BelongsTo
     {
-        return $this->belongsTo(ProductOption::class);
+        return $this->belongsTo(ProductOption::class)->withTrashed();
     }
 
     /**
@@ -49,6 +49,6 @@ class OrderItemOption extends Model
      */
     public function productOptionItem(): BelongsTo
     {
-        return $this->belongsTo(ProductOptionItem::class);
+        return $this->belongsTo(ProductOptionItem::class)->withTrashed();
     }
 }

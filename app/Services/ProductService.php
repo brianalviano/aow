@@ -180,12 +180,16 @@ class ProductService
                             }
                         }
 
-                        // Delete removed items
+                        // Soft delete removed items
                         $option->items()->whereNotIn('id', $keepItemIds)->delete();
                     }
 
-                    // Delete removed options
-                    $product->productOptions()->whereNotIn('id', $keepOptionIds)->delete();
+                    // Soft delete removed options and their items
+                    $removedOptions = $product->productOptions()->whereNotIn('id', $keepOptionIds)->get();
+                    foreach ($removedOptions as $removedOption) {
+                        $removedOption->items()->delete();
+                        $removedOption->delete();
+                    }
 
                     // Smart sync manipulation
                     if ($product->manipulation) {
@@ -237,6 +241,11 @@ class ProductService
                 return DB::transaction(function () use ($product) {
                     if ($product->image) {
                         $this->deleteFile($product->image);
+                    }
+
+                    foreach ($product->productOptions as $option) {
+                        $option->items()->delete();
+                        $option->delete();
                     }
 
                     return $product->delete();
