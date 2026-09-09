@@ -487,7 +487,7 @@ class OrderController extends Controller
         return Inertia::render('Domains/Admin/Order/Processing', [
             'orders' => OrderResource::collection($orders),
             'filters' => array_merge(
-                $request->only(['drop_point_id', 'delivery_date']),
+                $request->only(['search', 'drop_point_id', 'delivery_date', 'status', 'payment_status']),
                 ['view' => $view]
             ),
             'dropPoints' => DropPoint::where('is_active', true)->get(['id', 'name']),

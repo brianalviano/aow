@@ -431,12 +431,41 @@ class OrderService
                 'items.options.productOptionItem',
                 'paymentMethod',
             ])
-            ->where(function ($q) {
-                $q->where(function ($inner) {
-                    $inner->where('payment_status', '!=', 'pending')
-                        ->orWhereHas('paymentMethod', fn ($pq) => $pq->where('category', 'cash'));
-                })->whereIn('order_status', ['pending', 'confirmed', 'cooking', 'on_delivery', 'arrived']);
+            ->whereIn('order_status', [
+                OrderStatus::PENDING->value,
+                OrderStatus::CONFIRMED->value,
+                OrderStatus::COOKING->value,
+                OrderStatus::ON_DELIVERY->value,
+                OrderStatus::ARRIVED->value,
+            ]);
+
+        // Filter by Search (Order number, customer name, phone, product name)
+        if ($dto->search) {
+            $query->where(function ($q) use ($dto) {
+                $q->where('number', 'ilike', "%{$dto->search}%")
+                    ->orWhereHas('customer', function ($cq) use ($dto) {
+                        $cq->where('name', 'ilike', "%{$dto->search}%")
+                            ->orWhere('phone', 'ilike', "%{$dto->search}%");
+                    })
+                    ->orWhereHas('items.product', function ($pq) use ($dto) {
+                        $pq->where('name', 'ilike', "%{$dto->search}%");
+                    });
             });
+        }
+
+        // Filter by Order Status (specific stage: pending, confirmed, cooking, on_delivery)
+        if ($dto->status && $dto->status !== 'all') {
+            if ($dto->status === 'on_delivery') {
+                $query->whereIn('order_status', [OrderStatus::ON_DELIVERY->value, OrderStatus::ARRIVED->value]);
+            } else {
+                $query->where('order_status', $dto->status);
+            }
+        }
+
+        // Filter by Payment Status (paid, pending)
+        if ($dto->paymentStatus && $dto->paymentStatus !== 'all') {
+            $query->where('payment_status', $dto->paymentStatus);
+        }
 
         if ($dto->dropPointId) {
             $query->where('drop_point_id', $dto->dropPointId);

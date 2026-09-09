@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Enums\OrderStatus;
 use App\Models\CompanyProfile;
 use App\Models\Order;
 use App\Services\NotificationService;
@@ -138,11 +139,13 @@ class HandleInertiaRequests extends Middleware
                         'icon' => 'fa-boxes-packing',
                         'link' => route('admin.orders.processing'),
                         'badge' => Order::query()
-                            ->where(function ($q) {
-                                $q->where('payment_status', '!=', 'pending')
-                                    ->orWhereHas('paymentMethod', fn ($pq) => $pq->where('category', 'cash'));
-                            })
-                            ->whereIn('order_status', ['pending', 'confirmed', 'cooking', 'on_delivery', 'arrived'])
+                            ->whereIn('order_status', [
+                                OrderStatus::PENDING->value,
+                                OrderStatus::CONFIRMED->value,
+                                OrderStatus::COOKING->value,
+                                OrderStatus::ON_DELIVERY->value,
+                                OrderStatus::ARRIVED->value,
+                            ])
                             ->count(),
                     ],
                 ],

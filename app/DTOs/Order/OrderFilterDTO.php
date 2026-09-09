@@ -18,6 +18,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
  * @property string|null $status Order status filter.
  * @property string|null $dropPointId Filter by drop point ID.
  * @property string|null $deliveryDate Filter by exact delivery date (YYYY-MM-DD).
+ * @property string|null $paymentStatus Filter by payment status (pending, paid).
  */
 #[MapInputName(SnakeCaseMapper::class)]
 class OrderFilterDTO extends Data
@@ -28,6 +29,7 @@ class OrderFilterDTO extends Data
         public readonly ?string $startDate = null,
         public readonly ?string $endDate = null,
         public readonly ?string $status = 'all',
+        public readonly ?string $paymentStatus = 'all',
         public readonly ?string $dropPointId = null,
         public readonly ?string $deliveryDate = null,
     ) {}

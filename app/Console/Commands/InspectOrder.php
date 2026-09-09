@@ -14,7 +14,7 @@ class InspectOrder extends Command
      *
      * @var string
      */
-    protected $signature = 'orders:inspect {number? : Nomor order yang ingin diperiksa} {--dump-json : Dump raw JSON data yang dikirim ke frontend} {--pending-payment : Tampilkan pesanan yang masuk ke approval pembayaran (badge count)}';
+    protected $signature = 'orders:inspect {number? : Nomor order yang ingin diperiksa} {--dump-json : Dump raw JSON data yang dikirim ke frontend} {--pending-payment : Tampilkan pesanan yang masuk ke approval pembayaran (badge count)} {--processing : Tampilkan pesanan yang masuk ke proses pesanan (sedang diproses / menunggu)}';
 
     /**
      * The console command description.
@@ -28,6 +28,27 @@ class InspectOrder extends Command
      */
     public function handle(): int
     {
+        if ($this->option('processing')) {
+            $this->info('=== PESANAN MASUK KE PROSES PESANAN (WAITING & PROCESSING) ===');
+            $orders = Order::query()
+                ->whereIn('order_status', ['pending', 'confirmed', 'cooking', 'on_delivery', 'arrived'])
+                ->orderBy('delivery_date', 'desc')
+                ->orderBy('delivery_time', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            if ($orders->isEmpty()) {
+                $this->line('Tidak ada pesanan yang sedang diproses / menunggu.');
+            } else {
+                $this->line("Total pesanan diproses/menunggu: {$orders->count()}");
+                foreach ($orders as $order) {
+                    $this->line("Order: {$order->number} | Status: {$order->order_status->value} | Bayar: {$order->payment_status->value} | Tgl Kirim: ".($order->delivery_date ? $order->delivery_date->format('Y-m-d') : '-').' | Customer: '.($order->customer?->name ?? '-'));
+                }
+            }
+
+            return Command::SUCCESS;
+        }
+
         if ($this->option('pending-payment')) {
             $this->info('=== PESANAN MENUNGGU APPROVAL PEMBAYARAN (BADGE COUNT) ===');
             $orders = Order::query()

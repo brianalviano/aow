@@ -4,8 +4,12 @@
     import Badge from "@/Lib/Admin/Components/Ui/Badge.svelte";
     import Pagination from "@/Lib/Admin/Components/Ui/Pagination.svelte";
     import Select from "@/Lib/Admin/Components/Ui/Select.svelte";
+    import TextInput from "@/Lib/Admin/Components/Ui/TextInput.svelte";
+    import DateInput from "@/Lib/Admin/Components/Ui/DateInput.svelte";
+    import MediaViewer from "@/Lib/Admin/Components/Ui/MediaViewer.svelte";
     import { name } from "@/Lib/Admin/Utils/settings";
     import { untrack } from "svelte";
+    import debounce from "lodash-es/debounce";
 
     interface DropPoint {
         id: string;
@@ -44,6 +48,7 @@
         delivery_time: string | null;
         order_status: string;
         payment_status: string;
+        payment_proof_url?: string | null;
         total_amount: number;
         created_at: string;
         customer?: Customer;
@@ -56,8 +61,11 @@
     let filters = $derived(
         page.props.filters as
             | {
+                  search?: string;
                   drop_point_id?: string;
                   delivery_date?: string;
+                  status?: string;
+                  payment_status?: string;
                   view?: string;
               }
             | undefined,
@@ -77,27 +85,33 @@
     let items = $derived(orders?.data ?? []);
 
     let currentView = $state(untrack(() => filters?.view || "list"));
+    let searchFilter = $state(untrack(() => filters?.search || ""));
     let dropPointFilter = $state(untrack(() => filters?.drop_point_id || ""));
     let deliveryDateFilter = $state(
         untrack(() => filters?.delivery_date || ""),
     );
-
-    let hasActiveFilters = $derived(
-        !!dropPointFilter || !!deliveryDateFilter,
+    let statusFilter = $state(untrack(() => filters?.status || "all"));
+    let paymentStatusFilter = $state(
+        untrack(() => filters?.payment_status || "all"),
     );
 
-    $effect(() => {
-        const _dp = dropPointFilter;
-        const _dd = deliveryDateFilter;
-        const _v = currentView;
-
-        untrack(() => applyFilters(1));
-    });
+    let hasActiveFilters = $derived(
+        !!searchFilter.trim() ||
+            !!dropPointFilter ||
+            !!deliveryDateFilter ||
+            statusFilter !== "all" ||
+            paymentStatusFilter !== "all",
+    );
 
     function applyFilters(pageNumber = 1) {
         const params: Record<string, string> = { page: String(pageNumber) };
+        if (searchFilter.trim()) params.search = searchFilter.trim();
         if (dropPointFilter) params.drop_point_id = dropPointFilter;
         if (deliveryDateFilter) params.delivery_date = deliveryDateFilter;
+        if (statusFilter && statusFilter !== "all") params.status = statusFilter;
+        if (paymentStatusFilter && paymentStatusFilter !== "all") {
+            params.payment_status = paymentStatusFilter;
+        }
         if (currentView !== "list") params.view = currentView;
 
         router.get("/admin/orders/processing", params, {
@@ -107,14 +121,34 @@
         });
     }
 
+    const debouncedApplyFilters = debounce(() => {
+        applyFilters(1);
+    }, 400);
+
+    $effect(() => {
+        const _s = searchFilter;
+        const _dp = dropPointFilter;
+        const _dd = deliveryDateFilter;
+        const _st = statusFilter;
+        const _ps = paymentStatusFilter;
+        const _v = currentView;
+
+        untrack(() => {
+            debouncedApplyFilters();
+        });
+    });
+
     function switchView(view: string) {
         currentView = view;
     }
 
     function resetFilters() {
+        searchFilter = "";
         dropPointFilter = "";
         deliveryDateFilter = "";
-        applyFilters();
+        statusFilter = "all";
+        paymentStatusFilter = "all";
+        applyFilters(1);
     }
 
     function goToPage(pageNumber: number) {
@@ -146,6 +180,16 @@
     });
 
     let isProcessing = $state(false);
+
+    let isMediaViewerOpen = $state(false);
+    let mediaViewerItems = $state<string | string[]>([]);
+    let mediaViewerInitialIndex = $state(0);
+
+    function openMediaViewer(items: string | string[], index: number = 0) {
+        mediaViewerItems = items;
+        mediaViewerInitialIndex = index;
+        isMediaViewerOpen = true;
+    }
 
     function openConfirm(
         title: string,
@@ -394,6 +438,59 @@
         { value: "", label: "Semua Drop Point" },
         ...dropPoints.map((dp) => ({ value: dp.id, label: dp.name })),
     ]);
+
+    function getTodayString(): string {
+        const today = new Date();
+        const y = today.getFullYear();
+        const m = String(today.getMonth() + 1).padStart(2, "0");
+        const d = String(today.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+    }
+
+    function getTomorrowString(): string {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const y = tomorrow.getFullYear();
+        const m = String(tomorrow.getMonth() + 1).padStart(2, "0");
+        const d = String(tomorrow.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+    }
+
+    let isTodaySelected = $derived(deliveryDateFilter === getTodayString());
+    let isTomorrowSelected = $derived(deliveryDateFilter === getTomorrowString());
+    let isAllDatesSelected = $derived(!deliveryDateFilter);
+
+    const statusOptions = [
+        { value: "all", label: "Semua Tahap Alur" },
+        { value: "pending", label: "1. Menunggu (Verifikasi Bayar)" },
+        { value: "confirmed", label: "2. Dikonfirmasi (Antrean Dapur)" },
+        { value: "cooking", label: "3. Sedang Dimasak" },
+        { value: "on_delivery", label: "4. Sedang Dikirim" },
+    ];
+
+    const paymentStatusOptions = [
+        { value: "all", label: "Semua Pembayaran" },
+        { value: "paid", label: "Lunas" },
+        { value: "pending", label: "Belum Bayar" },
+    ];
+
+    function getPaymentBadge(status: string): {
+        variant: "warning" | "success" | "danger" | "info" | "secondary";
+        label: string;
+    } {
+        switch (status) {
+            case "pending":
+                return { variant: "warning", label: "Belum Bayar" };
+            case "paid":
+                return { variant: "success", label: "Lunas" };
+            case "failed":
+                return { variant: "danger", label: "Gagal" };
+            case "refunded":
+                return { variant: "info", label: "Dikembalikan" };
+            default:
+                return { variant: "secondary", label: status };
+        }
+    }
 </script>
 
 {#snippet orderTable(orderList: Order[])}
@@ -411,6 +508,7 @@
                     <th>Customer</th>
                     <th>Drop Point</th>
                     <th>Total</th>
+                    <th class="text-center whitespace-nowrap">Bukti Bayar</th>
                     <th class="min-w-[620px] text-center">
                         <span class="inline-flex items-center gap-1.5">
                             <i class="fa-solid fa-arrows-split-up-and-left text-xs text-blue-500"></i>
@@ -423,6 +521,7 @@
             <tbody>
                 {#each orderList as item}
                     {@const currentStepIdx = getStepIndex(item.order_status)}
+                    {@const paymentBadge = getPaymentBadge(item.payment_status)}
                     <tr
                         class={item.order_status === "cancelled"
                             ? "bg-gray-100 dark:bg-gray-800/60 opacity-60 hover:opacity-100 transition-opacity"
@@ -472,6 +571,40 @@
                             >
                                 {formatCurrency(item.total_amount)}
                             </div>
+                            <div class="mt-1">
+                                <Badge
+                                    size="xs"
+                                    rounded="pill"
+                                    variant={paymentBadge.variant}
+                                >
+                                    {#snippet children()}{paymentBadge.label}{/snippet}
+                                </Badge>
+                            </div>
+                        </td>
+                        <td class="text-center px-3 py-2 whitespace-nowrap">
+                            {#if item.payment_proof_url}
+                                <button
+                                    type="button"
+                                    class="group relative inline-flex items-center justify-center cursor-pointer overflow-hidden rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 transition-all shadow-2xs hover:shadow-md"
+                                    onclick={() => openMediaViewer(item.payment_proof_url!)}
+                                    title="Klik untuk melihat bukti pembayaran"
+                                >
+                                    <img
+                                        src={item.payment_proof_url}
+                                        alt="Bukti Bayar #{item.number}"
+                                        class="w-10 h-10 object-cover group-hover:scale-110 transition-transform duration-200"
+                                    />
+                                    <div
+                                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                                    >
+                                        <i class="fa-solid fa-magnifying-glass-plus text-white text-xs"></i>
+                                    </div>
+                                </button>
+                            {:else}
+                                <span class="text-xs text-gray-400 dark:text-gray-500 italic">
+                                    Belum ada
+                                </span>
+                            {/if}
                         </td>
                         <td class="py-2.5 px-3">
                             {#if item.order_status === "cancelled"}
@@ -598,7 +731,7 @@
                                 ? 'bg-gray-100/90 dark:bg-gray-800/40 opacity-60 hover:opacity-100 transition-opacity'
                                 : 'bg-slate-50/75 dark:bg-slate-900/50'} border-b border-gray-200/90 dark:border-gray-800"
                         >
-                            <td colspan="7" class="py-2.5 px-4">
+                            <td colspan="8" class="py-2.5 px-4">
                                 <div class="flex items-center gap-3 flex-wrap">
                                     <div
                                         class="flex items-center gap-1.5 text-xs font-bold shrink-0 {item.order_status ===
@@ -722,10 +855,69 @@
     <!-- Filter Bar -->
     {#if currentView === "list"}
         <div
-            class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4"
+            class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4 space-y-3"
         >
-            <div class="flex flex-wrap gap-3 items-end">
-                <div class="flex-1 min-w-[180px]">
+            <!-- Baris 1: Pencarian & Shortcut Tanggal Kirim -->
+            <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+                <div class="flex-1 max-w-md">
+                    <TextInput
+                        id="searchFilter"
+                        name="searchFilter"
+                        bind:value={searchFilter}
+                        placeholder="Cari no. pesanan, customer, telepon, menu..."
+                        icon="fa-solid fa-magnifying-glass"
+                    />
+                </div>
+
+                <!-- Shortcut Tanggal Kirim -->
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 mr-1">
+                        <i class="fa-regular fa-calendar-days mr-1 text-blue-500"></i>
+                        Target Kirim:
+                    </span>
+                    <button
+                        type="button"
+                        onclick={() => (deliveryDateFilter = "")}
+                        class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer {isAllDatesSelected
+                            ? 'bg-blue-600 text-white shadow-xs font-semibold'
+                            : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}"
+                    >
+                        Semua
+                    </button>
+                    <button
+                        type="button"
+                        onclick={() => (deliveryDateFilter = getTodayString())}
+                        class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer {isTodaySelected
+                            ? 'bg-blue-600 text-white shadow-xs font-semibold'
+                            : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}"
+                    >
+                        Hari Ini
+                    </button>
+                    <button
+                        type="button"
+                        onclick={() => (deliveryDateFilter = getTomorrowString())}
+                        class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer {isTomorrowSelected
+                            ? 'bg-blue-600 text-white shadow-xs font-semibold'
+                            : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300'}"
+                    >
+                        Besok
+                    </button>
+                </div>
+            </div>
+
+            <!-- Baris 2: Dropdown Filter Spesifik -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end pt-2 border-t border-gray-100 dark:border-gray-800">
+                <div>
+                    <DateInput
+                        label="Pilih Tanggal Spesifik"
+                        id="delivery_date"
+                        name="delivery_date"
+                        bind:value={deliveryDateFilter}
+                        placeholder="Pilih tanggal kirim"
+                    />
+                </div>
+
+                <div>
                     <Select
                         label="Drop Point"
                         id="drop_point_id"
@@ -734,18 +926,41 @@
                         bind:value={dropPointFilter}
                     />
                 </div>
-                <div class="flex gap-2 shrink-0">
-                    {#if hasActiveFilters}
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onclick={resetFilters}
-                        >
-                            Reset
-                        </Button>
-                    {/if}
+
+                <div>
+                    <Select
+                        label="Tahap Alur Proses"
+                        id="order_status"
+                        name="order_status"
+                        options={statusOptions}
+                        bind:value={statusFilter}
+                    />
+                </div>
+
+                <div>
+                    <Select
+                        label="Status Pembayaran"
+                        id="payment_status"
+                        name="payment_status"
+                        options={paymentStatusOptions}
+                        bind:value={paymentStatusFilter}
+                    />
                 </div>
             </div>
+
+            <!-- Reset Filter Button -->
+            {#if hasActiveFilters}
+                <div class="flex justify-end pt-1">
+                    <Button
+                        variant="secondary"
+                        size="xs"
+                        icon="fa-solid fa-rotate-left"
+                        onclick={resetFilters}
+                    >
+                        {#snippet children()}Reset Filter{/snippet}
+                    </Button>
+                </div>
+            {/if}
         </div>
     {/if}
 
@@ -754,28 +969,105 @@
         <div
             class="flex flex-wrap gap-2 items-center text-sm text-gray-600 dark:text-gray-400"
         >
-            <span class="font-medium">Filter aktif:</span>
-            {#if dropPointFilter}
-                {@const dp = dropPoints.find((d) => d.id === dropPointFilter)}
+            <span class="font-medium text-xs">Filter aktif:</span>
+            {#if searchFilter.trim()}
                 <span
-                    class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium"
                 >
-                    <i class="fa-solid fa-location-dot"></i>
-                    {dp?.name ?? dropPointFilter}
+                    <i class="fa-solid fa-magnifying-glass text-[10px]"></i>
+                    "{searchFilter.trim()}"
+                    <button
+                        type="button"
+                        class="hover:text-blue-900 dark:hover:text-blue-100 ml-1 cursor-pointer font-bold"
+                        onclick={() => (searchFilter = "")}
+                    >
+                        &times;
+                    </button>
                 </span>
             {/if}
             {#if deliveryDateFilter}
                 <span
-                    class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-medium"
                 >
-                    <i class="fa-solid fa-calendar"></i>
-                    {new Date(deliveryDateFilter).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                    })}
+                    <i class="fa-solid fa-calendar text-[10px]"></i>
+                    {isTodaySelected
+                        ? "Hari Ini"
+                        : isTomorrowSelected
+                          ? "Besok"
+                          : new Date(deliveryDateFilter).toLocaleDateString(
+                                "id-ID",
+                                {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                },
+                            )}
+                    <button
+                        type="button"
+                        class="hover:text-green-900 dark:hover:text-green-100 ml-1 cursor-pointer font-bold"
+                        onclick={() => (deliveryDateFilter = "")}
+                    >
+                        &times;
+                    </button>
                 </span>
             {/if}
+            {#if dropPointFilter}
+                {@const dp = dropPoints.find((d) => d.id === dropPointFilter)}
+                <span
+                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs font-medium"
+                >
+                    <i class="fa-solid fa-location-dot text-[10px]"></i>
+                    {dp?.name ?? dropPointFilter}
+                    <button
+                        type="button"
+                        class="hover:text-purple-900 dark:hover:text-purple-100 ml-1 cursor-pointer font-bold"
+                        onclick={() => (dropPointFilter = "")}
+                    >
+                        &times;
+                    </button>
+                </span>
+            {/if}
+            {#if statusFilter !== "all"}
+                {@const st = statusOptions.find((s) => s.value === statusFilter)}
+                <span
+                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-full text-xs font-medium"
+                >
+                    <i class="fa-solid fa-arrows-split-up-and-left text-[10px]"></i>
+                    {st?.label ?? statusFilter}
+                    <button
+                        type="button"
+                        class="hover:text-amber-900 dark:hover:text-amber-100 ml-1 cursor-pointer font-bold"
+                        onclick={() => (statusFilter = "all")}
+                    >
+                        &times;
+                    </button>
+                </span>
+            {/if}
+            {#if paymentStatusFilter !== "all"}
+                {@const ps = paymentStatusOptions.find(
+                    (p) => p.value === paymentStatusFilter,
+                )}
+                <span
+                    class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-medium"
+                >
+                    <i class="fa-solid fa-wallet text-[10px]"></i>
+                    {ps?.label ?? paymentStatusFilter}
+                    <button
+                        type="button"
+                        class="hover:text-emerald-900 dark:hover:text-emerald-100 ml-1 cursor-pointer font-bold"
+                        onclick={() => (paymentStatusFilter = "all")}
+                    >
+                        &times;
+                    </button>
+                </span>
+            {/if}
+            <Button
+                variant="light"
+                size="xs"
+                onclick={resetFilters}
+            >
+                {#snippet children()}Hapus Semua{/snippet}
+            </Button>
         </div>
     {/if}
 
@@ -979,3 +1271,9 @@
         </div>
     </div>
 {/if}
+
+<MediaViewer
+    bind:isOpen={isMediaViewerOpen}
+    items={mediaViewerItems}
+    initialIndex={mediaViewerInitialIndex}
+/>
