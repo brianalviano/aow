@@ -291,7 +291,7 @@
                                         <div
                                             class="text-sm font-semibold text-indigo-600 dark:text-indigo-400"
                                         >
-                                            {item.real_sales ?? item.total_sales ?? 0} porsi
+                                            {item.real_sales ?? item.total_sales ?? 0} terjual
                                         </div>
                                         {#if item.manipulation?.is_active && (item.manipulation?.fake_sales_count ?? 0) > 0}
                                             <div
