@@ -46,35 +46,27 @@ class PaymentMethodController extends Controller
     /**
      * Show the form for creating a new payment method.
      */
-    public function create(): Response
+    public function create(): RedirectResponse
     {
-        return Inertia::render('Domains/Admin/PaymentMethod/Form', [
-            'paymentGuides' => PaymentGuide::all(['id', 'name']),
+        Inertia::flash('toast', [
+            'message' => 'Penambahan metode pembayaran baru dinonaktifkan.',
+            'type' => 'error',
         ]);
+
+        return redirect()->route('admin.payment-methods.index');
     }
 
     /**
      * Store a newly created payment method.
      */
-    public function store(PaymentMethodData $data): RedirectResponse
+    public function store(): RedirectResponse
     {
-        try {
-            $this->paymentMethodService->createPaymentMethod($data);
+        Inertia::flash('toast', [
+            'message' => 'Penambahan metode pembayaran baru dinonaktifkan.',
+            'type' => 'error',
+        ]);
 
-            Inertia::flash('toast', [
-                'message' => 'Metode Pembayaran berhasil dibuat',
-                'type' => 'success',
-            ]);
-
-            return redirect()->route('admin.payment-methods.index');
-        } catch (Throwable $e) {
-            Inertia::flash('toast', [
-                'message' => 'Gagal membuat Metode Pembayaran: '.$e->getMessage(),
-                'type' => 'error',
-            ]);
-
-            return back()->withInput();
-        }
+        return redirect()->route('admin.payment-methods.index');
     }
 
     /**

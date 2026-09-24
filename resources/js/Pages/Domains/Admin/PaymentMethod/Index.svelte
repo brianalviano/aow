@@ -120,15 +120,6 @@
                 Kelola metode pembayaran yang tersedia untuk pelanggan
             </p>
         </div>
-        <div class="flex flex-wrap gap-2 sm:justify-end">
-            <Button
-                variant="primary"
-                icon="fa-solid fa-plus"
-                href="/admin/payment-methods/create"
-            >
-                Tambah Metode Pembayaran
-            </Button>
-        </div>
     </header>
 
     <Card title="Daftar Metode Pembayaran" bodyWithoutPadding={true}>
