@@ -11,6 +11,7 @@ use App\Models\OrderItem;
 use App\Models\Testimonial;
 use App\Services\OrderService;
 use App\Traits\FileHelperTrait;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -81,6 +82,15 @@ class OrderController extends Controller
             $service->completeOrder($order);
 
             return redirect()->back()->with('success', 'Berhasil! Pesanan telah selesai.');
+        } catch (QueryException $e) {
+            Log::error('Gagal menyelesaikan pesanan (database)', [
+                'order_id' => $order->id,
+                'customer_id' => auth('customer')->id(),
+                'exception' => get_class($e),
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', 'Terjadi kendala saat menyelesaikan pesanan. Silakan coba lagi atau hubungi admin.');
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Gagal menyelesaikan pesanan: '.$e->getMessage());
         }
@@ -121,6 +131,15 @@ class OrderController extends Controller
             });
 
             return redirect()->back()->with('success', 'Terima kasih! Testimoni Anda sedang menunggu persetujuan admin.');
+        } catch (QueryException $e) {
+            Log::error('Gagal menyimpan testimoni (database)', [
+                'order_item_id' => $orderItem->id,
+                'customer_id' => $order->customer_id,
+                'exception' => get_class($e),
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', 'Terjadi kendala saat menyimpan testimoni. Silakan coba lagi atau hubungi admin.');
         } catch (\Throwable $e) {
             Log::error('Gagal menyimpan testimoni', [
                 'order_item_id' => $orderItem->id,

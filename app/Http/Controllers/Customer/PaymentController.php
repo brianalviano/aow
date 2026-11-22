@@ -22,6 +22,7 @@ use App\Services\MidtransService;
 use App\Services\OrderService;
 use App\Traits\FileHelperTrait;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -170,6 +171,20 @@ class PaymentController extends Controller
             ]);
 
             return redirect()->route('customer.payment.show', ['order' => $order->id]);
+        } catch (QueryException $e) {
+            Log::error('Update payment method database error', [
+                'order_id' => $order->id,
+                'customer_id' => Auth::guard('customer')->id(),
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
+
+            Inertia::flash('toast', [
+                'message' => 'Terjadi kendala saat mengubah metode pembayaran. Silakan coba lagi atau hubungi admin.',
+                'type' => 'error',
+            ]);
+
+            return back();
         } catch (Throwable $e) {
             Log::error('Update payment method failed', [
                 'order_id' => $order->id,
@@ -273,6 +288,20 @@ class PaymentController extends Controller
             $order = $this->orderService->processOrder($data);
 
             return redirect()->route('customer.payment.show', ['order' => $order->id, 'from' => 'checkout']);
+        } catch (QueryException $e) {
+            Log::error('Process payment database error', [
+                'customer_id' => Auth::guard('customer')->id(),
+                'email' => $request->input('email'),
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
+
+            Inertia::flash('toast', [
+                'message' => 'Terjadi kendala saat menyimpan pesanan. Silakan coba lagi beberapa saat lagi atau hubungi admin.',
+                'type' => 'error',
+            ]);
+
+            return redirect()->route('customer.payment-summary')->withInput();
         } catch (Throwable $e) {
             Inertia::flash('toast', [
                 'message' => 'Gagal memproses pesanan: '.$e->getMessage(),
@@ -314,6 +343,23 @@ class PaymentController extends Controller
             })->get();
 
             Notification::send($admins, new PaymentProofUploadedAdminNotification($order));
+
+            return redirect()->route('customer.payment.show', [
+                'order' => $order->id,
+                'from' => $request->query('from'),
+            ]);
+        } catch (QueryException $e) {
+            Log::error('Upload payment proof database error', [
+                'order_id' => $order->id,
+                'customer_id' => Auth::guard('customer')->id(),
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
+
+            Inertia::flash('toast', [
+                'message' => 'Terjadi kendala saat mengunggah bukti pembayaran. Silakan coba lagi atau hubungi admin.',
+                'type' => 'error',
+            ]);
 
             return redirect()->route('customer.payment.show', [
                 'order' => $order->id,
