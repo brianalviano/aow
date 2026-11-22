@@ -25,6 +25,7 @@ use App\Models\Product;
 use App\Notifications\OrderPlacedNotification;
 use App\Notifications\OrderStatusChangedNotification;
 use App\Traits\FileHelperTrait;
+use App\Traits\NormalizationTrait;
 use App\Traits\RetryableTransactionsTrait;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
@@ -38,7 +39,7 @@ use Throwable;
 
 class OrderService
 {
-    use FileHelperTrait, RetryableTransactionsTrait;
+    use FileHelperTrait, NormalizationTrait, RetryableTransactionsTrait;
 
     /**
      * Create a new OrderService instance.
@@ -599,27 +600,44 @@ class OrderService
                     $customer = Auth::guard('customer')->user();
 
                     if (! $customer) {
-                        $customer = Customer::where('email', $data->email)->first();
+                        $normalizedPhone = $this->normalizePhone($data->phone);
+
+                        // Email and phone are both unique columns on customers. Match either
+                        // one so a returning customer using a different email does not
+                        // trigger a unique constraint violation on the phone column.
+                        $customer = Customer::query()
+                            ->where('email', $data->email)
+                            ->when($normalizedPhone !== '', fn ($query) => $query->orWhere('phone', $normalizedPhone))
+                            ->first();
 
                         if (! $customer) {
                             $password = '12345678';
 
-                            $customer = Customer::create([
-                                'name' => $data->name,
-                                'phone' => $data->phone,
-                                'email' => $data->email,
-                                'password' => Hash::make($password),
-                                'school_class' => $data->schoolClass,
-                                'is_active' => true,
-                            ]);
+                            $customer = Customer::firstOrCreate(
+                                ['phone' => $normalizedPhone],
+                                [
+                                    'name' => $data->name,
+                                    'email' => $data->email,
+                                    'password' => Hash::make($password),
+                                    'school_class' => $data->schoolClass,
+                                    'is_active' => true,
+                                ]
+                            );
 
-                            // Send welcome email with credentials
-                            DB::afterCommit(function () use ($customer, $password) {
-                                Mail::to($customer->email)->send(new CustomerWelcomeMail($customer, $password));
-                            });
+                            if ($customer->wasRecentlyCreated) {
+                                // Send welcome email with credentials
+                                DB::afterCommit(function () use ($customer, $password) {
+                                    Mail::to($customer->email)->send(new CustomerWelcomeMail($customer, $password));
+                                });
+                            }
                         }
 
-                        Auth::guard('customer')->login($customer);
+                        // Only log the visitor in when the checkout email belongs to the
+                        // matched account. A shared phone number alone must not grant
+                        // access to someone else's existing account.
+                        if (strcasecmp((string) $customer->email, $data->email) === 0) {
+                            Auth::guard('customer')->login($customer);
+                        }
                     }
 
                     $dropPoint = $data->dropPoint;

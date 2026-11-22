@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTOs\Customer;
 
+use App\Traits\NormalizationTrait;
 use Illuminate\Validation\Rule as ValidationRule;
 use Spatie\LaravelData\Attributes\Validation\Rule;
 use Spatie\LaravelData\Data;
@@ -23,6 +24,23 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
  */
 class UpdateProfileDTO extends Data
 {
+    /**
+     * Prepare data before validation.
+     */
+    public static function prepareForValidation(array $data): array
+    {
+        $normalizer = new class
+        {
+            use NormalizationTrait;
+        };
+
+        if (isset($data['phone'])) {
+            $data['phone'] = $normalizer->normalizePhone($data['phone']);
+        }
+
+        return $data;
+    }
+
     public function __construct(
         #[Rule('required', 'string', 'max:255')]
         public readonly string $name,

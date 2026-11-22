@@ -261,7 +261,7 @@ class PaymentController extends Controller
 
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
-                'phone' => ['required', 'string', 'max:20'],
+                'phone' => ['required', 'string', 'max:20', 'regex:/^(?=.*\d)[0-9+\-\s().]+$/'],
                 'email' => ['required', 'email', 'max:255'],
                 'payment_method_id' => ['required', 'exists:payment_methods,id'],
                 'delivery_date' => ['nullable', 'date'],
